@@ -1,0 +1,52 @@
+#include <string>
+#include <iostream>
+#include <fstream>
+#include "logger.hpp"
+
+/**
+ * @brief Initializes the Logger.
+ *
+ * @param name The name of the logger.
+ * @param log_file The relative or absolute path to the log file (default is 'logs/log.txt').
+ * @param level The logging level (default is logging.DEBUG).
+ */
+Logger::Logger(const std::string &name, const std::string &log_file, int level)
+    : name(name), file_path(log_file), level(level), file_handler(log_file) {}
+
+/**
+ * @brief Logs an informational message.
+ *
+ * @param message The informational message to be logged.
+ */
+void Logger::info(const std::string &message)
+{
+    file_handler << "INFO: " << message << std::endl;
+}
+
+/**
+ * @brief Logs a warning message.
+ *
+ * @param message The warning message to be logged.
+ */
+void Logger::warning(const std::string &message)
+{
+    file_handler << "WARNING: " << message << std::endl;
+}
+
+/**
+ * @brief Logs an error message.
+ *
+ * @param message The error message to be logged.
+ */
+void Logger::error(const std::string &message)
+{
+    file_handler << "ERROR: " << message << std::endl;
+}
+
+/**
+ * @brief Closes the file handler to release the file descriptor.
+ */
+void Logger::close()
+{
+    file_handler.close();
+}

@@ -1,0 +1,108 @@
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <string>
+#include <sstream>
+#include <stdexcept>
+#include <ctime>
+#include <chrono>
+#include <iomanip>
+#include "read_data.hpp"
+
+/**
+ * @brief Read candle data from a CSV file for a specified symbol and time frame.
+ *
+ * @param symbol The symbol for which the data is to be read.
+ * @param time_frame The time frame of the data (M1, M5, H1, etc.).
+ * @param start_date The start date for filtering data (optional, default is nullptr).
+ * @param end_date The end date for filtering data (optional, default is nullptr).
+ * @return std::vector<Candle> A vector of Candle objects containing candle data.
+ * @throw std::runtime_error If the specified data file does not exist.
+ */
+std::vector<Candle> read_data(const std::string &symbol, TimeFrame time_frame, std::tm *start_date, std::tm *end_date)
+{
+    std::vector<Candle> candles;
+
+    // Convert TimeFrame enum to string
+    std::string time_frame_str;
+    switch (time_frame)
+    {
+    case TimeFrame::M1:
+        time_frame_str = "M1";
+        break;
+    case TimeFrame::M5:
+        time_frame_str = "M5";
+        break;
+    case TimeFrame::M15:
+        time_frame_str = "M15";
+        break;
+    case TimeFrame::M30:
+        time_frame_str = "M30";
+        break;
+    case TimeFrame::H1:
+        time_frame_str = "H1";
+        break;
+    case TimeFrame::H4:
+        time_frame_str = "H4";
+        break;
+    case TimeFrame::H12:
+        time_frame_str = "H12";
+        break;
+    case TimeFrame::D1:
+        time_frame_str = "D1";
+        break;
+    }
+
+    std::string file = "./data/" + symbol + "/" + symbol + "_" + time_frame_str + ".csv";
+
+    std::ifstream csv_file(file);
+    if (!csv_file.is_open())
+    {
+        throw std::runtime_error("No data for " + symbol + " on " + time_frame_str);
+    }
+
+    std::string line;
+    std::getline(csv_file, line); // Ignore the first line (headers)
+
+    while (std::getline(csv_file, line))
+    {
+        std::istringstream ss(line);
+        std::string token;
+        Candle candle;
+
+        // Read candle data from CSV line
+        std::getline(ss, token, '\t'); // DATE
+        std::string date_str = token;
+        std::getline(ss, token, '\t'); // TIME
+        date_str += " " + token;
+        std::tm tm = {};
+        std::istringstream(date_str) >> std::get_time(&tm, "%Y.%m.%d %H:%M:%S");
+        candle.date = std::mktime(&tm);
+        std::getline(ss, token, '\t'); // OPEN
+        candle.open = std::stod(token);
+        std::getline(ss, token, '\t'); // HIGH
+        candle.high = std::stod(token);
+        std::getline(ss, token, '\t'); // LOW
+        candle.low = std::stod(token);
+        std::getline(ss, token, '\t'); // CLOSE
+        candle.close = std::stod(token);
+        std::getline(ss, token, '\t'); // TICK_VOLUME
+        candle.tick_volume = std::stoi(token);
+        std::getline(ss, token, '\t'); // VOLUME
+        candle.volume = std::stoi(token);
+        std::getline(ss, token, '\t'); // SPREAD
+        candle.spread = std::stoi(token);
+
+        // Check if the candle date falls within the specified range
+        if ((start_date != nullptr && end_date != nullptr && candle.date >= std::mktime(start_date) && candle.date <= std::mktime(end_date)) ||
+            (start_date != nullptr && end_date == nullptr && candle.date >= std::mktime(start_date)) ||
+            (start_date == nullptr && end_date != nullptr && candle.date <= std::mktime(end_date)) ||
+            (start_date == nullptr && end_date == nullptr))
+        {
+            candles.push_back(candle);
+        }
+    }
+
+    csv_file.close();
+    return candles;
+}

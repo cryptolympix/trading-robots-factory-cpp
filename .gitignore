@@ -1,3 +1,7 @@
+# Folders
+build/
+cache/
+
 # Prerequisites
 *.d
 
@@ -6,6 +10,12 @@
 *.lo
 *.o
 *.obj
+
+# Mac OS
+.DS_Store
+
+# VS Code
+.vscode
 
 # Precompiled Headers
 *.gch
