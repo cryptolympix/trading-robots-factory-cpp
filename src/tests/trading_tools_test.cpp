@@ -9,7 +9,7 @@ protected:
     SymbolInfos symbol_infos;
     double base_currency_conversion_rate;
 
-    virtual void SetUp() override
+    void SetUp() override
     {
         // Initialize any necessary objects or variables
         symbol_infos.asset = "EUR";

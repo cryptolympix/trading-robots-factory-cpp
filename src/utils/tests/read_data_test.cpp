@@ -36,21 +36,21 @@ TEST_F(ReadDataTest, TestReadInvalidSymbol)
 // Test case for reading data with valid time frame and date range
 TEST_F(ReadDataTest, TestReadDataWithDateRange)
 {
-    std::tm startDate = {};
-    startDate.tm_year = 2023 - 1900; // Years since 1900
-    startDate.tm_mon = 1 - 1;        // Months since January (0-based index)
-    startDate.tm_mday = 3;           // Day of the month
-    startDate.tm_hour = 0;           // Hour (24-hour clock)
-    startDate.tm_min = 0;            // Minute
-    startDate.tm_sec = 0;            // Second
+    std::tm startDate = {
+        .tm_year = 2023 - 1900,
+        .tm_mon = 0,
+        .tm_mday = 3,
+        .tm_hour = 0,
+        .tm_min = 0,
+        .tm_sec = 0};
 
-    std::tm endDate = {};
-    endDate.tm_year = 2023 - 1900; // Years since 1900
-    endDate.tm_mon = 1 - 1;        // Months since January (0-based index)
-    endDate.tm_mday = 20;          // Day of the month
-    endDate.tm_hour = 0;           // Hour (24-hour clock)
-    endDate.tm_min = 0;            // Minute
-    endDate.tm_sec = 0;            // Second
+    std::tm endDate = {
+        .tm_year = 2023 - 1900,
+        .tm_mon = 0,
+        .tm_mday = 20,
+        .tm_hour = 0,
+        .tm_min = 0,
+        .tm_sec = 0};
 
     // Test reading data for a valid symbol, time frame, and date range
     std::vector<Candle> candles = read_data("EURUSD", TimeFrame::H1, &startDate, &endDate);
