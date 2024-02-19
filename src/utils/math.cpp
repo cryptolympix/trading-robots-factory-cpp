@@ -10,9 +10,9 @@
  *
  * @param x The input number.
  * @param precision The number of decimal places to round to.
- * @return float The rounded-up number.
+ * @return double The rounded-up number.
  */
-float decimal_ceil(float x, int precision)
+double decimal_ceil(double x, int precision)
 {
     int n = pow(10, precision);
     return ceil(x * n) / n;
@@ -23,9 +23,9 @@ float decimal_ceil(float x, int precision)
  *
  * @param x The input number.
  * @param precision The number of decimal places to round to.
- * @return float The rounded-down number.
+ * @return double The rounded-down number.
  */
-float decimal_floor(float x, int precision)
+double decimal_floor(double x, int precision)
 {
     int n = pow(10, precision);
     return floor(x * n) / n;
@@ -36,9 +36,9 @@ float decimal_floor(float x, int precision)
  *
  * @param x The input number.
  * @param precision The number of decimal places to round to.
- * @return float The rounded number.
+ * @return double The rounded number.
  */
-float decimal_round(float x, int precision)
+double decimal_round(double x, int precision)
 {
     int n = pow(10, precision);
     return round(x * n) / n;
@@ -50,7 +50,7 @@ float decimal_round(float x, int precision)
  * @param number The input number.
  * @return int The number of decimal places.
  */
-int count_decimals(float number)
+int count_decimals(double number)
 {
     // Convert the float number to a string
     std::stringstream ss;
@@ -75,9 +75,9 @@ int count_decimals(float number)
  * @param array The input numeric vector to be normalized.
  * @param current_range The current range of values in the input vector.
  * @param new_range The target range for normalization.
- * @return std::vector<float> The normalized vector.
+ * @return std::vector<double> The normalized vector.
  */
-std::vector<float> normalize(const std::vector<float> &array, std::pair<float, float> current_range, std::pair<float, float> new_range)
+std::vector<double> normalize(const std::vector<double> &array, std::pair<double, double> current_range, std::pair<double, double> new_range)
 {
     if (current_range.first == 0.0f && current_range.second == 0.0f)
     {
@@ -85,7 +85,7 @@ std::vector<float> normalize(const std::vector<float> &array, std::pair<float, f
         current_range = std::make_pair(*minmax.first, *minmax.second);
     }
 
-    std::vector<float> normalized_array(array.size());
+    std::vector<double> normalized_array(array.size());
     for (size_t i = 0; i < array.size(); ++i)
     {
         normalized_array[i] = new_range.first + (array[i] - current_range.first) * (new_range.second - new_range.first) / (current_range.second - current_range.first);

@@ -14,7 +14,7 @@
  * @param symbol_infos Symbol information including precision details.
  * @return The number of pips between the entry and exit prices.
  */
-float calculate_pips(float entry_price, float exit_price, SymbolInfos symbol_infos);
+double calculate_pips(double entry_price, double exit_price, SymbolInfos symbol_infos);
 
 /**
  * @brief Calculate the monetary value of one pip for a given position.
@@ -24,7 +24,7 @@ float calculate_pips(float entry_price, float exit_price, SymbolInfos symbol_inf
  * @param base_currency_conversion_rate The base currency conversion rate. Defaults to 1.0.
  * @return The monetary value of one pip.
  */
-float calculate_pip_value(float market_price, SymbolInfos symbol_infos, float base_currency_conversion_rate = 1.0);
+double calculate_pip_value(double market_price, SymbolInfos symbol_infos, double base_currency_conversion_rate = 1.0);
 
 /**
  * @brief Calculate the profit or loss of a position.
@@ -35,7 +35,7 @@ float calculate_pip_value(float market_price, SymbolInfos symbol_infos, float ba
  * @param base_currency_conversion_rate The base currency conversion rate. Defaults to 1.0.
  * @return Profit or loss of the position.
  */
-float calculate_profit_loss(float market_price, Position position, SymbolInfos symbol_infos, float base_currency_conversion_rate = 1.0);
+double calculate_profit_loss(double market_price, Position position, SymbolInfos symbol_infos, double base_currency_conversion_rate = 1.0);
 
 /**
  * @brief Calculate the position size based on risk parameters.
@@ -48,7 +48,7 @@ float calculate_profit_loss(float market_price, Position position, SymbolInfos s
  * @param base_currency_conversion_rate The base currency conversion rate. Defaults to 1.0.
  * @return The calculated position size.
  */
-float calculate_position_size(float market_price, float account_equity, float risk_percentage, float stop_loss_pips, SymbolInfos symbol_infos, float base_currency_conversion_rate = 1.0);
+double calculate_position_size(double market_price, double account_equity, double risk_percentage, double stop_loss_pips, SymbolInfos symbol_infos, double base_currency_conversion_rate = 1.0);
 
 /**
  * @brief Calculate the initial margin required to open a trading position.
@@ -59,7 +59,7 @@ float calculate_position_size(float market_price, float account_equity, float ri
  * @param base_currency_conversion_rate The base currency conversion rate. Defaults to 1.0.
  * @return The initial margin required.
  */
-float calculate_initial_margin(float market_price, float leverage, SymbolInfos symbol_infos, float base_currency_conversion_rate = 1.0);
+double calculate_initial_margin(double market_price, int leverage, SymbolInfos symbol_infos, double base_currency_conversion_rate = 1.0);
 
 /**
  * @brief Calculate take profit and stop loss prices based on the provided configuration.
@@ -70,7 +70,7 @@ float calculate_initial_margin(float market_price, float leverage, SymbolInfos s
  * @param symbol_infos Symbol information including precision details.
  * @return The calculated take profit and stop loss prices.
  */
-std::tuple<float, float> calculate_tp_sl_price(float market_price, PositionSide side, TakeProfitStopLossConfig config, SymbolInfos symbol_infos);
+std::tuple<double, double> calculate_tp_sl_price(double market_price, PositionSide side, TakeProfitStopLossConfig config, SymbolInfos symbol_infos);
 
 /**
  * @brief Calculate the liquidation price for a trading position.
@@ -79,7 +79,7 @@ std::tuple<float, float> calculate_tp_sl_price(float market_price, PositionSide 
  * @param leverage The leverage of the trading account.
  * @return The liquidation price.
  */
-float calculate_liquidation_price(Position position, float leverage);
+double calculate_liquidation_price(Position position, int leverage);
 
 /**
  * @brief Calculate commission based on a fixed commission per lot.
@@ -89,6 +89,6 @@ float calculate_liquidation_price(Position position, float leverage);
  * @param base_currency_conversion_rate The base currency conversion rate. Defaults to 1.0.
  * @return Commission amount.
  */
-float calculate_commission(float commission_per_lot, float lot_size, float base_currency_conversion_rate = 1.0);
+double calculate_commission(double commission_per_lot, int lot_size, double base_currency_conversion_rate = 1.0);
 
 #endif // TRADING_TOOLS_H

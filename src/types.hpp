@@ -129,14 +129,14 @@ struct Order
  */
 struct Stats
 {
-    float initial_balance;          // Initial balance
-    float final_balance;            // Final balance
-    float total_net_profit;         // Total net profit
-    float total_profit;             // Total profit
-    float total_loss;               // Total loss
-    float total_fees;               // Total fees
-    float profit_factor;            // Profit factor
-    float max_drawdown;             // Maximum drawdown
+    double initial_balance;         // Initial balance
+    double final_balance;           // Final balance
+    double total_net_profit;        // Total net profit
+    double total_profit;            // Total profit
+    double total_loss;              // Total loss
+    double total_fees;              // Total fees
+    double profit_factor;           // Profit factor
+    double max_drawdown;            // Maximum drawdown
     int total_trades;               // Total number of trades
     int total_long_trades;          // Total number of long trades
     int total_short_trades;         // Total number of short trades
@@ -146,13 +146,13 @@ struct Stats
     int total_lost_trades;          // Total number of lost trades
     int total_lost_long_trades;     // Total number of lost long trades
     int total_lost_short_trades;    // Total number of lost short trades
-    float win_rate;                 // Win rate
-    float long_win_rate;            // Long trade win rate
-    float short_win_rate;           // Short trade win rate
-    float average_profit;           // Average profit per trade
-    float average_loss;             // Average loss per trade
-    float sharpe_ratio;             // Sharpe ratio
-    float sortino_ratio;            // Sortino ratio
+    double win_rate;                // Win rate
+    double long_win_rate;           // Long trade win rate
+    double short_win_rate;          // Short trade win rate
+    double average_profit;          // Average profit per trade
+    double average_loss;            // Average loss per trade
+    double sharpe_ratio;            // Sharpe ratio
+    double sortino_ratio;           // Sortino ratio
 };
 
 /**
@@ -163,12 +163,12 @@ struct SymbolInfos
     std::string asset;           // Asset of the symbol
     std::string base;            // Base currency of the symbol
     int decimal_places;          // Number of decimal places for the price precision
-    float point_value;           // Value of one point movement in the symbol's price
+    double point_value;          // Value of one point movement in the symbol's price
     int contract_size;           // Contract size of the symbol
-    float min_lot_size;          // Minimum lot size allowed for the symbol
-    float max_lot_size;          // Maximum lot size allowed for the symbol
-    float lot_size_step;         // Step size for lot size increments/decrements
-    float commission_per_lot;    // Commission per lot traded for the symbol
+    double min_lot_size;         // Minimum lot size allowed for the symbol
+    double max_lot_size;         // Maximum lot size allowed for the symbol
+    double lot_size_step;        // Step size for lot size increments/decrements
+    double commission_per_lot;   // Commission per lot traded for the symbol
     std::string commission_base; // Base currency for commission calculation
 };
 
@@ -180,7 +180,7 @@ struct General
     std::string name;             // Name of the trading configuration
     std::string version;          // Version of the trading configuration
     std::string symbol;           // Trading symbol
-    float initial_balance;        // Initial account balance
+    double initial_balance;       // Initial account balance
     std::string account_currency; // Account currency
     int leverage;                 // Leverage
 };
@@ -201,11 +201,11 @@ enum class TypeTakeProfitStopLoss
 struct TakeProfitStopLossConfig
 {
     TypeTakeProfitStopLoss type_stop_loss;   // Type of stop loss
-    int stop_loss_in_points;                 // Stop loss in points
-    float stop_loss_in_percent;              // Stop loss as a percentage
+    double stop_loss_in_points;              // Stop loss in points
+    double stop_loss_in_percent;             // Stop loss as a percentage
     TypeTakeProfitStopLoss type_take_profit; // Type of take profit
-    int take_profit_in_points;               // Take profit in points
-    float take_profit_in_percent;            // Take profit as a percentage
+    double take_profit_in_points;            // Take profit in points
+    double take_profit_in_percent;           // Take profit as a percentage
 };
 
 /**
@@ -228,7 +228,7 @@ struct TradingSchedule
 struct Strategy
 {
     TimeFrame timeframe;                                   // Time frame
-    float maximum_risk;                                    // Maximum risk
+    double maximum_risk;                                   // Maximum risk
     std::optional<int> maximum_spread;                     // Maximum spread
     std::optional<int> minimum_trade_duration;             // Minimum trade duration
     std::optional<int> maximum_trade_duration;             // Maximum trade duration
@@ -260,14 +260,14 @@ struct NeuralNetworkInputs
  */
 struct Training
 {
-    int generations;                              // Number of generations
-    std::optional<float> bad_trader_threshold;    // Threshold for identifying bad traders
-    std::optional<int> inactive_trader_threshold; // Threshold for identifying inactive traders
-    std::tm training_start_date;                  // Start date for training
-    std::tm training_end_date;                    // End date for training
-    std::tm test_start_date;                      // Start date for testing
-    std::tm test_end_date;                        // End date for testing
-    NeuralNetworkInputs inputs;                   // Inputs for neural network
+    int generations;                                 // Number of generations
+    std::optional<double> bad_trader_threshold;      // Threshold for identifying bad traders
+    std::optional<double> inactive_trader_threshold; // Threshold for identifying inactive traders
+    std::tm training_start_date;                     // Start date for training
+    std::tm training_end_date;                       // End date for training
+    std::tm test_start_date;                         // Start date for testing
+    std::tm test_end_date;                           // End date for testing
+    NeuralNetworkInputs inputs;                      // Inputs for neural network
 };
 
 /**
@@ -275,12 +275,12 @@ struct Training
  */
 struct Evaluation
 {
-    std::optional<float> minimum_growth_per_month; // Minimum growth per month
-    std::optional<float> maximum_drawdown;         // Maximum drawdown
-    std::optional<int> nb_trade_minimum;           // Minimum number of trades
-    std::optional<float> minimum_winrate;          // Minimum win rate
-    std::optional<float> minimum_profit_factor;    // Minimum profit factor
-    std::optional<float> average_profit;           // Average profit
+    std::optional<double> minimum_growth_per_month; // Minimum growth per month
+    std::optional<double> maximum_drawdown;         // Maximum drawdown
+    std::optional<int> nb_trade_minimum;            // Minimum number of trades
+    std::optional<double> minimum_winrate;          // Minimum win rate
+    std::optional<double> minimum_profit_factor;    // Minimum profit factor
+    std::optional<double> average_profit;           // Average profit
 };
 
 /**
