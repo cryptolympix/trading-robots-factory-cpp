@@ -3,6 +3,7 @@
 
 #include <string>
 #include <unordered_map>
+#include <map>
 #include <vector>
 #include <ctime>
 #include <optional>
@@ -41,6 +42,9 @@ enum class CandleSource
     HLCC4
 };
 
+/**
+ * @brief Struct representing a candle.
+ */
 struct Candle
 {
     time_t date;
