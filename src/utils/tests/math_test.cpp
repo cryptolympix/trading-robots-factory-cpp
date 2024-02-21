@@ -56,3 +56,16 @@ TEST(MathTest, Normalize)
     std::vector<double> expected_output = {0.0, 0.25, 0.5, 0.75, 1.0};
     ASSERT_EQ(normalize(input, current_range, new_range), expected_output);
 }
+
+// Test case for average function
+TEST(MathTest, Average)
+{
+    std::vector<double> values = {1.0, 2.0, 3.0, 4.0, 5.0};
+    std::vector<double> expected_values = {1.0, 1.5, 2.0, 3.0, 4.0};
+    std::vector<double> results = average(values, 3);
+
+    for (int i = 0; i < values.size(); i++)
+    {
+        ASSERT_EQ(results[i], expected_values[i]);
+    }
+}

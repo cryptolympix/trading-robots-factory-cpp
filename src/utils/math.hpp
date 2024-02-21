@@ -50,4 +50,13 @@ int count_decimals(double number);
  */
 std::vector<double> normalize(const std::vector<double> &array, std::pair<double, double> current_range = std::make_pair(0.0f, 0.0f), std::pair<double, double> new_range = std::make_pair(0.0, 1.0));
 
+/**
+ * @brief Calculate the average of the last n numbers before each element in a vector.
+ *
+ * @param nums A vector of double.
+ * @param n The number of elements to consider before the current element for calculating the average.
+ * @return A vector containing the averages of the last N numbers before each element.
+ */
+std::vector<double> average(const std::vector<double> &nums, int n);
+
 #endif /* MATH_UTILS_H */
