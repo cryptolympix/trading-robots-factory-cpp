@@ -92,30 +92,3 @@ std::vector<double> normalize(const std::vector<double> &array, std::pair<double
     }
     return normalized_array;
 }
-
-/**
- * @brief Calculate the average of the last N numbers before each element in a vector.
- *
- * @param nums A vector of double.
- * @param n The number of elements to consider before the current element for calculating the average.
- * @return A vector containing the averages of the last N numbers before each element.
- */
-std::vector<double> average(const std::vector<double> &nums, int n)
-{
-    std::vector<double> averages(nums.size(), 0.0);
-
-    // Calculate the sum of the last n numbers before each element
-    for (int i = 0; i < nums.size(); ++i)
-    {
-        int sum = 0;
-        int count = 0;
-        for (int j = std::max(0, i - n + 1); j <= i; ++j)
-        {
-            sum += nums[j];
-            count++;
-        }
-        averages[i] = static_cast<double>(sum) / count;
-    }
-
-    return averages;
-}

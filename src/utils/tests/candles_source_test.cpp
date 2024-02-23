@@ -24,8 +24,8 @@ protected:
         time_t date = std::mktime(&timeInfo);
 
         // Mock data initialization
-        mock_candles = {Candle{.date = date, .open = 2, .high = 3, .low = 1, .close = 2},
-                        Candle{.date = date, .open = 2, .high = 3, .low = 1, .close = 2}};
+        mock_candles = {Candle{.date = date, .open = 2, .high = 3, .low = 1, .close = 2, .volume = 100},
+                        Candle{.date = date, .open = 2, .high = 3, .low = 1, .close = 2, .volume = 110}};
     }
 
     std::vector<Candle> mock_candles;
@@ -61,6 +61,12 @@ TEST_F(TestCandlesSource, GetCandlesWithSource)
     ASSERT_EQ(candles.size(), 2);
     EXPECT_EQ(candles[0], 2);
     EXPECT_EQ(candles[1], 2);
+
+    // Volume
+    candles = get_candles_with_source(mock_candles, CandleSource::Volume);
+    ASSERT_EQ(candles.size(), 2);
+    EXPECT_EQ(candles[0], 100);
+    EXPECT_EQ(candles[1], 110);
 
     // HL2
     candles = get_candles_with_source(mock_candles, CandleSource::HL2);

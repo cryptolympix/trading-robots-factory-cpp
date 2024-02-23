@@ -9,6 +9,7 @@ std::map<CandleSource, std::string> CandleSourceMap = {
     {CandleSource::High, "high"},
     {CandleSource::Low, "low"},
     {CandleSource::Close, "close"},
+    {CandleSource::Volume, "volume"},
     {CandleSource::HL2, "hl2"},
     {CandleSource::HLC3, "hlc3"},
     {CandleSource::OHLC4, "ohlc4"},
@@ -24,6 +25,7 @@ std::map<CandleSource, std::string> CandleSourceMap = {
 std::vector<double> get_candles_with_source(const std::vector<Candle> &candles, CandleSource source)
 {
     std::vector<double> values;
+    values.reserve(candles.size());
 
     switch (source)
     {
@@ -49,6 +51,12 @@ std::vector<double> get_candles_with_source(const std::vector<Candle> &candles, 
         for (auto &candle : candles)
         {
             values.push_back(candle.close);
+        }
+        break;
+    case CandleSource::Volume:
+        for (auto &candle : candles)
+        {
+            values.push_back(candle.volume);
         }
         break;
     case CandleSource::HL2:

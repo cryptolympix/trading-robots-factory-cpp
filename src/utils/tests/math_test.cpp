@@ -1,20 +1,6 @@
 #include <gtest/gtest.h>
 #include "../math.hpp"
 
-class MathTest : public ::testing::Test
-{
-protected:
-    void SetUp() override
-    {
-        // Optional setup code that will be called before each test
-    }
-
-    void TearDown() override
-    {
-        // Optional teardown code that will be called after each test
-    }
-};
-
 // Test case for decimal_ceil function
 TEST(MathTest, DecimalCeil)
 {
@@ -50,22 +36,11 @@ TEST(MathTest, CountDecimals)
 // Test case for normalize function
 TEST(MathTest, Normalize)
 {
-    std::vector<double> input = {1.0, 2.0, 3.0, 4.0, 5.0};
+    std::vector<double> values = {1.0, 2.0, 3.0, 4.0, 5.0};
     std::pair<double, double> current_range = std::make_pair(1.0, 5.0);
     std::pair<double, double> new_range = std::make_pair(0.0, 1.0);
     std::vector<double> expected_output = {0.0, 0.25, 0.5, 0.75, 1.0};
-    ASSERT_EQ(normalize(input, current_range, new_range), expected_output);
-}
-
-// Test case for average function
-TEST(MathTest, Average)
-{
-    std::vector<double> values = {1.0, 2.0, 3.0, 4.0, 5.0};
-    std::vector<double> expected_values = {1.0, 1.5, 2.0, 3.0, 4.0};
-    std::vector<double> results = average(values, 3);
-
-    for (int i = 0; i < values.size(); i++)
-    {
-        ASSERT_EQ(results[i], expected_values[i]);
-    }
+    std::vector<double> results = normalize(values, current_range, new_range);
+    ASSERT_EQ(results, expected_output);
+    ASSERT_EQ(results.size(), values.size());
 }

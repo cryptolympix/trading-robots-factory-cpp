@@ -30,11 +30,6 @@ std::vector<double> Indicator::calculate(const std::vector<Candle> &candles, std
         std::cerr << "Candles data is empty." << std::endl;
         return values;
     }
-    else if (candles.size() < 2)
-    {
-        std::cerr << "Candles data is not enough to calculate the indicator." << std::endl;
-        return values;
-    }
     else if (candles.size() < offset)
     {
         std::cerr << "Offset is greater than the number of candles." << std::endl;
@@ -46,8 +41,11 @@ std::vector<double> Indicator::calculate(const std::vector<Candle> &candles, std
         return values;
     }
 
+    // Adjust candles based on the offset
+    std::vector<Candle> adjusted_candles(candles.begin(), candles.end() - offset);
+
     // Calculate the indicator
-    std::vector<double> values = calculator(candles);
+    std::vector<double> values = calculator(adjusted_candles);
 
     // Normalize the data
     if (normalize_data)

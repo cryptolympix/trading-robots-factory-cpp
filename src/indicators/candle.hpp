@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <ctime>
 #include <cmath>
+#include "../types.hpp"
 #include "../utils/math.hpp"
 #include "../utils/candles_source.hpp"
 #include "indicator.hpp"
@@ -31,11 +32,11 @@ public:
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    virtual std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 };
 
 /**
- * @brief Class for CandleHigh indicator.
+ * Class for CandleHigh indicator.
  */
 class CandleHigh : public Indicator
 {
@@ -54,7 +55,7 @@ public:
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    virtual std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 };
 
 /**
@@ -77,7 +78,7 @@ public:
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    virtual std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 };
 
 /**
@@ -100,7 +101,7 @@ public:
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    virtual std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 };
 
 /**
@@ -123,7 +124,7 @@ public:
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    virtual std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 };
 
 /**
@@ -146,7 +147,7 @@ public:
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    virtual std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 };
 
 /**
@@ -169,7 +170,7 @@ public:
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    virtual std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 };
 
 /**
@@ -195,7 +196,7 @@ public:
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    virtual std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 
 private:
     CandleSource source;
@@ -227,7 +228,7 @@ public:
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    virtual std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 
 private:
     CandleSource source;
@@ -259,7 +260,7 @@ public:
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    virtual std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 
 private:
     CandleSource source;
@@ -291,7 +292,7 @@ public:
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    virtual std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 
 private:
     CandleSource source;

@@ -6,6 +6,7 @@
 #include <cmath>
 #include "../utils/math.hpp"
 #include "../utils/candles_source.hpp"
+#include "../types.hpp"
 #include "indicator.hpp"
 #include "candle.hpp"
 
@@ -14,7 +15,7 @@
  *
  * @param offset Offset value. Default is 0.
  */
-CandleOpen::CandleOpen(int offset) : Indicator("Candle Open (Value)", "candle-open-" + std::to_string(offset), offset) {}
+CandleOpen::CandleOpen(int offset) : Indicator("Candle Open", "candle-open-" + std::to_string(offset), offset) {}
 
 /**
  * @brief Calculate the CandleOpen values.
@@ -25,18 +26,16 @@ CandleOpen::CandleOpen(int offset) : Indicator("Candle Open (Value)", "candle-op
  */
 std::vector<double> CandleOpen::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
-    std::vector<double> values = Indicator::calculate(
+    return Indicator::calculate(
         candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
                 std::vector<double> values;
-                for (int i = 0; i < candles.size() - offset; ++i)
+                for (int i = 0; i < candles.size(); ++i)
                 {
                     values.push_back(candles[i].open);
                 }
                 return values; },
         normalize_data);
-
-    return values;
 }
 
 /**
@@ -44,7 +43,7 @@ std::vector<double> CandleOpen::calculate(const std::vector<Candle> &candles, bo
  *
  * @param offset Offset value. Default is 0.
  */
-CandleHigh::CandleHigh(int offset) : Indicator("Candle High (Value)", "candle-high-" + std::to_string(offset), offset) {}
+CandleHigh::CandleHigh(int offset) : Indicator("Candle High", "candle-high-" + std::to_string(offset), offset) {}
 
 /**
  * @brief Calculate the CandleHigh values.
@@ -55,19 +54,17 @@ CandleHigh::CandleHigh(int offset) : Indicator("Candle High (Value)", "candle-hi
  */
 std::vector<double> CandleHigh::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
-    std::vector<double> values = Indicator::calculate(
+    return Indicator::calculate(
         candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
             std::vector<double> values;
-            for (int i = 0; i < candles.size() - offset; ++i)
+            for (int i = 0; i < candles.size(); ++i)
             {
                 values.push_back(candles[i].high);
             }
             return values; },
 
         normalize_data);
-
-    return values;
 }
 
 /**
@@ -75,7 +72,7 @@ std::vector<double> CandleHigh::calculate(const std::vector<Candle> &candles, bo
  *
  * @param offset Offset value. Default is 0.
  */
-CandleLow::CandleLow(int offset) : Indicator("Candle Low (Value)", "candle-low-" + std::to_string(offset), offset) {}
+CandleLow::CandleLow(int offset) : Indicator("Candle Low", "candle-low-" + std::to_string(offset), offset) {}
 
 /**
  * @brief Calculate the CandleLow values.
@@ -86,19 +83,17 @@ CandleLow::CandleLow(int offset) : Indicator("Candle Low (Value)", "candle-low-"
  */
 std::vector<double> CandleLow::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
-    std::vector<double> values = Indicator::calculate(
+    return Indicator::calculate(
         candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
             std::vector<double> values;
-            for (int i = 0; i < candles.size() - offset; ++i)
+            for (int i = 0; i < candles.size(); ++i)
             {
                 values.push_back(candles[i].low);
             }
             return values; },
 
         normalize_data);
-
-    return values;
 }
 
 /**
@@ -106,7 +101,7 @@ std::vector<double> CandleLow::calculate(const std::vector<Candle> &candles, boo
  *
  * @param offset Offset value. Default is 0.
  */
-CandleClose::CandleClose(int offset) : Indicator("Candle Close (Value)", "candle-close-" + std::to_string(offset), offset) {}
+CandleClose::CandleClose(int offset) : Indicator("Candle Close", "candle-close-" + std::to_string(offset), offset) {}
 
 /**
  * @brief Calculate the CandleClose values.
@@ -117,19 +112,17 @@ CandleClose::CandleClose(int offset) : Indicator("Candle Close (Value)", "candle
  */
 std::vector<double> CandleClose::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
-    std::vector<double> values = Indicator::calculate(
+    return Indicator::calculate(
         candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
             std::vector<double> values;
-            for (int i = 0; i < candles.size() - offset; ++i)
+            for (int i = 0; i < candles.size(); ++i)
             {
                 values.push_back(candles[i].close);
             }
             return values; },
 
         normalize_data);
-
-    return values;
 }
 
 /**
@@ -137,7 +130,7 @@ std::vector<double> CandleClose::calculate(const std::vector<Candle> &candles, b
  *
  * @param offset Offset value. Default is 0.
  */
-WhiteCandle::WhiteCandle(int offset) : Indicator("White Candle (Value)", "white-candle-" + std::to_string(offset), offset) {}
+WhiteCandle::WhiteCandle(int offset) : Indicator("White Candle", "white-candle-" + std::to_string(offset), offset) {}
 
 /**
  * @brief Calculate the WhiteCandle values.
@@ -148,19 +141,17 @@ WhiteCandle::WhiteCandle(int offset) : Indicator("White Candle (Value)", "white-
  */
 std::vector<double> WhiteCandle::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
-    std::vector<double> values = Indicator::calculate(
+    return Indicator::calculate(
         candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
             std::vector<double> values;
-            for (int i = 0; i < candles.size() - offset; ++i)
+            for (int i = 0; i < candles.size(); ++i)
             {
                 values.push_back(candles[i].close >= candles[i].open ? 1 : 0);
             }
             return values; },
 
         normalize_data);
-
-    return values;
 }
 
 /**
@@ -168,7 +159,7 @@ std::vector<double> WhiteCandle::calculate(const std::vector<Candle> &candles, b
  *
  * @param offset Offset value. Default is 0.
  */
-BlackCandle::BlackCandle(int offset) : Indicator("Black Candle (Value)", "black-candle-" + std::to_string(offset), offset) {}
+BlackCandle::BlackCandle(int offset) : Indicator("Black Candle", "black-candle-" + std::to_string(offset), offset) {}
 
 /**
  * @brief Calculate the BlackCandle values.
@@ -179,19 +170,17 @@ BlackCandle::BlackCandle(int offset) : Indicator("Black Candle (Value)", "black-
  */
 std::vector<double> BlackCandle::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
-    std::vector<double> values = Indicator::calculate(
+    return Indicator::calculate(
         candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
             std::vector<double> values;
-            for (int i = 0; i < candles.size() - offset; ++i)
+            for (int i = 0; i < candles.size(); ++i)
             {
                 values.push_back(candles[i].close <= candles[i].open ? 1 : 0);
             }
             return values; },
 
         normalize_data);
-
-    return values;
 }
 
 /**
@@ -199,7 +188,7 @@ std::vector<double> BlackCandle::calculate(const std::vector<Candle> &candles, b
  *
  * @param offset Offset value. Default is 0.
  */
-CandlePriceChange::CandlePriceChange(int offset) : Indicator("Candle Price Change (Value)", "candle-price-change-" + std::to_string(offset), offset) {}
+CandlePriceChange::CandlePriceChange(int offset) : Indicator("Candle Price Change", "candle-price-change-" + std::to_string(offset), offset) {}
 
 /**
  * @brief Calculate the CandlePriceChange values.
@@ -210,19 +199,17 @@ CandlePriceChange::CandlePriceChange(int offset) : Indicator("Candle Price Chang
  */
 std::vector<double> CandlePriceChange::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
-    std::vector<double> values = Indicator::calculate(
+    return Indicator::calculate(
         candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
             std::vector<double> values;
-            for (size_t i = 0; i < candles.size() - offset; ++i)
+            for (size_t i = 0; i < candles.size(); ++i)
             {
                 values.push_back((candles[i].close - candles[i].open)/candles[i].open);
             }
             return values; },
 
         normalize_data);
-
-    return values;
 }
 
 /**
@@ -234,7 +221,7 @@ std::vector<double> CandlePriceChange::calculate(const std::vector<Candle> &cand
  * @param offset Offset value. Default is 0.
  */
 PivotHigh::PivotHigh(CandleSource source, int left_bars, int right_bars, int offset)
-    : Indicator("Pivot High (Value)", "pivot-high-" + CandleSourceMap[source] + "-" + std::to_string(left_bars) + "-" + std::to_string(right_bars) + "-" + std::to_string(offset), offset), source(source), left_bars(left_bars), right_bars(right_bars) {}
+    : Indicator("Pivot High", "pivot-high-" + CandleSourceMap[source] + "-" + std::to_string(left_bars) + "-" + std::to_string(right_bars) + "-" + std::to_string(offset), offset), source(source), left_bars(left_bars), right_bars(right_bars) {}
 
 /**
  * @brief Calculate the PivotHigh values.
@@ -245,13 +232,20 @@ PivotHigh::PivotHigh(CandleSource source, int left_bars, int right_bars, int off
  */
 std::vector<double> PivotHigh::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
-    std::vector<double> values = Indicator::calculate(
+    return Indicator::calculate(
         candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
-            std::vector<double> values;
+            std::vector<double> values(candles.size(), 0); // Initialize values vector with size of candles
+
             std::vector<double> source_candles = get_candles_with_source(candles, source);
 
-            for (size_t i = 0; i < candles.size() - right_bars - offset; ++i)
+            // Ensure source_candles size is at least candles.size()
+            if (source_candles.size() < candles.size()) {
+                // Handle error or return an empty vector
+                return std::vector<double>();
+            }
+
+            for (size_t i = 0; i < candles.size() - right_bars; ++i)
             {
                 if (i < left_bars)
                 {
@@ -271,8 +265,6 @@ std::vector<double> PivotHigh::calculate(const std::vector<Candle> &candles, boo
             return values; },
 
         normalize_data);
-
-    return values;
 }
 
 /**
@@ -284,7 +276,7 @@ std::vector<double> PivotHigh::calculate(const std::vector<Candle> &candles, boo
  * @param offset Offset value. Default is 0.
  */
 PivotLow::PivotLow(CandleSource source, int left_bars, int right_bars, int offset)
-    : Indicator("Pivot Low (Value)", "pivot-low-" + CandleSourceMap[source] + "-" + std::to_string(left_bars) + "-" + std::to_string(right_bars) + "-" + std::to_string(offset), offset), source(source), left_bars(left_bars), right_bars(right_bars) {}
+    : Indicator("Pivot Low", "pivot-low-" + CandleSourceMap[source] + "-" + std::to_string(left_bars) + "-" + std::to_string(right_bars) + "-" + std::to_string(offset), offset), source(source), left_bars(left_bars), right_bars(right_bars) {}
 
 /**
  * @brief Calculate the PivotLow values.
@@ -295,13 +287,21 @@ PivotLow::PivotLow(CandleSource source, int left_bars, int right_bars, int offse
  */
 std::vector<double> PivotLow::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
-    std::vector<double> values = Indicator::calculate(
+    return Indicator::calculate(
         candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
-            std::vector<double> values;
+            std::vector<double> values(candles.size(), 0); // Initialize values vector with size of candles
+
             std::vector<double> source_candles = get_candles_with_source(candles, source);
 
-            for (size_t i = 0; i < candles.size() - right_bars - offset; ++i)
+            // Ensure source_candles size is at least candles.size()
+            if (source_candles.size() < candles.size())
+            {
+                // Handle error or return an empty vector
+                return std::vector<double>();
+            }
+
+            for (size_t i = 0; i < candles.size() - right_bars; ++i)
             {
                 if (i < left_bars)
                 {
@@ -321,8 +321,6 @@ std::vector<double> PivotLow::calculate(const std::vector<Candle> &candles, bool
             return values; },
 
         normalize_data);
-
-    return values;
 }
 
 /**
@@ -334,7 +332,7 @@ std::vector<double> PivotLow::calculate(const std::vector<Candle> &candles, bool
  * @param offset Offset value. Default is 0.
  */
 Lowest::Lowest(CandleSource source, int left_bars, int right_bars, int offset)
-    : Indicator("Lowest (Value)", "lowest-" + CandleSourceMap[source] + "-" + std::to_string(left_bars) + "-" + std::to_string(right_bars) + "-" + std::to_string(offset), offset), source(source), left_bars(left_bars), right_bars(right_bars) {}
+    : Indicator("Lowest", "lowest-" + CandleSourceMap[source] + "-" + std::to_string(left_bars) + "-" + std::to_string(right_bars) + "-" + std::to_string(offset), offset), source(source), left_bars(left_bars), right_bars(right_bars) {}
 
 /**
  * @brief Calculate the Lowest values.
@@ -345,36 +343,36 @@ Lowest::Lowest(CandleSource source, int left_bars, int right_bars, int offset)
  */
 std::vector<double> Lowest::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
-    std::vector<double> values = Indicator::calculate(
+    return Indicator::calculate(
         candles, [this](std::vector<Candle> candles) -> std::vector<double>
         { 
-                std::vector<double> values;
-                PivotLow indicator(CandleSource::Low, left_bars, right_bars, offset);
-                std::vector<double> pivots = indicator.calculate(candles, false);
-                std::vector<double> source_candles = get_candles_with_source(candles, source);
+            std::vector<double> values(candles.size(), 0); // Initialize values vector with size of candles
+            PivotLow indicator(CandleSource::Low, left_bars, right_bars, offset);
+            std::vector<double> pivots = indicator.calculate(candles, false);
+            std::vector<double> source_candles = get_candles_with_source(candles, source);
 
-                int current_pivot_index = 0;
-                for (size_t i = 0; i < candles.size() - right_bars - offset; ++i)
+            int current_pivot_index = 0;
+            for (size_t i = 0; i < candles.size() - right_bars; ++i)
+            {
+                if (i < right_bars)
                 {
-                    if (i < right_bars)
-                    {
-                        values[i] = source_candles[0];
-                    }
-                    if (pivots[i] == 1)
-                    {
-                        current_pivot_index = i;
-                    }
-                    values[i + right_bars] = source_candles[current_pivot_index];
+                    values[i] = source_candles[0];
                 }
-
-                // Adjust values if offset is greater than 0
-                if (offset > 0)
+                if (pivots[i] == 1)
                 {
-                    std::vector<double> nan_values(offset, NAN);
-                    values.insert(values.begin(), nan_values.begin(), nan_values.end());
+                    current_pivot_index = i;
                 }
+                values[i + right_bars] = source_candles[current_pivot_index];
+            }
 
-                return values; },
+            // Adjust values if offset is greater than 0
+            if (offset > 0)
+            {
+                std::vector<double> nan_values(offset, NAN);
+                values.insert(values.begin(), nan_values.begin(), nan_values.end());
+            }
+
+            return values; },
 
         normalize_data);
 }
@@ -388,7 +386,7 @@ std::vector<double> Lowest::calculate(const std::vector<Candle> &candles, bool n
  * @param offset Offset value. Default is 0.
  */
 Highest::Highest(CandleSource source, int left_bars, int right_bars, int offset)
-    : Indicator("Highest (Value)", "highest-" + CandleSourceMap[source] + "-" + std::to_string(left_bars) + "-" + std::to_string(right_bars) + "-" + std::to_string(offset), offset), source(source), left_bars(left_bars), right_bars(right_bars) {}
+    : Indicator("Highest", "highest-" + CandleSourceMap[source] + "-" + std::to_string(left_bars) + "-" + std::to_string(right_bars) + "-" + std::to_string(offset), offset), source(source), left_bars(left_bars), right_bars(right_bars) {}
 
 /**
  * @brief Calculate the Highest values.
@@ -399,36 +397,36 @@ Highest::Highest(CandleSource source, int left_bars, int right_bars, int offset)
  */
 std::vector<double> Highest::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
-    std::vector<double> values = Indicator::calculate(
+    return Indicator::calculate(
         candles, [this](std::vector<Candle> candles) -> std::vector<double>
         { 
-                std::vector<double> values;
-                PivotHigh indicator(CandleSource::High, left_bars, right_bars, offset);
-                std::vector<double> pivots = indicator.calculate(candles, false);
-                std::vector<double> source_candles = get_candles_with_source(candles, source);
+            std::vector<double> values(candles.size(), 0); // Initialize values vector with size of candles
+            PivotHigh indicator(CandleSource::High, left_bars, right_bars, offset);
+            std::vector<double> pivots = indicator.calculate(candles, false);
+            std::vector<double> source_candles = get_candles_with_source(candles, source);
 
-                int current_pivot_index = 0;
-                for (size_t i = 0; i < candles.size() - right_bars - offset; ++i)
+            int current_pivot_index = 0;
+            for (size_t i = 0; i < candles.size() - right_bars; ++i)
+            {
+                if (i < right_bars)
                 {
-                    if (i < right_bars)
-                    {
-                        values[i] = source_candles[0];
-                    }
-                    if (pivots[i] == 1)
-                    {
-                        current_pivot_index = i;
-                    }
-                    values[i + right_bars] = source_candles[current_pivot_index];
+                    values[i] = source_candles[0];
                 }
-
-                // Adjust values if offset is greater than 0
-                if (offset > 0)
+                if (pivots[i] == 1)
                 {
-                    std::vector<double> nan_values(offset, NAN);
-                    values.insert(values.begin(), nan_values.begin(), nan_values.end());
+                    current_pivot_index = i;
                 }
+                values[i + right_bars] = source_candles[current_pivot_index];
+            }
 
-                return values; },
+            // Adjust values if offset is greater than 0
+            if (offset > 0)
+            {
+                std::vector<double> nan_values(offset, NAN);
+                values.insert(values.begin(), nan_values.begin(), nan_values.end());
+            }
+
+            return values; },
 
         normalize_data);
 }

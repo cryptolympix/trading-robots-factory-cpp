@@ -1,25 +1,8 @@
 #include <gtest/gtest.h>
 #include "../time_frame.hpp"
 
-// Test fixture class
-class TimeFrameTest : public ::testing::Test
-{
-protected:
-    // SetUp function is called before each test
-    void SetUp() override
-    {
-        // Set up code, if any
-    }
-
-    // TearDown function is called after each test
-    void TearDown() override
-    {
-        // Tear down code, if any
-    }
-};
-
 // Test case for get_time_frame_value function
-TEST_F(TimeFrameTest, GetTimeFrameValue)
+TEST(TimeFrameTest, GetTimeFrameValue)
 {
     // Test each time frame and check if the returned value is correct
     EXPECT_EQ(get_time_frame_value(TimeFrame::M1), 1);
@@ -34,7 +17,7 @@ TEST_F(TimeFrameTest, GetTimeFrameValue)
 }
 
 // Test case for match_time_frame function
-TEST_F(TimeFrameTest, MatchTimeFrame)
+TEST(TimeFrameTest, MatchTimeFrame)
 {
     // Test TimeFrame::M5
     for (int i = 0; i < 24; ++i)
@@ -102,7 +85,7 @@ TEST_F(TimeFrameTest, MatchTimeFrame)
 }
 
 // Test case for highest_time_frame function
-TEST_F(TimeFrameTest, HighestTimeFrame)
+TEST(TimeFrameTest, HighestTimeFrame)
 {
     // Test with an empty vector (should throw runtime_error)
     EXPECT_THROW(highest_time_frame({}), std::runtime_error);

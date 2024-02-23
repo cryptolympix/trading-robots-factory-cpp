@@ -36,10 +36,11 @@ enum class CandleSource
     High,
     Low,
     Close,
+    Volume,
     HL2,
     HLC3,
     OHLC4,
-    HLCC4
+    HLCC4,
 };
 
 /**

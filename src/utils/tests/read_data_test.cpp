@@ -1,23 +1,8 @@
 #include <gtest/gtest.h>
 #include "../read_data.hpp"
 
-// Fixture for ReadData tests
-class ReadDataTest : public ::testing::Test
-{
-protected:
-    void SetUp() override
-    {
-        // Set up any necessary resources before each test
-    }
-
-    void TearDown() override
-    {
-        // Tear down any allocated resources after each test
-    }
-};
-
 // Test case for reading data with valid inputs
-TEST_F(ReadDataTest, TestReadValidData)
+TEST(ReadDataTest, TestReadValidData)
 {
     // Test reading data for a valid symbol and time frame
     std::vector<Candle> candles = read_data("EURUSD", TimeFrame::H1);
@@ -27,14 +12,14 @@ TEST_F(ReadDataTest, TestReadValidData)
 }
 
 // Test case for reading data with invalid symbol
-TEST_F(ReadDataTest, TestReadInvalidSymbol)
+TEST(ReadDataTest, TestReadInvalidSymbol)
 {
     // Test reading data for an invalid symbol
     ASSERT_THROW(read_data("INVALID_SYMBOL", TimeFrame::H1), std::runtime_error);
 }
 
 // Test case for reading data with valid time frame and date range
-TEST_F(ReadDataTest, TestReadDataWithDateRange)
+TEST(ReadDataTest, TestReadDataWithDateRange)
 {
     std::tm startDate = {
         .tm_year = 2023 - 1900,

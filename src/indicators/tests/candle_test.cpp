@@ -161,13 +161,13 @@ TEST_F(TestCandleIndicators, PivotLow)
     // PivotLow with left_bars=2, right_bars=0
     PivotLow pivot_low_indicator(CandleSource::Low, 2, 0);
     std::vector<double> result = pivot_low_indicator.calculate(mock_candles);
-    std::vector<double> expected = {1, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0};
+    std::vector<double> expected = {1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0};
     ASSERT_EQ(result, expected);
 
     // PivotLow with left_bars=2, right_bars=2
     PivotLow pivot_low_indicator2(CandleSource::Low, 2, 2);
     std::vector<double> result2 = pivot_low_indicator2.calculate(mock_candles);
-    std::vector<double> expected2 = {0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0};
+    std::vector<double> expected2 = {0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0};
     ASSERT_EQ(result2, expected2);
 }
 
