@@ -4,19 +4,7 @@
 #include "../../types.hpp"
 #include "../time.hpp"
 
-class TestTimeIndicators : public ::testing::Test
-{
-protected:
-    void SetUp() override
-    {
-    }
-
-    void TearDown() override
-    {
-    }
-};
-
-TEST_F(TestTimeIndicators, HourTest)
+TEST(TestTimeIndicators, HourTest)
 {
     // Create an instance of the Hour class
     Hour hour;
@@ -42,7 +30,7 @@ TEST_F(TestTimeIndicators, HourTest)
     ASSERT_EQ(result.back(), expected_hour);
 }
 
-TEST_F(TestTimeIndicators, NFPWeekTest)
+TEST(TestTimeIndicators, NFPWeekTest)
 {
     // Create an instance of the NFPWeek class
     NFPWeek nfpWeek;
@@ -80,7 +68,7 @@ TEST_F(TestTimeIndicators, NFPWeekTest)
     ASSERT_EQ(result_not_nfp.back(), 0);
 }
 
-TEST_F(TestTimeIndicators, MarketSessionTest)
+TEST(TestTimeIndicators, MarketSessionTest)
 {
     // London
     MarketSession london(MarketSessionZone::LONDON);
@@ -140,7 +128,7 @@ TEST_F(TestTimeIndicators, MarketSessionTest)
     ASSERT_EQ(result_tokyo, std::vector<double>({0, 1, 1, 1, 1, 1, 1, 1, 0}));
 }
 
-TEST_F(TestTimeIndicators, WeekDayTest)
+TEST(TestTimeIndicators, WeekDayTest)
 {
     // Create an instance of the WeekDay class
     WeekDay weekDay;

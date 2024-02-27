@@ -319,12 +319,11 @@ public:
     /**
      * @brief Construct a new TSI object.
      *
-     * @param r_period R Period value. Default is 25.
-     * @param s_period S Period value. Default is 13.
-     * @param smooth_period Smoothing Period value. Default is 7.
+     * @param short_period Short period value. Default is 13.
+     * @param long_period Long period value. Default is 25.
      * @param offset Offset value. Default is 0.
      */
-    TSI(int r_period = 25, int s_period = 13, int smooth_period = 7, int offset = 0);
+    TSI(int short_period, int long_period, int offset = 0);
 
     /**
      * @brief Calculate the TSI values.
@@ -336,9 +335,8 @@ public:
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 
 private:
-    int r_period;      // R Period value
-    int s_period;      // S Period value
-    int smooth_period; // Smoothing Period value
+    int short_period;
+    int long_period;
 };
 
 // *********************************************************************************************
@@ -356,9 +354,12 @@ public:
     /**
      * @brief Construct a new Ultimate Oscillator object.
      *
+     * @param period1 Period value for the first time frame. Default is 7.
+     * @param period2 Period value for the second time frame. Default is 14.
+     * @param period3 Period value for the third time frame. Default is 28.
      * @param offset Offset value. Default is 0.
      */
-    UO(int offset = 0);
+    UO(int period1 = 7, int period2 = 14, int period3 = 28, int offset = 0);
 
     /**
      * @brief Calculate the Ultimate Oscillator values.
@@ -370,8 +371,9 @@ public:
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 
 private:
-    std::vector<double> get_true_range(const std::vector<Candle> &candles) const;
-    std::vector<double> get_buying_pressure(const std::vector<Candle> &candles) const;
+    int period1;
+    int period2;
+    int period3;
 };
 
 // *********************************************************************************************
