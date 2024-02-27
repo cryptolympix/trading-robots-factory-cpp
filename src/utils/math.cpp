@@ -15,7 +15,14 @@
 double decimal_ceil(double x, int precision)
 {
     int n = pow(10, precision);
-    return ceil(x * n) / n;
+    if (x != 0)
+    {
+        return ceil(x * n) / n;
+    }
+    else
+    {
+        return 0;
+    }
 }
 
 /**
@@ -28,7 +35,14 @@ double decimal_ceil(double x, int precision)
 double decimal_floor(double x, int precision)
 {
     int n = pow(10, precision);
-    return floor(x * n) / n;
+    if (x != 0)
+    {
+        return floor(x * n) / n;
+    }
+    else
+    {
+        return 0;
+    }
 }
 
 /**
@@ -41,7 +55,14 @@ double decimal_floor(double x, int precision)
 double decimal_round(double x, int precision)
 {
     int n = pow(10, precision);
-    return round(x * n) / n;
+    if (x != 0)
+    {
+        return round(x * n) / n;
+    }
+    else
+    {
+        return 0;
+    }
 }
 
 /**

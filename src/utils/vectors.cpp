@@ -76,7 +76,10 @@ std::vector<double> divide_vectors(const std::vector<double> &vec1, const std::v
     // Subtract corresponding elements of vec2 from vec1
     for (size_t i = 0; i < vec1.size(); ++i)
     {
-        result.push_back(vec1[i] / vec2[i]);
+        if (vec2[i] != 0)
+        {
+            result.push_back(vec1[i] / vec2[i]);
+        }
     }
 
     return result;

@@ -20,6 +20,9 @@ Indicator::Indicator(const std::string &label, const std::string &id, int offset
  */
 std::vector<double> Indicator::calculate(const std::vector<Candle> &candles, std::function<std::vector<double>(std::vector<Candle>)> calculator, bool normalize_data) const
 {
+    std::vector<double> values;
+    values.reserve(candles.size());
+
     if (offset < 0)
     {
         std::cerr << "Offset cannot be negative." << std::endl;
@@ -42,12 +45,19 @@ std::vector<double> Indicator::calculate(const std::vector<Candle> &candles, std
     }
 
     // Adjust candles based on the offset
-    std::vector<Candle> adjusted_candles(candles.begin(), candles.end() - offset);
+    if (offset > 0)
+    {
+        std::vector<Candle> adjusted_candles(candles.begin(), candles.end() - offset);
+        // Calculate the indicator
+        values = calculator(adjusted_candles);
+    }
+    else
+    {
+        // Calculate the indicator
+        values = calculator(candles);
+    }
 
-    // Calculate the indicator
-    std::vector<double> values = calculator(adjusted_candles);
-
-    // Normalize the data
+     // Normalize the data
     if (normalize_data)
     {
         values = normalize(values);

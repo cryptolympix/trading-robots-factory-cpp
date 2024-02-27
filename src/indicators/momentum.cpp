@@ -76,7 +76,7 @@ std::vector<double> KAMA::calculate(const std::vector<Candle> &candles, bool nor
             for (size_t i = slowest_sc_period; i < closes.size(); ++i)
             {
                 double current_kama = prior_kama + sc_values[i] * (closes[i] - prior_kama); // Calculate KAMA
-                kama_values.push_back(current_kama);                                        // Store the KAMA
+                kama_values[i] = current_kama;                                              // Store the KAMA
                 prior_kama = current_kama;                                                  // Update prior KAMA for the next iteration
             }
 
@@ -169,25 +169,23 @@ PPO::PPO(int short_period, int long_period, int offset) : Indicator("Percentage 
 std::vector<double> PPO::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<Candle> candles) -> std::vector<double>
+        candles, [this](const std::vector<Candle> &candles) -> std::vector<double>
         {
             std::vector<double> closes = get_candles_with_source(candles, CandleSource::Close);
             std::vector<double> short_ema = calculate_exponential_moving_average(closes, short_period);
             std::vector<double> long_ema = calculate_exponential_moving_average(closes, long_period);
 
-            std::vector<double> ppo_values;
-            ppo_values.reserve(candles.size());
+            std::vector<double> ppo_values(candles.size(), 0.0); // Initialize result vector with the same size as input
 
             std::vector<double> ema_diff = subtract_vectors(short_ema, long_ema);
 
             for (size_t i = 0; i < candles.size(); ++i)
             {
                 double ppo = (ema_diff[i] / long_ema[i]) * 100.0;
-                ppo_values.push_back(ppo);
+                ppo_values[i] = ppo; // Assign values to the appropriate index in the result vector
             }
 
             return ppo_values; },
-
         normalize_data);
 }
 
@@ -319,11 +317,12 @@ RSI::RSI(int period, int offset) : Indicator("Relative Strength Index (RSI)", "r
 std::vector<double> RSI::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<Candle> candles)
+        candles, [this](const std::vector<Candle> &candles) -> std::vector<double>
         {
             std::vector<double> closes = get_candles_with_source(candles, CandleSource::Close);
-            std::vector<double> result;
+            std::vector<double> result(closes.size(), 0.0); // Initialize result vector with the same size as input
             size_t n = closes.size();
+
             if (n <= static_cast<size_t>(period)) return result; // Not enough data
 
             double gain_sum = 0.0;
@@ -343,7 +342,7 @@ std::vector<double> RSI::calculate(const std::vector<Candle> &candles, bool norm
             double avg_loss = loss_sum / period;
             double rs = (avg_loss != 0) ? (avg_gain / avg_loss) : 0;
             double rsi = 100.0 - (100.0 / (1.0 + rs));
-            result.push_back(rsi);
+            result[period] = rsi; // Store the initial RSI value
 
             // Calculate RSI for subsequent periods
             for (size_t i = period + 1; i < n; ++i) {
@@ -354,7 +353,7 @@ std::vector<double> RSI::calculate(const std::vector<Candle> &candles, bool norm
                 avg_loss = (avg_loss * (period - 1) + loss) / period;
                 rs = (avg_loss != 0) ? (avg_gain / avg_loss) : 0;
                 rsi = 100.0 - (100.0 / (1.0 + rs));
-                result.push_back(rsi);
+                result[i] = rsi; // Store the RSI value
             }
 
             return result; },
@@ -384,14 +383,14 @@ StochasticRSI::StochasticRSI(int period, int sma_period, int offset)
 std::vector<double> StochasticRSI::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<Candle> candles)
+        candles, [this](const std::vector<Candle> &candles) -> std::vector<double>
         {
             // Calculate RSI values using the RelativeStrengthIndex class
             RSI rsi(period);
             std::vector<double> rsi_values = rsi.calculate(candles, false);
 
             // Calculate Stochastic RSI values
-            std::vector<double> result;
+            std::vector<double> result(candles.size(), 0.0); // Initialize result vector with the same size as input
             size_t n = rsi_values.size();
             if (n <= static_cast<size_t>(sma_period))
                 return result; // Not enough data
@@ -401,11 +400,10 @@ std::vector<double> StochasticRSI::calculate(const std::vector<Candle> &candles,
                 double max_rsi = *std::max_element(rsi_values.begin() + (i - sma_period), rsi_values.begin() + i + 1);
                 double min_rsi = *std::min_element(rsi_values.begin() + (i - sma_period), rsi_values.begin() + i + 1);
                 double stoch_rsi = (rsi_values[i] - min_rsi) / (max_rsi - min_rsi) * 100.0;
-                result.push_back(stoch_rsi);
+                result[i] = stoch_rsi; // Store the Stochastic RSI value
             }
 
             return result; },
-
         normalize_data);
 }
 
@@ -433,19 +431,19 @@ StochasticOscillator::StochasticOscillator(int k_period, int d_period, int offse
 std::vector<double> StochasticOscillator::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<Candle> candles)
+        candles, [this](const std::vector<Candle> &candles) -> std::vector<double>
         {
             // Calculate RSI values using the RelativeStrengthIndex class
             RSI rsi(k_period);
             std::vector<double> rsi_values = rsi.calculate(candles, false);
 
             // Calculate Stochastic Oscillator values
-            std::vector<double> result;
+            std::vector<double> result(candles.size(), 0.0); // Initialize result vector with the same size as input
             size_t n = rsi_values.size();
+
             if (n <= static_cast<size_t>(d_period)) {
                 return result; // Not enough data
             }
-                
 
             std::vector<double> all_highs = get_candles_with_source(candles, CandleSource::High);
             std::vector<double> all_lows = get_candles_with_source(candles, CandleSource::Low);
@@ -456,18 +454,15 @@ std::vector<double> StochasticOscillator::calculate(const std::vector<Candle> &c
                 std::vector<double> lows = std::vector<double>(all_lows.begin() + (i - d_period + 1), all_lows.begin() + i + 1);
 
                 // Calculate %K value
-                double highest_high = std::max_element(highs.begin(), highs.end())[0];
-                double lowest_low = std::min_element(lows.begin(), lows.end())[0];
+                double highest_high = *std::max_element(highs.begin(), highs.end());
+                double lowest_low = *std::min_element(lows.begin(), lows.end());
                 double stochastic_k = 100.0 * (candles[i].close - lowest_low) / (highest_high - lowest_low);
 
                 // Add %K value to result
-                result.push_back(stochastic_k);
+                result[i] = stochastic_k;
             }
 
-            // std::vector<double> d_values = calculate_simple_moving_average(result, d_period);
-
             return result; },
-
         normalize_data);
 }
 
@@ -497,15 +492,16 @@ TSI::TSI(int r_period, int s_period, int smooth_period, int offset)
 std::vector<double> TSI::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<Candle> candles)
+        candles, [this](const std::vector<Candle> &candles) -> std::vector<double>
         {
-            std::vector<double> close_values = get_candles_with_source(candles, CandleSource::Close);
+            // Extract close prices from candles
+            std::vector<double> closes = get_candles_with_source(candles, CandleSource::Close);
 
             // Calculate first-order momentum using the ExponentialMovingAverage class
-            std::vector<double> momentum_1 = calculate_exponential_moving_average(close_values, r_period);
+            std::vector<double> momentum_1 = calculate_exponential_moving_average(closes, r_period);
 
             // Calculate second-order momentum using the ExponentialMovingAverage class on first-order momentum
-            std::vector<double> momentum_2 = calculate_exponential_moving_average(close_values, s_period);
+            std::vector<double> momentum_2 = calculate_exponential_moving_average(momentum_1, s_period);
 
             // Calculate the difference between the first and second-order momentum
             std::vector<double> tsi_values = subtract_vectors(momentum_1, momentum_2);
@@ -537,7 +533,7 @@ UO::UO(int offset) : Indicator("Ultimate Oscillator", "uo-" + std::to_string(off
 std::vector<double> UO::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<Candle> candles)
+        candles, [this](const std::vector<Candle> &candles) -> std::vector<double>
         {
             const size_t period1 = 7;
             const size_t period2 = 14;
@@ -553,17 +549,15 @@ std::vector<double> UO::calculate(const std::vector<Candle> &candles, bool norma
             std::vector<double> avg_buying_pressure2 = calculate_exponential_moving_average(buying_pressure, period2);
             std::vector<double> avg_buying_pressure3 = calculate_exponential_moving_average(buying_pressure, period3);
 
-            std::vector<double> result;
-            result.reserve(candles.size());
+            std::vector<double> result(candles.size(), 0.0); // Initialize result vector with the same size as input
 
             for (size_t i = period3; i < candles.size(); ++i) {
                 double raw_value = 100.0 * (4 * avg_buying_pressure1[i] + 2 * avg_buying_pressure2[i] + avg_buying_pressure3[i]) /
                                            (4 * avg_true_range1[i] + 2 * avg_true_range2[i] + avg_true_range3[i]);
-                result.push_back(raw_value);
+                result[i] = raw_value; // Store the raw value
             }
 
             return result; },
-
         normalize_data);
 }
 
@@ -618,11 +612,9 @@ WilliamsPercentR::WilliamsPercentR(int period, int offset) : Indicator("Williams
 std::vector<double> WilliamsPercentR::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<Candle> candles)
+        candles, [this](const std::vector<Candle> &candles) -> std::vector<double>
         {
-            std::vector<double> result;
-            result.reserve(candles.size());
-
+            std::vector<double> result(candles.size(), 0.0); // Initialize result vector with the same size as input
             Highest highest_source(CandleSource::High, period, 0);
             Lowest lowest_source(CandleSource::Low, period, 0);
 
@@ -635,7 +627,7 @@ std::vector<double> WilliamsPercentR::calculate(const std::vector<Candle> &candl
                 double lowest_low = lowest_lows[i];
                 double current_close = candles[i].close;
                 double value = (highest_high != lowest_low) ? ((highest_high - current_close) / (highest_high - lowest_low)) * -100.0 : 0.0;
-                result.push_back(value);
+                result[i] = value; // Store the Williams %R value
             }
 
             return result; },
