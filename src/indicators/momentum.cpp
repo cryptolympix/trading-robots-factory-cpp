@@ -4,6 +4,7 @@
 #include "../utils/candles_source.hpp"
 #include "../utils/vectors.hpp"
 #include "utils.hpp"
+#include "indicator.hpp"
 #include "candle.hpp"
 #include "momentum.hpp"
 
@@ -26,6 +27,10 @@ std::vector<double> AwesomeOscillator::calculate(const std::vector<Candle> &cand
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles)
         {
+            if (candles.size() < 34) {
+                return std::vector<double>(candles.size(), 0.0); // Not enough data
+            }
+
             std::vector<double> median_prices = get_candles_with_source(candles, CandleSource::HL2);
             std::vector<double> average_5 = calculate_exponential_moving_average(median_prices, 5);
             std::vector<double> average_34 = calculate_exponential_moving_average(median_prices, 34);
@@ -171,6 +176,10 @@ std::vector<double> PPO::calculate(const std::vector<Candle> &candles, bool norm
     return Indicator::calculate(
         candles, [this](const std::vector<Candle> &candles) -> std::vector<double>
         {
+            if (candles.size() < static_cast<size_t>(long_period)) {
+                return std::vector<double>(candles.size(), 0.0); // Not enough data
+            }
+
             std::vector<double> closes = get_candles_with_source(candles, CandleSource::Close);
             std::vector<double> short_ema = calculate_exponential_moving_average(closes, short_period);
             std::vector<double> long_ema = calculate_exponential_moving_average(closes, long_period);
@@ -218,8 +227,7 @@ std::vector<double> PVO::calculate(const std::vector<Candle> &candles, bool norm
         candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
             std::vector<double> volume_values = get_candles_with_source(candles, CandleSource::Volume);
-            std::vector<double> pvo_values;
-            pvo_values.reserve(candles.size());
+            std::vector<double> pvo_values(candles.size(), 0.0); // Initialize result vector with the same size as input
 
             if (volume_values.size() < static_cast<size_t>(slow_period)) {
                 return pvo_values;
@@ -241,13 +249,7 @@ std::vector<double> PVO::calculate(const std::vector<Candle> &candles, bool norm
             for (size_t i = 0; i < slow_ema_volume.size(); ++i)
             {
                 double pvo_value = ema_div[i] * 100.0;
-                pvo_values.push_back(pvo_value);
-            }
-
-            // Apply offset if necessary
-            if (offset > 0)
-            {
-                pvo_values.insert(pvo_values.begin(), offset, std::numeric_limits<double>::quiet_NaN());
+                pvo_values[i] = pvo_value;
             }
 
             return pvo_values; },
@@ -279,6 +281,10 @@ std::vector<double> ROC::calculate(const std::vector<Candle> &candles, bool norm
         {
             std::vector<double> result(candles.size(), 0.0); // Initialize result vector with the same size as input
             result.reserve(candles.size());
+
+            if (candles.size() < static_cast<size_t>(period)) {
+                return result; // Not enough data
+            }
 
             std::vector<double> closes = get_candles_with_source(candles, CandleSource::Close);
             size_t n = closes.size();
@@ -317,6 +323,10 @@ std::vector<double> RSI::calculate(const std::vector<Candle> &candles, bool norm
     return Indicator::calculate(
         candles, [this](const std::vector<Candle> &candles) -> std::vector<double>
         {
+            if (candles.size() < static_cast<size_t>(period)) {
+                return std::vector<double>(candles.size(), 0.0); // Not enough data
+            }
+
             std::vector<double> closes = get_candles_with_source(candles, CandleSource::Close);
             std::vector<double> result(closes.size(), 0.0); // Initialize result vector with the same size as input
             size_t n = closes.size();
@@ -384,6 +394,10 @@ std::vector<double> StochasticRSI::calculate(const std::vector<Candle> &candles,
     return Indicator::calculate(
         candles, [this](const std::vector<Candle> &candles) -> std::vector<double>
         {
+            if (candles.size() < static_cast<size_t>(period)) {
+                return std::vector<double>(candles.size(), 0.0); // Not enough data
+            }
+
             // Calculate RSI values using the RelativeStrengthIndex class
             RSI rsi(period);
             std::vector<double> rsi_values = rsi.calculate(candles, false);
@@ -399,7 +413,7 @@ std::vector<double> StochasticRSI::calculate(const std::vector<Candle> &candles,
             {
                 double max_rsi = *std::max_element(rsi_values.begin() + (i - sma_period), rsi_values.begin() + i + 1);
                 double min_rsi = *std::min_element(rsi_values.begin() + (i - sma_period), rsi_values.begin() + i + 1);
-                double stoch_rsi = (rsi_values[i] - min_rsi) / (max_rsi - min_rsi) * 100.0;
+                double stoch_rsi = (max_rsi - min_rsi) > 0 ? (rsi_values[i] - min_rsi) / (max_rsi - min_rsi) * 100.0 : 0.0;
                 result[i] = stoch_rsi; // Store the Stochastic RSI value
             }
 
@@ -434,6 +448,10 @@ std::vector<double> StochasticOscillator::calculate(const std::vector<Candle> &c
     return Indicator::calculate(
         candles, [this](const std::vector<Candle> &candles) -> std::vector<double>
         {
+            if (candles.size() < static_cast<size_t>(k_period)) {
+                return std::vector<double>(candles.size(), 0.0); // Not enough data
+            }
+
             // Calculate RSI values using the RelativeStrengthIndex class
             RSI rsi(k_period);
             std::vector<double> rsi_values = rsi.calculate(candles, false);
@@ -457,7 +475,7 @@ std::vector<double> StochasticOscillator::calculate(const std::vector<Candle> &c
                 // Calculate %K value
                 double highest_high = *std::max_element(highs.begin(), highs.end());
                 double lowest_low = *std::min_element(lows.begin(), lows.end());
-                double stochastic_k = 100.0 * (candles[i].close - lowest_low) / (highest_high - lowest_low);
+                double stochastic_k = (highest_high - lowest_low) > 0 ? 100.0 * (candles[i].close - lowest_low) / (highest_high - lowest_low) : 0.0;
 
                 // Add %K value to result
                 result[i] = stochastic_k;
@@ -495,6 +513,10 @@ std::vector<double> TSI::calculate(const std::vector<Candle> &candles, bool norm
         {
             std::vector<double> result(candles.size(), 0.0);
 
+            if (candles.size() < static_cast<size_t>(long_period)) {
+                return result; // Not enough data
+            }
+
             // Calculate price change
             std::vector<double> price_change;
             for (size_t i = 1; i < candles.size(); ++i) {
@@ -519,7 +541,7 @@ std::vector<double> TSI::calculate(const std::vector<Candle> &candles, bool norm
 
             // Calculate TSI
             for (size_t i = 0; i < result.size(); ++i) {
-                double tsi = 100.0 * (second_smoothed_pc[i] / second_smoothed_absolute_pc[i]);
+                double tsi = second_smoothed_absolute_pc[i] != 0 ? 100.0 * (second_smoothed_pc[i] / second_smoothed_absolute_pc[i]) : 0.0;
                 result[i] = tsi;
             }
 
@@ -554,6 +576,10 @@ std::vector<double> UO::calculate(const std::vector<Candle> &candles, bool norma
         candles, [this](const std::vector<Candle> &candles) -> std::vector<double>
         {
             std::vector<double> result(candles.size(), 0.0);
+
+            if (candles.size() < static_cast<size_t>(period3)) {
+                return result; // Not enough data
+            }
 
             std::vector<double> buying_pressure;
             std::vector<double> true_range;
@@ -591,7 +617,7 @@ std::vector<double> UO::calculate(const std::vector<Candle> &candles, bool norma
  * @param period The period for calculating Williams %R.
  * @param offset Offset value. Default is 0.
  */
-WilliamsPercentR::WilliamsPercentR(int period, int offset) : Indicator("Williams %R", "williams-percent-r-" + std::to_string(period) + "-" + std::to_string(offset), offset), period(period) {}
+WilliamsPercentR::WilliamsPercentR(int period, int offset) : Indicator("Williams %R", "wpr-" + std::to_string(period) + "-" + std::to_string(offset), offset), period(period) {}
 
 /**
  * @brief Calculate the Williams Percent R values.
@@ -606,6 +632,11 @@ std::vector<double> WilliamsPercentR::calculate(const std::vector<Candle> &candl
         candles, [this](const std::vector<Candle> &candles) -> std::vector<double>
         {
             std::vector<double> result(candles.size(), 0.0); // Initialize result vector with the same size as input
+            
+            if (candles.size() < static_cast<size_t>(period)) {
+                return result; // Not enough data
+            }
+            
             Highest highest_source(CandleSource::High, period, 0);
             Lowest lowest_source(CandleSource::Low, period, 0);
 

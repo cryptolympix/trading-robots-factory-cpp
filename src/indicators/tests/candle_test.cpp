@@ -78,7 +78,7 @@ TEST_F(TestCandleIndicators, PriceWithOffset)
     // Offset 1
     CandleOpen open_indicator(1);
     std::vector<double> result_open = open_indicator.calculate(mock_candles);
-    std::vector<double> expected_open = {10, 15, 9, 12, 6, 8, 17, 14, 11, 4};
+    std::vector<double> expected_open = {0, 10, 15, 9, 12, 6, 8, 17, 14, 11, 4};
     ASSERT_EQ(result_open.size(), expected_open.size());
     for (size_t i = 0; i < result_open.size(); ++i)
     {
@@ -88,7 +88,7 @@ TEST_F(TestCandleIndicators, PriceWithOffset)
     // Offset 1
     CandleHigh high_indicator(1);
     std::vector<double> result_high = high_indicator.calculate(mock_candles);
-    std::vector<double> expected_high = {12, 16, 10, 13, 7, 17, 18, 15, 12, 21};
+    std::vector<double> expected_high = {0, 12, 16, 10, 13, 7, 17, 18, 15, 12, 21};
     ASSERT_EQ(result_high.size(), expected_high.size());
     for (size_t i = 0; i < result_high.size(); ++i)
     {
@@ -98,7 +98,7 @@ TEST_F(TestCandleIndicators, PriceWithOffset)
     // Offset 1
     CandleLow low_indicator(1);
     std::vector<double> result_low = low_indicator.calculate(mock_candles);
-    std::vector<double> expected_low = {8, 8, 6, 8, 5, 5, 6, 8, 2, 8};
+    std::vector<double> expected_low = {0, 8, 8, 6, 8, 5, 5, 6, 8, 2, 8};
     ASSERT_EQ(result_low.size(), expected_low.size());
     for (size_t i = 0; i < result_low.size(); ++i)
     {
@@ -108,7 +108,7 @@ TEST_F(TestCandleIndicators, PriceWithOffset)
     // Offset 1
     CandleClose close_indicator(1);
     std::vector<double> result_close = close_indicator.calculate(mock_candles);
-    std::vector<double> expected_close = {15, 9, 12, 6, 5, 17, 14, 11, 4, 20};
+    std::vector<double> expected_close = {0, 15, 9, 12, 6, 5, 17, 14, 11, 4, 20};
     ASSERT_EQ(result_close.size(), expected_close.size());
     for (size_t i = 0; i < result_close.size(); ++i)
     {

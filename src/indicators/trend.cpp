@@ -12,166 +12,148 @@
 /**
  * @brief Construct a new Average Directional Movement Index object.
  *
- * @param period Period value. Default is 14.
+ * @param adx_period Period value. Default is 14.
  * @param offset Offset value. Default is 0.
  */
-ADX::ADX(int period, int offset) : Indicator("Average Directional Movement Index", "adx-" + std::to_string(period) + "-" + std::to_string(offset), offset), period(period) {}
+ADX::ADX(int adx_period, int offset) : Indicator("Average Directional Movement Index", "adx-" + std::to_string(adx_period) + "-" + std::to_string(offset), offset), adx_period(adx_period) {}
 
 /**
- * @brief Calculate the Average Directional Movement Index values.
+ * @brief Calculate the Average Directional Index (ADX).
  *
  * @param candles Vector of Candle data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
- * @return std::vector<double> Vector containing calculated values.
+ * @return std::vector<double> Vector containing ADX values.
  */
 std::vector<double> ADX::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<Candle> candles)
+        candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
-            if (candles.size() < static_cast<size_t>(period))
+             std::vector<double> adx_values(candles.size(), 0.0); // Initialize adx_values with the same size as input vectors
+
+            if (candles.size() < static_cast<size_t>(adx_period))
             {
-                throw std::invalid_argument("Insufficient data to calculate Average Directional Movement Index");
+                return adx_values; // Return an empty vector if there are not enough candles
             }
 
-            std::vector<double> high_values = get_candles_with_source(candles, CandleSource::High);
-            std::vector<double> low_values = get_candles_with_source(candles, CandleSource::Low);
-            std::vector<double> close_values = get_candles_with_source(candles, CandleSource::Close);
-
-            std::vector<double> true_range_values;
-            true_range_values.reserve(candles.size() - 1);
+            std::vector<double> dm_plus;
+            std::vector<double> dm_minus;
+            std::vector<double> tr_values;
 
             for (size_t i = 1; i < candles.size(); ++i)
             {
-                double true_range = std::max(high_values[i] - low_values[i], std::max(std::abs(high_values[i] - close_values[i - 1]), std::abs(low_values[i] - close_values[i - 1])));
-                true_range_values.push_back(true_range);
+                double dm_plus_value = (candles[i].high - candles[i - 1].high) > (candles[i - 1].low - candles[i].low) ? std::max(candles[i].high - candles[i - 1].high, 0.0) : 0.0;
+                double dm_minus_value = (candles[i - 1].low - candles[i].low) > (candles[i].high - candles[i - 1].high) ? std::max(candles[i - 1].low - candles[i].low, 0.0) : 0.0;
+                dm_plus.push_back(dm_plus_value);
+                dm_minus.push_back(dm_minus_value);
+
+                double tr = std::max({candles[i].high - candles[i].low, std::abs(candles[i].high - candles[i - 1].close), std::abs(candles[i].low - candles[i - 1].close)});
+                tr_values.push_back(tr);
             }
 
-            std::vector<double> directional_movement_plus;
-            std::vector<double> directional_movement_minus;
-            directional_movement_plus.reserve(true_range_values.size());
-            directional_movement_minus.reserve(true_range_values.size());
+            std::vector<double> smoothed_dm_plus = calculate_smoothed(dm_plus);
+            std::vector<double> smoothed_dm_minus = calculate_smoothed(dm_minus);
+            std::vector<double> smoothed_tr = calculate_smoothed(tr_values);
 
-            for (size_t i = 1; i < true_range_values.size(); ++i)
+            std::vector<double> di_plus = calculate_directional_index(smoothed_dm_plus, smoothed_tr);
+            std::vector<double> di_minus = calculate_directional_index(smoothed_dm_minus, smoothed_tr);
+
+            std::vector<double> dx_values = calculate_dx(di_plus, di_minus);
+            std::vector<double> adx_values_partial = calculate_adx(dx_values);
+
+            for (size_t i = candles.size() - adx_period; i < candles.size(); ++i)
             {
-                double high_diff = high_values[i] - high_values[i - 1];
-                double low_diff = low_values[i - 1] - low_values[i];
-                if (high_diff > low_diff && high_diff > 0)
-                {
-                    directional_movement_plus.push_back(high_diff);
-                }
-                else
-                {
-                    directional_movement_plus.push_back(0);
-                }
-
-                if (low_diff > high_diff && low_diff > 0)
-                {
-                    directional_movement_minus.push_back(low_diff);
-                }
-                else
-                {
-                    directional_movement_minus.push_back(0);
-                }
+                adx_values[i] = adx_values_partial[i - (candles.size() - adx_period)];
             }
-
-            std::vector<double> smooth_directional_movement_plus = smooth_directional_movement(directional_movement_plus);
-            std::vector<double> smooth_directional_movement_minus = smooth_directional_movement(directional_movement_minus);
-            std::vector<double> true_range_smoothed = smooth_true_range(true_range_values);
-
-            std::vector<double> positive_directional_index = calculate_positive_directional_index(smooth_directional_movement_plus, true_range_smoothed);
-            std::vector<double> negative_directional_index = calculate_negative_directional_index(smooth_directional_movement_minus, true_range_smoothed);
-
-            std::vector<double> directional_movement_index = calculate_directional_movement_index(positive_directional_index, negative_directional_index);
-            std::vector<double> adx_values = calculate_adx(directional_movement_index);
 
             return adx_values; },
 
         normalize_data);
 }
 
-std::vector<double> ADX::smooth_directional_movement(const std::vector<double> &directional_movement) const
+/**
+ * @brief Calculate the smoothed values.
+ *
+ * @param values Vector containing the values to be smoothed.
+ * @return std::vector<double> Vector containing the smoothed values.
+ */
+std::vector<double> ADX::calculate_smoothed(const std::vector<double> &values) const
 {
     std::vector<double> smoothed_values;
-    smoothed_values.reserve(directional_movement.size() - period + 1);
-    double sum = std::accumulate(directional_movement.begin(), directional_movement.begin() + period, 0.0);
-    smoothed_values.push_back(sum / period);
-
-    for (size_t i = period; i < directional_movement.size(); ++i)
+    double sum = 0.0;
+    for (size_t i = 0; i < adx_period; ++i)
     {
-        sum -= directional_movement[i - period];
-        sum += directional_movement[i];
-        smoothed_values.push_back(sum / period);
+        sum += values[i];
+    }
+    double first_smoothed = sum / adx_period;
+    smoothed_values.push_back(first_smoothed);
+
+    for (size_t i = adx_period; i < values.size(); ++i)
+    {
+        double smoothed = smoothed_values.back() - (smoothed_values.back() / adx_period) + values[i];
+        smoothed_values.push_back(smoothed);
     }
 
     return smoothed_values;
 }
 
-std::vector<double> ADX::smooth_true_range(const std::vector<double> &true_range_values) const
+/**
+ * @brief Calculate the directional index values.
+ *
+ * @param smoothed_dm Vector containing smoothed directional movement values.
+ * @param smoothed_tr Vector containing smoothed true range values.
+ * @return std::vector<double> Vector containing the calculated directional index values.
+ */
+std::vector<double> ADX::calculate_directional_index(const std::vector<double> &smoothed_dm, const std::vector<double> &smoothed_tr) const
 {
-    std::vector<double> smoothed_values;
-    smoothed_values.reserve(true_range_values.size() - period + 1);
-    double sum = std::accumulate(true_range_values.begin(), true_range_values.begin() + period, 0.0);
-    smoothed_values.push_back(sum / period);
-
-    for (size_t i = period; i < true_range_values.size(); ++i)
+    std::vector<double> di_values;
+    for (size_t i = 0; i < smoothed_dm.size(); ++i)
     {
-        sum -= true_range_values[i - period];
-        sum += true_range_values[i];
-        smoothed_values.push_back(sum / period);
+        double di = (smoothed_dm[i] / smoothed_tr[i]) * 100.0;
+        di_values.push_back(di);
     }
-
-    return smoothed_values;
+    return di_values;
 }
 
-std::vector<double> ADX::calculate_positive_directional_index(const std::vector<double> &smoothed_directional_movement_plus, const std::vector<double> &smoothed_true_range) const
+/**
+ * @brief Calculate the DX values.
+ *
+ * @param di_plus Vector containing Plus Directional Indicator values.
+ * @param di_minus Vector containing Minus Directional Indicator values.
+ * @return std::vector<double> Vector containing the calculated DX values.
+ */
+std::vector<double> ADX::calculate_dx(const std::vector<double> &di_plus, const std::vector<double> &di_minus) const
 {
-    std::vector<double> positive_directional_index;
-    positive_directional_index.reserve(smoothed_directional_movement_plus.size());
-    for (size_t i = 0; i < smoothed_directional_movement_plus.size(); ++i)
+    std::vector<double> dx_values;
+    for (size_t i = 0; i < di_plus.size(); ++i)
     {
-        double positive_directional_index_value = smoothed_directional_movement_plus[i] / smoothed_true_range[i] * 100.0;
-        positive_directional_index.push_back(positive_directional_index_value);
+        double dx = (std::abs(di_plus[i] - di_minus[i]) / (di_plus[i] + di_minus[i])) * 100.0;
+        dx_values.push_back(dx);
     }
-    return positive_directional_index;
+    return dx_values;
 }
 
-std::vector<double> ADX::calculate_negative_directional_index(const std::vector<double> &smoothed_directional_movement_minus, const std::vector<double> &smoothed_true_range) const
-{
-    std::vector<double> negative_directional_index;
-    negative_directional_index.reserve(smoothed_directional_movement_minus.size());
-    for (size_t i = 0; i < smoothed_directional_movement_minus.size(); ++i)
-    {
-        double negative_directional_index_value = smoothed_directional_movement_minus[i] / smoothed_true_range[i] * 100.0;
-        negative_directional_index.push_back(negative_directional_index_value);
-    }
-    return negative_directional_index;
-}
-
-std::vector<double> ADX::calculate_directional_movement_index(const std::vector<double> &positive_directional_index, const std::vector<double> &negative_directional_index) const
-{
-    std::vector<double> directional_movement_index;
-    directional_movement_index.reserve(positive_directional_index.size());
-    for (size_t i = 0; i < positive_directional_index.size(); ++i)
-    {
-        double directional_movement_index_value = std::abs((positive_directional_index[i] - negative_directional_index[i]) / (positive_directional_index[i] + negative_directional_index[i])) * 100.0;
-        directional_movement_index.push_back(directional_movement_index_value);
-    }
-    return directional_movement_index;
-}
-
-std::vector<double> ADX::calculate_adx(const std::vector<double> &directional_movement_index) const
+/**
+ * @brief Calculate the ADX values.
+ *
+ * @param dx_values Vector containing DX values.
+ * @return std::vector<double> Vector containing the calculated ADX values.
+ */
+std::vector<double> ADX::calculate_adx(const std::vector<double> &dx_values) const
 {
     std::vector<double> adx_values;
-    adx_values.reserve(directional_movement_index.size());
-    double sum = std::accumulate(directional_movement_index.begin(), directional_movement_index.begin() + period, 0.0);
-    adx_values.push_back(sum / period);
-
-    for (size_t i = period; i < directional_movement_index.size(); ++i)
+    double sum_dx = 0.0;
+    for (size_t i = 0; i < adx_period; ++i)
     {
-        sum -= adx_values[i - period];
-        sum += directional_movement_index[i];
-        adx_values.push_back(sum / period);
+        sum_dx += dx_values[i];
+    }
+    double first_adx = sum_dx / adx_period;
+    adx_values.push_back(first_adx);
+
+    for (size_t i = adx_period; i < dx_values.size(); ++i)
+    {
+        double adx = ((adx_values.back() * (adx_period - 1)) + dx_values[i]) / adx_period;
+        adx_values.push_back(adx);
     }
 
     return adx_values;
@@ -207,8 +189,8 @@ std::vector<double> AroonTrend::calculate(const std::vector<Candle> &candles, bo
             std::vector<double> high_values = get_candles_with_source(candles, CandleSource::High);
             std::vector<double> low_values = get_candles_with_source(candles, CandleSource::Low);
 
-            std::vector<double> values;
-            values.reserve(candles.size() - period + 1);
+            std::vector<double> partial_values;
+            partial_values.reserve(candles.size() - period + 1);
 
             for (size_t i = period; i <= candles.size(); ++i)
             {
@@ -222,16 +204,22 @@ std::vector<double> AroonTrend::calculate(const std::vector<Candle> &candles, bo
 
                 if (aroon_up > aroon_down)
                 {
-                    values.push_back(1.0);
+                    partial_values.push_back(1.0);
                 }
                 else if (aroon_up < aroon_down)
                 {
-                    values.push_back(-1.0);
+                    partial_values.push_back(-1.0);
                 }
                 else
                 {
-                    values.push_back(0.0);
+                    partial_values.push_back(0.0);
                 }
+            }
+
+            std::vector<double> values(candles.size(), 0.0); // Initialize values with the same size as input vectors
+            for (size_t i = 0; i < partial_values.size(); ++i)
+            {
+                values[i + period - 1] = partial_values[i];
             }
 
             return values; },
@@ -265,8 +253,7 @@ std::vector<double> CCI::calculate(const std::vector<Candle> &candles, bool norm
             std::vector<double> sma_values = calculate_simple_moving_average(typical_prices, period);
             std::vector<double> mean_deviation_values = calculate_mean_deviation(typical_prices, sma_values);
 
-            std::vector<double> cci_values;
-            cci_values.reserve(sma_values.size());
+            std::vector<double> cci_values(candles.size(), 0.0); // Initialize cci_values with the same size as input vectors
 
             for (size_t i = period - 1; i < sma_values.size(); ++i)
             {
@@ -274,7 +261,7 @@ std::vector<double> CCI::calculate(const std::vector<Candle> &candles, bool norm
                 double sma = sma_values[i];
                 double mean_deviation = mean_deviation_values[i];
                 double cci = (typical_price - sma) / (0.015 * mean_deviation);
-                cci_values.push_back(cci);
+                cci_values[i] = cci;
             } 
             
             return cci_values; },
@@ -473,6 +460,81 @@ std::vector<double> KSTOscillator::calculate(const std::vector<Candle> &candles,
             return kst_values; },
 
         normalize_data);
+}
+
+// *********************************************************************************************
+
+/**
+ * @brief Construct a new MACD object.
+ *
+ * @param short_period Short EMA period. Default is 12.
+ * @param long_period Long EMA period. Default is 26.
+ * @param signal_period Signal EMA period. Default is 9.
+ * @param offset Offset value. Default is 0.
+ */
+MACD::MACD(int short_period, int long_period, int signal_period, int offset) : Indicator("Moving Average Convergence Divergence", "macd-" + std::to_string(short_period) + "-" + std::to_string(long_period) + "-" + std::to_string(signal_period) + "-" + std::to_string(offset), offset),
+                                                                               short_period(short_period), long_period(long_period), signal_period(signal_period) {}
+
+/**
+ * @brief Calculate the MACD line and signal line.
+ *
+ * @param candles Vector of Candle data.
+ * @param normalize_data Boolean flag indicating whether to normalize data.
+ * @return std::vector<double> Vector containing MACD line.
+ * @details The MACD line is calculated as the difference between the short EMA and the long EMA.
+ */
+std::vector<double> MACD::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+{
+    return Indicator::calculate(
+        candles, [this](std::vector<Candle> candles) -> std::vector<double>
+        {
+            std::vector<double> closes = get_candles_with_source(candles, CandleSource::Close);
+
+            std::vector<double> macd_line = calculate_macd_line(closes);
+            std::vector<double> signal_line = calculate_signal_line(macd_line);
+
+            std::vector<double> result(candles.size(), 0.0);
+            for (size_t i = 0; i < candles.size(); ++i) {
+                result[i] = macd_line[i];
+            }
+
+            return result; },
+
+        normalize_data);
+}
+
+/**
+ * @brief Calculate the MACD line.
+ *
+ * @param closes Vector containing close values.
+ * @return std::vector<double> Vector containing MACD line.
+ */
+std::vector<double> MACD::calculate_macd_line(const std::vector<double> &closes) const
+{
+    // Calculate short EMA
+    std::vector<double> short_ema = calculate_exponential_moving_average(closes, short_period);
+    // Calculate long EMA
+    std::vector<double> long_ema = calculate_exponential_moving_average(closes, long_period);
+
+    // Calculate MACD line (difference between short EMA and long EMA)
+    std::vector<double> macd_line;
+    for (size_t i = 0; i < closes.size(); ++i)
+    {
+        macd_line.push_back(short_ema[i] - long_ema[i]);
+    }
+    return macd_line;
+}
+
+/**
+ * @brief Calculate the signal line.
+ *
+ * @param macd_line Vector containing MACD line.
+ * @return std::vector<double> Vector containing signal line.
+ */
+std::vector<double> MACD::calculate_signal_line(const std::vector<double> &macd_line) const
+{
+    // Calculate signal line (EMA of MACD line)
+    return calculate_exponential_moving_average(macd_line, signal_period);
 }
 
 // *********************************************************************************************
@@ -710,4 +772,362 @@ std::vector<double> SMA::calculate(const std::vector<Candle> &candles, bool norm
             return sma_values; },
 
         normalize_data);
+}
+
+// *********************************************************************************************
+
+/**
+ * @brief Construct a new STC object.
+ *
+ * @param short_period Short period for MACD calculation.
+ * @param long_period Long period for MACD calculation.
+ * @param signal_period Signal period for MACD calculation.
+ * @param smooth_period Period for smoothing.
+ * @param offset Offset value. Default is 0.
+ */
+STC::STC(int short_period, int long_period, int signal_period, int smooth_period, int offset) : Indicator("Schaff Trend Cycle", "stc-" + std::to_string(short_period) + "-" + std::to_string(long_period) + "-" + std::to_string(signal_period) + "-" + std::to_string(smooth_period) + "-" + std::to_string(offset), offset),
+                                                                                                short_period(short_period), long_period(long_period), signal_period(signal_period), smooth_period(smooth_period) {}
+
+/**
+ * @brief Calculate the Schaff Trend Cycle (STC) values.
+ *
+ * @param candles Vector of Candle data.
+ * @param normalize_data Boolean flag indicating whether to normalize data.
+ * @return std::vector<double> Vector containing calculated values.
+ */
+std::vector<double> STC::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+{
+    return Indicator::calculate(
+        candles, [this](const std::vector<Candle> &candles) -> std::vector<double>
+        {
+                std::vector<double> result(candles.size(), 0.0);
+
+                // Calculate MACD using short and long periods
+                MACD macd_indicator(short_period, long_period, signal_period);
+                std::vector<double> macd = macd_indicator.calculate(candles, false);
+
+                // Calculate Signal line using signal period
+                std::vector<double> signal_line = calculate_simple_moving_average(macd, signal_period);
+
+                // Smooth the Signal line using smooth period
+                std::vector<double> smooth_signal = calculate_simple_moving_average(signal_line, smooth_period);
+
+                // Apply the smoothing algorithm for the final STC value
+                for (size_t i = smooth_period; i < candles.size(); ++i) {
+                    result[i] = 0.5 * smooth_signal[i] + 0.5 * smooth_signal[i - 1];
+                }
+
+                return result; },
+
+        normalize_data);
+}
+
+// *********************************************************************************************
+
+/**
+ * @brief Construct a new TRIX object.
+ *
+ * @param period Period for TRIX calculation.
+ * @param offset Offset value. Default is 0.
+ */
+TRIX::TRIX(int period, int offset) : Indicator("TRIX", "trix-" + std::to_string(period) + "-" + std::to_string(offset), offset), period(period) {}
+
+/**
+ * @brief Calculate the TRIX values.
+ *
+ * @param candles Vector of Candle data.
+ * @param normalize_data Boolean flag indicating whether to normalize data.
+ * @return std::vector<Candle> Vector containing calculated values.
+ */
+std::vector<double> TRIX::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+{
+    return Indicator::calculate(
+        candles, [this](const std::vector<Candle> &candles) -> std::vector<double>
+        {
+                std::vector<double> closes = get_candles_with_source(candles, CandleSource::Close);
+                std::vector<double> ema1 = calculate_exponential_moving_average(closes, period);
+                std::vector<double> ema2 = calculate_exponential_moving_average(ema1, period);
+                std::vector<double> ema3 = calculate_exponential_moving_average(ema2, period);
+
+                std::vector<double> trix(closes.size(), 0.0);
+
+                // Calculate TRIX values
+                for (size_t i = period * 3 - 1; i < closes.size(); ++i) {
+                    trix[i] = (ema3[i] - ema3[i - 1]) / ema3[i - 1] * 100.0;
+                }
+
+                return trix; },
+
+        normalize_data);
+}
+
+// *********************************************************************************************
+
+/**
+ * @brief Construct a new InstitutionalBias object.
+ *
+ * @param short_period Period for short EMA calculation.
+ * @param long_period Period for long EMA calculation.
+ * @param offset Offset value. Default is 0.
+ */
+InstitutionalBias::InstitutionalBias(int short_period, int long_period, int offset) : Indicator("Institutional Bias", "institutional-bias-" + std::to_string(short_period) + "-" + std::to_string(long_period) + "-" + std::to_string(offset), offset),
+                                                                                      short_period(short_period), long_period(long_period) {}
+
+/**
+ * @brief Calculate the Institutional Bias values.
+ *
+ * @param candles Vector of Candle data.
+ * @param normalize_data Boolean flag indicating whether to normalize data.
+ * @return std::vector<int> Vector containing calculated values. 1 for short EMA > long EMA, -1 otherwise.
+ */
+std::vector<double> InstitutionalBias::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+{
+    return Indicator::calculate(
+        candles, [this](const std::vector<Candle> &candles) -> std::vector<double>
+        {
+            std::vector<double> closes = get_candles_with_source(candles, CandleSource::Close);
+            std::vector<double> short_ema = calculate_exponential_moving_average(closes, short_period);
+            std::vector<double> long_ema = calculate_exponential_moving_average(closes, long_period);
+
+            std::vector<double> institutional_bias(candles.size(), 0.0);
+
+            // Calculate Institutional Bias values
+            for (size_t i = 0; i < candles.size(); ++i) {
+                if (short_ema[i] > long_ema[i]) {
+                    institutional_bias[i] = 1.0;
+                } else if (short_ema[i] < long_ema[i]){
+                    institutional_bias[i] = -1.0;
+                } else {
+                    institutional_bias[i] = 0.0;
+                }
+            }
+
+            return institutional_bias; },
+
+        normalize_data);
+}
+
+// *********************************************************************************************
+
+/**
+ * @brief Construct a new EMADifference object.
+ *
+ * @param short_period Period for short EMA calculation. Default is 9.
+ * @param long_period Period for long EMA calculation. Default is 18.
+ * @param offset Offset value. Default is 0.
+ */
+EMADifference::EMADifference(int short_period, int long_period, int offset) : Indicator("EMA Difference", "ema-difference-" + std::to_string(short_period) + "-" + std::to_string(long_period) + "-" + std::to_string(offset), offset),
+                                                                              short_period(short_period), long_period(long_period) {}
+
+/**
+ * @brief Calculate the difference between two exponential moving averages.
+ *
+ * @param closes Vector of closing prices.
+ * @param normalize_data Boolean flag indicating whether to normalize data.
+ * @return std::vector<double> Vector containing the calculated difference values.
+ */
+std::vector<double> EMADifference::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+{
+    return Indicator::calculate(
+        candles, [this](const std::vector<Candle> &candles) -> std::vector<double>
+        {
+            std::vector<double> closes = get_candles_with_source(candles, CandleSource::Close);
+            std::vector<double> short_ema = calculate_exponential_moving_average(closes, short_period);
+            std::vector<double> long_ema = calculate_exponential_moving_average(closes, long_period);
+
+            std::vector<double> ema_difference(candles.size(), 0.0);
+
+            // Calculate EMA Difference values
+            for (size_t i = 0; i < candles.size(); ++i) {
+                ema_difference[i] = short_ema[i] - long_ema[i];
+            }
+
+            return ema_difference; },
+
+        normalize_data);
+}
+
+// *********************************************************************************************
+
+/**
+ * @brief Construct a new IchimokuCloudTrend object.
+ *
+ * @param offset Offset value. Default is 0.
+ */
+IchimokuCloudTrend::IchimokuCloudTrend(int offset) : Indicator("Ichimoku Cloud Trend", "ichimoku-trend-" + std::to_string(offset), offset) {}
+
+/**
+ * @brief Determine the trend based on Ichimoku Cloud.
+ *
+ * @param candles Vector of Candle data.
+ * @param normalize_data Boolean flag indicating whether to normalize data.
+ * @return std::vector<double> Vector containing the trend values:
+ *         1 if close price is above the cloud,
+ *        -1 if close price is below the cloud,
+ *         0 if close price is in the cloud.
+ */
+std::vector<double> IchimokuCloudTrend::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+{
+    return Indicator::calculate(
+        candles, [this](std::vector<Candle> candles) -> std::vector<double>
+        {
+            std::vector<double> trend(candles.size());
+
+            std::vector<double> high_prices = get_candles_with_source(candles, CandleSource::High);
+            std::vector<double> low_prices = get_candles_with_source(candles, CandleSource::Low);
+
+            std::vector<double> tenkan_sen = calculate_tenkan_sen(high_prices);
+            std::vector<double> kijun_sen = calculate_kijun_sen(high_prices);
+            std::vector<double> senkou_span_a = calculate_senkou_span_a(tenkan_sen, kijun_sen);
+            std::vector<double> senkou_span_b = calculate_senkou_span_b(candles);
+
+            for (size_t i = 0; i < candles.size(); ++i) {
+                if (candles[i].close > senkou_span_a[i] && candles[i].close > senkou_span_b[i]) {
+                    trend[i] = 1.0; // Close price is above the cloud
+                } else if (candles[i].close < senkou_span_a[i] && candles[i].close < senkou_span_b[i]) {
+                    trend[i] = -1.0; // Close price is below the cloud
+                } else {
+                    trend[i] = 0.0; // Close price is in the cloud
+                }
+            }
+
+            return trend; },
+
+        normalize_data);
+}
+
+/**
+ * @brief Calculate the Tenkan-sen values.
+ *
+ * @param high_prices Vector containing high prices.
+ * @return std::vector<double> Vector containing the calculated Tenkan-sen values.
+ */
+std::vector<double> IchimokuCloudTrend::calculate_tenkan_sen(const std::vector<double> &high_prices) const
+{
+    // Calculate Tenkan-sen (Conversion Line)
+    return calculate_simple_moving_average(high_prices, 9);
+}
+
+/**
+ * @brief Calculate the Kijun-sen values.
+ *
+ * @param high_prices Vector containing high prices.
+ * @return std::vector<double> Vector containing the calculated Kijun-sen values.
+ */
+std::vector<double> IchimokuCloudTrend::calculate_kijun_sen(const std::vector<double> &high_prices) const
+{
+    // Calculate Kijun-sen (Base Line)
+    return calculate_simple_moving_average(high_prices, 26);
+}
+
+/**
+ * @brief Calculate the Senkou Span A values.
+ *
+ * @param tenkan_sen Vector containing Tenkan-sen values.
+ * @param kijun_sen Vector containing Kijun-sen values.
+ * @return std::vector<double> Vector containing the calculated Senkou Span A values.
+ */
+std::vector<double> IchimokuCloudTrend::calculate_senkou_span_a(const std::vector<double> &tenkan_sen,
+                                                                const std::vector<double> &kijun_sen) const
+{
+    // Calculate Senkou Span A (Leading Span A)
+    std::vector<double> senkou_span_a(tenkan_sen.size());
+    for (size_t i = 0; i < tenkan_sen.size(); ++i)
+    {
+        senkou_span_a[i] = (tenkan_sen[i] + kijun_sen[i]) / 2.0;
+    }
+    return senkou_span_a;
+}
+
+/**
+ * @brief Calculate the Senkou Span B values.
+ *
+ * @param candles Vector of Candle data.
+ * @return std::vector<double> Vector containing the calculated Senkou Span B values.
+ */
+std::vector<double> IchimokuCloudTrend::calculate_senkou_span_b(const std::vector<Candle> &candles) const
+{
+    // Calculate Senkou Span B (Leading Span B)
+    std::vector<double> close_prices(candles.size());
+    for (size_t i = 0; i < candles.size(); ++i)
+    {
+        close_prices[i] = candles[i].close;
+    }
+    std::vector<double> senkou_span_b = calculate_simple_moving_average(close_prices, 52);
+
+    // Shift Senkou Span B 26 periods ahead
+    std::rotate(senkou_span_b.begin(), senkou_span_b.begin() + 26, senkou_span_b.end());
+
+    return senkou_span_b;
+}
+
+// *********************************************************************************************
+
+/**
+ * @brief Construct a new IchimokuTenkanKijunTrend object.
+ *
+ * @param offset Offset value. Default is 0.
+ */
+IchimokuTenkanKijunTrend::IchimokuTenkanKijunTrend(int offset) : Indicator("Ichimoku Tenkan-Kijun Trend", "tenkan-kijun-trend-" + std::to_string(offset), offset) {}
+
+/**
+ * @brief Determine the trend based on the relationship between Tenkan-sen (Conversion Line) and Kijun-sen (Base Line).
+ *
+ * @param candles Vector of Candle data.
+ * @param normalize_data Boolean flag indicating whether to normalize data.
+ * @return std::vector<int> Vector containing the trend values:
+ *         1 if close price is above both Tenkan-sen and Kijun-sen,
+ *        -1 if close price is below both Tenkan-sen and Kijun-sen,
+ *         0 if close price is between Tenkan-sen and Kijun-sen.
+ */
+std::vector<double> IchimokuTenkanKijunTrend::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+{
+    return Indicator::calculate(
+        candles, [this](std::vector<Candle> candles) -> std::vector<double>
+        {
+            std::vector<double> trend(candles.size());
+
+            std::vector<double> high_prices = get_candles_with_source(candles, CandleSource::High);
+            std::vector<double> low_prices = get_candles_with_source(candles, CandleSource::Low);
+
+            std::vector<double> tenkan_sen = calculate_tenkan_sen(high_prices);
+            std::vector<double> kijun_sen = calculate_kijun_sen(high_prices);
+
+            for (size_t i = 0; i < candles.size(); ++i) {
+                if (candles[i].close > tenkan_sen[i] && candles[i].close > kijun_sen[i]) {
+                    trend[i] = 1.0; // Close price is above both Tenkan-sen and Kijun-sen
+                } else if (candles[i].close < tenkan_sen[i] && candles[i].close < kijun_sen[i]) {
+                    trend[i] = -1.0; // Close price is below both Tenkan-sen and Kijun-sen
+                } else {
+                    trend[i] = 0.0; // Close price is between Tenkan-sen and Kijun-sen
+                }
+            }
+
+            return trend; },
+
+        normalize_data);
+}
+
+/**
+ * @brief Calculate the Tenkan-sen values.
+ *
+ * @param high_prices Vector containing high prices.
+ * @return std::vector<double> Vector containing the calculated Tenkan-sen values.
+ */
+std::vector<double> IchimokuTenkanKijunTrend::calculate_tenkan_sen(const std::vector<double> &high_prices) const
+{
+    // Calculate Tenkan-sen (Conversion Line)
+    return calculate_simple_moving_average(high_prices, 9);
+}
+
+/**
+ * @brief Calculate the Kijun-sen values.
+ *
+ * @param high_prices Vector containing high prices.
+ * @return std::vector<double> Vector containing the calculated Kijun-sen values.
+ */
+std::vector<double> IchimokuTenkanKijunTrend::calculate_kijun_sen(const std::vector<double> &high_prices) const
+{
+    // Calculate Kijun-sen (Base Line)
+    return calculate_simple_moving_average(high_prices, 26);
 }

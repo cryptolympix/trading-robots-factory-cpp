@@ -257,11 +257,6 @@ std::vector<double> PivotHigh::calculate(const std::vector<Candle> &candles, boo
                 }
             }
 
-            if (offset > 0)
-            {
-                values.insert(values.begin(), offset, std::numeric_limits<int>::quiet_NaN());
-            }
-
             return values; },
 
         normalize_data);
@@ -313,11 +308,6 @@ std::vector<double> PivotLow::calculate(const std::vector<Candle> &candles, bool
                 }
             }
 
-            if (offset > 0)
-            {
-                values.insert(values.begin(), offset, std::numeric_limits<int>::quiet_NaN());
-            }
-
             return values; },
 
         normalize_data);
@@ -365,13 +355,6 @@ std::vector<double> Lowest::calculate(const std::vector<Candle> &candles, bool n
                 values[i + right_bars] = source_candles[current_pivot_index];
             }
 
-            // Adjust values if offset is greater than 0
-            if (offset > 0)
-            {
-                std::vector<double> nan_values(offset, NAN);
-                values.insert(values.begin(), nan_values.begin(), nan_values.end());
-            }
-
             return values; },
 
         normalize_data);
@@ -402,6 +385,7 @@ std::vector<double> Highest::calculate(const std::vector<Candle> &candles, bool 
         { 
             std::vector<double> values(candles.size(), 0); // Initialize values vector with size of candles
             PivotHigh indicator(CandleSource::High, left_bars, right_bars, offset);
+
             std::vector<double> pivots = indicator.calculate(candles, false);
             std::vector<double> source_candles = get_candles_with_source(candles, source);
 
@@ -417,13 +401,6 @@ std::vector<double> Highest::calculate(const std::vector<Candle> &candles, bool 
                     current_pivot_index = i;
                 }
                 values[i + right_bars] = source_candles[current_pivot_index];
-            }
-
-            // Adjust values if offset is greater than 0
-            if (offset > 0)
-            {
-                std::vector<double> nan_values(offset, NAN);
-                values.insert(values.begin(), nan_values.begin(), nan_values.end());
             }
 
             return values; },

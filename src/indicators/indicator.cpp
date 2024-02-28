@@ -50,6 +50,10 @@ std::vector<double> Indicator::calculate(const std::vector<Candle> &candles, std
         std::vector<Candle> adjusted_candles(candles.begin(), candles.end() - offset);
         // Calculate the indicator
         values = calculator(adjusted_candles);
+
+        // Concatenate the zero values and adjusted_candles
+        std::vector<double> zero_values(offset, 0);
+        values.insert(values.begin(), zero_values.begin(), zero_values.end());
     }
     else
     {
@@ -57,7 +61,7 @@ std::vector<double> Indicator::calculate(const std::vector<Candle> &candles, std
         values = calculator(candles);
     }
 
-     // Normalize the data
+    // Normalize the data
     if (normalize_data)
     {
         values = normalize(values);

@@ -202,7 +202,6 @@ private:
     CandleSource source;
     int left_bars;
     int right_bars;
-    int offset;
 };
 
 /**
@@ -234,7 +233,6 @@ private:
     CandleSource source;
     int left_bars;
     int right_bars;
-    int offset;
 };
 
 /**
@@ -266,7 +264,6 @@ private:
     CandleSource source;
     int left_bars;
     int right_bars;
-    int offset;
 };
 
 /**
@@ -298,7 +295,6 @@ private:
     CandleSource source;
     int left_bars;
     int right_bars;
-    int offset;
 };
 
 #endif /* CANDLE_INDICATORS_H */
