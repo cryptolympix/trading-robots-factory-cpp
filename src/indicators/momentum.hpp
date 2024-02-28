@@ -104,6 +104,37 @@ private:
 // *********************************************************************************************
 
 /**
+ * MFI (Money Flow Index)
+ *
+ * Is a momentum indicator that measures the inflow and outflow of money into an asset over a specific period of time.
+ */
+class MFI : public Indicator
+{
+public:
+    /**
+     * @brief Construct a new Money Flow Index object.
+     *
+     * @param period The period for calculating Money Flow Index (MFI). Default is 14.
+     * @param offset Offset value. Default is 0.
+     */
+    MFI(int period = 14, int offset = 0);
+
+    /**
+     * @brief Calculate the Money Flow Index (MFI) values.
+     *
+     * @param candles Vector of Candle data.
+     * @param normalize_data Boolean flag indicating whether to normalize data.
+     * @return std::vector<double> Vector containing calculated MFI values.
+     */
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+
+private:
+    int period; // The period for calculating Money Flow Index (MFI).
+};
+
+// *********************************************************************************************
+
+/**
  * The Percentage Price Oscillator (PPO) is a momentum oscillator that measures the difference between two moving averages as a percentage of the larger moving average.
  *
  * https://school.stockcharts.com/doku.php?id=technical_indicators:price_oscillators_ppo

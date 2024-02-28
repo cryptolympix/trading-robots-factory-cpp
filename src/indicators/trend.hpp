@@ -215,30 +215,30 @@ private:
 // *********************************************************************************************
 
 /**
- * KST Oscillator (KST Signal)
+ * KST (Know Sure Thing) Oscillator
  *
  * It is useful to identify major stock market cycle junctures because its formula is weighed to be more greatly influenced by the longer and more dominant time spans, in order to better reflect the primary swings of stock market cycle.
  */
-class KSTOscillator : public Indicator
+class KST : public Indicator
 {
 public:
     /**
      * @brief Construct a new KST Oscillator object.
      *
-     * @param roc_periods1 Periods for Rate of Change (ROC) 1.
-     * @param roc_periods2 Periods for Rate of Change (ROC) 2.
-     * @param roc_periods3 Periods for Rate of Change (ROC) 3.
-     * @param roc_periods4 Periods for Rate of Change (ROC) 4.
-     * @param sma_periods1 Periods for Simple Moving Average (SMA) 1.
-     * @param sma_periods2 Periods for Simple Moving Average (SMA) 2.
-     * @param sma_periods3 Periods for Simple Moving Average (SMA) 3.
-     * @param sma_periods4 Periods for Simple Moving Average (SMA) 4.
-     * @param signal_periods Periods for the signal line.
+     * @param roc_periods1 Periods for Rate of Change (ROC) 1. Default is 10.
+     * @param roc_periods2 Periods for Rate of Change (ROC) 2. Default is 15.
+     * @param roc_periods3 Periods for Rate of Change (ROC) 3. Default is 20.
+     * @param roc_periods4 Periods for Rate of Change (ROC) 4. Default is 30.
+     * @param sma_periods1 Periods for Simple Moving Average (SMA) 1. Default is 10.
+     * @param sma_periods2 Periods for Simple Moving Average (SMA) 2. Default is 10.
+     * @param sma_periods3 Periods for Simple Moving Average (SMA) 3. Default is 10.
+     * @param sma_periods4 Periods for Simple Moving Average (SMA) 4. Default is 15.
+     * @param signal_periods Periods for the signal line. Default is 9.
      * @param offset Offset value. Default is 0.
      */
-    KSTOscillator(int roc_periods1, int roc_periods2, int roc_periods3, int roc_periods4,
-                  int sma_periods1, int sma_periods2, int sma_periods3, int sma_periods4,
-                  int signal_periods, int offset = 0);
+    KST(int roc_periods1 = 10, int roc_periods2 = 15, int roc_periods3 = 20, int roc_periods4 = 30,
+        int sma_periods1 = 10, int sma_periods2 = 10, int sma_periods3 = 10, int sma_periods4 = 15,
+        int signal_periods = 9, int offset = 0);
 
     /**
      * @brief Calculate the KST Oscillator values.
@@ -257,6 +257,11 @@ private:
 
 // *********************************************************************************************
 
+/**
+ * MACD (Moving Average Convergence Divergence)
+ *
+ * Is a trend-following momentum indicator that shows the relationship between two moving averages of a security’s price.
+ */
 class MACD : public Indicator
 {
 public:
@@ -335,30 +340,30 @@ public:
  *
  * The Parabolic SAR is a technical indicator used to determine the price direction of an asset, as well as draw attention to when the price direction is changing.
  */
-class PSAR : public Indicator
+class ParabolicSAR : public Indicator
 {
-
 public:
     /**
-     * @brief Construct a new ParabolicSAR object.
+     * @brief Construct a new Parabolic SAR object.
      *
-     * @param acceleration_factor Initial acceleration factor value. Default is 0.02.
-     * @param acceleration_factor_max Maximum acceleration factor value. Default is 0.2.
+     * @param acceleration_factor_initial Initial acceleration factor value. Default is 0.02.
+     * @param acceleration_factor_maximum Maximum acceleration factor value. Default is 0.2.
      * @param offset Offset value. Default is 0.
      */
-    PSAR(double acceleration_factor = 0.02, double acceleration_factor_max = 0.2, int offset = 0);
+    ParabolicSAR(double acceleration_factor_initial = 0.02, double acceleration_factor_maximum = 0.2, int offset = 0);
 
     /**
      * @brief Calculate the Parabolic SAR values.
      *
      * @param candles Vector of Candle data.
-     * @return std::vector<double> Vector containing the Parabolic SAR values.
+     * @return std::vector<double> Vector containing calculated Parabolic SAR values.
      */
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 
 private:
-    double acceleration_factor;
-    double acceleration_factor_max;
+    double acceleration_factor_initial; // Initial acceleration factor value.
+    double acceleration_factor_maximum; // Maximum acceleration factor value.
+    int offset;                         // Offset value.
 };
 
 // *********************************************************************************************
@@ -388,42 +393,55 @@ public:
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing the calculated SMA values.
      */
-    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data) const override;
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 
 private:
-    int period; // Period for the SMA calculation
+    CandleSource source; // Candle source
+    int period;          // Period for the SMA calculation
 };
 
 // *********************************************************************************************
 
+/**
+ * @brief CLass to calculate the Schaff Trend Cycle (STC) indicator.
+ *
+ * The Schaff Trend Cycle (STC) is a technical indicator that is used to identify market trends and provide buy and sell signals to traders.
+ */
 class STC : public Indicator
 {
-private:
-    int short_period;
-    int long_period;
-    int signal_period;
-    int smooth_period;
-
 public:
     /**
      * @brief Construct a new STC object.
      *
-     * @param short_period Short period for MACD calculation. Default is 23.
-     * @param long_period Long period for MACD calculation. Default is 50.
-     * @param signal_period Signal period for MACD calculation. Default is 10.
-     * @param smooth_period Period for smoothing. Default is 10.
+     * @param short_length The period for the shorter-term EMA (default: 23).
+     * @param long_length The period for the longer-term EMA (default: 50).
+     * @param cycle_length The length of the cycle (default: 10).
      * @param offset Offset value. Default is 0.
      */
-    STC(int short_period = 23, int long_period = 50, int signal_period = 10, int smooth_period = 10, int offset = 0);
+    STC(int short_length = 23, int long_length = 50, int cycle_length = 10, int offset = 0);
 
     /**
      * @brief Calculate the Schaff Trend Cycle (STC) values.
      *
      * @param candles Vector of Candle data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
-     * @return std::vector<double> Vector containing calculated values.
+     * @return std::vector<double> Vector containing calculated STC values.
      */
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+
+private:
+    int short_length; // The period for the shorter-term EMA.
+    int long_length;  // The period for the longer-term EMA.
+    int cycle_length; // The length of the cycle.
+
+    /**
+     * @brief Calculate the Stochastic Oscillator values.
+     *
+     * @param values Vector containing the values to calculate the Stochastic Oscillator.
+     * @param period Period for the Stochastic Oscillator calculation.
+     * @return std::vector<double> Vector containing the calculated Stochastic Oscillator values.
+     */
+    std::vector<double> calculate_stochastic_oscillator(const std::vector<double> &values, int period) const;
 };
 
 // *********************************************************************************************
@@ -442,10 +460,10 @@ public:
     /**
      * @brief Construct a new TRIX object.
      *
-     * @param period Period for TRIX calculation. Default is 14.
+     * @param period Period for TRIX calculation. Default is 15.
      * @param offset Offset value. Default is 0.
      */
-    TRIX(int period = 14, int offset = 0);
+    TRIX(int period = 15, int offset = 0);
 
     /**
      * @brief Calculate the TRIX values.
@@ -510,109 +528,137 @@ public:
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing the calculated difference values.
      */
-    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data) const override;
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 };
 
 // *********************************************************************************************
 
+/**
+ * @brief Class to calculate the Ichimoku Cloud Trend indicator.
+ *
+ * The Ichimoku Cloud, also known as Ichimoku Kinko Hyo, is a versatile indicator that defines support and resistance, identifies trend direction, gauges momentum and provides trading signals.
+ */
 class IchimokuCloudTrend : public Indicator
 {
 public:
     /**
-     * @brief Construct a new IchimokuCloudTrend object.
+     * @brief Construct a new Ichimoku Cloud Trend object.
      *
+     * @param conversion_period The period for the Conversion Line (Tenkan-sen).
+     * @param base_period The period for the Base Line (Kijun-sen).
+     * @param lagging_period The period for the Lagging Span (Chikou Span).
+     * @param leading_period The period for the Leading Span (Senkou Span).
      * @param offset Offset value. Default is 0.
      */
-    IchimokuCloudTrend(int offset = 0);
+    IchimokuCloudTrend(int conversion_period = 9, int base_period = 26, int lagging_period = 26, int leading_period = 52, int offset = 0);
 
     /**
-     * @brief Determine the trend based on Ichimoku Cloud.
+     * @brief Calculate the Ichimoku Cloud Trend values.
      *
      * @param candles Vector of Candle data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
-     * @return std::vector<double> Vector containing the trend values:
-     *         1 if close price is above the cloud,
-     *        -1 if close price is below the cloud,
-     *         0 if close price is in the cloud.
+     * @return std::vector<double> Vector containing calculated Ichimoku Cloud Trend values.
      */
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 
 private:
-    /**
-     * @brief Calculate the Tenkan-sen values.
-     *
-     * @param high_prices Vector containing high prices.
-     * @return std::vector<double> Vector containing the calculated Tenkan-sen values.
-     */
-    std::vector<double> calculate_tenkan_sen(const std::vector<double> &high_prices) const;
-
-    /**
-     * @brief Calculate the Kijun-sen values.
-     *
-     * @param high_prices Vector containing high prices.
-     * @return std::vector<double> Vector containing the calculated Kijun-sen values.
-     */
-    std::vector<double> calculate_kijun_sen(const std::vector<double> &high_prices) const;
-
-    /**
-     * @brief Calculate the Senkou Span A values.
-     *
-     * @param tenkan_sen Vector containing Tenkan-sen values.
-     * @param kijun_sen Vector containing Kijun-sen values.
-     * @return std::vector<double> Vector containing the calculated Senkou Span A values.
-     */
-    std::vector<double> calculate_senkou_span_a(const std::vector<double> &tenkan_sen,
-                                                const std::vector<double> &kijun_sen) const;
-
-    /**
-     * @brief Calculate the Senkou Span B values.
-     *
-     * @param candles Vector of Candle data.
-     * @return std::vector<double> Vector containing the calculated Senkou Span B values.
-     */
-    std::vector<double> calculate_senkou_span_b(const std::vector<Candle> &candles) const;
+    int conversion_period; // The period for the Conversion Line (Tenkan-sen).
+    int base_period;       // The period for the Base Line (Kijun-sen).
+    int lagging_period;    // The period for the Lagging Span (Chikou Span).
+    int leading_period;    // The period for the Leading Span (Senkou Span).
 };
 
 // *********************************************************************************************
 
-class IchimokuTenkanKijunTrend : public Indicator
+/**
+ * @brief Class to calculate the Ichimoku Kijun Tenkan Trend indicator.
+ *
+ * The Ichimoku Cloud, also known as Ichimoku Kinko Hyo, is a versatile indicator that defines support and resistance, identifies trend direction, gauges momentum and provides trading signals.
+ */
+class IchimokuKijunTenkanTrend : public Indicator
 {
 public:
     /**
-     * @brief Construct a new IchimokuTenkanKijunTrend object.
+     * @brief Construct a new Ichimoku Kijun Tenkan Trend object.
      *
+     * @param conversion_period The period for the Conversion Line (Tenkan-sen).
+     * @param base_period The period for the Base Line (Kijun-sen).
+     * @param lagging_period The period for the Lagging Span (Chikou Span).
+     * @param leading_period The period for the Leading Span (Senkou Span).
      * @param offset Offset value. Default is 0.
      */
-    IchimokuTenkanKijunTrend(int offset = 0);
+    IchimokuKijunTenkanTrend(int conversion_period = 9, int base_period = 26, int lagging_period = 26, int leading_period = 52, int offset = 0);
 
     /**
-     * @brief Determine the trend based on the relationship between Tenkan-sen (Conversion Line) and Kijun-sen (Base Line).
+     * @brief Calculate the Ichimoku Kijun Tenkan Trend values.
      *
      * @param candles Vector of Candle data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
-     * @return std::vector<double> Vector containing the trend values:
-     *         1 if close price is above both Tenkan-sen and Kijun-sen,
-     *        -1 if close price is below both Tenkan-sen and Kijun-sen,
-     *         0 if close price is between Tenkan-sen and Kijun-sen.
+     * @return std::vector<double> Vector containing calculated Ichimoku Kijun Tenkan Trend values.
      */
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 
 private:
+    int conversion_period; // The period for the Conversion Line (Tenkan-sen).
+    int base_period;       // The period for the Base Line (Kijun-sen).
+    int lagging_period;    // The period for the Lagging Span (Chikou Span).
+    int leading_period;    // The period for the Leading Span (Senkou Span).
+};
+
+// *********************************************************************************************
+
+class SMASlope : public Indicator
+{
+public:
     /**
-     * @brief Calculate the Tenkan-sen values.
+     * @brief Construct a new Simple Moving Average Slope object.
      *
-     * @param high_prices Vector containing high prices.
-     * @return std::vector<double> Vector containing the calculated Tenkan-sen values.
+     * @param period The period for the simple moving average.
+     * @param source The source of data (e.g., close, high, low).
+     * @param offset Offset value. Default is 0.
      */
-    std::vector<double> calculate_tenkan_sen(const std::vector<double> &high_prices) const;
+    SMASlope(int period, CandleSource source, int offset = 0);
 
     /**
-     * @brief Calculate the Kijun-sen values.
+     * @brief Calculate the slope of the simple moving average.
      *
-     * @param high_prices Vector containing high prices.
-     * @return std::vector<double> Vector containing the calculated Kijun-sen values.
+     * @param candles Vector of Candle data.
+     * @param normalize_data Boolean flag indicating whether to normalize data.
+     * @return std::vector<double> Vector containing calculated slope values.
      */
-    std::vector<double> calculate_kijun_sen(const std::vector<double> &high_prices) const;
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+
+private:
+    int period;          // The period for the simple moving average.
+    CandleSource source; // The source of data (e.g., close, high, low).
+};
+
+// *********************************************************************************************
+
+class EMASlope : public Indicator
+{
+public:
+    /**
+     * @brief Construct a new Exponential Moving Average Slope object.
+     *
+     * @param period The period for the exponential moving average.
+     * @param source The source of data (e.g., close, high, low).
+     * @param offset Offset value. Default is 0.
+     */
+    EMASlope(int period, CandleSource source, int offset = 0);
+
+    /**
+     * @brief Calculate the slope of the exponential moving average.
+     *
+     * @param candles Vector of Candle data.
+     * @param normalize_data Boolean flag indicating whether to normalize data.
+     * @return std::vector<double> Vector containing calculated slope values.
+     */
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+
+private:
+    int period;          // The period for the exponential moving average.
+    CandleSource source; // The source of data (e.g., close, high, low).
 };
 
 #endif // TREND_INDICATORS_HPP

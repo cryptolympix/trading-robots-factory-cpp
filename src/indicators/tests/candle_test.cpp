@@ -5,7 +5,7 @@
 #include "../candle.hpp"
 #include "../../types.hpp"
 
-class TestCandleIndicators : public ::testing::Test
+class CandleIndicatorsTest : public ::testing::Test
 {
 protected:
     void SetUp() override
@@ -46,7 +46,7 @@ protected:
     std::vector<Candle> mock_candles;
 };
 
-TEST_F(TestCandleIndicators, Price)
+TEST_F(CandleIndicatorsTest, Price)
 {
     // CandleOpen
     CandleOpen open_indicator;
@@ -73,7 +73,7 @@ TEST_F(TestCandleIndicators, Price)
     ASSERT_EQ(result_close, expected_close);
 }
 
-TEST_F(TestCandleIndicators, PriceWithOffset)
+TEST_F(CandleIndicatorsTest, PriceWithOffset)
 {
     // Offset 1
     CandleOpen open_indicator(1);
@@ -116,7 +116,7 @@ TEST_F(TestCandleIndicators, PriceWithOffset)
     }
 }
 
-TEST_F(TestCandleIndicators, WhiteCandle)
+TEST_F(CandleIndicatorsTest, WhiteCandle)
 {
     WhiteCandle white_indicator;
     std::vector<double> result = white_indicator.calculate(mock_candles);
@@ -124,7 +124,7 @@ TEST_F(TestCandleIndicators, WhiteCandle)
     ASSERT_EQ(result, expected);
 }
 
-TEST_F(TestCandleIndicators, BlackCandle)
+TEST_F(CandleIndicatorsTest, BlackCandle)
 {
     BlackCandle black_indicator;
     std::vector<double> result = black_indicator.calculate(mock_candles);
@@ -132,7 +132,7 @@ TEST_F(TestCandleIndicators, BlackCandle)
     ASSERT_EQ(result, expected);
 }
 
-TEST_F(TestCandleIndicators, PercentageChangeCandle)
+TEST_F(CandleIndicatorsTest, PercentageChangeCandle)
 {
     CandlePriceChange indicator;
     std::vector<double> result = indicator.calculate(mock_candles);
@@ -141,7 +141,7 @@ TEST_F(TestCandleIndicators, PercentageChangeCandle)
     ASSERT_EQ(result, expected);
 }
 
-TEST_F(TestCandleIndicators, PivotHigh)
+TEST_F(CandleIndicatorsTest, PivotHigh)
 {
     // PivotHigh with left_bars=2, right_bars=0
     PivotHigh pivot_high_indicator(CandleSource::High, 2, 0);
@@ -156,7 +156,7 @@ TEST_F(TestCandleIndicators, PivotHigh)
     ASSERT_EQ(result2, expected2);
 }
 
-TEST_F(TestCandleIndicators, PivotLow)
+TEST_F(CandleIndicatorsTest, PivotLow)
 {
     // PivotLow with left_bars=2, right_bars=0
     PivotLow pivot_low_indicator(CandleSource::Low, 2, 0);
@@ -171,7 +171,7 @@ TEST_F(TestCandleIndicators, PivotLow)
     ASSERT_EQ(result2, expected2);
 }
 
-TEST_F(TestCandleIndicators, Highest)
+TEST_F(CandleIndicatorsTest, Highest)
 {
     // Highest with left_bars=2, right_bars=0
     Highest highest_indicator(CandleSource::High, 2, 0);
@@ -186,7 +186,7 @@ TEST_F(TestCandleIndicators, Highest)
     ASSERT_EQ(result2, expected2);
 }
 
-TEST_F(TestCandleIndicators, Lowest)
+TEST_F(CandleIndicatorsTest, Lowest)
 {
     // Lowest with left_bars=2, right_bars=0
     Lowest lowest_indicator(CandleSource::Low, 2, 0);

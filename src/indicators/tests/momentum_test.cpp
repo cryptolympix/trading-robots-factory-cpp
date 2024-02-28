@@ -5,7 +5,7 @@
 #include "../../utils/math.hpp"
 #include "../momentum.hpp"
 
-class TestMomentumIndicators : public ::testing::Test
+class MomentumIndicatorsTest : public ::testing::Test
 {
 protected:
     std::vector<Candle> mock_candles;
@@ -16,7 +16,7 @@ protected:
     }
 };
 
-TEST_F(TestMomentumIndicators, AwesomeOscillatorTest)
+TEST_F(MomentumIndicatorsTest, AwesomeOscillatorTest)
 {
     AwesomeOscillator awesome_oscillator;
     std::vector<double> result_awesome_oscillator = awesome_oscillator.calculate(mock_candles);
@@ -24,7 +24,7 @@ TEST_F(TestMomentumIndicators, AwesomeOscillatorTest)
     ASSERT_EQ(result_awesome_oscillator.size(), mock_candles.size());
 }
 
-TEST_F(TestMomentumIndicators, KAMATest)
+TEST_F(MomentumIndicatorsTest, KAMATest)
 {
     KAMA kama(10, 2, 30);
     std::vector<double> result_kama = kama.calculate(mock_candles);
@@ -32,7 +32,19 @@ TEST_F(TestMomentumIndicators, KAMATest)
     ASSERT_EQ(result_kama.size(), mock_candles.size());
 }
 
-TEST_F(TestMomentumIndicators, PPOTest)
+TEST_F(MomentumIndicatorsTest, MFITest)
+{
+    MFI mfi(14);
+    std::vector<double> result_mfi = mfi.calculate(mock_candles);
+
+    ASSERT_EQ(result_mfi.size(), result_mfi.size());
+    for (size_t i = 0; i < result_mfi.size(); ++i)
+    {
+        ASSERT_TRUE(result_mfi[i] >= 0 && result_mfi[i] <= 100);
+    }
+}
+
+TEST_F(MomentumIndicatorsTest, PPOTest)
 {
     PPO ppo(10, 20);
     std::vector<double> result_ppo = ppo.calculate(mock_candles);
@@ -40,7 +52,7 @@ TEST_F(TestMomentumIndicators, PPOTest)
     ASSERT_EQ(result_ppo.size(), mock_candles.size());
 }
 
-TEST_F(TestMomentumIndicators, PVOTest)
+TEST_F(MomentumIndicatorsTest, PVOTest)
 {
     PVO pov(10, 20, 5);
     std::vector<double> result_pov = pov.calculate(mock_candles);
@@ -48,7 +60,7 @@ TEST_F(TestMomentumIndicators, PVOTest)
     ASSERT_EQ(result_pov.size(), mock_candles.size());
 }
 
-TEST_F(TestMomentumIndicators, ROCTest)
+TEST_F(MomentumIndicatorsTest, ROCTest)
 {
     ROC roc(10);
     std::vector<double> result_roc = roc.calculate(mock_candles);
@@ -56,7 +68,7 @@ TEST_F(TestMomentumIndicators, ROCTest)
     ASSERT_EQ(result_roc.size(), mock_candles.size());
 }
 
-TEST_F(TestMomentumIndicators, RSITest)
+TEST_F(MomentumIndicatorsTest, RSITest)
 {
     RSI rsi(14);
     std::vector<double> result_rsi = rsi.calculate(mock_candles);
@@ -68,7 +80,7 @@ TEST_F(TestMomentumIndicators, RSITest)
     }
 }
 
-TEST_F(TestMomentumIndicators, StochasticRSITest)
+TEST_F(MomentumIndicatorsTest, StochasticRSITest)
 {
     StochasticRSI stoch(14, 3);
     std::vector<double> result_stoch = stoch.calculate(mock_candles);
@@ -80,7 +92,7 @@ TEST_F(TestMomentumIndicators, StochasticRSITest)
     }
 }
 
-TEST_F(TestMomentumIndicators, StochasticOscillatorTest)
+TEST_F(MomentumIndicatorsTest, StochasticOscillatorTest)
 {
     StochasticOscillator stoch(14, 3);
     std::vector<double> result_stoch = stoch.calculate(mock_candles);
@@ -92,7 +104,7 @@ TEST_F(TestMomentumIndicators, StochasticOscillatorTest)
     }
 }
 
-TEST_F(TestMomentumIndicators, TSITest)
+TEST_F(MomentumIndicatorsTest, TSITest)
 {
     TSI tsi(25, 13);
     std::vector<double> result_tsi = tsi.calculate(mock_candles);
@@ -104,7 +116,7 @@ TEST_F(TestMomentumIndicators, TSITest)
     }
 }
 
-TEST_F(TestMomentumIndicators, UOTest)
+TEST_F(MomentumIndicatorsTest, UOTest)
 {
     UO uo;
     std::vector<double> result_uo = uo.calculate(mock_candles);
@@ -112,7 +124,7 @@ TEST_F(TestMomentumIndicators, UOTest)
     ASSERT_EQ(result_uo.size(), mock_candles.size());
 }
 
-TEST_F(TestMomentumIndicators, WilliamsPercentRTest)
+TEST_F(MomentumIndicatorsTest, WilliamsPercentRTest)
 {
     WilliamsPercentR williams_r(14);
     std::vector<double> result_williams_r = williams_r.calculate(mock_candles);

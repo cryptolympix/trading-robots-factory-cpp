@@ -6,7 +6,7 @@
 #include "../../utils/math.hpp"
 #include "../trend.hpp"
 
-class TestTrendIndicators : public ::testing::Test
+class TrendIndicatorsTest : public ::testing::Test
 {
 protected:
     std::vector<Candle> mock_candles;
@@ -17,18 +17,162 @@ protected:
     }
 };
 
-TEST_F(TestTrendIndicators, ADXTest)
+TEST_F(TrendIndicatorsTest, ADXTest)
 {
     ADX adx(14);
     std::vector<double> result_adx = adx.calculate(mock_candles);
 
     ASSERT_EQ(result_adx.size(), mock_candles.size());
+    for (int i = 0; i < result_adx.size(); i++)
+    {
+        ASSERT_TRUE(result_adx[i] >= 0 && result_adx[i] <= 100);
+    }
 }
 
-TEST_F(TestTrendIndicators, AroonTest)
+TEST_F(TrendIndicatorsTest, AroonTrendTest)
 {
     AroonTrend aroon(14);
     std::vector<double> result_aroon_trend = aroon.calculate(mock_candles, false);
 
     ASSERT_EQ(result_aroon_trend.size(), mock_candles.size());
+    for (int i = 0; i < result_aroon_trend.size(); i++)
+    {
+        ASSERT_TRUE(result_aroon_trend[i] == -1 || result_aroon_trend[i] == 0 || result_aroon_trend[i] == 1);
+    }
+}
+
+TEST_F(TrendIndicatorsTest, CCITest)
+{
+    CCI cci(20);
+    std::vector<double> result_cci = cci.calculate(mock_candles);
+
+    ASSERT_EQ(result_cci.size(), mock_candles.size());
+}
+
+TEST_F(TrendIndicatorsTest, DPOTest)
+{
+    DPO dpo(20);
+    std::vector<double> result_dpo = dpo.calculate(mock_candles);
+
+    ASSERT_EQ(result_dpo.size(), mock_candles.size());
+}
+
+TEST_F(TrendIndicatorsTest, EMATest)
+{
+    EMA ema(CandleSource::Close, 14);
+    std::vector<double> result_ema = ema.calculate(mock_candles);
+
+    ASSERT_EQ(result_ema.size(), mock_candles.size());
+}
+
+TEST_F(TrendIndicatorsTest, KSTTest)
+{
+    KST kst(10, 15, 20, 30, 10, 10, 10, 15, 9);
+    std::vector<double> result_kst = kst.calculate(mock_candles);
+
+    ASSERT_EQ(result_kst.size(), mock_candles.size());
+}
+
+TEST_F(TrendIndicatorsTest, MACDTest)
+{
+    MACD macd(12, 26, 9);
+    std::vector<double> result_macd = macd.calculate(mock_candles);
+
+    ASSERT_EQ(result_macd.size(), mock_candles.size());
+}
+
+TEST_F(TrendIndicatorsTest, MITest)
+{
+    MI mi;
+    std::vector<double> result_mi = mi.calculate(mock_candles);
+
+    ASSERT_EQ(result_mi.size(), mock_candles.size());
+}
+
+TEST_F(TrendIndicatorsTest, ParabolicSARTest)
+{
+    ParabolicSAR psar(0.02, 0.2);
+    std::vector<double> result_psar = psar.calculate(mock_candles);
+
+    ASSERT_EQ(result_psar.size(), mock_candles.size());
+}
+
+TEST_F(TrendIndicatorsTest, SMATest)
+{
+    SMA sma(CandleSource::Close, 21);
+    std::vector<double> result_sma = sma.calculate(mock_candles);
+
+    ASSERT_EQ(result_sma.size(), mock_candles.size());
+}
+
+TEST_F(TrendIndicatorsTest, STCTest)
+{
+    STC stc(23, 50, 10);
+    std::vector<double> result_stc = stc.calculate(mock_candles);
+
+    ASSERT_EQ(result_stc.size(), mock_candles.size());
+}
+
+TEST_F(TrendIndicatorsTest, TRIXTest)
+{
+    TRIX trix(15);
+    std::vector<double> result_trix = trix.calculate(mock_candles);
+
+    ASSERT_EQ(result_trix.size(), mock_candles.size());
+}
+
+TEST_F(TrendIndicatorsTest, InstitutionalBiasTest)
+{
+    InstitutionalBias ib(9, 18);
+    std::vector<double> result_ib = ib.calculate(mock_candles);
+
+    ASSERT_EQ(result_ib.size(), mock_candles.size());
+}
+
+TEST_F(TrendIndicatorsTest, EMADifferenceTest)
+{
+    EMADifference ema_diff(9, 18);
+    std::vector<double> result_ema_diff = ema_diff.calculate(mock_candles);
+
+    ASSERT_EQ(result_ema_diff.size(), mock_candles.size());
+}
+
+TEST_F(TrendIndicatorsTest, IchimokuCloudTrendTest)
+{
+    IchimokuCloudTrend ichimoku(9, 26, 52, 26);
+    std::vector<double> result_ichimoku = ichimoku.calculate(mock_candles);
+
+    ASSERT_EQ(result_ichimoku.size(), mock_candles.size());
+    for (int i = 0; i < result_ichimoku.size(); i++)
+    {
+        ASSERT_TRUE(result_ichimoku[i] == -1 || result_ichimoku[i] == 0 || result_ichimoku[i] == 1);
+    }
+}
+
+TEST_F(TrendIndicatorsTest, IchimokuKijunTenkanTrendTest)
+{
+    IchimokuKijunTenkanTrend ichimoku(9, 26, 52, 26);
+    std::vector<double> result_ichimoku = ichimoku.calculate(mock_candles);
+
+    ASSERT_EQ(result_ichimoku.size(), mock_candles.size());
+    for (int i = 0; i < result_ichimoku.size(); i++)
+    {
+        ASSERT_TRUE(result_ichimoku[i] == -1 || result_ichimoku[i] == 0 || result_ichimoku[i] == 1);
+    }
+}
+
+TEST_F(TrendIndicatorsTest, SMASlopeTest)
+{
+    SMASlope sma_slope(21, CandleSource::Close);
+    std::vector<double> result_sma_slope = sma_slope.calculate(mock_candles);
+
+    ASSERT_EQ(result_sma_slope.size(), mock_candles.size());
+}
+
+TEST_F(TrendIndicatorsTest, EMASlopeTest)
+{
+    EMASlope ema_slope(21, CandleSource::Close);
+    std::vector<double> result_ema_slope = ema_slope.calculate(mock_candles);
+
+    ASSERT_EQ(result_ema_slope.size(), mock_candles.size());
 }

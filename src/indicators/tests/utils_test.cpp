@@ -2,7 +2,7 @@
 #include "../../utils/math.hpp"
 #include "../utils.hpp"
 
-TEST(UtilsIndicatorsTest, SimpleMovingAverage)
+TEST(IndicatorsUtilsTest, SimpleMovingAverage)
 {
     std::vector<double> values = {2, 4, 6, 8, 12, 14, 16, 18, 20};
     int period = 3;
@@ -20,7 +20,7 @@ TEST(UtilsIndicatorsTest, SimpleMovingAverage)
     ASSERT_EQ(sma, expected_sma);
 }
 
-TEST(UtilsIndicatorsTest, ExponentialMovingAverage)
+TEST(IndicatorsUtilsTest, ExponentialMovingAverage)
 {
     std::vector<double> values = {2, 4, 6, 8, 12, 14, 16, 18, 20};
     int period = 3;

@@ -4,7 +4,7 @@
 #include "../../types.hpp"
 #include "../time.hpp"
 
-TEST(TestTimeIndicators, HourTest)
+TEST(TimeIndicatorsTest, HourTest)
 {
     // Create an instance of the Hour class
     Hour hour;
@@ -30,7 +30,7 @@ TEST(TestTimeIndicators, HourTest)
     ASSERT_EQ(result.back(), expected_hour);
 }
 
-TEST(TestTimeIndicators, NFPWeekTest)
+TEST(TimeIndicatorsTest, NFPWeekTest)
 {
     // Create an instance of the NFPWeek class
     NFPWeek nfpWeek;
@@ -68,7 +68,7 @@ TEST(TestTimeIndicators, NFPWeekTest)
     ASSERT_EQ(result_not_nfp.back(), 0);
 }
 
-TEST(TestTimeIndicators, MarketSessionTest)
+TEST(TimeIndicatorsTest, MarketSessionTest)
 {
     // London
     MarketSession london(MarketSessionZone::LONDON);
@@ -128,7 +128,7 @@ TEST(TestTimeIndicators, MarketSessionTest)
     ASSERT_EQ(result_tokyo, std::vector<double>({0, 1, 1, 1, 1, 1, 1, 1, 0}));
 }
 
-TEST(TestTimeIndicators, WeekDayTest)
+TEST(TimeIndicatorsTest, WeekDayTest)
 {
     // Create an instance of the WeekDay class
     WeekDay weekDay;

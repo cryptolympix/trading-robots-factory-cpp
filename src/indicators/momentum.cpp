@@ -156,6 +156,99 @@ double KAMA::calculate_initial_kama(const std::vector<double> &closes) const
 // *********************************************************************************************
 
 /**
+ * @brief Construct a new Money Flow Index object.
+ *
+ * @param period The period for calculating Money Flow Index (MFI).
+ * @param offset Offset value. Default is 0.
+ */
+MFI::MFI(int period, int offset) : Indicator("Money Flow Index", "mfi-" + std::to_string(period) + "-" + std::to_string(offset), offset), period(period) {}
+
+/**
+ * @brief Calculate the Money Flow Index (MFI) values.
+ *
+ * @param candles Vector of Candle data.
+ * @param normalize_data Boolean flag indicating whether to normalize data.
+ * @return std::vector<double> Vector containing calculated MFI values.
+ */
+std::vector<double> MFI::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+{
+    // Initialize result vector with the same size as input
+    std::vector<double> mfi_values(candles.size(), 0.0);
+
+    if (candles.size() < static_cast<size_t>(period + offset))
+    {
+        std::cerr << "Insufficient data to calculate Money Flow Index (MFI)." << std::endl;
+        return mfi_values; // Not enough data
+    }
+
+    // Calculate Typical Price, Raw Money Flow, Positive Money Flow, and Negative Money Flow
+    std::vector<double> typical_prices = get_candles_with_source(candles, CandleSource::HLC3);
+    std::vector<double> raw_money_flow;
+    std::vector<double> positive_money_flow;
+    std::vector<double> negative_money_flow;
+
+    for (size_t i = 0; i < candles.size(); ++i)
+    {
+        double raw_flow = typical_prices[i] * candles[i].volume;
+        typical_prices.push_back(typical_prices[i]);
+        raw_money_flow.push_back(raw_flow);
+
+        if (i > 0)
+        {
+            if (typical_prices[i] > typical_prices[i - 1])
+            {
+                positive_money_flow.push_back(raw_money_flow[i]);
+                negative_money_flow.push_back(0.0);
+            }
+            else if (typical_prices[i] < typical_prices[i - 1])
+            {
+                positive_money_flow.push_back(0.0);
+                negative_money_flow.push_back(raw_money_flow[i]);
+            }
+            else
+            {
+                positive_money_flow.push_back(0.0);
+                negative_money_flow.push_back(0.0);
+            }
+        }
+        else
+        {
+            positive_money_flow.push_back(0.0);
+            negative_money_flow.push_back(0.0);
+        }
+    }
+
+    // Calculate 14-period Positive Money Flow and Negative Money Flow
+    std::vector<double> positive_money_flow_sum;
+    std::vector<double> negative_money_flow_sum;
+
+    for (size_t i = 0; i < candles.size(); ++i)
+    {
+        double positive_sum = 0.0;
+        double negative_sum = 0.0;
+
+        for (size_t j = i; j > i - period; --j)
+        {
+            positive_sum += positive_money_flow[j];
+            negative_sum += negative_money_flow[j];
+        }
+
+        positive_money_flow_sum.push_back(positive_sum);
+        negative_money_flow_sum.push_back(negative_sum);
+    }
+
+    // Calculate Money Flow Ratio and Money Flow Index
+    for (size_t i = period - 1; i < candles.size(); ++i)
+    {
+        double money_flow_ratio = (negative_money_flow_sum[i] != 0.0) ? (positive_money_flow_sum[i] / negative_money_flow_sum[i]) : 0.0;
+        double mfi = 100.0 - (100.0 / (1.0 + money_flow_ratio));
+        mfi_values[i] = mfi;
+    }
+
+    return mfi_values;
+}
+
+/**
  * @brief Construct a new PPO object with a specified short period, long period, and offset.
  *
  * @param short_period The short period for calculating PPO (default is 12).
