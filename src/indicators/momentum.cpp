@@ -730,8 +730,8 @@ std::vector<double> WilliamsPercentR::calculate(const std::vector<Candle> &candl
                 return result; // Not enough data
             }
             
-            Highest highest_source(CandleSource::High, period, 0);
-            Lowest lowest_source(CandleSource::Low, period, 0);
+            HighestHigh highest_source(period, 0);
+            LowestLow lowest_source(period, 0);
 
             std::vector<double> highest_highs = highest_source.calculate(candles, false);
             std::vector<double> lowest_lows = lowest_source.calculate(candles, false);

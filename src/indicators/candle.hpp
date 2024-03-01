@@ -236,23 +236,23 @@ private:
 };
 
 /**
- * @brief Class for Lowest indicator.
+ * @brief Class for PivotHighValue indicator.
  */
-class Lowest : public Indicator
+class PivotHighValue : public Indicator
 {
 public:
     /**
-     * @brief Construct a new Lowest object.
+     * @brief Construct a new PivotHighValue object.
      *
      * @param source Source of candle data.
      * @param left_bars Number of left bars.
      * @param right_bars Number of right bars.
      * @param offset Offset value. Default is 0.
      */
-    Lowest(CandleSource source, int left_bars, int right_bars, int offset = 0);
+    PivotHighValue(CandleSource source, int left_bars, int right_bars, int offset = 0);
 
     /**
-     * @brief Calculate the Lowest values.
+     * @brief Calculate the PivotHighValue values.
      *
      * @param candles Vector of Candle data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
@@ -267,23 +267,23 @@ private:
 };
 
 /**
- * @brief Class for Highest indicator.
+ * @brief Class for PivotLowValue indicator.
  */
-class Highest : public Indicator
+class PivotLowValue : public Indicator
 {
 public:
     /**
-     * @brief Construct a new Highest object.
+     * @brief Construct a new PivotLowValue object.
      *
      * @param source Source of candle data.
      * @param left_bars Number of left bars.
      * @param right_bars Number of right bars.
      * @param offset Offset value. Default is 0.
      */
-    Highest(CandleSource source, int left_bars, int right_bars, int offset = 0);
+    PivotLowValue(CandleSource source, int left_bars, int right_bars, int offset = 0);
 
     /**
-     * @brief Calculate the Highest values.
+     * @brief Calculate the PivotLowValue values.
      *
      * @param candles Vector of Candle data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
@@ -293,6 +293,64 @@ public:
 
 private:
     CandleSource source;
+    int left_bars;
+    int right_bars;
+};
+
+/**
+ * @brief Class for HighestHigh indicator.
+ */
+class HighestHigh : public Indicator
+{
+public:
+    /**
+     * @brief Construct a new HighestHigh object.
+     *
+     * @param left_bars Number of left bars.
+     * @param right_bars Number of right bars.
+     * @param offset Offset value. Default is 0.
+     */
+    HighestHigh(int left_bars, int right_bars, int offset = 0);
+
+    /**
+     * @brief Calculate the HighestHigh values.
+     *
+     * @param candles Vector of Candle data.
+     * @param normalize_data Boolean flag indicating whether to normalize data.
+     * @return std::vector<double> Vector containing calculated values.
+     */
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+
+private:
+    int left_bars;
+    int right_bars;
+};
+
+/**
+ * @brief Class for LowestLow indicator.
+ */
+class LowestLow : public Indicator
+{
+public:
+    /**
+     * @brief Construct a new LowestLow object.
+     *
+     * @param left_bars Number of left bars.
+     * @param right_bars Number of right bars.
+     * @param offset Offset value. Default is 0.
+     */
+    LowestLow(int left_bars, int right_bars, int offset = 0);
+
+    /**
+     * @brief Calculate the LowestLow values.
+     *
+     * @param candles Vector of Candle data.
+     * @param normalize_data Boolean flag indicating whether to normalize data.
+     * @return std::vector<double> Vector containing calculated values.
+     */
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+
+private:
     int left_bars;
     int right_bars;
 };

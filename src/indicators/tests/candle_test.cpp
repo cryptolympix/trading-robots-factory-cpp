@@ -38,15 +38,11 @@ protected:
             Candle{.date = date, .open = 20, .high = 20, .low = 5, .close = 18}};
     };
 
-    void TearDown() override
-    {
-    }
-
     // Variables
     std::vector<Candle> mock_candles;
 };
 
-TEST_F(CandleIndicatorsTest, Price)
+TEST_F(CandleIndicatorsTest, PriceTest)
 {
     // CandleOpen
     CandleOpen open_indicator;
@@ -73,7 +69,7 @@ TEST_F(CandleIndicatorsTest, Price)
     ASSERT_EQ(result_close, expected_close);
 }
 
-TEST_F(CandleIndicatorsTest, PriceWithOffset)
+TEST_F(CandleIndicatorsTest, PriceWithOffsetTest)
 {
     // Offset 1
     CandleOpen open_indicator(1);
@@ -116,7 +112,7 @@ TEST_F(CandleIndicatorsTest, PriceWithOffset)
     }
 }
 
-TEST_F(CandleIndicatorsTest, WhiteCandle)
+TEST_F(CandleIndicatorsTest, WhiteCandleTest)
 {
     WhiteCandle white_indicator;
     std::vector<double> result = white_indicator.calculate(mock_candles);
@@ -124,7 +120,7 @@ TEST_F(CandleIndicatorsTest, WhiteCandle)
     ASSERT_EQ(result, expected);
 }
 
-TEST_F(CandleIndicatorsTest, BlackCandle)
+TEST_F(CandleIndicatorsTest, BlackCandleTest)
 {
     BlackCandle black_indicator;
     std::vector<double> result = black_indicator.calculate(mock_candles);
@@ -132,7 +128,7 @@ TEST_F(CandleIndicatorsTest, BlackCandle)
     ASSERT_EQ(result, expected);
 }
 
-TEST_F(CandleIndicatorsTest, PercentageChangeCandle)
+TEST_F(CandleIndicatorsTest, PercentageChangeCandleTest)
 {
     CandlePriceChange indicator;
     std::vector<double> result = indicator.calculate(mock_candles);
@@ -141,7 +137,7 @@ TEST_F(CandleIndicatorsTest, PercentageChangeCandle)
     ASSERT_EQ(result, expected);
 }
 
-TEST_F(CandleIndicatorsTest, PivotHigh)
+TEST_F(CandleIndicatorsTest, PivotHighTest)
 {
     // PivotHigh with left_bars=2, right_bars=0
     PivotHigh pivot_high_indicator(CandleSource::High, 2, 0);
@@ -156,7 +152,7 @@ TEST_F(CandleIndicatorsTest, PivotHigh)
     ASSERT_EQ(result2, expected2);
 }
 
-TEST_F(CandleIndicatorsTest, PivotLow)
+TEST_F(CandleIndicatorsTest, PivotLowTest)
 {
     // PivotLow with left_bars=2, right_bars=0
     PivotLow pivot_low_indicator(CandleSource::Low, 2, 0);
@@ -171,32 +167,62 @@ TEST_F(CandleIndicatorsTest, PivotLow)
     ASSERT_EQ(result2, expected2);
 }
 
-TEST_F(CandleIndicatorsTest, Highest)
+TEST_F(CandleIndicatorsTest, PivotHighValueTest)
 {
-    // Highest with left_bars=2, right_bars=0
-    Highest highest_indicator(CandleSource::High, 2, 0);
-    std::vector<double> result = highest_indicator.calculate(mock_candles);
+    // with left_bars=2, right_bars=0
+    PivotHighValue pivot_high_value(CandleSource::High, 2, 0);
+    std::vector<double> result = pivot_high_value.calculate(mock_candles);
     std::vector<double> expected = {12, 16, 16, 16, 16, 17, 18, 18, 18, 21, 21};
     ASSERT_EQ(result, expected);
 
-    // Highest with left_bars=2, right_bars=2
-    Highest highest_indicator2(CandleSource::High, 2, 2);
+    // with left_bars=2, right_bars=2
+    PivotHighValue highest_indicator2(CandleSource::High, 2, 2);
     std::vector<double> result2 = highest_indicator2.calculate(mock_candles);
     std::vector<double> expected2 = {12, 12, 12, 16, 16, 16, 16, 16, 18, 18, 18};
     ASSERT_EQ(result2, expected2);
 }
 
-TEST_F(CandleIndicatorsTest, Lowest)
+TEST_F(CandleIndicatorsTest, PivotLowValueTest)
 {
-    // Lowest with left_bars=2, right_bars=0
-    Lowest lowest_indicator(CandleSource::Low, 2, 0);
+    // with left_bars=2, right_bars=0
+    PivotLowValue lowest_indicator(CandleSource::Low, 2, 0);
     std::vector<double> result = lowest_indicator.calculate(mock_candles);
     std::vector<double> expected = {8, 8, 6, 6, 5, 5, 5, 5, 2, 2, 2};
     ASSERT_EQ(result, expected);
 
-    // Lowest with left_bars=2, right_bars=2
-    Lowest lowest_indicator2(CandleSource::Low, 2, 2);
+    // with left_bars=2, right_bars=2
+    PivotLowValue lowest_indicator2(CandleSource::Low, 2, 2);
     std::vector<double> result2 = lowest_indicator2.calculate(mock_candles);
     std::vector<double> expected2 = {8, 8, 8, 8, 8, 8, 5, 5, 5, 5, 2};
+    ASSERT_EQ(result2, expected2);
+}
+
+TEST_F(CandleIndicatorsTest, HighestHighTest)
+{
+    // with left_bars=2, right_bars=0
+    HighestHigh highest_indicator(2, 0);
+    std::vector<double> result = highest_indicator.calculate(mock_candles);
+    std::vector<double> expected = {12, 16, 16, 16, 13, 17, 18, 18, 18, 21, 21};
+    ASSERT_EQ(result, expected);
+
+    // with left_bars=2, right_bars=2
+    HighestHigh highest_indicator2(2, 2);
+    std::vector<double> result2 = highest_indicator2.calculate(mock_candles);
+    std::vector<double> expected2 = {16, 16, 16, 17, 18, 18, 18, 21, 21, 21, 21};
+    ASSERT_EQ(result2, expected2);
+}
+
+TEST_F(CandleIndicatorsTest, LowestLowTest)
+{
+    // with left_bars=2, right_bars=0
+    LowestLow lowest_indicator(2, 0);
+    std::vector<double> result = lowest_indicator.calculate(mock_candles);
+    std::vector<double> expected = {8, 8, 6, 6, 5, 5, 5, 5, 2, 2, 2};
+    ASSERT_EQ(result, expected);
+
+    // with left_bars=2, right_bars=2
+    LowestLow lowest_indicator2(2, 2);
+    std::vector<double> result2 = lowest_indicator2.calculate(mock_candles);
+    std::vector<double> expected2 = {6, 6, 5, 5, 5, 5, 2, 2, 2, 2, 2};
     ASSERT_EQ(result2, expected2);
 }

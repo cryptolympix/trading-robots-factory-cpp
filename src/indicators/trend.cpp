@@ -166,12 +166,12 @@ std::vector<double> ADX::calculate_adx(const std::vector<double> &dx_values) con
 // *********************************************************************************************
 
 /**
- * @brief Construct a new AroonTrend object.
+ * @brief Construct a new Aroon Up object.
  *
  * @param period Period value. Default is 14.
  * @param offset Offset value. Default is 0.
  */
-AroonTrend::AroonTrend(int period, int offset) : Indicator("Aroon Trend", "aroon-trend-" + std::to_string(period) + "-" + std::to_string(offset), offset), period(period) {}
+AroonUp::AroonUp(int period, int offset) : Indicator("Aroon Up", "aroon-up-" + std::to_string(period) + "-" + std::to_string(offset), offset), period(period) {}
 
 /**
  * @brief Calculate the Aroon Up values.
@@ -180,33 +180,29 @@ AroonTrend::AroonTrend(int period, int offset) : Indicator("Aroon Trend", "aroon
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> AroonTrend::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+std::vector<double> AroonUp::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
-            std::vector<double> aroon_trend_values(candles.size(), 0.0); // Initialize aroon_trend_values with the same size as input vectors
-            
+            // Initialize aroon_up_values with the same size as input vectors
+            std::vector<double> aroon_up_values(candles.size(), 0.0);
+
             if (candles.size() < static_cast<size_t>(period))
             {
-                std::cerr << "Insufficient data to calculate Aroon Trend." << std::endl;
-                return aroon_trend_values; // Not enough data
+                std::cerr << "Insufficient data to calculate Aroon Up." << std::endl;
+                return aroon_up_values; // Not enough data
             }
 
-            Highest highest_source(CandleSource::High, period, 0);
-            Lowest lowest_source(CandleSource::Low, period, 0);
-
+            HighestHigh highest_source(period, 0);
             std::vector<double> highest_highs = highest_source.calculate(candles, false);
-            std::vector<double> lowest_lows = lowest_source.calculate(candles, false);
 
             for (size_t i = period - 1; i < candles.size(); ++i)
             {
                 double highest_high = highest_highs[i];
-                double lowest_low = lowest_lows[i];
 
-                // Calculate days since highest high and lowest low
+                // Calculate days since highest high
                 double days_since_high = 0;
-                double days_since_low = 0;
                 for (size_t j = i; j > 0; --j)
                 {
                     if (candles[j].high == highest_high)
@@ -215,6 +211,54 @@ std::vector<double> AroonTrend::calculate(const std::vector<Candle> &candles, bo
                         break;
                     }
                 }
+
+                aroon_up_values[i] = ((period - days_since_high) / period) * 100.0;
+            }
+
+            return aroon_up_values; },
+
+        normalize_data);
+}
+
+// *********************************************************************************************
+
+/**
+ * @brief Construct a new AroonDown object.
+ *
+ * @param period Period value. Default is 14.
+ * @param offset Offset value. Default is 0.
+ */
+AroonDown::AroonDown(int period, int offset) : Indicator("Aroon Down", "aroon-down-" + std::to_string(period) + "-" + std::to_string(offset), offset), period(period) {}
+
+/**
+ * @brief Calculate the Aroon Down values.
+ *
+ * @param candles Vector of Candle data.
+ * @param normalize_data Boolean flag indicating whether to normalize data.
+ * @return std::vector<double> Vector containing calculated values.
+ */
+std::vector<double> AroonDown::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+{
+    return Indicator::calculate(
+        candles, [this](std::vector<Candle> candles) -> std::vector<double>
+        {
+            std::vector<double> aroon_down_values(candles.size(), 0.0); // Initialize aroon_trend_values with the same size as input vectors
+            
+            if (candles.size() < static_cast<size_t>(period))
+            {
+                std::cerr << "Insufficient data to calculate Aroon Down." << std::endl;
+                return aroon_down_values; // Not enough data
+            }
+
+            LowestLow lowest_source(period, 0);
+            std::vector<double> lowest_lows = lowest_source.calculate(candles, false);
+
+            for (size_t i = period - 1; i < candles.size(); ++i)
+            {
+                double lowest_low = lowest_lows[i];
+
+                // Calculate days since lowest low
+                double days_since_low = 0;
                 for (size_t j = i; j > 0; --j)
                 {
                     if (candles[j].low == lowest_low)
@@ -224,24 +268,10 @@ std::vector<double> AroonTrend::calculate(const std::vector<Candle> &candles, bo
                     }
                 }
 
-                double aroon_up = ((period - days_since_high) / period) * 100.0;
-                double aroon_down = ((period - days_since_low) / period) * 100.0;
-
-                if (aroon_up > aroon_down)
-                {
-                    aroon_trend_values[i] = 1;
-                }
-                else if (aroon_up < aroon_down)
-                {
-                    aroon_trend_values[i] = -1;
-                }
-                else
-                {
-                    aroon_trend_values[i] = 0;
-                }
+                aroon_down_values[i] = ((period - days_since_low) / period) * 100.0;
             }
 
-            return aroon_trend_values; },
+            return aroon_down_values; },
 
         normalize_data);
 }
@@ -919,6 +949,89 @@ std::vector<double> EMADifference::calculate(const std::vector<Candle> &candles,
             }
 
             return ema_difference; },
+
+        normalize_data);
+}
+
+// *********************************************************************************************
+
+/**
+ * @brief Construct a new AroonTrend object.
+ *
+ * @param period Period value. Default is 14.
+ * @param offset Offset value. Default is 0.
+ */
+AroonTrend::AroonTrend(int period, int offset) : Indicator("Aroon Trend", "aroon-trend-" + std::to_string(period) + "-" + std::to_string(offset), offset), period(period) {}
+
+/**
+ * @brief Calculate the Aroon Up values.
+ *
+ * @param candles Vector of Candle data.
+ * @param normalize_data Boolean flag indicating whether to normalize data.
+ * @return std::vector<double> Vector containing calculated values.
+ */
+std::vector<double> AroonTrend::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+{
+    return Indicator::calculate(
+        candles, [this](std::vector<Candle> candles) -> std::vector<double>
+        {
+            std::vector<double> aroon_trend_values(candles.size(), 0.0); // Initialize aroon_trend_values with the same size as input vectors
+            
+            if (candles.size() < static_cast<size_t>(period))
+            {
+                std::cerr << "Insufficient data to calculate Aroon Trend." << std::endl;
+                return aroon_trend_values; // Not enough data
+            }
+
+            HighestHigh highest_source(period, 0);
+            LowestLow lowest_source(period, 0);
+
+            std::vector<double> highest_highs = highest_source.calculate(candles, false);
+            std::vector<double> lowest_lows = lowest_source.calculate(candles, false);
+
+            for (size_t i = period - 1; i < candles.size(); ++i)
+            {
+                double highest_high = highest_highs[i];
+                double lowest_low = lowest_lows[i];
+
+                // Calculate days since highest high and lowest low
+                double days_since_high = 0;
+                double days_since_low = 0;
+                for (size_t j = i; j > 0; --j)
+                {
+                    if (candles[j].high == highest_high)
+                    {
+                        days_since_high = i - j;
+                        break;
+                    }
+                }
+                for (size_t j = i; j > 0; --j)
+                {
+                    if (candles[j].low == lowest_low)
+                    {
+                        days_since_low = i - j;
+                        break;
+                    }
+                }
+
+                double aroon_up = ((period - days_since_high) / period) * 100.0;
+                double aroon_down = ((period - days_since_low) / period) * 100.0;
+
+                if (aroon_up > aroon_down)
+                {
+                    aroon_trend_values[i] = 1;
+                }
+                else if (aroon_up < aroon_down)
+                {
+                    aroon_trend_values[i] = -1;
+                }
+                else
+                {
+                    aroon_trend_values[i] = 0;
+                }
+            }
+
+            return aroon_trend_values; },
 
         normalize_data);
 }

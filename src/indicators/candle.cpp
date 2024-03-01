@@ -38,6 +38,8 @@ std::vector<double> CandleOpen::calculate(const std::vector<Candle> &candles, bo
         normalize_data);
 }
 
+// *********************************************************************************************
+
 /**
  * @brief Construct a new CandleHigh object.
  *
@@ -66,6 +68,8 @@ std::vector<double> CandleHigh::calculate(const std::vector<Candle> &candles, bo
 
         normalize_data);
 }
+
+// *********************************************************************************************
 
 /**
  * @brief Construct a new CandleLow object.
@@ -96,6 +100,8 @@ std::vector<double> CandleLow::calculate(const std::vector<Candle> &candles, boo
         normalize_data);
 }
 
+// *********************************************************************************************
+
 /**
  * @brief Construct a new CandleClose object.
  *
@@ -124,6 +130,8 @@ std::vector<double> CandleClose::calculate(const std::vector<Candle> &candles, b
 
         normalize_data);
 }
+
+// *********************************************************************************************
 
 /**
  * @brief Construct a new WhiteCandle object.
@@ -154,6 +162,8 @@ std::vector<double> WhiteCandle::calculate(const std::vector<Candle> &candles, b
         normalize_data);
 }
 
+// *********************************************************************************************
+
 /**
  * @brief Construct a new BlackCandle object.
  *
@@ -183,6 +193,8 @@ std::vector<double> BlackCandle::calculate(const std::vector<Candle> &candles, b
         normalize_data);
 }
 
+// *********************************************************************************************
+
 /**
  * @brief Construct a new CandlePriceChange object.
  *
@@ -211,6 +223,8 @@ std::vector<double> CandlePriceChange::calculate(const std::vector<Candle> &cand
 
         normalize_data);
 }
+
+// *********************************************************************************************
 
 /**
  * @brief Construct a new PivotHigh object.
@@ -242,7 +256,7 @@ std::vector<double> PivotHigh::calculate(const std::vector<Candle> &candles, boo
             // Ensure source_candles size is at least candles.size()
             if (source_candles.size() < candles.size()) {
                 // Handle error or return an empty vector
-                return std::vector<double>();
+                return values;
             }
 
             for (size_t i = 0; i < candles.size() - right_bars; ++i)
@@ -261,6 +275,8 @@ std::vector<double> PivotHigh::calculate(const std::vector<Candle> &candles, boo
 
         normalize_data);
 }
+
+// *********************************************************************************************
 
 /**
  * @brief Construct a new PivotLow object.
@@ -293,7 +309,7 @@ std::vector<double> PivotLow::calculate(const std::vector<Candle> &candles, bool
             if (source_candles.size() < candles.size())
             {
                 // Handle error or return an empty vector
-                return std::vector<double>();
+                return values;
             }
 
             for (size_t i = 0; i < candles.size() - right_bars; ++i)
@@ -313,25 +329,77 @@ std::vector<double> PivotLow::calculate(const std::vector<Candle> &candles, bool
         normalize_data);
 }
 
+// *********************************************************************************************
+
 /**
- * @brief Construct a new Lowest object.
+ * @brief Construct a new PivotHighValue object.
  *
  * @param source Source of candle data.
  * @param left_bars Number of left bars.
  * @param right_bars Number of right bars.
  * @param offset Offset value. Default is 0.
  */
-Lowest::Lowest(CandleSource source, int left_bars, int right_bars, int offset)
-    : Indicator("Lowest", "lowest-" + CandleSourceMap[source] + "-" + std::to_string(left_bars) + "-" + std::to_string(right_bars) + "-" + std::to_string(offset), offset), source(source), left_bars(left_bars), right_bars(right_bars) {}
+PivotHighValue::PivotHighValue(CandleSource source, int left_bars, int right_bars, int offset)
+    : Indicator("Highest", "highest-" + CandleSourceMap[source] + "-" + std::to_string(left_bars) + "-" + std::to_string(right_bars) + "-" + std::to_string(offset), offset), source(source), left_bars(left_bars), right_bars(right_bars) {}
 
 /**
- * @brief Calculate the Lowest values.
+ * @brief Calculate the PivotHighValue values.
  *
  * @param candles Vector of Candle data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> Lowest::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+std::vector<double> PivotHighValue::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+{
+    return Indicator::calculate(
+        candles, [this](std::vector<Candle> candles) -> std::vector<double>
+        { 
+            std::vector<double> values(candles.size(), 0); // Initialize values vector with size of candles
+            PivotHigh indicator(CandleSource::High, left_bars, right_bars, offset);
+
+            std::vector<double> pivots = indicator.calculate(candles, false);
+            std::vector<double> source_candles = get_candles_with_source(candles, source);
+
+            int current_pivot_index = 0;
+            for (size_t i = 0; i < candles.size() - right_bars; ++i)
+            {
+                if (i < right_bars)
+                {
+                    values[i] = source_candles[0];
+                }
+                if (pivots[i] == 1)
+                {
+                    current_pivot_index = i;
+                }
+                values[i + right_bars] = source_candles[current_pivot_index];
+            }
+
+            return values; },
+
+        normalize_data);
+}
+
+// *********************************************************************************************
+
+/**
+ * @brief Construct a new PivotLowValue object.
+ *
+ * @param source Source of candle data.
+ * @param left_bars Number of left bars.
+ * @param right_bars Number of right bars.
+ * @param offset Offset value. Default is 0.
+ */
+PivotLowValue::PivotLowValue(CandleSource source, int left_bars, int right_bars, int offset)
+    : Indicator("Lowest", "lowest-" + CandleSourceMap[source] + "-" + std::to_string(left_bars) + "-" + std::to_string(right_bars) + "-" + std::to_string(offset), offset), source(source), left_bars(left_bars), right_bars(right_bars) {}
+
+/**
+ * @brief Calculate the PivotLowValue values.
+ *
+ * @param candles Vector of Candle data.
+ * @param normalize_data Boolean flag indicating whether to normalize data.
+ * @return std::vector<double> Vector containing calculated values.
+ */
+std::vector<double> PivotLowValue::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles) -> std::vector<double>
@@ -360,47 +428,101 @@ std::vector<double> Lowest::calculate(const std::vector<Candle> &candles, bool n
         normalize_data);
 }
 
+// *********************************************************************************************
+
 /**
- * @brief Construct a new Highest object.
+ * @brief Construct a new HighestHigh object.
  *
- * @param source Source of candle data.
  * @param left_bars Number of left bars.
  * @param right_bars Number of right bars.
  * @param offset Offset value. Default is 0.
  */
-Highest::Highest(CandleSource source, int left_bars, int right_bars, int offset)
-    : Indicator("Highest", "highest-" + CandleSourceMap[source] + "-" + std::to_string(left_bars) + "-" + std::to_string(right_bars) + "-" + std::to_string(offset), offset), source(source), left_bars(left_bars), right_bars(right_bars) {}
+HighestHigh::HighestHigh(int left_bars, int right_bars, int offset) : Indicator("Highest High", "highest-high-" + std::to_string(left_bars) + "-" + std::to_string(right_bars) + "-" + std::to_string(offset), offset), left_bars(left_bars), right_bars(right_bars) {}
 
 /**
- * @brief Calculate the Highest values.
+ * @brief Calculate the HighestHigh values.
  *
  * @param candles Vector of Candle data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> Highest::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+std::vector<double> HighestHigh::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles) -> std::vector<double>
-        { 
+        {
             std::vector<double> values(candles.size(), 0); // Initialize values vector with size of candles
-            PivotHigh indicator(CandleSource::High, left_bars, right_bars, offset);
 
-            std::vector<double> pivots = indicator.calculate(candles, false);
-            std::vector<double> source_candles = get_candles_with_source(candles, source);
+            std::vector<double> highs_values = get_candles_with_source(candles, CandleSource::High);
 
-            int current_pivot_index = 0;
-            for (size_t i = 0; i < candles.size() - right_bars; ++i)
+            for (size_t i = 0; i < candles.size(); ++i)
             {
-                if (i < right_bars)
+                // Initialize highest high to lowest possible value
+                double highest_high = std::numeric_limits<double>::min();
+
+                // Determine the range to check for highest high
+                size_t start_index = (i < left_bars) ? 0 : i - left_bars;
+                size_t end_index = (i + right_bars >= candles.size()) ? candles.size() - 1 : i + right_bars;
+
+                // Iterate through the range to find the highest high
+                for (size_t j = start_index; j <= end_index; ++j)
                 {
-                    values[i] = source_candles[0];
+                    highest_high = std::max(highest_high, highs_values[j]);
                 }
-                if (pivots[i] == 1)
+
+                // Assign the highest high to the corresponding value in the result vector
+                values[i] = highest_high;
+            }
+
+            return values; },
+
+        normalize_data);
+}
+
+// *********************************************************************************************
+
+/**
+ * @brief Construct a new LowestLow object.
+ *
+ * @param left_bars Number of left bars.
+ * @param right_bars Number of right bars.
+ * @param offset Offset value. Default is 0.
+ */
+LowestLow::LowestLow(int left_bars, int right_bars, int offset) : Indicator("Lowest Low", "lowest-low-" + std::to_string(left_bars) + "-" + std::to_string(right_bars) + "-" + std::to_string(offset), offset), left_bars(left_bars), right_bars(right_bars) {}
+
+/**
+ * @brief Calculate the LowestLow values.
+ *
+ * @param candles Vector of Candle data.
+ * @param normalize_data Boolean flag indicating whether to normalize data.
+ * @return std::vector<double> Vector containing calculated values.
+ */
+std::vector<double> LowestLow::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+{
+    return Indicator::calculate(
+        candles, [this](std::vector<Candle> candles) -> std::vector<double>
+        {
+            std::vector<double> values(candles.size(), 0); // Initialize values vector with size of candles
+
+            std::vector<double> lows_values = get_candles_with_source(candles, CandleSource::Low);
+
+            for (size_t i = 0; i < candles.size(); ++i)
+            {
+                // Initialize lowest low to highest possible value
+                double lowest_low = std::numeric_limits<double>::max(); 
+
+                // Determine the range to check for lowest low
+                size_t start_index = (i < left_bars) ? 0 : i - left_bars;
+                size_t end_index = (i + right_bars >= candles.size()) ? candles.size() - 1 : i + right_bars;
+
+                // Iterate through the range to find the lowesr low
+                for (size_t j = start_index; j <= end_index; ++j)
                 {
-                    current_pivot_index = i;
+                    lowest_low = std::min(lowest_low, lows_values[j]);
                 }
-                values[i + right_bars] = source_candles[current_pivot_index];
+
+                // Assign the lowest low to the corresponding value in the result vector
+                values[i] = lowest_low;
             }
 
             return values; },

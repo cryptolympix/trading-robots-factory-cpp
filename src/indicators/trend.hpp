@@ -79,23 +79,23 @@ private:
 // *********************************************************************************************
 
 /**
- * Aroon Indicator
+ * Aroon Up Indicator
  *
  * The Aroon indicator is used to determine the strength of a trend and the likelihood that it will continue. It is made up of two lines: one line is called "Aroon up", which measures the strength of the uptrend, and the other line is called "Aroon down", which measures the strength of the downtrend.
  */
-class AroonTrend : public Indicator
+class AroonUp : public Indicator
 {
 public:
     /**
-     * @brief Construct a new AroonTrend object.
+     * @brief Construct a new Aroon Up object.
      *
      * @param period Period value. Default is 14.
      * @param offset Offset value. Default is 0.
      */
-    AroonTrend(int period = 14, int offset = 0);
+    AroonUp(int period = 14, int offset = 0);
 
     /**
-     * @brief Calculate the Aroon values.
+     * @brief Calculate the Aroon Up values.
      *
      * @param candles Vector of Candle data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
@@ -108,6 +108,35 @@ private:
 };
 
 // *********************************************************************************************
+
+/**
+ * Aroon Down Indicator
+ *
+ * The Aroon indicator is used to determine the strength of a trend and the likelihood that it will continue. It is made up of two lines: one line is called "Aroon up", which measures the strength of the uptrend, and the other line is called "Aroon down", which measures the strength of the downtrend.
+ */
+class AroonDown : public Indicator
+{
+public:
+    /**
+     * @brief Construct a new Aroon Down object.
+     *
+     * @param period Period value. Default is 14.
+     * @param offset Offset value. Default is 0.
+     */
+    AroonDown(int period = 14, int offset = 0);
+
+    /**
+     * @brief Calculate the Aroon Down values.
+     *
+     * @param candles Vector of Candle data.
+     * @param normalize_data Boolean flag indicating whether to normalize data.
+     * @return std::vector<double> Vector containing calculated values.
+     */
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+
+private:
+    int period;
+};
 
 /**
  * Commodity Channel Index (CCI)
@@ -529,6 +558,37 @@ public:
      * @return std::vector<double> Vector containing the calculated difference values.
      */
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+};
+
+// *********************************************************************************************
+
+/**
+ * Aroon Indicator
+ *
+ * The Aroon indicator is used to determine the strength of a trend and the likelihood that it will continue. It is made up of two lines: one line is called "Aroon up", which measures the strength of the uptrend, and the other line is called "Aroon down", which measures the strength of the downtrend.
+ */
+class AroonTrend : public Indicator
+{
+public:
+    /**
+     * @brief Construct a new AroonTrend object.
+     *
+     * @param period Period value. Default is 14.
+     * @param offset Offset value. Default is 0.
+     */
+    AroonTrend(int period = 14, int offset = 0);
+
+    /**
+     * @brief Calculate the Aroon values.
+     *
+     * @param candles Vector of Candle data.
+     * @param normalize_data Boolean flag indicating whether to normalize data.
+     * @return std::vector<double> Vector containing calculated values.
+     */
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+
+private:
+    int period;
 };
 
 // *********************************************************************************************

@@ -29,15 +29,27 @@ TEST_F(TrendIndicatorsTest, ADXTest)
     }
 }
 
-TEST_F(TrendIndicatorsTest, AroonTrendTest)
+TEST_F(TrendIndicatorsTest, AroonUpTest)
 {
-    AroonTrend aroon(14);
-    std::vector<double> result_aroon_trend = aroon.calculate(mock_candles, false);
+    AroonUp aroon_up(14);
+    std::vector<double> result_aroon_up = aroon_up.calculate(mock_candles);
 
-    ASSERT_EQ(result_aroon_trend.size(), mock_candles.size());
-    for (int i = 0; i < result_aroon_trend.size(); i++)
+    ASSERT_EQ(result_aroon_up.size(), mock_candles.size());
+    for (int i = 0; i < result_aroon_up.size(); i++)
     {
-        ASSERT_TRUE(result_aroon_trend[i] == -1 || result_aroon_trend[i] == 0 || result_aroon_trend[i] == 1);
+        ASSERT_TRUE(result_aroon_up[i] >= 0 && result_aroon_up[i] <= 100);
+    }
+}
+
+TEST_F(TrendIndicatorsTest, AroonDownTest)
+{
+    AroonDown aroon_down(14);
+    std::vector<double> result_aroon_down = aroon_down.calculate(mock_candles);
+
+    ASSERT_EQ(result_aroon_down.size(), mock_candles.size());
+    for (int i = 0; i < result_aroon_down.size(); i++)
+    {
+        ASSERT_TRUE(result_aroon_down[i] >= 0 && result_aroon_down[i] <= 100);
     }
 }
 
@@ -135,6 +147,18 @@ TEST_F(TrendIndicatorsTest, EMADifferenceTest)
     std::vector<double> result_ema_diff = ema_diff.calculate(mock_candles);
 
     ASSERT_EQ(result_ema_diff.size(), mock_candles.size());
+}
+
+TEST_F(TrendIndicatorsTest, AroonTrendTest)
+{
+    AroonTrend aroon(14);
+    std::vector<double> result_aroon_trend = aroon.calculate(mock_candles, false);
+
+    ASSERT_EQ(result_aroon_trend.size(), mock_candles.size());
+    for (int i = 0; i < result_aroon_trend.size(); i++)
+    {
+        ASSERT_TRUE(result_aroon_trend[i] == -1 || result_aroon_trend[i] == 0 || result_aroon_trend[i] == 1);
+    }
 }
 
 TEST_F(TrendIndicatorsTest, IchimokuCloudTrendTest)
