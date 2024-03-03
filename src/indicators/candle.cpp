@@ -719,13 +719,13 @@ bool CandlePattern::isBullishEngulfing(const std::vector<Candle> &candles, size_
     const Candle &previous = candles[index - 1];
 
     // Check if the current candle is bullish (close > open)
-    if (current.close >= current.open)
+    if (current.close <= current.open)
     {
         return false;
     }
 
     // Check if the previous candle is bearish (close < open)
-    if (previous.close <= previous.open)
+    if (previous.close >= previous.open)
     {
         return false;
     }
@@ -759,7 +759,7 @@ bool CandlePattern::isBearishEngulfing(const std::vector<Candle> &candles, size_
     const Candle &previous = candles[index - 1];
 
     // Check if the current candle is bearish (close < open)
-    if (current.close <= current.open)
+    if (current.close >= current.open)
     {
         return false;
     }
