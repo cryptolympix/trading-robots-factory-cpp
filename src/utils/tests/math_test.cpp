@@ -32,15 +32,3 @@ TEST(MathTest, CountDecimals)
     ASSERT_EQ(count_decimals(1.5), 1);
     ASSERT_EQ(count_decimals(0.123456), 6);
 }
-
-// Test case for normalize function
-TEST(MathTest, Normalize)
-{
-    std::vector<double> values = {1.0, 2.0, 3.0, 4.0, 5.0};
-    std::pair<double, double> current_range = std::make_pair(1.0, 5.0);
-    std::pair<double, double> new_range = std::make_pair(0.0, 1.0);
-    std::vector<double> expected_output = {0.0, 0.25, 0.5, 0.75, 1.0};
-    std::vector<double> results = normalize(values, current_range, new_range);
-    ASSERT_EQ(results, expected_output);
-    ASSERT_EQ(results.size(), values.size());
-}

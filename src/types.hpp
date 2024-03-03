@@ -90,6 +90,16 @@ enum class PositionSide
 };
 
 /**
+ * @brief Enum for position information.
+ */
+enum class PositionInfo
+{
+    TYPE,
+    PNL,
+    DURATION,
+};
+
+/**
  * @brief Struct representing a trading position.
  */
 struct Position
@@ -240,15 +250,6 @@ struct Strategy
     std::optional<int> minimum_duration_before_next_trade; // Minimum duration before the next trade
     TakeProfitStopLossConfig take_profit_stop_loss_config; // Take profit and stop loss configuration
     std::optional<TradingSchedule> trading_schedule;       // Trading schedule
-};
-
-/**
- * @brief Enum for position information.
- */
-enum class PositionInfo
-{
-    TYPE,
-    PNL
 };
 
 /**

@@ -870,6 +870,77 @@ std::vector<double> TRIX::calculate(const std::vector<Candle> &candles, bool nor
 // *********************************************************************************************
 
 /**
+ * @brief Construct a new Vortex Indicator object.
+ *
+ * @param period The period for calculating Vortex Indicator (default: 14).
+ * @param offset Offset value. Default is 0.
+ */
+Vortex::Vortex(int period, int offset)
+    : Indicator("Vortex", "vortex-" + std::to_string(period), offset),
+      period(period) {}
+
+/**
+ * @brief Calculate the Vortex Indicator values.
+ *
+ * @param candles Vector of Candle data.
+ * @param normalize_data Boolean flag indicating whether to normalize data.
+ * @return std::vector<double> Vector containing calculated Vortex Indicator values.
+ */
+std::vector<double> Vortex::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+{
+    std::vector<double> positive_trend_movement(candles.size(), 0);
+    std::vector<double> negative_trend_movement(candles.size(), 0);
+    std::vector<double> true_range(candles.size(), 0);
+
+    // Calculate positive and negative trend movements
+    for (size_t i = 1; i < candles.size(); ++i)
+    {
+        double high_low_diff = candles[i].high - candles[i - 1].low;
+        double low_high_diff = candles[i].low - candles[i - 1].high;
+        positive_trend_movement[i] = std::abs(high_low_diff);
+        negative_trend_movement[i] = std::abs(low_high_diff);
+    }
+
+    // Calculate True Range
+    for (size_t i = 1; i < candles.size(); ++i)
+    {
+        double high_low_range = candles[i].high - candles[i].low;
+        double high_close_diff = std::abs(candles[i].high - candles[i - 1].close);
+        double low_close_diff = std::abs(candles[i].low - candles[i - 1].close);
+        true_range[i] = std::max({high_low_range, high_close_diff, low_close_diff});
+    }
+
+    // Calculate 14-period sums of +VM, -VM, and TR
+    std::vector<double> positive_vm_14 = calculate_sum_subvector(positive_trend_movement, period);
+    std::vector<double> negative_vm_14 = calculate_sum_subvector(negative_trend_movement, period);
+    std::vector<double> tr_14 = calculate_sum_subvector(true_range, period);
+
+    // // Calculate normalized positive and negative trend movements
+    std::vector<double> positive_vi_14(candles.size(), 0);
+    std::vector<double> negative_vi_14(candles.size(), 0);
+    for (size_t i = period; i < candles.size(); ++i)
+    {
+        positive_vi_14[i] = positive_vm_14[i] / tr_14[i];
+        negative_vi_14[i] = negative_vm_14[i] / tr_14[i];
+    }
+
+    // // Normalize data if required
+    positive_vi_14 = normalize_vectors(positive_vi_14);
+    negative_vi_14 = normalize_vectors(negative_vi_14);
+
+    // // Combine positive and negative VI into one vector for output
+    std::vector<double> vortex_indicator(candles.size(), 0);
+    for (size_t i = period; i < candles.size(); ++i)
+    {
+        vortex_indicator[i] = positive_vi_14[i] - negative_vi_14[i];
+    }
+
+    return vortex_indicator;
+}
+
+// *********************************************************************************************
+
+/**
  * @brief Construct a new InstitutionalBias object.
  *
  * @param short_period Period for short EMA calculation.

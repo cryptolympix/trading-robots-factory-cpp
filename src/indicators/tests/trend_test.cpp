@@ -133,6 +133,14 @@ TEST_F(TrendIndicatorsTest, TRIXTest)
     ASSERT_EQ(result_trix.size(), mock_candles.size());
 }
 
+TEST_F(TrendIndicatorsTest, VortexTest)
+{
+    Vortex vortex(14);
+    std::vector<double> result_vortex = vortex.calculate(mock_candles);
+
+    ASSERT_EQ(result_vortex.size(), mock_candles.size());
+}
+
 TEST_F(TrendIndicatorsTest, InstitutionalBiasTest)
 {
     InstitutionalBias ib(9, 18);

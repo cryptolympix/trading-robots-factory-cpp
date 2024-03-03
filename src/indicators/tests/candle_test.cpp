@@ -25,17 +25,17 @@ protected:
 
         // Mock data initialization
         mock_candles = {
-            Candle{.date = date, .open = 10, .high = 12, .low = 8, .close = 15},
-            Candle{.date = date, .open = 15, .high = 16, .low = 8, .close = 9},
-            Candle{.date = date, .open = 9, .high = 10, .low = 6, .close = 12},
-            Candle{.date = date, .open = 12, .high = 13, .low = 8, .close = 6},
-            Candle{.date = date, .open = 6, .high = 7, .low = 5, .close = 5},
-            Candle{.date = date, .open = 8, .high = 17, .low = 5, .close = 17},
-            Candle{.date = date, .open = 17, .high = 18, .low = 6, .close = 14},
-            Candle{.date = date, .open = 14, .high = 15, .low = 8, .close = 11},
-            Candle{.date = date, .open = 11, .high = 12, .low = 2, .close = 4},
-            Candle{.date = date, .open = 4, .high = 21, .low = 8, .close = 20},
-            Candle{.date = date, .open = 20, .high = 20, .low = 5, .close = 18}};
+            Candle{.date = date, .open = 10, .high = 12, .low = 8, .close = 15, .volume = 10},
+            Candle{.date = date, .open = 15, .high = 16, .low = 8, .close = 9, .volume = 10},
+            Candle{.date = date, .open = 9, .high = 10, .low = 6, .close = 12, .volume = 15},
+            Candle{.date = date, .open = 12, .high = 13, .low = 8, .close = 6, .volume = 20},
+            Candle{.date = date, .open = 6, .high = 7, .low = 5, .close = 5, .volume = 10},
+            Candle{.date = date, .open = 8, .high = 17, .low = 5, .close = 17, .volume = 5},
+            Candle{.date = date, .open = 17, .high = 18, .low = 6, .close = 14, .volume = 10},
+            Candle{.date = date, .open = 14, .high = 15, .low = 8, .close = 11, .volume = 13},
+            Candle{.date = date, .open = 11, .high = 12, .low = 2, .close = 4, .volume = 11},
+            Candle{.date = date, .open = 4, .high = 21, .low = 8, .close = 20, .volume = 10},
+            Candle{.date = date, .open = 20, .high = 20, .low = 5, .close = 18, .volume = 12}};
     };
 
     // Variables
@@ -67,6 +67,12 @@ TEST_F(CandleIndicatorsTest, PriceTest)
     std::vector<double> result_close = close_indicator.calculate(mock_candles);
     std::vector<double> expected_close = {15, 9, 12, 6, 5, 17, 14, 11, 4, 20, 18};
     ASSERT_EQ(result_close, expected_close);
+
+    // CandleVolume
+    CandleVolume volume_indicator;
+    std::vector<double> result_volume = volume_indicator.calculate(mock_candles);
+    std::vector<double> expected_volume = {10, 10, 15, 20, 10, 5, 10, 13, 11, 10, 12};
+    ASSERT_EQ(result_volume, expected_volume);
 }
 
 TEST_F(CandleIndicatorsTest, PriceWithOffsetTest)

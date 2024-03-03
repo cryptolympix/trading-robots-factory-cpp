@@ -67,6 +67,6 @@ Config config = {
         .inputs = {
             .indicators = {
                 {TimeFrame::M15, {CandlePriceChange()}}},
-            .position = {PositionInfo::TYPE, PositionInfo::PNL}}},
+            .position = {PositionInfo::TYPE, PositionInfo::PNL, PositionInfo::DURATION}}},
     .evaluation{.nb_trade_minimum = 30, .average_profit = 0.01, .maximum_drawdown = 0.1, .minimum_growth_per_month = 0.2, .minimum_profit_factor = 2, .minimum_winrate = 0.5},
     .neat = load_config("src/configs/neat_config_test.ini")};

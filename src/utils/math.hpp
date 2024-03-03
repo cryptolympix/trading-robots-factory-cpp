@@ -40,14 +40,4 @@ double decimal_round(double x, int precision);
  */
 int count_decimals(double number);
 
-/**
- * @brief Normalize a numeric vector to a specified range.
- *
- * @param array The input numeric vector to be normalized.
- * @param current_range The current range of values in the input vector.
- * @param new_range The target range for normalization.
- * @return std::vector<double> The normalized vector.
- */
-std::vector<double> normalize(const std::vector<double> &array, std::pair<double, double> current_range = std::make_pair(0.0f, 0.0f), std::pair<double, double> new_range = std::make_pair(0.0, 1.0));
-
 #endif // MATH_UTILS_H

@@ -1,4 +1,4 @@
-#include "../utils/math.hpp"
+#include "../utils/vectors.hpp"
 #include "indicator.hpp"
 #include "../types.hpp"
 
@@ -64,7 +64,7 @@ std::vector<double> Indicator::calculate(const std::vector<Candle> &candles, std
     // Normalize the data
     if (normalize_data)
     {
-        values = normalize(values);
+        values = normalize_vectors(values);
     }
 
     return values;

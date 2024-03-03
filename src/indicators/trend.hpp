@@ -506,6 +506,32 @@ public:
 
 // *********************************************************************************************
 
+class Vortex : public Indicator
+{
+public:
+    /**
+     * @brief Construct a new Vortex Indicator object.
+     *
+     * @param period The period for calculating Vortex Indicator (default: 14).
+     * @param offset Offset value. Default is 0.
+     */
+    Vortex(int period = 14, int offset = 0);
+
+    /**
+     * @brief Calculate the Vortex Indicator values.
+     *
+     * @param candles Vector of Candle data.
+     * @param normalize_data Boolean flag indicating whether to normalize data.
+     * @return std::vector<double> Vector containing calculated Vortex Indicator values.
+     */
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+
+private:
+    int period; // The period for calculating Vortex Indicator.
+};
+
+// *********************************************************************************************
+
 class InstitutionalBias : public Indicator
 {
 private:
