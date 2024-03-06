@@ -63,3 +63,40 @@ std::vector<double> calculate_exponential_moving_average(const std::vector<doubl
 
     return ema;
 }
+
+/**
+ * @brief Calculate the standard deviation of a given vector of values.
+ *
+ * @param values Vector of values.
+ * @param period Period to consider.
+ * @return double Standard deviation.
+ */
+std::vector<double> calculate_standard_deviation(const std::vector<double> &values, int period)
+{
+    // Initialize std_deviation vector with the same size as values
+    std::vector<double> std_deviation(values.size(), 0.0);
+
+    for (size_t i = period - 1; i < values.size(); ++i)
+    {
+        // Calculate the mean
+        double mean = 0.0;
+        for (int j = i - period + 1; j <= i; ++j)
+        {
+            mean += values[j];
+        }
+        mean /= period;
+
+        // Calculate the sum of squared differences
+        double sum_squared_diff = 0.0;
+        for (int j = i - period + 1; j <= i; ++j)
+        {
+            sum_squared_diff += std::pow(values[j] - mean, 2);
+        }
+
+        // Calculate the standard deviation
+        double std_dev = std::sqrt(sum_squared_diff / period);
+        std_deviation[i] = std_dev;
+    }
+
+    return std_deviation;
+}

@@ -1054,11 +1054,8 @@ std::vector<double> AroonTrend::calculate(const std::vector<Candle> &candles, bo
                 return aroon_trend_values; // Not enough data
             }
 
-            HighestHigh highest_source(period, 0);
-            LowestLow lowest_source(period, 0);
-
-            std::vector<double> highest_highs = highest_source.calculate(candles, false);
-            std::vector<double> lowest_lows = lowest_source.calculate(candles, false);
+            std::vector<double> highest_highs = HighestHigh(period, 0).calculate(candles, false);
+            std::vector<double> lowest_lows = LowestLow(period, 0).calculate(candles, false);
 
             for (size_t i = period - 1; i < candles.size(); ++i)
             {

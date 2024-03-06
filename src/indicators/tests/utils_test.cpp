@@ -37,3 +37,21 @@ TEST(IndicatorsUtilsTest, ExponentialMovingAverage)
 
     ASSERT_EQ(ema, expected_ema);
 }
+
+TEST(IndicatorsUtilsTest, StandardDeviation)
+{
+    std::vector<double> values = {2, 4, 6, 8, 12, 14, 16, 18, 20};
+    int period = 3;
+
+    std::vector<double> expected_stddev = {0, 0, 1.633, 1.633, 2.494, 2.494, 1.633, 1.633, 1.633}; // Expected Standard Deviation values
+
+    std::vector<double> stddev = calculate_standard_deviation(values, period);
+
+    // Round the values to 3 decimal places
+    for (size_t i = 0; i < stddev.size(); ++i)
+    {
+        stddev[i] = decimal_round(stddev[i], 3);
+    }
+
+    ASSERT_EQ(stddev, expected_stddev);
+}

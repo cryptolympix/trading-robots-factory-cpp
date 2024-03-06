@@ -2,7 +2,7 @@
 #include <vector>
 #include "../candle_patterns.hpp"
 
-TEST(CandlePatternsTest, DojiCandlePatternPatternTest)
+TEST(CandlePatternsTest, DojiCandlePatternPattern)
 {
     DojiCandlePattern pattern;
     std::vector<Candle> candles = {
@@ -18,7 +18,7 @@ TEST(CandlePatternsTest, DojiCandlePatternPatternTest)
     ASSERT_EQ(result, expected);
 }
 
-TEST(CandlePatternsTest, SingleCandlePatternTest)
+TEST(CandlePatternsTest, SingleCandlePattern)
 {
     SingleCandlePattern pattern;
     std::vector<Candle> candles = {
@@ -46,7 +46,7 @@ TEST(CandlePatternsTest, SingleCandlePatternTest)
     ASSERT_EQ(result, expected);
 }
 
-TEST(CandlePatternsTest, DoubleCandlePatternTest)
+TEST(CandlePatternsTest, DoubleCandlePattern)
 {
     DoubleCandlePattern pattern;
     std::vector<Candle> candles = {
@@ -70,7 +70,7 @@ TEST(CandlePatternsTest, DoubleCandlePatternTest)
     ASSERT_EQ(result, expected);
 }
 
-TEST(CandlePatternsTest, TripleCandlePatternTest)
+TEST(CandlePatternsTest, TripleCandlePattern)
 {
     TripleCandlePattern pattern;
     std::vector<double> result;

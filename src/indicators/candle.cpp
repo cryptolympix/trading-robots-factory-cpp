@@ -386,9 +386,7 @@ std::vector<double> PivotHighValue::calculate(const std::vector<Candle> &candles
         candles, [this](std::vector<Candle> candles) -> std::vector<double>
         { 
             std::vector<double> values(candles.size(), 0); // Initialize values vector with size of candles
-            PivotHigh indicator(CandleSource::High, left_bars, right_bars, offset);
-
-            std::vector<double> pivots = indicator.calculate(candles, false);
+            std::vector<double> pivots = PivotHigh(CandleSource::High, left_bars, right_bars, offset).calculate(candles, false);
             std::vector<double> source_candles = get_candles_with_source(candles, source);
 
             int current_pivot_index = 0;
@@ -436,8 +434,7 @@ std::vector<double> PivotLowValue::calculate(const std::vector<Candle> &candles,
         candles, [this](std::vector<Candle> candles) -> std::vector<double>
         { 
             std::vector<double> values(candles.size(), 0); // Initialize values vector with size of candles
-            PivotLow indicator(CandleSource::Low, left_bars, right_bars, offset);
-            std::vector<double> pivots = indicator.calculate(candles, false);
+            std::vector<double> pivots = PivotLow(CandleSource::Low, left_bars, right_bars, offset).calculate(candles, false);
             std::vector<double> source_candles = get_candles_with_source(candles, source);
 
             int current_pivot_index = 0;

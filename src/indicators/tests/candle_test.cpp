@@ -42,7 +42,7 @@ protected:
     std::vector<Candle> mock_candles;
 };
 
-TEST_F(CandleIndicatorsTest, PriceTest)
+TEST_F(CandleIndicatorsTest, Price)
 {
     // CandleOpen
     CandleOpen open_indicator;
@@ -75,7 +75,7 @@ TEST_F(CandleIndicatorsTest, PriceTest)
     ASSERT_EQ(result_volume, expected_volume);
 }
 
-TEST_F(CandleIndicatorsTest, PriceWithOffsetTest)
+TEST_F(CandleIndicatorsTest, PriceWithOffset)
 {
     // Offset 1
     CandleOpen open_indicator(1);
@@ -118,7 +118,7 @@ TEST_F(CandleIndicatorsTest, PriceWithOffsetTest)
     }
 }
 
-TEST_F(CandleIndicatorsTest, WhiteCandleTest)
+TEST_F(CandleIndicatorsTest, WhiteCandle)
 {
     WhiteCandle white_indicator;
     std::vector<double> result = white_indicator.calculate(mock_candles);
@@ -126,7 +126,7 @@ TEST_F(CandleIndicatorsTest, WhiteCandleTest)
     ASSERT_EQ(result, expected);
 }
 
-TEST_F(CandleIndicatorsTest, BlackCandleTest)
+TEST_F(CandleIndicatorsTest, BlackCandle)
 {
     BlackCandle black_indicator;
     std::vector<double> result = black_indicator.calculate(mock_candles);
@@ -134,7 +134,7 @@ TEST_F(CandleIndicatorsTest, BlackCandleTest)
     ASSERT_EQ(result, expected);
 }
 
-TEST_F(CandleIndicatorsTest, PercentageChangeCandleTest)
+TEST_F(CandleIndicatorsTest, PercentageChangeCandle)
 {
     CandlePriceChange indicator;
     std::vector<double> result = indicator.calculate(mock_candles);
@@ -143,7 +143,7 @@ TEST_F(CandleIndicatorsTest, PercentageChangeCandleTest)
     ASSERT_EQ(result, expected);
 }
 
-TEST_F(CandleIndicatorsTest, PivotHighTest)
+TEST_F(CandleIndicatorsTest, PivotHigh)
 {
     // PivotHigh with left_bars=2, right_bars=0
     PivotHigh pivot_high_indicator(CandleSource::High, 2, 0);
@@ -158,7 +158,7 @@ TEST_F(CandleIndicatorsTest, PivotHighTest)
     ASSERT_EQ(result2, expected2);
 }
 
-TEST_F(CandleIndicatorsTest, PivotLowTest)
+TEST_F(CandleIndicatorsTest, PivotLow)
 {
     // PivotLow with left_bars=2, right_bars=0
     PivotLow pivot_low_indicator(CandleSource::Low, 2, 0);
@@ -173,7 +173,7 @@ TEST_F(CandleIndicatorsTest, PivotLowTest)
     ASSERT_EQ(result2, expected2);
 }
 
-TEST_F(CandleIndicatorsTest, PivotHighValueTest)
+TEST_F(CandleIndicatorsTest, PivotHighValue)
 {
     // with left_bars=2, right_bars=0
     PivotHighValue pivot_high_value(CandleSource::High, 2, 0);
@@ -188,7 +188,7 @@ TEST_F(CandleIndicatorsTest, PivotHighValueTest)
     ASSERT_EQ(result2, expected2);
 }
 
-TEST_F(CandleIndicatorsTest, PivotLowValueTest)
+TEST_F(CandleIndicatorsTest, PivotLowValue)
 {
     // with left_bars=2, right_bars=0
     PivotLowValue lowest_indicator(CandleSource::Low, 2, 0);
@@ -203,7 +203,7 @@ TEST_F(CandleIndicatorsTest, PivotLowValueTest)
     ASSERT_EQ(result2, expected2);
 }
 
-TEST_F(CandleIndicatorsTest, HighestHighTest)
+TEST_F(CandleIndicatorsTest, HighestHigh)
 {
     // with left_bars=2, right_bars=0
     HighestHigh highest_indicator(2, 0);
@@ -218,7 +218,7 @@ TEST_F(CandleIndicatorsTest, HighestHighTest)
     ASSERT_EQ(result2, expected2);
 }
 
-TEST_F(CandleIndicatorsTest, LowestLowTest)
+TEST_F(CandleIndicatorsTest, LowestLow)
 {
     // with left_bars=2, right_bars=0
     LowestLow lowest_indicator(2, 0);

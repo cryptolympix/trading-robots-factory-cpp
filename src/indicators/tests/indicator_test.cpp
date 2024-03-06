@@ -42,7 +42,7 @@ protected:
 };
 
 // Test case for Indicator::calculate method
-TEST_F(IndicatorTest, CalculateTest)
+TEST_F(IndicatorTest, Calculate)
 {
     // Create an instance of the Indicator class
     Indicator indicator("Test Indicator", "test-indicator", 0);
@@ -72,7 +72,7 @@ TEST_F(IndicatorTest, CalculateTest)
 }
 
 // Test case for negative offset
-TEST_F(IndicatorTest, CalculateWithOffsetTest)
+TEST_F(IndicatorTest, CalculateWithOffset)
 {
     // Create an instance of the Indicator class with offset
     Indicator indicator("Test Indicator", "test-indicator", 1);
@@ -96,7 +96,7 @@ TEST_F(IndicatorTest, CalculateWithOffsetTest)
 }
 
 // Test case for normalize_data flag
-TEST_F(IndicatorTest, NormalizeDataTest)
+TEST_F(IndicatorTest, NormalizeData)
 {
     // Create an instance of the Indicator class
     Indicator indicator("Test Indicator", "test-indicator", 0);

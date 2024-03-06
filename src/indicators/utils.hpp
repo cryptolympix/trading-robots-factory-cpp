@@ -21,4 +21,13 @@ std::vector<double> calculate_simple_moving_average(const std::vector<double> &v
  */
 std::vector<double> calculate_exponential_moving_average(const std::vector<double> &values, int periods);
 
+/**
+ * @brief Calculate the standard deviation of a given vector of values.
+ *
+ * @param values Vector of values.
+ * @param period Period to consider.
+ * @return double Standard deviation.
+ */
+std::vector<double> calculate_standard_deviation(const std::vector<double> &values, int period);
+
 #endif // UTILS_INDICATORS_HPP
