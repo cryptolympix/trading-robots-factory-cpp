@@ -35,7 +35,14 @@ public:
      */
     std::vector<double> calculate(const std::vector<Candle> &candles, std::function<std::vector<double>(std::vector<Candle>)> calculator, bool normalize_data = false) const;
 
-    virtual std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data) const;
+    /**
+     * @brief Calculate the indicator.
+     *
+     * @param candles The candles data.
+     * @param normalize_data Normalize the data.
+     * @return std::vector<double> The calculated indicator values.
+     */
+    virtual std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const;
 
 protected:
     std::string label;

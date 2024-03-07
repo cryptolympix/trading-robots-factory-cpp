@@ -134,7 +134,7 @@ TEST_F(CandleIndicatorsTest, BlackCandle)
     ASSERT_EQ(result, expected);
 }
 
-TEST_F(CandleIndicatorsTest, PercentageChangeCandle)
+TEST_F(CandleIndicatorsTest, CandlePriceChange)
 {
     CandlePriceChange indicator;
     std::vector<double> result = indicator.calculate(mock_candles);
@@ -184,7 +184,7 @@ TEST_F(CandleIndicatorsTest, PivotHighValue)
     // with left_bars=2, right_bars=2
     PivotHighValue highest_indicator2(CandleSource::High, 2, 2);
     std::vector<double> result2 = highest_indicator2.calculate(mock_candles);
-    std::vector<double> expected2 = {12, 12, 12, 16, 16, 16, 16, 16, 18, 18, 18};
+    std::vector<double> expected2 = {12, 16, 16, 16, 16, 16, 16, 16, 18, 18, 18};
     ASSERT_EQ(result2, expected2);
 }
 

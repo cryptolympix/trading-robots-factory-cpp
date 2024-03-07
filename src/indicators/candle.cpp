@@ -390,12 +390,17 @@ std::vector<double> PivotHighValue::calculate(const std::vector<Candle> &candles
             std::vector<double> source_candles = get_candles_with_source(candles, source);
 
             int current_pivot_index = 0;
-            for (size_t i = 0; i < candles.size() - right_bars; ++i)
+
+            for (size_t i = 0; i < right_bars; ++i)
             {
-                if (i < right_bars)
+                if (pivots[i] == 1)
                 {
-                    values[i] = source_candles[0];
+                    current_pivot_index = i;
                 }
+                values[i] = source_candles[current_pivot_index];
+            }
+
+            for (size_t i = 0 ; i < candles.size(); ++i) {
                 if (pivots[i] == 1)
                 {
                     current_pivot_index = i;
@@ -438,12 +443,17 @@ std::vector<double> PivotLowValue::calculate(const std::vector<Candle> &candles,
             std::vector<double> source_candles = get_candles_with_source(candles, source);
 
             int current_pivot_index = 0;
-            for (size_t i = 0; i < candles.size() - right_bars; ++i)
+
+            for (size_t i = 0; i < right_bars; ++i)
             {
-                if (i < right_bars)
+                if (pivots[i] == 1)
                 {
-                    values[i] = source_candles[0];
+                    current_pivot_index = i;
                 }
+                values[i] = source_candles[current_pivot_index];
+            }
+
+            for (size_t i = 0 ; i < candles.size(); ++i) {
                 if (pivots[i] == 1)
                 {
                     current_pivot_index = i;
@@ -455,8 +465,6 @@ std::vector<double> PivotLowValue::calculate(const std::vector<Candle> &candles,
 
         normalize_data);
 }
-
-// *********************************************************************************************
 
 /**
  * @brief Construct a new HighestHigh object.
@@ -543,7 +551,7 @@ std::vector<double> LowestLow::calculate(const std::vector<Candle> &candles, boo
                 size_t start_index = (i < left_bars) ? 0 : i - left_bars;
                 size_t end_index = (i + right_bars >= candles.size()) ? candles.size() - 1 : i + right_bars;
 
-                // Iterate through the range to find the lowesr low
+                // Iterate through the range to find the lowest low
                 for (size_t j = start_index; j <= end_index; ++j)
                 {
                     lowest_low = std::min(lowest_low, lows_values[j]);
