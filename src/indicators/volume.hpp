@@ -54,9 +54,10 @@ public:
     /**
      * @brief Constructor for ChaikinMoneyFlow class.
      *
-     * @param offset Offset value for the indicator.
+     * @param period Period for the CMF. Default is 20.
+     * @param offset Offset value for the indicator. Default is 0.
      */
-    CMF(int offset) : Indicator("Chaikin Money Flow", "cmf-" + std::to_string(offset), offset) {}
+    CMF(int period = 20, int offset = 0);
 
     /**
      * @brief Calculate the Chaikin Money Flow (CMF) values.
@@ -74,9 +75,9 @@ private:
 // *********************************************************************************************************************
 
 /**
- * Force Index (FI)
+ * Represents the Force Index (FI) indicator.
  *
- * Measures the strength of a price movement.
+ * FI measures the strength of a price trend based on volume.
  */
 class FI : public Indicator
 {
@@ -105,7 +106,7 @@ private:
 // *********************************************************************************************************************
 
 /**
- * @brief Represents the Negative Volume Index (NVI) indicator.
+ * Represents the Negative Volume Index (NVI) indicator.
  *
  * NVI measures the trend of prices when the trading volume decreases. It starts at 1000 and adds the
  * percentage price change to the cumulative NVI when the volume decreases. When the volume increases, the
@@ -134,7 +135,7 @@ public:
 // *********************************************************************************************************************
 
 /**
- * @brief Represents the On-balance Volume (OBV) indicator.
+ * Represents the On-balance Volume (OBV) indicator.
  *
  * OBV is a cumulative indicator that uses volume flow to predict changes in stock price.
  * It adds the trading volume on days when the price closes higher than the previous day's close
@@ -163,7 +164,7 @@ public:
 // *********************************************************************************************************************
 
 /**
- * @brief Represents the Point of Control (POC) indicator.
+ * Represents the Point of Control (POC) indicator.
  *
  * POC is the price at which the highest volume occurred in the volume profile.
  */
@@ -204,7 +205,7 @@ private:
 // *********************************************************************************************************************
 
 /**
- * @brief Represents the Positive Volume Index (PVI) indicator.
+ * Represents the Positive Volume Index (PVI) indicator.
  *
  * PVI is a cumulative indicator that increases when the volume increases compared to the previous period.
  */
@@ -231,7 +232,7 @@ public:
 // *********************************************************************************************************************
 
 /**
- * @brief Represents the Volume Weighted Average Price (VWAP) indicator.
+ * Represents the Volume Weighted Average Price (VWAP) indicator.
  *
  * VWAP calculates the average price of a security over a specified time period,
  * weighted by the trading volume during that period.

@@ -10,7 +10,7 @@
  *
  * @param offset Offset value. Default is 0.
  */
-ADI::ADI(int offset = 0) : Indicator("Accumulation Distribution Index", "adi-" + std::to_string(offset), offset) {}
+ADI::ADI(int offset) : Indicator("Accumulation Distribution Index", "adi-" + std::to_string(offset), offset) {}
 
 /**
  * @brief Calculate the ADI values.
@@ -60,9 +60,10 @@ double ADI::calculate_money_flow_multiplier(const Candle &candle) const
 /**
  * @brief Constructor for ChaikinMoneyFlow class.
  *
+ * @param period Period for the CMF. Default is 20.
  * @param offset Offset value for the indicator. Default is 0.
  */
-CMF::CMF(int offset = 0) : Indicator("Chaikin Money Flow", "cmf-" + std::to_string(offset), offset), period(period) {}
+CMF::CMF(int period, int offset) : Indicator("Chaikin Money Flow", "cmf-" + std::to_string(period) + "-" + std::to_string(offset), offset), period(period) {}
 
 /**
  * @brief Calculate the Chaikin Money Flow (CMF) values.
