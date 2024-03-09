@@ -1,0 +1,261 @@
+#ifndef INDICATORS_VOLUME_HPP
+#define INDICATORS_VOLUME_HPP
+
+#include "../types.hpp"
+#include "indicator.hpp"
+
+/**
+ * Accumulation/Distribution Index (ADI)
+ *
+ * Acting as leading indicator of price movements.
+ */
+class ADI : public Indicator
+{
+public:
+    /**
+     * @brief Construct a new ADI object.
+     *
+     * @param source Source of candle data.
+     * @param left_bars Number of left bars.
+     * @param right_bars Number of right bars.
+     * @param offset Offset value. Default is 0.
+     */
+    ADI(int offset = 0);
+
+    /**
+     * @brief Calculate the ADI values.
+     *
+     * @param candles Vector of Candle data.
+     * @param normalize_data Boolean flag indicating whether to normalize data.
+     * @return std::vector<double> Vector containing calculated values.
+     */
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+
+private:
+    /**
+     * @brief Calculate the Money Flow Multiplier for a single candle.
+     *
+     * @param candle The Candle data.
+     * @return double The calculated Money Flow Multiplier.
+     */
+    double calculate_money_flow_multiplier(const Candle &candle) const;
+};
+
+// *********************************************************************************************************************
+
+/**
+ * Chaikin Money Flow (CMF)
+ *
+ * A volume-weighted average of the accumulation/distribution line.
+ */
+class CMF : public Indicator
+{
+public:
+    /**
+     * @brief Constructor for ChaikinMoneyFlow class.
+     *
+     * @param offset Offset value for the indicator.
+     */
+    CMF(int offset) : Indicator("Chaikin Money Flow", "cmf-" + std::to_string(offset), offset) {}
+
+    /**
+     * @brief Calculate the Chaikin Money Flow (CMF) values.
+     *
+     * @param candles Vector of Candle data.
+     * @param normalize_data Boolean flag indicating whether to normalize data.
+     * @return std::vector<double> Vector containing calculated CMF values.
+     */
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+
+private:
+    int period; // Period for the CMF.
+};
+
+// *********************************************************************************************************************
+
+/**
+ * Force Index (FI)
+ *
+ * Measures the strength of a price movement.
+ */
+class FI : public Indicator
+{
+public:
+    /**
+     * @brief Constructor for ForceIndex class.
+     *
+     * @param period Period for the Force Index. Default is 13.
+     * @param offset Offset value for the indicator. Default is 0.
+     */
+    FI(int period = 13, int offset = 0);
+
+    /**
+     * @brief Calculate the Force Index (FI) values.
+     *
+     * @param candles Vector of Candle data.
+     * @param normalize_data Boolean flag indicating whether to normalize data.
+     * @return std::vector<double> Vector containing calculated FI values.
+     */
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+
+private:
+    int period; // Period for the Force Index.
+};
+
+// *********************************************************************************************************************
+
+/**
+ * @brief Represents the Negative Volume Index (NVI) indicator.
+ *
+ * NVI measures the trend of prices when the trading volume decreases. It starts at 1000 and adds the
+ * percentage price change to the cumulative NVI when the volume decreases. When the volume increases, the
+ * cumulative NVI remains unchanged. A 255-day Exponential Moving Average (EMA) is applied for signals.
+ */
+class NVI : public Indicator
+{
+public:
+    /**
+     * @brief Constructor for NVI class.
+     *
+     * @param offset Offset value for the indicator. Default is 0.
+     */
+    NVI(int offset = 0);
+
+    /**
+     * @brief Calculate the Negative Volume Index (NVI) values.
+     *
+     * @param candles Vector of Candle data.
+     * @param normalize_data Boolean flag indicating whether to normalize data.
+     * @return std::vector<double> Vector containing calculated NVI values.
+     */
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const;
+};
+
+// *********************************************************************************************************************
+
+/**
+ * @brief Represents the On-balance Volume (OBV) indicator.
+ *
+ * OBV is a cumulative indicator that uses volume flow to predict changes in stock price.
+ * It adds the trading volume on days when the price closes higher than the previous day's close
+ * and subtracts the trading volume on days when the price closes lower than the previous day's close.
+ */
+class OBV : public Indicator
+{
+public:
+    /**
+     * @brief Constructor for OBV class.
+     *
+     * @param offset Offset value for the indicator. Default is 0.
+     */
+    OBV(int offset = 0);
+
+    /**
+     * @brief Calculate the On-balance Volume (OBV) values.
+     *
+     * @param candles Vector of Candle data.
+     * @param normalize_data Boolean flag indicating whether to normalize data.
+     * @return std::vector<double> Vector containing calculated OBV values.
+     */
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+};
+
+// *********************************************************************************************************************
+
+/**
+ * @brief Represents the Point of Control (POC) indicator.
+ *
+ * POC is the price at which the highest volume occurred in the volume profile.
+ */
+class POC : public Indicator
+{
+public:
+    /**
+     * @brief Constructor for POC class.
+     *
+     * @param period Period for the POC. Default is 14.
+     * @param range_nb Number of ranges for the volume profile. Default is 10.
+     * @param offset Offset value for the indicator. Default is 0.
+     */
+    POC(int period = 14, int range_nb = 10, int offset = 0);
+
+    /**
+     * @brief Calculate the Point of Control (POC) values.
+     *
+     * @param candles Vector of Candle data.
+     * @param normalize_data Boolean flag indicating whether to normalize data.
+     * @return std::vector<double> Vector containing calculated POC values.
+     */
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+
+private:
+    int period;   // Period for the POC.
+    int range_nb; // Number of ranges for the volume profile.
+
+    /**
+     * @brief Calculate the volume profile for the given candles.
+     *
+     * @param candles Vector of Candle data.
+     * @return std::map<double, double> Map containing the volume profile.
+     */
+    std::map<double, double> calculate_volume_profile(const std::vector<Candle> &candles) const;
+};
+
+// *********************************************************************************************************************
+
+/**
+ * @brief Represents the Positive Volume Index (PVI) indicator.
+ *
+ * PVI is a cumulative indicator that increases when the volume increases compared to the previous period.
+ */
+class PVI : public Indicator
+{
+public:
+    /**
+     * @brief Constructor for PVI class.
+     *
+     * @param offset Offset value for the indicator. Default is 0.
+     */
+    PVI(int offset = 0);
+
+    /**
+     * @brief Calculate the Positive Volume Index (PVI) values.
+     *
+     * @param candles Vector of Candle data.
+     * @param normalize_data Boolean flag indicating whether to normalize data.
+     * @return std::vector<double> Vector containing calculated PVI values.
+     */
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+};
+
+// *********************************************************************************************************************
+
+/**
+ * @brief Represents the Volume Weighted Average Price (VWAP) indicator.
+ *
+ * VWAP calculates the average price of a security over a specified time period,
+ * weighted by the trading volume during that period.
+ */
+class VWAP : public Indicator
+{
+public:
+    /**
+     * @brief Constructor for VWAP class.
+     *
+     * @param offset Offset value for the indicator. Default is 0.
+     */
+    VWAP(int offset = 0);
+
+    /**
+     * @brief Calculate the Volume Weighted Average Price (VWAP) values.
+     *
+     * @param candles Vector of Candle data.
+     * @param normalize_data Boolean flag indicating whether to normalize data.
+     * @return std::vector<double> Vector containing calculated VWAP values.
+     */
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+};
+
+// *********************************************************************************************************************
+
+#endif // INDICATORS_VOLUME_HPP
