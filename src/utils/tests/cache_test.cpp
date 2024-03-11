@@ -37,10 +37,10 @@ TEST_F(CacheTest, CacheAndLoadDictionary)
     ASSERT_NO_THROW(cache_dictionary<std::string>(original_data, file_path.string()));
 
     // Load the cached dictionary
-    // auto loaded_data = load_cached_dictionary<std::string>(file_path.string());
+    auto loaded_data = load_cached_dictionary<std::string>(file_path.string());
 
     // Check if loaded data is the same as the original data
-    // ASSERT_EQ(loaded_data, original_data);
+    ASSERT_EQ(loaded_data, original_data);
 }
 
 // Test loading from a nonexistent file
@@ -48,8 +48,8 @@ TEST_F(CacheTest, LoadNonexistentFile)
 {
     // Try to load from a nonexistent file
     std::filesystem::path file_path = test_dir / "nonexistent_file.pkl";
-    // auto loaded_data = load_cached_dictionary<std::string>(file_path.string());
+    auto loaded_data = load_cached_dictionary<std::string>(file_path.string());
 
     // Check if loaded data is empty
-    // ASSERT_TRUE(loaded_data.empty());
+    ASSERT_TRUE(loaded_data.empty());
 }

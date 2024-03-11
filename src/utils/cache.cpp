@@ -26,7 +26,10 @@ void cache_dictionary(const std::unordered_map<std::string, T> &data, const std:
     std::ofstream file(file_path, std::ios::binary);
     if (file.is_open())
     {
-        file.write(reinterpret_cast<const char *>(&data), sizeof(data));
+        for (const auto &pair : data)
+        {
+            file << pair.first << ' ' << pair.second << '\n';
+        }
         file.close();
     }
     else
@@ -61,7 +64,12 @@ std::unordered_map<std::string, T> load_cached_dictionary(const std::string &fil
         std::ifstream file(file_path, std::ios::binary);
         if (file.is_open())
         {
-            file.read(reinterpret_cast<char *>(&data), sizeof(data));
+            std::string key;
+            T value;
+            while (file >> key >> value)
+            {
+                data[key] = value;
+            }
             file.close();
         }
         else
