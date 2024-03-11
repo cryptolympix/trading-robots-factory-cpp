@@ -5,25 +5,25 @@
 #include "indicator.hpp"
 
 /**
- * Accumulation/Distribution Index (ADI)
+ * Accumulation/Distribution Line (ADL)
  *
  * Acting as leading indicator of price movements.
  */
-class ADI : public Indicator
+class ADL : public Indicator
 {
 public:
     /**
-     * @brief Construct a new ADI object.
+     * @brief Construct a new ADL object.
      *
      * @param source Source of candle data.
      * @param left_bars Number of left bars.
      * @param right_bars Number of right bars.
      * @param offset Offset value. Default is 0.
      */
-    ADI(int offset = 0);
+    ADL(int offset = 0);
 
     /**
-     * @brief Calculate the ADI values.
+     * @brief Calculate the ADL values.
      *
      * @param candles Vector of Candle data.
      * @param normalize_data Boolean flag indicating whether to normalize data.

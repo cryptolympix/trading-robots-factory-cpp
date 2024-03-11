@@ -6,20 +6,20 @@
 #include "volume.hpp"
 
 /**
- * @brief Construct a new ADI object.
+ * @brief Construct a new ADL object.
  *
  * @param offset Offset value. Default is 0.
  */
-ADI::ADI(int offset) : Indicator("Accumulation Distribution Index", "adi-" + std::to_string(offset), offset) {}
+ADL::ADL(int offset) : Indicator("Accumulation Distribution Line", "adl-" + std::to_string(offset), offset) {}
 
 /**
- * @brief Calculate the ADI values.
+ * @brief Calculate the ADL values.
  *
  * @param candles Vector of Candle data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> ADI::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+std::vector<double> ADL::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles)
@@ -45,7 +45,7 @@ std::vector<double> ADI::calculate(const std::vector<Candle> &candles, bool norm
  * @param candle The Candle data.
  * @return double The calculated Money Flow Multiplier.
  */
-double ADI::calculate_money_flow_multiplier(const Candle &candle) const
+double ADL::calculate_money_flow_multiplier(const Candle &candle) const
 {
     double money_flow_multiplier = 0.0;
     if (candle.high != candle.low)
@@ -80,16 +80,19 @@ std::vector<double> CMF::calculate(const std::vector<Candle> &candles, bool norm
             // Initialize the CMF values vector with zeros.
             std::vector<double> cmf_values(candles.size(), 0.0);
 
+            // Get the typical prices for the candles
+            std::vector<double> typical_prices = get_candles_with_source(candles, CandleSource::HLC3);
+
             for (size_t i = period - 1; i < candles.size(); ++i)
             {
                 double mf_volume = 0.0;
                 double ad_volume = 0.0;
 
-                for (int j = i - period + 1; j <= i; ++i)
+                for (int j = i - period + 1; j <= i; ++j)
                 {
-                    double typical_price = (candles[i].high + candles[i].low + candles[i].close) / 3.0;
-                    mf_volume += typical_price * candles[i].volume;
-                    ad_volume += candles[i].volume;
+                    double typical_price = typical_prices[j];
+                    mf_volume += typical_price * candles[j].volume;
+                    ad_volume += candles[j].volume;
                 }
 
                 if (ad_volume != 0) {
