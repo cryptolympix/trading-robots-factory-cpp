@@ -2,6 +2,7 @@
 #include <cmath>
 #include <ctime>
 #include <vector>
+#include <chrono>
 #include "../candle.hpp"
 #include "../../types.hpp"
 
@@ -21,7 +22,7 @@ protected:
         };
 
         // Convert tm struct to time_t
-        time_t date = std::mktime(&timeInfo);
+        std::time_t date = std::mktime(&timeInfo);
 
         // Mock data initialization
         mock_candles = {

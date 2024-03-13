@@ -1,5 +1,5 @@
-#ifndef GENOME_H
-#define GENOME_H
+#ifndef NEAT_GENOME_H
+#define NEAT_GENOME_H
 
 #include <iostream>
 #include <vector>
@@ -156,4 +156,4 @@ public:
     static Genome *load(const std::string &file_path);
 };
 
-#endif // GENOME_H
+#endif // NEAT_GENOME_H

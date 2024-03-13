@@ -9,6 +9,7 @@
 #include "connection_history.hpp"
 #include "species.hpp"
 #include "population.hpp"
+#include "config.hpp"
 
 Population::Population(const NeatConfig &config) : config(config)
 {

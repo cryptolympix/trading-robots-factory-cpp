@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-int main(int argc, char **argv)
+int neat_main(int argc, char **argv)
 {
     // Run all the tests
     testing::InitGoogleTest(&argc, argv);

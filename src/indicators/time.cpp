@@ -28,7 +28,7 @@ std::vector<double> Hour::calculate(const std::vector<Candle> &candles, bool nor
 
             for (const auto &candle : candles)
             {
-                struct tm *time = localtime(&candle.date);
+                tm *time = localtime(&candle.date);
                 values.push_back(time->tm_hour);
             }
 
@@ -63,7 +63,7 @@ std::vector<double> NFPWeek::calculate(const std::vector<Candle> &candles, bool 
             for (const auto &candle : candles)
             {
                 // Check if the candle's date falls within the NFP week (assuming NFP week is the first week of each month)
-                struct tm *time = localtime(&candle.date);
+                tm *time = localtime(&candle.date);
                 bool is_nfp_week = time->tm_mday >= 1 && time->tm_mday <= 7;
                 result.push_back(is_nfp_week ? 1.0 : 0.0);
             }
@@ -107,7 +107,7 @@ std::vector<double> MarketSession::calculate(const std::vector<Candle> &candles,
             for (const auto &candle : candles)
             {
                 // Check if the candle's date falls within the market session
-                struct tm *time = localtime(&candle.date);
+                tm *time = localtime(&candle.date);
                 bool is_market_session = false;
                 switch (zone)
                 {
@@ -155,8 +155,7 @@ std::vector<double> WeekDay::calculate(const std::vector<Candle> &candles, bool 
             for (const auto &candle : candles)
             {
                 // Convert time_t to std::tm
-                std::time_t t = candle.date;
-                std::tm *time = std::localtime(&t);
+                tm *time = localtime(&candle.date);
 
                 // Extract the weekday (Sunday is 0, Monday is 1, etc.)
                 result.push_back(time->tm_wday);

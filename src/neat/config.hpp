@@ -1,5 +1,5 @@
-#ifndef CONFIG_H
-#define CONFIG_H
+#ifndef NEAT_CONFIG_H
+#define NEAT_CONFIG_H
 
 #include <string>
 #include "activation_functions.hpp"
@@ -75,4 +75,4 @@ struct NeatConfig
  */
 NeatConfig load_config(const std::string &filename);
 
-#endif
+#endif // NEAT_CONFIG_H

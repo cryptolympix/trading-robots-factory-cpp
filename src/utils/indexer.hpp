@@ -31,7 +31,7 @@ public:
      *
      * @param date The date used to update the indexes.
      */
-    void update_indexes(const std::time_t &date);
+    void update_indexes(std::chrono::system_clock::time_point &date);
 
     /**
      * @brief Retrieves the start and end indexes for the given timeframe.

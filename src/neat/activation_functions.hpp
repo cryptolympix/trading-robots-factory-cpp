@@ -1,5 +1,5 @@
-#ifndef ACTIVATION_FUNCTIONS_H
-#define ACTIVATION_FUNCTIONS_H
+#ifndef NEAT_ACTIVATION_FUNCTIONS_H
+#define NEAT_ACTIVATION_FUNCTIONS_H
 
 using ActivationFunction = std::string;
 
@@ -14,4 +14,4 @@ double softmax(double x);
 double linear(double x);
 double swish(double x);
 
-#endif
+#endif // NEAT_ACTIVATION_FUNCTIONS_H

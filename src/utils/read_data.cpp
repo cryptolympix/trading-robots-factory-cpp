@@ -14,12 +14,12 @@
  *
  * @param symbol The symbol for which the data is to be read.
  * @param time_frame The time frame of the data (M1, M5, H1, etc.).
- * @param start_date The start date for filtering data (optional, default is nullptr).
- * @param end_date The end date for filtering data (optional, default is nullptr).
+ * @param start_date The start date for filtering data (optional, default is the Unix epoch).
+ * @param end_date The end date for filtering data (optional, default is the current date and time).
  * @return std::vector<Candle> A vector of Candle objects containing candle data.
  * @throw std::runtime_error If the specified data file does not exist.
  */
-std::vector<Candle> read_data(const std::string &symbol, TimeFrame time_frame, std::tm *start_date, std::tm *end_date)
+std::vector<Candle> read_data(const std::string &symbol, TimeFrame time_frame, std::chrono::system_clock::time_point start_date, std::chrono::system_clock::time_point end_date)
 {
     std::vector<Candle> candles;
 
@@ -93,11 +93,9 @@ std::vector<Candle> read_data(const std::string &symbol, TimeFrame time_frame, s
         std::getline(ss, token, '\t'); // SPREAD
         candle.spread = std::stoi(token);
 
-        // Check if the candle date falls within the specified range
-        if ((start_date != nullptr && end_date != nullptr && candle.date >= std::mktime(start_date) && candle.date <= std::mktime(end_date)) ||
-            (start_date != nullptr && end_date == nullptr && candle.date >= std::mktime(start_date)) ||
-            (start_date == nullptr && end_date != nullptr && candle.date <= std::mktime(end_date)) ||
-            (start_date == nullptr && end_date == nullptr))
+        // Filter candles by date
+        std::chrono::system_clock::time_point candle_date = std::chrono::system_clock::from_time_t(candle.date);
+        if (candle_date >= start_date && candle_date <= end_date)
         {
             candles.push_back(candle);
         }

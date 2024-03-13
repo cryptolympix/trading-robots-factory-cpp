@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <chrono>
 #include "../../types.hpp"
 #include "../indicator.hpp"
 

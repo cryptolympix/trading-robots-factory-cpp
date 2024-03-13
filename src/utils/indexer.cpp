@@ -1,7 +1,7 @@
 #include <unordered_map>
 #include <vector>
-#include <ctime>
 #include <stdexcept>
+#include <chrono>
 #include "../types.hpp"
 #include "indexer.hpp"
 #include "time_frame.hpp"
@@ -26,13 +26,13 @@ Indexer::Indexer(const CandlesData &candles, int window) : candles(candles), win
  *
  * @param date The date used to update the indexes.
  */
-void Indexer::update_indexes(const std::time_t &date)
+void Indexer::update_indexes(std::chrono::system_clock::time_point &date)
 {
     for (auto &pair : candles)
     {
         TimeFrame tf = pair.first;
         while (indexes[tf].second < pair.second.size() &&
-               pair.second[indexes[tf].second].date + get_time_frame_value(tf) * 60 <= date)
+               std::chrono::system_clock::from_time_t(pair.second[indexes[tf].second].date) + std::chrono::minutes(get_time_frame_value(tf)) <= date)
         {
             // Increment the index
             indexes[tf].second++;

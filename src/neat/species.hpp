@@ -1,5 +1,5 @@
-#ifndef SPECIES_H
-#define SPECIES_H
+#ifndef NEAT_SPECIES_H
+#define NEAT_SPECIES_H
 
 #include <vector>
 #include "genome.hpp"
@@ -108,4 +108,4 @@ public:
     Species *clone();
 };
 
-#endif // SPECIES_H
+#endif // NEAT_SPECIES_H

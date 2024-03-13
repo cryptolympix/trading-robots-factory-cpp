@@ -1,3 +1,6 @@
+#ifndef VECTORS_HPP
+#define VECTORS_HPP
+
 #include <vector>
 
 /**
@@ -45,3 +48,5 @@ std::vector<double> normalize_vectors(const std::vector<double> &vector, std::pa
  * @return std::vector<double> The vector of sums of subvectors of size 'period'.
  */
 std::vector<double> calculate_sum_subvector(const std::vector<double> &values, int period);
+
+#endif /* VECTORS_HPP */

@@ -13,7 +13,7 @@
 #include "connection_history.hpp"
 #include "genome.hpp"
 
-std::string generate_uid(int size)
+std::string generate_uid_for_genome(int size)
 {
     const std::string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     thread_local std::random_device rd;
@@ -37,7 +37,7 @@ Genome::Genome(){};
 
 Genome::Genome(const NeatConfig &config, bool crossover) : config(config), inputs(config.num_inputs), outputs(config.num_outputs), layers(2), next_node(0), fitness(0)
 {
-    id = generate_uid(8);
+    id = generate_uid_for_genome(8);
 
     if (crossover)
     {

@@ -1,5 +1,5 @@
-#ifndef CONNECTION_HISTORY_H
-#define CONNECTION_HISTORY_H
+#ifndef NEAT_CONNECTION_HISTORY_H
+#define NEAT_CONNECTION_HISTORY_H
 
 #include <vector>
 #include "node.hpp"
@@ -32,4 +32,4 @@ public:
     bool matches(std::shared_ptr<Node> from_node, std::shared_ptr<Node> to_node);
 };
 
-#endif
+#endif // NEAT_CONNECTION_HISTORY_H

@@ -1,5 +1,5 @@
-#ifndef NODE_H
-#define NODE_H
+#ifndef NEAT_NODE_H
+#define NEAT_NODE_H
 
 #include "activation_functions.hpp"
 #include "config.hpp"

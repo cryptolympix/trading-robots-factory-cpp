@@ -1,8 +1,24 @@
 #include <iostream>
 #include <fstream>
-#include <unordered_map>
 #include <stdexcept>
+#include <unordered_map>
+#include <string>
+#include "../types.hpp"
 #include "cache.hpp"
+
+inline std::ostream &operator<<(std::ostream &os, const DatedCache &dc)
+{
+    // Write the DatedCache to the ostream in the desired format
+    // This is just an example, you should replace it with the actual code
+    return os;
+}
+
+inline std::istream &operator>>(std::istream &is, DatedCache &dc)
+{
+    // Read the DatedCache from the istream in the desired format
+    // This is just an example, you should replace it with the actual code
+    return is;
+}
 
 /**
  * @brief Cache a dictionary to a file.

@@ -1,9 +1,15 @@
 #ifndef CANDLE_DATA_READER_H
 #define CANDLE_DATA_READER_H
 
+#include <iostream>
+#include <fstream>
 #include <vector>
 #include <string>
+#include <sstream>
+#include <stdexcept>
 #include <ctime>
+#include <chrono>
+#include <iomanip>
 #include "../types.hpp"
 
 /**
@@ -11,11 +17,11 @@
  *
  * @param symbol The symbol for which the data is to be read.
  * @param time_frame The time frame of the data (M1, M5, H1, etc.).
- * @param start_date The start date for filtering data (optional, default is nullptr).
- * @param end_date The end date for filtering data (optional, default is nullptr).
+ * @param start_date The start date for filtering data (optional, default is the Unix epoch).
+ * @param end_date The end date for filtering data (optional, default is the current date and time).
  * @return std::vector<Candle> A vector of Candle objects containing candle data.
  * @throw std::runtime_error If the specified data file does not exist.
  */
-std::vector<Candle> read_data(const std::string &symbol, TimeFrame time_frame, std::tm *start_date = nullptr, std::tm *end_date = nullptr);
+std::vector<Candle> read_data(const std::string &symbol, TimeFrame time_frame, std::chrono::system_clock::time_point start_date = std::chrono::system_clock::from_time_t(0), std::chrono::system_clock::time_point end_date = std::chrono::system_clock::now());
 
 #endif /* CANDLE_DATA_READER_H */

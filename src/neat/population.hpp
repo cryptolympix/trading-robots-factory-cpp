@@ -1,4 +1,5 @@
-#pragma once
+#ifndef NEAT_POPULATION_HPP
+#define NEAT_POPULATION_HPP
 
 #include <cmath>
 #include <cstdlib>
@@ -7,6 +8,7 @@
 #include "genome.hpp"
 #include "species.hpp"
 #include "connection_history.hpp"
+#include "config.hpp"
 
 /**
  * @class Population
@@ -95,3 +97,5 @@ public:
      */
     Population *clone();
 };
+
+#endif // NEAT_POPULATION_HPP

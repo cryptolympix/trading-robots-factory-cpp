@@ -1,5 +1,5 @@
-#ifndef MATH_UTILS_H
-#define MATH_UTILS_H
+#ifndef NEAT_MATH_UTILS_H
+#define NEAT_MATH_UTILS_H
 
 /**
  * Generates a random double value in the range [min, max).

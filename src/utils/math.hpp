@@ -1,5 +1,5 @@
-#ifndef MATH_UTILS_H
-#define MATH_UTILS_H
+#ifndef MATH_HPP
+#define MATH_HPP
 
 #include <cmath>
 #include <vector>
@@ -40,4 +40,4 @@ double decimal_round(double x, int precision);
  */
 int count_decimals(double number);
 
-#endif // MATH_UTILS_H
+#endif // MATH_HPP

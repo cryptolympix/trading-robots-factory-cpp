@@ -16,6 +16,9 @@ class Candle;
 class Indicator
 {
 public:
+    std::string label;
+    std::string id;
+
     /**
      * @brief Construct a new Indicator::Indicator object.
      *
@@ -45,9 +48,7 @@ public:
     virtual std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const;
 
 protected:
-    std::string label;
     std::vector<double> values;
-    std::string id;
     int offset;
 };
 

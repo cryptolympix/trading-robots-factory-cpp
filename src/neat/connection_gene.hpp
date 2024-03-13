@@ -1,5 +1,5 @@
-#ifndef CONNECTION_GENE_H
-#define CONNECTION_GENE_H
+#ifndef NEAT_CONNECTION_GENE_H
+#define NEAT_CONNECTION_GENE_H
 
 #include "config.hpp"
 
@@ -49,4 +49,4 @@ public:
     std::shared_ptr<ConnectionGene> clone(std::shared_ptr<Node> from, std::shared_ptr<Node> to);
 };
 
-#endif
+#endif // NEAT_CONNECTION_GENE_H

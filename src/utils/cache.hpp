@@ -1,8 +1,12 @@
-#ifndef CACHE_H
-#define CACHE_H
+#ifndef CACHE_HPP
+#define CACHE_HPP
 
+#include <iostream>
+#include <fstream>
+#include <stdexcept>
 #include <unordered_map>
 #include <string>
+#include "../types.hpp"
 
 /**
  * @brief Cache a dictionary to a file.
@@ -24,4 +28,4 @@ void cache_dictionary(const std::unordered_map<std::string, T> &data, const std:
 template <typename T>
 std::unordered_map<std::string, T> load_cached_dictionary(const std::string &file_path);
 
-#endif /* CACHE_H */
+#endif /* CACHE_HPP */

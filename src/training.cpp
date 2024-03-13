@@ -1,0 +1,283 @@
+#include <filesystem>
+#include "types.hpp"
+#include "utils/cache.cpp"
+#include "utils/indexer.hpp"
+#include "utils/uid.hpp"
+#include "utils/read_data.hpp"
+#include "utils/time_frame.hpp"
+#include "neat/population.hpp"
+#include "neat/genome.hpp"
+#include "training.hpp"
+#include "symbols.hpp"
+#include "trader.hpp"
+
+/**
+ * @brief Constructor for the Training class.
+ * @param config Configuration object.
+ * @param debug Debug mode flag.
+ * @param cache_file Optional cache file path.
+ */
+Training::Training(Config &config, bool debug, const std::string &cache_file)
+    : id(generate_uid(8)), config(config), debug(debug), cache_file(cache_file)
+{
+    // Initialize the population.
+    config.neat.num_inputs = count_indicators() + config.training.inputs.position.size();
+    population = new Population(config.neat);
+
+    candles = {};
+    indicators = {};
+
+    // Conversion rate when the base of asset traded is different of the account currency
+    base_currency_conversion_rate = {};
+    cache = {};
+    cache_exist = false;
+
+    // History for statistics
+    int generations = config.training.generations;
+    traders = {};
+    best_traders = {};
+    best_trader = nullptr;
+}
+
+/**
+ * @brief Prepare the training data by loading candles, calculating indicators, and caching the data.
+ */
+void Training::prepare()
+{
+    std::string cache_file = "cache/data/" + config.general.name + "_" + config.general.version + ".pkl";
+    if (std::filesystem::exists(cache_file))
+    {
+        cache_exist = true;
+        std::cout << "⏳ Import the data from the cache..." << std::endl;
+        cache = load_cached_dictionary<DatedCache>(cache_file);
+        std::cout << "✅ Cache ready!" << std::endl;
+    }
+    else
+    {
+        std::cout << "⏳ Load the candles..." << std::endl;
+        load_candles();
+        std::cout << "✅ Candles loaded!" << std::endl;
+
+        std::cout << "⏳ Load the indicators..." << std::endl;
+        load_indicators();
+        std::cout << "✅ Indicators loaded!" << std::endl;
+
+        std::cout << "⏳ Load the base currency conversion rate..." << std::endl;
+        load_base_currency_conversion_rate();
+        std::cout << "✅ Base currency conversion rate loaded!" << std::endl;
+
+        std::cout << "⏳ Cache the data..." << std::endl;
+        cache_data();
+        std::cout << "✅ Cache ready!" << std::endl;
+    }
+}
+
+/**
+ * @brief Load candle data for all time frames.
+ */
+void Training::load_candles()
+{
+    std::vector<TimeFrame> all_timeframes = get_all_timeframes();
+    for (const auto &tf : all_timeframes)
+    {
+        candles[tf] = read_data(config.general.symbol, tf, config.training.training_start_date, config.training.training_end_date);
+    }
+}
+
+/**
+ * @brief Calculate and store all indicator values to the cache.
+ */
+void Training::load_indicators()
+{
+    auto all_timeframes = get_all_timeframes();
+    for (const auto &tf : all_timeframes)
+    {
+        for (const auto &indicator : config.training.inputs.indicators[tf])
+        {
+            if (indicators[tf].find(indicator.id) == indicators[tf].end())
+            {
+                indicators[tf][indicator.id] = indicator.calculate(candles[tf], true);
+            }
+        }
+    }
+}
+
+/**
+ * @brief Load the conversion rate when the base asset traded is different from the account currency.
+ */
+void Training::load_base_currency_conversion_rate()
+{
+    std::string account_currency = config.general.account_currency;
+    std::string base_currency_traded = symbol_infos[config.general.symbol].base;
+    TimeFrame loop_timeframe = config.strategy.timeframe;
+
+    if (account_currency == base_currency_traded)
+    {
+        for (const auto &candle : candles[loop_timeframe])
+        {
+            base_currency_conversion_rate[candle.date] = 1.0;
+        }
+    }
+    else
+    {
+        std::string symbol = account_currency + base_currency_traded;
+        std::vector<Candle> data = read_data(symbol, loop_timeframe, config.training.training_start_date, config.training.training_end_date);
+        for (const auto &candle : data)
+        {
+            base_currency_conversion_rate[candle.date] = candle.close;
+        }
+    }
+}
+
+/**
+ * @brief Cache all the data (candles and indicators values) for every datetime.
+ */
+void Training::cache_data()
+{
+    std::vector<TimeFrame> all_timeframes = get_all_timeframes();
+    TimeFrame loop_timeframe = config.strategy.timeframe;
+    int loop_timeframe_minutes = get_time_frame_value(loop_timeframe);
+    std::__1::chrono::system_clock::time_point mock_date = find_training_start_date();
+    Indexer indexer(candles, MINIMUM_CANDLES);
+
+    while (mock_date < config.training.training_end_date)
+    {
+        indexer.update_indexes(mock_date);
+        CandlesData current_candles = {};
+        IndicatorsData current_indicators = {};
+        BaseCurrencyConversionRateData current_base_currency_conversion_rate = {};
+
+        // Get the candles for the current date
+        for (const auto &tf : all_timeframes)
+        {
+            std::pair<int, int> index = indexer.get_indexes(tf);
+            for (int i = index.first; i <= index.second; i++)
+            {
+                current_candles[tf].push_back(candles[tf][i]);
+            }
+        }
+
+        // Get the indicators for the current date
+        for (const auto &tf : all_timeframes)
+        {
+            std::pair<int, int> index = indexer.get_indexes(tf);
+            for (const auto &indicator : config.training.inputs.indicators[tf])
+            {
+                std::vector<double> indicator_values = {};
+                for (int i = index.second - INDICATOR_WINDOW; i <= index.second; i++)
+                {
+                    indicator_values.push_back(indicators[tf][indicator.id][i]);
+                }
+                current_indicators[tf][indicator.id] = indicator_values;
+            }
+        }
+
+        // Get the base currency conversion rate for the current date
+        for (const auto &candle : current_candles[loop_timeframe])
+        {
+            if (base_currency_conversion_rate.find(candle.date) != base_currency_conversion_rate.end())
+            {
+                current_base_currency_conversion_rate[candle.date] = base_currency_conversion_rate[candle.date];
+            }
+        }
+
+        // Convert the date to a string and cache the data
+        time_t date_time_t = std::chrono::system_clock::to_time_t(mock_date);
+        std::string date_string = std::string(std::ctime(&date_time_t));
+
+        cache[date_string].candles = current_candles;
+        cache[date_string].indicators = current_indicators;
+        cache[date_string].base_currency_conversion_rate = current_base_currency_conversion_rate;
+
+        mock_date += std::chrono::minutes(loop_timeframe_minutes);
+    }
+
+    cache_dictionary(cache, cache_file);
+}
+
+/**
+ * @brief Count the total number of indicators used in training.
+ * @return Total number of indicators.
+ */
+int Training::count_indicators() const
+{
+    int nb_indicators = 0;
+    auto indicators = config.training.inputs.indicators;
+    for (const auto &tf_indicators : indicators)
+    {
+        nb_indicators += tf_indicators.second.size();
+    }
+    return nb_indicators;
+}
+
+/**
+ * @brief Get all the timeframes from the training inputs of the config.
+ * @return Set of timeframes.
+ */
+std::vector<TimeFrame> Training::get_all_timeframes() const
+{
+    std::vector<TimeFrame> timeframes;
+    for (const auto &indicators : config.training.inputs.indicators)
+    {
+        timeframes.push_back(indicators.first);
+    }
+    return timeframes;
+}
+
+/**
+ * @brief Adjust the training start date based on available candles.
+ * @return Adjusted training start date.
+ */
+std::chrono::system_clock::time_point Training::find_training_start_date() const
+{
+    TimeFrame loop_timeframe = config.strategy.timeframe;
+    TimeFrame max_timeframe = highest_time_frame(get_all_timeframes());
+
+    std::__1::chrono::system_clock::time_point training_start_date = config.training.training_start_date;
+
+    std::vector<Candle> candles_tf = candles.at(loop_timeframe);
+    std::__1::chrono::system_clock::time_point candles_start_date = std::__1::chrono::system_clock::from_time_t(candles_tf[0].date);
+
+    int max_timeframe_value = get_time_frame_value(max_timeframe);
+    while (training_start_date < candles_start_date + std::chrono::minutes((MINIMUM_CANDLES - 1) * max_timeframe_value))
+    {
+        training_start_date += std::chrono::minutes(max_timeframe_value);
+    }
+
+    return training_start_date;
+}
+
+/**
+ * @brief Update the best trader of all the training and the best trader of a generation.
+ * @param generation The current generation number of the training.
+ */
+void Training::set_best_traders(int generation)
+{
+}
+
+/**
+ * @brief Get the best trader of a generation.
+ * @param generation The generation number to get the best trader.
+ * @return The best trader of the specified generation.
+ */
+Trader Training::get_best_trader_of_generation(int generation) const
+{
+}
+
+/**
+ * @brief Print the statistics and details of a given trader.
+ * @param trader The Trader object for which to print the statistics.
+ */
+void print_trader_stats(const Trader trader) const {}
+
+/**
+ * @brief Evaluate the performance of a trading algorithm for a given genome and generation.
+ * @param genome The genome to be evaluated.
+ * @param generation The current generation number.
+ */
+void evaluate_genome(const Genome genome, int generation) {}
+
+/**
+ * @brief Run the NEAT algorithm for training.
+ */
+void run() {}

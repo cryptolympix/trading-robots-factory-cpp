@@ -7,6 +7,7 @@
 #include <vector>
 #include <ctime>
 #include <optional>
+#include <chrono>
 #include "neat/config.hpp"
 #include "indicators/indicator.hpp"
 
@@ -63,7 +64,7 @@ struct Candle
  */
 using CandlesData = std::unordered_map<TimeFrame, std::vector<Candle>>;
 using IndicatorsData = std::unordered_map<TimeFrame, std::unordered_map<std::string, std::vector<double>>>;
-using BaseCurrencyConversionRateData = std::unordered_map<std::tm, double>;
+using BaseCurrencyConversionRateData = std::unordered_map<time_t, double>;
 
 /**
  * @brief Struct representing cached data with date information.
@@ -190,7 +191,7 @@ struct SymbolInfos
 /**
  * @brief Struct representing general trading configuration.
  */
-struct General
+struct GeneralConfig
 {
     std::string name;             // Name of the trading configuration
     std::string version;          // Version of the trading configuration
@@ -240,7 +241,7 @@ struct TradingSchedule
 /**
  * @brief Struct representing trading strategy configuration.
  */
-struct Strategy
+struct StrategyConfig
 {
     TimeFrame timeframe;                                   // Time frame
     double maximum_risk;                                   // Maximum risk
@@ -264,22 +265,22 @@ struct NeuralNetworkInputs
 /**
  * @brief Struct representing training configuration.
  */
-struct Training
+struct TrainingConfig
 {
-    int generations;                                 // Number of generations
-    std::optional<double> bad_trader_threshold;      // Threshold for identifying bad traders
-    std::optional<double> inactive_trader_threshold; // Threshold for identifying inactive traders
-    std::tm training_start_date;                     // Start date for training
-    std::tm training_end_date;                       // End date for training
-    std::tm test_start_date;                         // Start date for testing
-    std::tm test_end_date;                           // End date for testing
-    NeuralNetworkInputs inputs;                      // Inputs for neural network
+    int generations;                                           // Number of generations
+    std::optional<double> bad_trader_threshold;                // Threshold for identifying bad traders
+    std::optional<double> inactive_trader_threshold;           // Threshold for identifying inactive traders
+    std::chrono::system_clock::time_point training_start_date; // Start date for training
+    std::chrono::system_clock::time_point training_end_date;   // End date for training
+    std::chrono::system_clock::time_point test_start_date;     // Start date for testing
+    std::chrono::system_clock::time_point test_end_date;       // End date for testing
+    NeuralNetworkInputs inputs;                                // Inputs for neural network
 };
 
 /**
  * @brief Struct representing evaluation configuration.
  */
-struct Evaluation
+struct EvaluationConfig
 {
     std::optional<double> minimum_growth_per_month; // Minimum growth per month
     std::optional<double> maximum_drawdown;         // Maximum drawdown
@@ -294,11 +295,11 @@ struct Evaluation
  */
 struct Config
 {
-    General general;       // General trading configuration
-    Strategy strategy;     // Trading strategy configuration
-    Training training;     // Training configuration
-    Evaluation evaluation; // Evaluation configuration
-    NeatConfig neat;       // NEAT configuration
+    GeneralConfig general;       // General trading configuration
+    StrategyConfig strategy;     // Trading strategy configuration
+    TrainingConfig training;     // Training configuration
+    EvaluationConfig evaluation; // Evaluation configuration
+    NeatConfig neat;             // NEAT configuration
 };
 
 #endif /* TYPES_H */

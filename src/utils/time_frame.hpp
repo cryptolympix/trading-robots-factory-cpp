@@ -1,6 +1,8 @@
 #ifndef TIMEFRAME_H
 #define TIMEFRAME_H
 
+#include <regex>
+#include <stdexcept>
 #include <string>
 #include <vector>
 #include "../types.hpp"

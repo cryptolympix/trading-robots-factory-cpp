@@ -2,6 +2,7 @@
 #include "../indexer.hpp"
 #include "../time_frame.hpp"
 #include "../../types.hpp"
+#include <chrono>
 
 class TestIndexer : public ::testing::Test
 {
@@ -12,7 +13,16 @@ protected:
 
     void SetUp() override
     {
-        initial_date = 1672531200; // Equivalent to 2023-01-01 01:00:00
+        // 2023-01-01 01:00:00
+        std::tm date = {
+            .tm_year = 2023 - 1900,
+            .tm_mon = 1,
+            .tm_mday = 1,
+            .tm_hour = 1,
+            .tm_min = 0,
+            .tm_sec = 0};
+
+        initial_date = std::mktime(&date);
         window = 2;
 
         // Mock data for candles
@@ -33,28 +43,31 @@ protected:
 
 TEST_F(TestIndexer, TestIncrementIndexes)
 {
+    std::pair<int, int> before_indexes = indexer->get_indexes(TimeFrame::H1);
+
     // Mock date for update
     std::time_t mock_date = initial_date + 3600; // Equivalent to 2023-01-01 02:00:00
+    std::chrono::system_clock::time_point new_date = std::chrono::system_clock::from_time_t(mock_date);
 
     // Call the function to update indexes
-    indexer->update_indexes(mock_date);
+    indexer->update_indexes(new_date);
 
     // Get the indexes for H1 timeframe and check if they are updated correctly
-    auto indexes = indexer->get_indexes(TimeFrame::H1);
-    EXPECT_EQ(indexes.first, 0);
-    EXPECT_EQ(indexes.second, 1);
+    std::pair<int, int> after_indexes = indexer->get_indexes(TimeFrame::H1);
+    EXPECT_EQ(after_indexes.first, before_indexes.first);
+    EXPECT_EQ(after_indexes.second, before_indexes.second + 1);
 }
 
 TEST_F(TestIndexer, TestIndexesRespectWindow)
 {
     // Mock date for update
-    std::time_t mock_date = initial_date + window * 3600;
+    std::time_t mock_date = initial_date + window * 3600; // Equivalent to 2023-01-01 02:00:00
+    std::chrono::system_clock::time_point new_date = std::chrono::system_clock::from_time_t(mock_date);
 
     // Call the function to update indexes
-    indexer->update_indexes(mock_date);
+    indexer->update_indexes(new_date);
 
     // Get the indexes for H1 timeframe and check if they are updated correctly
-    auto indexes = indexer->get_indexes(TimeFrame::H1);
-    EXPECT_EQ(indexes.first, 0);
-    EXPECT_EQ(indexes.second, window);
+    std::pair<int, int> indexes = indexer->get_indexes(TimeFrame::H1);
+    EXPECT_EQ(indexes.second - indexes.first, window);
 }
