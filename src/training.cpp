@@ -1,4 +1,5 @@
 #include <filesystem>
+#include <iostream>
 #include "types.hpp"
 #include "utils/cache.cpp"
 #include "utils/indexer.hpp"
@@ -130,7 +131,7 @@ void Training::load_base_currency_conversion_rate()
 }
 
 /**
- * @brief Cache all the data (candles and indicators values) for every datetime.
+ * @brief Cache all the data (candles, indicators and base currencyconversion rate values) for every datetime.
  */
 void Training::cache_data()
 {
@@ -202,11 +203,18 @@ void Training::cache_data()
 int Training::count_indicators() const
 {
     int nb_indicators = 0;
+
+    // Count the number of indicators
     auto indicators = config.training.inputs.indicators;
     for (const auto &tf_indicators : indicators)
     {
         nb_indicators += tf_indicators.second.size();
     }
+
+    // Count the number of position indicators
+    auto position_indicators = config.training.inputs.position;
+    nb_indicators += position_indicators.size();
+
     return nb_indicators;
 }
 
@@ -253,6 +261,32 @@ std::chrono::system_clock::time_point Training::find_training_start_date() const
  */
 void Training::set_best_traders(int generation)
 {
+    Trader *best_trader = nullptr;
+    double best_fitness = -std::numeric_limits<double>::infinity();
+    double best_score = -std::numeric_limits<double>::infinity();
+
+    for (auto &trader : traders[generation])
+    {
+        if (trader->score > best_score)
+        {
+            best_trader = trader;
+            best_score = trader->score;
+        }
+    }
+
+    best_traders[generation] = best_trader;
+
+    if (!best_trader)
+    {
+        std::cout << "No best trader found for generation " << generation << std::endl;
+        return;
+    }
+
+    // Update the best trader of all the training
+    if (!this->best_trader || best_trader->fitness > this->best_trader->fitness)
+    {
+        this->best_trader = best_trader;
+    }
 }
 
 /**
@@ -260,24 +294,117 @@ void Training::set_best_traders(int generation)
  * @param generation The generation number to get the best trader.
  * @return The best trader of the specified generation.
  */
-Trader Training::get_best_trader_of_generation(int generation) const
+Trader *Training::get_best_trader_of_generation(int generation) const
 {
+    return this->best_traders.at(generation);
 }
 
 /**
  * @brief Print the statistics and details of a given trader.
  * @param trader The Trader object for which to print the statistics.
  */
-void print_trader_stats(const Trader trader) const {}
+void Training::print_trader_stats(Trader *trader)
+{
+    std::cout << "========================== BEST TRADER ==========================" << std::endl;
+    std::cout << "📋 Genome ID: " << trader->genome->id << std::endl;
+    std::cout << "📈 Fitness"
+              << ": " << trader->fitness << std::endl;
+    std::cout << "📈 Score"
+              << ": " << trader->score << std::endl;
+    std::cout << "==================================================================" << std::endl;
+
+    trader->print_stats();
+
+    std::cout << "==================================================================" << std::endl;
+}
 
 /**
  * @brief Evaluate the performance of a trading algorithm for a given genome and generation.
  * @param genome The genome to be evaluated.
  * @param generation The current generation number.
  */
-void evaluate_genome(const Genome genome, int generation) {}
+void Training::evaluate_genome(Genome *genome, int generation)
+{
+    TimeFrame loop_timeframe = this->config.strategy.timeframe;
+    int loop_timeframe_minutes = get_time_frame_value(loop_timeframe);
+    std::chrono::system_clock::time_point mock_date = this->find_training_start_date();
+    Trader *trader = new Trader(genome, this->config, this->debug);
+
+    while (mock_date < this->config.training.training_end_date)
+    {
+        // Convert the date to a string and cache the data
+        time_t mock_date_time_t = std::chrono::system_clock::to_time_t(mock_date);
+        std::string mock_date_string = std::string(std::ctime(&mock_date_time_t));
+
+        // Get the data from cache
+        CandlesData current_candles = this->cache[mock_date_string].candles;
+        IndicatorsData current_indicators = this->cache[mock_date_string].indicators;
+        BaseCurrencyConversionRateData current_base_currency_conversion_rate = this->cache[mock_date_string].base_currency_conversion_rate;
+        std::vector<PositionInfo> position = this->config.training.inputs.position;
+
+        // Update the individual
+        if (!trader->dead)
+        {
+            trader->look(current_candles, current_indicators, current_base_currency_conversion_rate, position);
+            trader->think();
+            trader->update();
+        }
+        else
+        {
+            break;
+        }
+
+        mock_date += std::chrono::minutes(loop_timeframe_minutes);
+    }
+
+    // Calculate fitness
+    trader->calculate_fitness();
+    genome->fitness = trader->fitness;
+
+    // Add the traders to the history
+    this->traders[generation].push_back(trader);
+
+    // Close the logger
+    if (this->debug && trader->logger != nullptr)
+    {
+        trader->logger->close();
+    }
+}
 
 /**
  * @brief Run the NEAT algorithm for training.
  */
-void run() {}
+int Training::run()
+{
+    int nb_generations = this->config.training.generations;
+
+    try
+    {
+        auto callback_generation = [&](Population *population, int generation)
+        {
+            // Update the best traders
+            this->set_best_traders(generation);
+
+            // Print the best trader stats
+            this->print_trader_stats(this->best_trader);
+
+            // The training of generation is finished
+            std::cout << "✅ Training of generation " << generation << " finished!" << std::endl;
+        };
+
+        this->population->run(std::bind(&Training::evaluate_genome, this, std::placeholders::_1, std::placeholders::_2), nb_generations, callback_generation);
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << "Error: " << e.what() << std::endl;
+        return 1;
+    }
+
+    std::cout << "🎉 Training finished!" << std::endl;
+
+    // Save the best genome found
+    std::string directory = "cache/" + this->config.general.name + "/" + this->config.general.version + "/training_" + this->id;
+    this->population->best_genome->save(directory);
+
+    return 0;
+}

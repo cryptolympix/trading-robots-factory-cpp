@@ -105,25 +105,26 @@ public:
      * @param generation The generation number to get the best trader.
      * @return The best trader of the specified generation.
      */
-    Trader get_best_trader_of_generation(int generation) const;
+    Trader *get_best_trader_of_generation(int generation) const;
 
     /**
      * @brief Print the statistics and details of a given trader.
      * @param trader The Trader object for which to print the statistics.
      */
-    void print_trader_stats(const Trader trader) const;
+    void print_trader_stats(Trader *trader);
 
     /**
      * @brief Evaluate the performance of a trading algorithm for a given genome and generation.
      * @param genome The genome to be evaluated.
      * @param generation The current generation number.
      */
-    void evaluate_genome(const Genome genome, int generation);
+    void evaluate_genome(Genome *genome, int generation);
 
     /**
      * @brief Run the NEAT algorithm for training.
+     * @return The exit code of the training process. 0 if successful, 1 otherwise.
      */
-    void run();
+    int run();
 };
 
 #endif // TRAINING_HPP

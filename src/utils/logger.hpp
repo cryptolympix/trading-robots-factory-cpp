@@ -16,6 +16,11 @@ public:
     std::ofstream file_handler; /**< The file handler for logging. */
 
     /**
+     * @brief Default constructor for the Logger class.
+     */
+    Logger();
+
+    /**
      * @brief Initializes the Logger.
      *
      * @param name The name of the logger.

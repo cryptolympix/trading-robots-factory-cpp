@@ -1,5 +1,5 @@
-#ifndef SYMBOL_H
-#define SYMBOL_H
+#ifndef SYMBOL_INFO_HPP
+#define SYMBOL_INFO_HPP
 
 #include <string>
 #include <unordered_map>
@@ -8,6 +8,6 @@
 /**
  * @brief Mapping of symbol names to their corresponding SymbolInfos objects.
  */
-extern std::unordered_map<std::string, SymbolInfos> symbol_infos;
+extern std::unordered_map<std::string, SymbolInfo> symbol_infos;
 
-#endif // SYMBOL_H
+#endif // SYMBOL_INFO_HPP

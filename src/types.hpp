@@ -174,7 +174,7 @@ struct Stats
 /**
  * @brief Struct representing symbol information.
  */
-struct SymbolInfos
+struct SymbolInfo
 {
     std::string asset;           // Asset of the symbol
     std::string base;            // Base currency of the symbol
