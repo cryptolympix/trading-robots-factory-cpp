@@ -6,7 +6,7 @@
 class TradingToolsTest : public ::testing::Test
 {
 protected:
-    SymbolInfos symbol_infos;
+    SymbolInfo symbol_infos;
     double base_currency_conversion_rate;
 
     void SetUp() override
