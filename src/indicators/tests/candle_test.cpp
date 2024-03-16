@@ -233,3 +233,33 @@ TEST_F(CandleIndicatorsTest, LowestLow)
     std::vector<double> expected2 = {6, 6, 5, 5, 5, 5, 2, 2, 2, 2, 2};
     ASSERT_EQ(result2, expected2);
 }
+
+TEST_F(CandleIndicatorsTest, PeakDistance)
+{
+    // with left_bars=2, right_bars=0
+    PeakDistance peak_distance_indicator(2, 0);
+    std::vector<double> result = peak_distance_indicator.calculate(mock_candles);
+    std::vector<double> expected = {4, 8, 10, 10, 8, 12, 13, 13, 16, 19, 19};
+    ASSERT_EQ(result, expected);
+
+    // with left_bars=2, right_bars=2
+    PeakDistance peak_distance_indicator2(2, 2);
+    std::vector<double> result2 = peak_distance_indicator2.calculate(mock_candles);
+    std::vector<double> expected2 = {10, 10, 11, 12, 13, 13, 16, 19, 19, 19, 19};
+    ASSERT_EQ(result2, expected2);
+}
+
+TEST_F(CandleIndicatorsTest, PeakTimeDistance)
+{
+    // with left_bars=2, right_bars=0
+    PeakTimeDistance peak_time_distance_indicator(2, 0);
+    std::vector<double> result = peak_time_distance_indicator.calculate(mock_candles);
+    std::vector<double> expected = {0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1};
+    ASSERT_EQ(result, expected);
+
+    // with left_bars=2, right_bars=2
+    PeakTimeDistance peak_time_distance_indicator2(2, 2);
+    std::vector<double> result2 = peak_time_distance_indicator2.calculate(mock_candles);
+    std::vector<double> expected2 = {1, 0, 1, 2, 0, 1, 0, 1, 0, 1, 2};
+    ASSERT_EQ(result2, expected2);
+}

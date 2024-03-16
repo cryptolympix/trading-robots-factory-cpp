@@ -378,4 +378,66 @@ private:
     int right_bars;
 };
 
+/**
+ * @brief Class for PeakDistance indicator.
+ *
+ * This indicator calculates the distance between the highest high and lowest low in a given range.
+ */
+class PeakDistance : public Indicator
+{
+public:
+    /**
+     * @brief Construct a new PeakDistance object.
+     *
+     * @param left_bars Number of left bars.
+     * @param right_bars Number of right bars.
+     * @param offset Offset value. Default is 0.
+     */
+    PeakDistance(int left_bars, int right_bars, int offset = 0);
+
+    /**
+     * @brief Calculate the PeakDistance values.
+     *
+     * @param candles Vector of Candle data.
+     * @param normalize_data Boolean flag indicating whether to normalize data.
+     * @return std::vector<double> Vector containing calculated values.
+     */
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+
+private:
+    int left_bars;
+    int right_bars;
+};
+
+/**
+ * @brief Class for PeakTimeDistance indicator.
+ *
+ * This indicator calculates the distance from the previous highest high or lowest low in a given range in terms of time.
+ */
+class PeakTimeDistance : public Indicator
+{
+public:
+    /**
+     * @brief Construct a new PeakTimeDistance object.
+     *
+     * @param left_bars Number of left bars.
+     * @param right_bars Number of right bars.
+     * @param offset Offset value. Default is 0.
+     */
+    PeakTimeDistance(int left_bars, int right_bars, int offset = 0);
+
+    /**
+     * @brief Calculate the PeakTimeDistance values.
+     *
+     * @param candles Vector of Candle data.
+     * @param normalize_data Boolean flag indicating whether to normalize data.
+     * @return std::vector<double> Vector containing calculated values.
+     */
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+
+private:
+    int left_bars;
+    int right_bars;
+};
+
 #endif /* CANDLE_INDICATORS_H */

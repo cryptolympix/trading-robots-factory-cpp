@@ -338,7 +338,7 @@ private:
      */
     bool isThreeOutsideDown(const std::vector<Candle> &candles, size_t index) const;
 
-        /**
+    /**
      * @brief Detect the presence of a Three Stars in the South candlestick pattern.
      *
      * @param candles Vector of Candle data.
@@ -355,7 +355,6 @@ private:
      * @return true if Three Stars in the North pattern is detected, false otherwise.
      */
     bool isThreeStarsInTheNorth(const std::vector<Candle> &candles, size_t index) const;
-
 };
 
 #endif // CANDLE_PATTERN_HPP

@@ -565,3 +565,89 @@ std::vector<double> LowestLow::calculate(const std::vector<Candle> &candles, boo
 
         normalize_data);
 }
+
+// *********************************************************************************************
+
+/**
+ * @brief Construct a new PeakDistance object.
+ *
+ * @param left_bars Number of left bars.
+ * @param right_bars Number of right bars.
+ * @param offset Offset value. Default is 0.
+ */
+PeakDistance::PeakDistance(int left_bars, int right_bars, int offset) : Indicator("Peak Distance", "peak-distance-" + std::to_string(left_bars) + "-" + std::to_string(right_bars) + "-" + std::to_string(offset), offset), left_bars(left_bars), right_bars(right_bars) {}
+
+/**
+ * @brief Calculate the PeakDistance values.
+ *
+ * @param candles Vector of Candle data.
+ * @param normalize_data Boolean flag indicating whether to normalize data.
+ * @return std::vector<double> Vector containing calculated values.
+ */
+std::vector<double> PeakDistance::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+{
+    return Indicator::calculate(
+        candles, [this](std::vector<Candle> candles) -> std::vector<double>
+        {
+            std::vector<double> values(candles.size(), 0); // Initialize values vector with size of candles
+
+            std::vector<double> highest_highs = HighestHigh(left_bars, right_bars, offset).calculate(candles, false);
+            std::vector<double> lowest_lows = LowestLow(left_bars, right_bars, offset).calculate(candles, false);
+
+            for (size_t i = 0; i < candles.size(); ++i)
+            {
+                // Assign the peak distance to the corresponding value in the result vector
+                values[i] = highest_highs[i] - lowest_lows[i];
+            }
+
+            return values; },
+
+        normalize_data);
+}
+
+// *********************************************************************************************
+
+/**
+ * @brief Construct a new PeakTimeDistance object.
+ *
+ * @param left_bars Number of left bars.
+ * @param right_bars Number of right bars.
+ * @param offset Offset value. Default is 0.
+ */
+PeakTimeDistance::PeakTimeDistance(int left_bars, int right_bars, int offset) : Indicator("Peak Time Distance", "peak-time-distance-" + std::to_string(left_bars) + "-" + std::to_string(right_bars) + "-" + std::to_string(offset), offset), left_bars(left_bars), right_bars(right_bars) {}
+
+/**
+ * @brief Calculate the PeakTimeDistance values.
+ *
+ * @param candles Vector of Candle data.
+ * @param normalize_data Boolean flag indicating whether to normalize data.
+ * @return std::vector<double> Vector containing calculated values.
+ */
+std::vector<double> PeakTimeDistance::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+{
+    return Indicator::calculate(
+        candles, [this](std::vector<Candle> candles) -> std::vector<double>
+        {
+            std::vector<double> values(candles.size(), 0); // Initialize values vector with size of candles
+
+            // Find the pivots
+            std::vector<double> pivots_high_values = PivotHigh(CandleSource::High, left_bars, right_bars, offset).calculate(candles, false);
+            std::vector<double> pivots_low_values = PivotLow(CandleSource::Low, left_bars, right_bars, offset).calculate(candles, false);
+
+            for (size_t i = 0; i < candles.size(); ++i)
+            {
+                // Calculate the distance in number of candles from the previous pivots high or low
+                if (pivots_high_values[i] == 1 || pivots_low_values[i] == 1)
+                {
+                    values[i] = 0;
+                }
+                else
+                {
+                    values[i] = values[i - 1] + 1;
+                }
+            }
+
+            return values; },
+
+        normalize_data);
+}
