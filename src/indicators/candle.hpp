@@ -410,24 +410,24 @@ private:
 };
 
 /**
- * @brief Class for PeakTimeDistance indicator.
+ * @brief Class for PeakCandleDistance indicator.
  *
- * This indicator calculates the distance from the previous highest high or lowest low in a given range in terms of time.
+ * This indicator calculates the distance from the previous pivot high or pivot low in a given range in terms of time.
  */
-class PeakTimeDistance : public Indicator
+class PeakCandleDistance : public Indicator
 {
 public:
     /**
-     * @brief Construct a new PeakTimeDistance object.
+     * @brief Construct a new PeakCandleDistance object.
      *
      * @param left_bars Number of left bars.
      * @param right_bars Number of right bars.
      * @param offset Offset value. Default is 0.
      */
-    PeakTimeDistance(int left_bars, int right_bars, int offset = 0);
+    PeakCandleDistance(int left_bars, int right_bars, int offset = 0);
 
     /**
-     * @brief Calculate the PeakTimeDistance values.
+     * @brief Calculate the PeakCandleDistance values.
      *
      * @param candles Vector of Candle data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
