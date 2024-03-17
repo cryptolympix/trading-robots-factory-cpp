@@ -6,6 +6,7 @@
 #include "utils/uid.hpp"
 #include "utils/read_data.hpp"
 #include "utils/time_frame.hpp"
+#include "utils/progress_bar.hpp"
 #include "neat/population.hpp"
 #include "neat/genome.hpp"
 #include "training.hpp"
@@ -55,6 +56,9 @@ void Training::prepare()
     }
     else
     {
+        // Progress bar
+        int total_iter1 = this->get_all_timeframes().size();
+        ProgressBar *progress_bar1 = new ProgressBar(100, total_iter1);
         std::cout << "⏳ Load the candles..." << std::endl;
         load_candles();
         std::cout << "✅ Candles loaded!" << std::endl;
@@ -75,13 +79,19 @@ void Training::prepare()
 
 /**
  * @brief Load candle data for all time frames.
+ * @param progress_bar Progress bar for loading candles.
  */
-void Training::load_candles()
+void Training::load_candles(ProgressBar *progress_bar)
 {
     std::vector<TimeFrame> all_timeframes = get_all_timeframes();
-    for (const auto &tf : all_timeframes)
+    for (int i = 0; i < all_timeframes.size(); i++)
     {
+        TimeFrame tf = all_timeframes[i];
         candles[tf] = read_data(config.general.symbol, tf, config.training.training_start_date, config.training.training_end_date);
+        if (progress_bar)
+        {
+            progress_bar->update(i + 1);
+        }
     }
 }
 

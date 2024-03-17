@@ -32,7 +32,7 @@ TEST_F(ProgressBarTest, UpdateProgressAndLabel)
     std::cout.rdbuf(ss.rdbuf());
 
     // Test the update function with progress and label
-    progress_bar->update(0.5f, 50, "Updated label");
+    progress_bar->update(50, "Updated label");
 
     // Restore cout
     std::cout.rdbuf(old_cout);
@@ -68,8 +68,7 @@ TEST_F(ProgressBarTest, TimeEstimationAccuracy)
     // Loop through a few iterations to simulate progress
     for (int i = 0; i <= total_iterations; ++i)
     {
-        float progress = static_cast<float>(i) / total_iterations;
-        progress_bar->update(progress, i, "Time Estimation Test");
+        progress_bar->update(i, "Time Estimation Test");
         // Simulate some computation here
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }

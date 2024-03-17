@@ -16,15 +16,14 @@ public:
      * @param total_iterations The total number of iterations.
      * @param label The label for the progress bar.
      */
-    ProgressBar(int width, int total_iterations, std::string label);
+    ProgressBar(int width, int total_iterations, std::string label = "");
 
     /**
-     * @brief Updates the progress bar with current progress, iteration count, and optional label update.
-     * @param progress The current progress value (between 0.0 and 1.0).
+     * @brief Updates the progress bar with the iteration count, and optional label update.
      * @param current_iteration The current iteration count.
      * @param new_label Optional new label to display.
      */
-    void update(float progress, int current_iteration, std::string new_label = "");
+    void update(int current_iteration, std::string new_label = "");
 
     /**
      * @brief Completes the progress bar display with an optional completion message.

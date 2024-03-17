@@ -58,8 +58,9 @@ public:
 
     /**
      * @brief Load candle data for all time frames.
+     * @param progress_bar Progress bar for loading candles.
      */
-    void load_candles();
+    void load_candles(ProgressBar *progress_bar = nullptr);
 
     /**
      * @brief Calculate and store all indicator values to the cache.
