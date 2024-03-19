@@ -19,11 +19,11 @@ public:
     ProgressBar(int width, int total_iterations, std::string label = "");
 
     /**
-     * @brief Updates the progress bar with the iteration count, and optional label update.
-     * @param current_iteration The current iteration count.
+     * @brief Updates the progress bar with the iteration given.
+     * @param progress_iteration The number of iteration to add to the progress bar.
      * @param new_label Optional new label to display.
      */
-    void update(int current_iteration, std::string new_label = "");
+    void update(int progress_iteration, std::string new_label = "");
 
     /**
      * @brief Completes the progress bar display with an optional completion message.
@@ -33,6 +33,7 @@ public:
 
 private:
     int width;                                                                           // The width of the progress bar.
+    int current_iteration;                                                               // The current iteration count.
     int total_iterations;                                                                // The total number of iterations.
     std::string label;                                                                   // The label for the progress bar.
     std::chrono::steady_clock::time_point start_time = std::chrono::steady_clock::now(); // The start time of the progress bar.

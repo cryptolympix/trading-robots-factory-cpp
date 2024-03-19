@@ -10,15 +10,16 @@
  * @param label The label for the progress bar.
  */
 ProgressBar::ProgressBar(int width, int total_iterations, std::string label)
-    : width(width), total_iterations(total_iterations), label(label) {}
+    : width(width), current_iteration(0), total_iterations(total_iterations), label(label) {}
 
 /**
- * @brief Updates the progress bar with the iteration count, and optional label update.
- * @param current_iteration The current iteration count.
+ * @brief Updates the progress bar with the iteration given.
+ * @param progress_iteration The number of iteration to add to the progress bar.
  * @param new_label Optional new label to display.
  */
-void ProgressBar::update(int current_iteration, std::string new_label)
+void ProgressBar::update(int progress_iteration, std::string new_label)
 {
+    current_iteration += progress_iteration;
     float progress = static_cast<float>(current_iteration) / total_iterations;
     int pos = static_cast<int>(width * progress);
     std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();

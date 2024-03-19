@@ -77,9 +77,10 @@ std::tuple<double, double> calculate_tp_sl_price(double market_price, PositionSi
  *
  * @param position The current position.
  * @param leverage The leverage of the trading account.
+ * @param symbol_info Symbol information including precision details.
  * @return The liquidation price.
  */
-double calculate_liquidation_price(Position position, int leverage);
+double calculate_liquidation_price(Position position, int leverage, SymbolInfo symbol_info);
 
 /**
  * @brief Calculate commission based on a fixed commission per lot.
@@ -89,6 +90,6 @@ double calculate_liquidation_price(Position position, int leverage);
  * @param base_currency_conversion_rate The base currency conversion rate. Defaults to 1.0.
  * @return Commission amount.
  */
-double calculate_commission(double commission_per_lot, int lot_size, double base_currency_conversion_rate = 1.0);
+double calculate_commission(double commission_per_lot, double lot_size, double base_currency_conversion_rate = 1.0);
 
 #endif // TRADING_TOOLS_H

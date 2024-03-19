@@ -56,6 +56,7 @@ TEST_F(TradingToolsTest, TestCalculatePipValue)
 TEST_F(TradingToolsTest, TestCalculateProfitLoss)
 {
     Position position;
+    int leverage = 100;
 
     position.entry_price = 1.00000;
     position.side = PositionSide::LONG;
@@ -145,13 +146,14 @@ TEST_F(TradingToolsTest, TestCalculateLiquidationPrice)
 {
     int leverage = 100;
     Position position;
+    position.size = 0.01;
     position.entry_price = 1.0000;
 
     position.side = PositionSide::LONG;
-    ASSERT_FLOAT_EQ(0.99, calculate_liquidation_price(position, leverage));
+    ASSERT_FLOAT_EQ(0.99, calculate_liquidation_price(position, leverage, symbol_infos));
 
     position.side = PositionSide::SHORT;
-    ASSERT_FLOAT_EQ(1.01, calculate_liquidation_price(position, leverage));
+    ASSERT_FLOAT_EQ(1.01, calculate_liquidation_price(position, leverage, symbol_infos));
 }
 
 // Test case for calculate_commission function

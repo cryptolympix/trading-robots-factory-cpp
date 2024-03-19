@@ -5,6 +5,7 @@
 #include <string>
 #include <sstream>
 #include <chrono>
+#include <cmath>
 #include "utils/logger.hpp"
 #include "utils/time_frame.hpp"
 #include "utils/math.hpp"
@@ -200,7 +201,7 @@ void Trader::update()
     this->lifespan++;
 
     // Kill the traders that loose all the balance
-    if (this->config.training.bad_trader_threshold.has_value() && balance < this->stats.initial_balance * config.training.bad_trader_threshold.value())
+    if (this->config.training.bad_trader_threshold.has_value() && balance <= this->stats.initial_balance * config.training.bad_trader_threshold.value())
     {
         this->dead = true;
         if (this->debug && this->logger != nullptr)
@@ -211,7 +212,7 @@ void Trader::update()
     }
 
     // Kill the traders that doesn't trades
-    if (this->config.training.inactive_trader_threshold.has_value() && this->lifespan > this->config.training.inactive_trader_threshold.value() && this->stats.total_trades == 0)
+    if (this->config.training.inactive_trader_threshold.has_value() && this->lifespan >= this->config.training.inactive_trader_threshold.value() && this->stats.total_trades == 0)
     {
         this->dead = true;
         if (this->debug && this->logger != nullptr)
@@ -424,12 +425,9 @@ void Trader::trade()
 
     // Check if the trader can trade at the moment
     bool schedule_is_ok = true;
-    if (this->config.strategy.trading_schedule)
-    {
-        std::tm current_time = *std::localtime(&this->current_date);
-        TradingSchedule trading_schedule = this->config.strategy.trading_schedule.value();
-        schedule_is_ok = is_on_trading_schedule(current_time, trading_schedule);
-    }
+    std::tm current_time = *std::localtime(&this->current_date);
+    TradingSchedule trading_schedule = this->config.strategy.trading_schedule;
+    schedule_is_ok = is_on_trading_schedule(current_time, trading_schedule);
 
     // Check if the spread is ok
     bool spread_is_ok = true;
@@ -586,7 +584,7 @@ void Trader::open_position_by_market(double price, double size, OrderSide side)
  */
 void Trader::close_position_by_market(double price)
 {
-    if (price)
+    if (price != 0.0)
     {
         this->update_position_pnl(price);
     }
@@ -600,7 +598,7 @@ void Trader::close_position_by_market(double price)
     {
         double fees = calculate_commission(this->symbol_info.commission_per_lot, this->current_position->size, this->current_base_currency_conversion_rate);
 
-        this->balance = decimal_round(this->balance + this->current_position->pnl - fees, 2);
+        this->balance = std::max(0.0, decimal_round(this->balance + this->current_position->pnl - fees, 2));
         this->stats.total_fees += fees;
 
         if (this->current_position->pnl >= 0)
@@ -661,7 +659,7 @@ void Trader::close_position_by_limit(double price)
     {
         double fees = calculate_commission(this->symbol_info.commission_per_lot, this->current_position->size, this->current_base_currency_conversion_rate);
 
-        this->balance = decimal_round(this->balance + this->current_position->pnl - fees, 2);
+        this->balance = std::max(0.0, decimal_round(this->balance + this->current_position->pnl - fees, 2));
         this->stats.total_fees += fees;
 
         if (this->current_position->pnl >= 0)
@@ -803,14 +801,14 @@ void Trader::check_position_liquidation()
 {
     if (this->current_position != nullptr)
     {
-        double liquidation_price = calculate_liquidation_price(*this->current_position, this->config.general.leverage);
+        double liquidation_price = calculate_liquidation_price(*this->current_position, this->config.general.leverage, this->symbol_info);
         double current_price = this->candles[this->config.strategy.timeframe].back().close;
 
         if (this->current_position->side == PositionSide::LONG)
         {
             if (current_price <= liquidation_price)
             {
-                this->close_position_by_market(current_price);
+                this->close_position_by_market(liquidation_price);
                 this->close_open_orders();
             }
         }
@@ -818,7 +816,7 @@ void Trader::check_position_liquidation()
         {
             if (current_price >= liquidation_price)
             {
-                this->close_position_by_market(current_price);
+                this->close_position_by_market(liquidation_price);
                 this->close_open_orders();
             }
         }
@@ -833,7 +831,7 @@ void Trader::update_position_pnl(double price)
 {
     if (this->current_position != nullptr)
     {
-        double current_price = this->candles[this->config.strategy.timeframe].back().close;
+        double current_price = price != 0.0 ? price : this->candles[this->config.strategy.timeframe].back().close;
         this->current_position->pnl = calculate_profit_loss(current_price, *this->current_position, this->symbol_info, this->current_base_currency_conversion_rate);
     }
 }
@@ -895,31 +893,31 @@ void Trader::update_stats()
     // Update the winrate
     if (this->stats.total_trades > 0)
     {
-        this->stats.win_rate = this->stats.total_winning_trades / this->stats.total_trades;
+        this->stats.win_rate = static_cast<double>(this->stats.total_winning_trades) / static_cast<double>(this->stats.total_trades);
     }
 
     // Update the winrate for longs
     if (this->stats.total_long_trades > 0)
     {
-        this->stats.long_win_rate = this->stats.total_winning_long_trades / this->stats.total_long_trades;
+        this->stats.long_win_rate = static_cast<double>(this->stats.total_winning_long_trades) / static_cast<double>(this->stats.total_long_trades);
     }
 
     // Update the winrate for shorts
     if (this->stats.total_short_trades > 0)
     {
-        this->stats.short_win_rate = this->stats.total_winning_short_trades / this->stats.total_short_trades;
+        this->stats.short_win_rate = static_cast<double>(this->stats.total_winning_short_trades) / static_cast<double>(this->stats.total_short_trades);
     }
 
     // Update the average profit per trade
     if (this->stats.total_winning_trades > 0)
     {
-        this->stats.average_profit = this->stats.total_profit / this->stats.total_winning_trades;
+        this->stats.average_profit = this->stats.total_profit / static_cast<double>(this->stats.total_winning_trades);
     }
 
     // Update the average loss per trade
     if (this->stats.total_lost_trades > 0)
     {
-        this->stats.average_loss = this->stats.total_loss / this->stats.total_lost_trades;
+        this->stats.average_loss = this->stats.total_loss / static_cast<double>(this->stats.total_lost_trades);
     }
 
     // Update the profit factor

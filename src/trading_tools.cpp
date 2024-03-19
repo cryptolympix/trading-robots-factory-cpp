@@ -47,8 +47,7 @@ double calculate_profit_loss(double market_price, Position position, SymbolInfo 
     double price_movement = market_price - position.entry_price;
     price_movement = decimal_round(price_movement, 5);
     int direction_multiplier = (position.side == PositionSide::LONG) ? 1 : -1;
-    double pip_value = calculate_pip_value(position.entry_price, symbol_infos, base_currency_conversion_rate);
-    double profit_loss = direction_multiplier * (price_movement / symbol_infos.point_value) * pip_value * position.size;
+    double profit_loss = price_movement * symbol_infos.contract_size * position.size * direction_multiplier * base_currency_conversion_rate;
     return decimal_round(profit_loss, 2);
 }
 
@@ -158,13 +157,13 @@ std::tuple<double, double> calculate_tp_sl_price(double market_price, PositionSi
  *
  * @param position The current position.
  * @param leverage The leverage of the trading account.
+ * @param symbol_info Symbol information including precision details.
  * @return The liquidation price.
  */
-double calculate_liquidation_price(Position position, int leverage)
+double calculate_liquidation_price(Position position, int leverage, SymbolInfo symbol_info)
 {
     int direction_multiplier = (position.side == PositionSide::LONG) ? -1 : 1;
-    double initial_margin_ratio = 100 / static_cast<double>(leverage);
-    double liquidation = (position.entry_price + direction_multiplier * (initial_margin_ratio / leverage));
+    double liquidation = position.entry_price + direction_multiplier * (position.entry_price / leverage);
     return liquidation;
 }
 
@@ -176,7 +175,7 @@ double calculate_liquidation_price(Position position, int leverage)
  * @param base_currency_conversion_rate The base currency conversion rate. Defaults to 1.0.
  * @return Commission amount.
  */
-double calculate_commission(double commission_per_lot, int lot_size, double base_currency_conversion_rate)
+double calculate_commission(double commission_per_lot, double lot_size, double base_currency_conversion_rate)
 {
     double commission = commission_per_lot * lot_size * base_currency_conversion_rate;
     return decimal_round(commission, 2);

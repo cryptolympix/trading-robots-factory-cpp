@@ -5,6 +5,7 @@
 #include "utils/cache.hpp"
 #include "utils/indexer.hpp"
 #include "utils/uid.hpp"
+#include "utils/progress_bar.hpp"
 #include "trader.hpp"
 #include "neat/population.hpp"
 #include "neat/genome.hpp"
@@ -64,18 +65,21 @@ public:
 
     /**
      * @brief Calculate and store all indicator values to the cache.
+     * @param progress_bar Progress bar for calculating indicators.
      */
-    void load_indicators();
+    void load_indicators(ProgressBar *progress_bar = nullptr);
 
     /**
      * @brief Load the conversion rate when the base asset traded is different from the account currency.
+     * @param progress_bar Progress bar for loading the conversion rate.
      */
-    void load_base_currency_conversion_rate();
+    void load_base_currency_conversion_rate(ProgressBar *progress_bar = nullptr);
 
     /**
      * @brief Cache all the data (candles and indicators values) for every datetime.
+     * @param progress_bar Progress bar for caching data.
      */
-    void cache_data();
+    void cache_data(ProgressBar *progress_bar = nullptr);
 
     /**
      * @brief Count the total number of indicators used in training.

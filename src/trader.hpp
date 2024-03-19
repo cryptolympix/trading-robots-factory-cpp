@@ -10,7 +10,20 @@ class Trader
 {
 public:
     Config config;
+    SymbolInfo symbol_info;
     bool debug;
+
+    // Vision
+    CandlesData candles;
+    double current_base_currency_conversion_rate;
+    time_t current_date;
+
+    // Balance and history
+    double balance;
+    std::vector<double> balance_history;
+    Position *current_position;
+    std::vector<Order> open_orders;
+    time_t last_position_date;
 
     // Neat stuffs
     Genome *genome;
@@ -21,6 +34,9 @@ public:
     std::vector<double> decisions;
     int lifespan;
     bool dead;
+
+    // Statistics of the trader
+    Stats stats;
 
     // Logger
     Logger *logger;
@@ -62,24 +78,6 @@ public:
      */
     void print_stats();
 
-private:
-    SymbolInfo symbol_info;
-
-    // Vision
-    CandlesData candles;
-    double current_base_currency_conversion_rate;
-    time_t current_date;
-
-    // Balance and history
-    double balance;
-    std::vector<double> balance_history;
-    Position *current_position;
-    std::vector<Order> open_orders;
-    time_t last_position_date;
-
-    // Statistics of the trader
-    Stats stats;
-
     /**
      * @brief Trade according to the decision.
      */
@@ -99,7 +97,7 @@ private:
      * @param size Size of the limit order.
      * @param side Side of the limit order.
      */
-    void close_position_by_market(double price);
+    void close_position_by_market(double price = 0.0);
 
     /**
      * @brief Close a position by limit.
@@ -134,7 +132,7 @@ private:
      * @brief Update position profit and loss.
      * @param price Price of the asset.
      */
-    void update_position_pnl(double price = NULL);
+    void update_position_pnl(double price = 0.0);
 
     /**
      * @brief Update the trader statistics.

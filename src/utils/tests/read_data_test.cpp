@@ -48,7 +48,7 @@ TEST(ReadDataTest, TestReadDataWithDateRange)
     std::vector<Candle> candles = read_data("EURUSD", TimeFrame::H1, startTime, endTime);
 
     // Assert that the vector is not empty
-    ASSERT_FALSE(candles.empty());
+    ASSERT_TRUE(candles.size() > 0);
 
     // Assert that the candles start from the specified start date and ends before the specified end date
     ASSERT_GE(candles[0].date, std::mktime(&startDate));

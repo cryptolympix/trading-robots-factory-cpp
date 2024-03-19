@@ -245,12 +245,12 @@ struct StrategyConfig
 {
     TimeFrame timeframe;                                   // Time frame
     double maximum_risk;                                   // Maximum risk
-    std::optional<int> maximum_spread;                     // Maximum spread
+    std::optional<double> maximum_spread;                  // Maximum spread
     std::optional<int> minimum_trade_duration;             // Minimum trade duration
     std::optional<int> maximum_trade_duration;             // Maximum trade duration
     std::optional<int> minimum_duration_before_next_trade; // Minimum duration before the next trade
     TakeProfitStopLossConfig take_profit_stop_loss_config; // Take profit and stop loss configuration
-    std::optional<TradingSchedule> trading_schedule;       // Trading schedule
+    TradingSchedule trading_schedule;                      // Trading schedule
 };
 
 /**
