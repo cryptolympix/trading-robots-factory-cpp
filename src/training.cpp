@@ -421,8 +421,8 @@ void Training::evaluate_genome(Genome *genome, int generation)
         if (!trader->dead)
         {
             trader->look(current_candles, current_indicators, current_base_currency_conversion_rate, position);
-            // trader->think();
-            // trader->update();
+            trader->think();
+            trader->update();
         }
         else
         {
@@ -485,8 +485,8 @@ int Training::run()
     std::cout << "🎉 Training finished!" << std::endl;
 
     // Save the best genome found
-    // std::string directory = "cache/" + this->config.general.name + "/" + this->config.general.version + "/training_" + this->id + ".pkl";
-    // this->population->best_genome->save(directory);
+    std::string directory = "cache/" + this->config.general.name + "/" + this->config.general.version + "/training_" + this->id + ".pkl";
+    this->population->best_genome->save(directory);
 
     return 0;
 }
