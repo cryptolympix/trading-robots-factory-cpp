@@ -116,7 +116,7 @@ std::vector<double> Genome::feed_forward(std::vector<double> input_values)
     {
         if (inputs != static_cast<int>(input_values.size()))
         {
-            throw std::invalid_argument("The number of inputs must match the number of input nodes.");
+            throw std::invalid_argument("The number of inputs must match the number of input nodes. Should be " + std::to_string(input_values.size()));
         }
 
         // Set the outputs of the input nodes

@@ -9,8 +9,8 @@
 #include "utils/logger.hpp"
 #include "utils/time_frame.hpp"
 #include "utils/math.hpp"
-#include "trading_schedule.hpp"
-#include "trading_tools.hpp"
+#include "trading/trading_schedule.hpp"
+#include "trading/trading_tools.hpp"
 #include "symbols.hpp"
 #include "trader.hpp"
 
@@ -25,9 +25,6 @@ time_t get_current_time()
     auto now = std::chrono::system_clock::now();
     auto in_time_t = std::chrono::system_clock::to_time_t(now);
     return in_time_t;
-    // std::stringstream ss;
-    // ss << std::put_time(std::localtime(&in_time_t), "%Y%m%d%H%M%S");
-    // return ss.str();
 }
 
 /**
@@ -124,7 +121,7 @@ Trader::Trader(Genome *genome, Config config, bool debug)
 void Trader::look(CandlesData &candles, IndicatorsData &indicators, BaseCurrencyConversionRateData base_currency_conversion_rate, std::vector<PositionInfo> position_infos)
 {
     std::vector<double> indicators_values = {};
-    std::unordered_map<TimeFrame, std::vector<Indicator>> indicators_inputs = config.training.inputs.indicators;
+    std::unordered_map<TimeFrame, std::vector<Indicator *>> indicators_inputs = config.training.inputs.indicators;
 
     this->candles = candles;
     Candle last_candle = candles[config.strategy.timeframe].back();
@@ -136,43 +133,44 @@ void Trader::look(CandlesData &candles, IndicatorsData &indicators, BaseCurrency
     {
         for (const auto &ind : indicator.second)
         {
-            indicators_values.push_back(indicators[indicator.first][ind.id].back());
+            indicators_values.push_back(indicators[indicator.first][ind->id].back());
         }
     }
 
     // Get the position information
-    std::vector<double> position_info(position_infos.size(), 0);
-    if (this->current_position != nullptr)
+    std::vector<double> position_info = {};
+    for (const auto &info : position_infos)
     {
-        for (const auto &info : position_infos)
+        if (this->current_position == nullptr)
         {
-            if (info == PositionInfo::TYPE)
+            position_info.push_back(0);
+        }
+        else if (info == PositionInfo::TYPE)
+        {
+            if (this->current_position->side == PositionSide::LONG)
             {
-                if (this->current_position->side == PositionSide::LONG)
-                {
-                    position_info.push_back(1);
-                }
-                else if (this->current_position->side == PositionSide::SHORT)
-                {
-                    position_info.push_back(-1);
-                }
-                else
-                {
-                    position_info.push_back(0);
-                }
+                position_info.push_back(1);
             }
-            else if (info == PositionInfo::PNL)
+            else if (this->current_position->side == PositionSide::SHORT)
             {
-                double position_pnl_percent = this->current_position->size > 0 ? this->current_position->pnl / this->balance : 0;
-                position_info.push_back(position_pnl_percent);
+                position_info.push_back(-1);
             }
-            else if (info == PositionInfo::DURATION)
+            else
             {
-                // check the difference between the current date and the entry date in minutes
-                std::time_t entry_date = std::mktime(&this->current_position->entry_date);
-                double position_duration = std::difftime(this->current_date, entry_date) / get_time_frame_value(config.strategy.timeframe);
-                position_info.push_back(position_duration);
+                position_info.push_back(0);
             }
+        }
+        else if (info == PositionInfo::PNL)
+        {
+            double position_pnl_percent = this->current_position->size > 0 ? this->current_position->pnl / this->balance : 0;
+            position_info.push_back(position_pnl_percent);
+        }
+        else if (info == PositionInfo::DURATION)
+        {
+            // check the difference between the current date and the entry date in minutes
+            std::time_t entry_date = std::mktime(&this->current_position->entry_date);
+            double position_duration = std::difftime(this->current_date, entry_date) / get_time_frame_value(config.strategy.timeframe);
+            position_info.push_back(position_duration);
         }
     }
 

@@ -80,6 +80,6 @@ std::vector<double> Indicator::calculate(const std::vector<Candle> &candles, boo
 {
     return Indicator::calculate(
         candles, [](std::vector<Candle> candles)
-        { return std::vector<double>(); },
+        { return std::vector<double>(candles.size(), 0.0); },
         normalize_data);
 }

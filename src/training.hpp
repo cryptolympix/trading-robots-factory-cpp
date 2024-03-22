@@ -29,21 +29,22 @@ class Trader;
 class Training
 {
 private:
+    std::string cache_file; // Optional cache file path.
+    Population *population; // NEAT population for evolution.
+    bool cache_exist;       // Flag indicating whether cache exists.
+
+public:
+    bool debug;                                                   // Debug mode flag.
     std::string id;                                               // Unique identifier for the training process.
     Config config;                                                // Configuration object.
-    bool debug;                                                   // Debug mode flag.
-    std::string cache_file;                                       // Optional cache file path.
-    Population *population;                                       // NEAT population for evolution.
     CandlesData candles;                                          // Candle data for all time frames.
     IndicatorsData indicators;                                    // Indicator data for all time frames.
     BaseCurrencyConversionRateData base_currency_conversion_rate; // Conversion rate when the base asset traded is different from the account currency.
     Cache cache;                                                  // Cached data for faster access.
-    bool cache_exist;                                             // Flag indicating whether cache exists.
     std::map<int, std::vector<Trader *>> traders;                 // Map of traders for each generation.
     std::map<int, Trader *> best_traders;                         // Map of the best trader for each generation.
     Trader *best_trader;                                          // Best trader overall.
 
-public:
     /**
      * @brief Constructor for the Training class.
      * @param config Configuration object.

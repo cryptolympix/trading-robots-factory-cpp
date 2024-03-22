@@ -31,8 +31,9 @@ void Indexer::update_indexes(std::chrono::system_clock::time_point &date)
     for (auto &pair : candles)
     {
         TimeFrame tf = pair.first;
-        while (indexes[tf].second < pair.second.size() &&
-               std::chrono::system_clock::from_time_t(pair.second[indexes[tf].second].date) + std::chrono::minutes(get_time_frame_value(tf)) <= date)
+        std::vector<Candle> &candles = pair.second;
+        while (indexes[tf].second < candles.size() &&
+               std::chrono::system_clock::from_time_t(candles[indexes[tf].second].date) + std::chrono::minutes(get_time_frame_value(tf)) <= date)
         {
             // Increment the index
             indexes[tf].second++;

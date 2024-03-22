@@ -258,8 +258,8 @@ struct StrategyConfig
  */
 struct NeuralNetworkInputs
 {
-    std::unordered_map<TimeFrame, std::vector<Indicator>> indicators; // Indicators
-    std::vector<PositionInfo> position;                               // Position information
+    std::unordered_map<TimeFrame, std::vector<Indicator *>> indicators; // Indicators
+    std::vector<PositionInfo> position;                                 // Position information
 };
 
 /**

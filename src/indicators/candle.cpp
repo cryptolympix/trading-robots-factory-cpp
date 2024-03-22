@@ -281,7 +281,6 @@ std::vector<double> PivotHigh::calculate(const std::vector<Candle> &candles, boo
         candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
             std::vector<double> values(candles.size(), 0); // Initialize values vector with size of candles
-
             std::vector<double> source_candles = get_candles_with_source(candles, source);
 
             // Ensure source_candles size is at least candles.size()
@@ -294,11 +293,11 @@ std::vector<double> PivotHigh::calculate(const std::vector<Candle> &candles, boo
             {
                 if (i < left_bars)
                 {
-                    values[i] = (std::max_element(source_candles.begin(), source_candles.begin() + i + right_bars + 1) == source_candles.begin() + i) ? 1 : 0;
+                    values[i] = std::max_element(source_candles.begin(), source_candles.begin() + i + right_bars + 1) == source_candles.begin() + i ? 1 : 0;
                 }
                 else
                 {
-                    values[i] = (std::max_element(source_candles.begin() + i - left_bars, source_candles.begin() + i + right_bars + 1) == source_candles.begin() + i) ? 1 : 0;
+                    values[i] = std::max_element(source_candles.begin() + i - left_bars, source_candles.begin() + i + right_bars + 1) == source_candles.begin() + i ? 1 : 0;
                 }
             }
 

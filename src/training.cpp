@@ -123,7 +123,7 @@ void Training::load_candles(ProgressBar *progress_bar)
  */
 void Training::load_indicators(ProgressBar *progress_bar)
 {
-    std::__1::unordered_map<TimeFrame, std::vector<Indicator>> all_indicators = config.training.inputs.indicators;
+    std::__1::unordered_map<TimeFrame, std::vector<Indicator *>> all_indicators = config.training.inputs.indicators;
 
     for (auto const &[tf, indicators] : all_indicators)
     {
@@ -132,7 +132,7 @@ void Training::load_indicators(ProgressBar *progress_bar)
             bool included = false;
             for (auto const &[id, indicator] : this->indicators[tf])
             {
-                if (id == tf_indicator.id)
+                if (id == tf_indicator->id)
                 {
                     included = true;
                 }
@@ -140,7 +140,7 @@ void Training::load_indicators(ProgressBar *progress_bar)
 
             if (!included)
             {
-                this->indicators[tf][tf_indicator.id] = tf_indicator.calculate(this->candles[tf], false);
+                this->indicators[tf][tf_indicator->id] = tf_indicator->calculate(this->candles[tf], false);
             }
 
             if (progress_bar)
@@ -207,12 +207,12 @@ void Training::cache_data(ProgressBar *progress_bar)
     std::vector<TimeFrame> all_timeframes = get_all_timeframes();
     TimeFrame loop_timeframe = config.strategy.timeframe;
     int loop_timeframe_minutes = get_time_frame_value(loop_timeframe);
-    std::__1::chrono::system_clock::time_point mock_date = find_training_start_date();
-    Indexer indexer(candles, MINIMUM_CANDLES);
+    std::chrono::system_clock::time_point mock_date = find_training_start_date();
+    Indexer *indexer = new Indexer(candles, MINIMUM_CANDLES);
 
     while (mock_date < config.training.training_end_date)
     {
-        indexer.update_indexes(mock_date);
+        indexer->update_indexes(mock_date);
         CandlesData current_candles = {};
         IndicatorsData current_indicators = {};
         BaseCurrencyConversionRateData current_base_currency_conversion_rate = {};
@@ -220,7 +220,7 @@ void Training::cache_data(ProgressBar *progress_bar)
         // Get the candles for the current date
         for (const auto &tf : all_timeframes)
         {
-            std::pair<int, int> index = indexer.get_indexes(tf);
+            std::pair<int, int> index = indexer->get_indexes(tf);
             for (int i = index.first; i <= index.second; i++)
             {
                 current_candles[tf].push_back(candles[tf][i]);
@@ -230,15 +230,15 @@ void Training::cache_data(ProgressBar *progress_bar)
         // Get the indicators for the current date
         for (const auto &tf : all_timeframes)
         {
-            std::pair<int, int> index = indexer.get_indexes(tf);
+            std::pair<int, int> index = indexer->get_indexes(tf);
             for (const auto &indicator : config.training.inputs.indicators[tf])
             {
                 std::vector<double> indicator_values = {};
-                for (int i = index.second - INDICATOR_WINDOW; i <= index.second; i++)
+                for (int i = std::max(index.second - INDICATOR_WINDOW, 0); i <= index.second; i++)
                 {
-                    indicator_values.push_back(indicators[tf][indicator.id][i]);
+                    indicator_values.push_back(indicators[tf][indicator->id][i]);
                 }
-                current_indicators[tf][indicator.id] = indicator_values;
+                current_indicators[tf][indicator->id] = indicator_values;
             }
         }
 
@@ -260,6 +260,11 @@ void Training::cache_data(ProgressBar *progress_bar)
         cache[date_string].base_currency_conversion_rate = current_base_currency_conversion_rate;
 
         mock_date += std::chrono::minutes(loop_timeframe_minutes);
+
+        if (progress_bar)
+        {
+            progress_bar->update(1);
+        }
     }
 
     cache_dictionary(cache, cache_file);
@@ -284,10 +289,6 @@ int Training::count_indicators() const
     {
         nb_indicators += tf_indicators.second.size();
     }
-
-    // Count the number of position indicators
-    auto position_indicators = config.training.inputs.position;
-    nb_indicators += position_indicators.size();
 
     return nb_indicators;
 }
@@ -420,8 +421,8 @@ void Training::evaluate_genome(Genome *genome, int generation)
         if (!trader->dead)
         {
             trader->look(current_candles, current_indicators, current_base_currency_conversion_rate, position);
-            trader->think();
-            trader->update();
+            // trader->think();
+            // trader->update();
         }
         else
         {
@@ -457,12 +458,10 @@ int Training::run()
 
     try
     {
-        progress_bar->update(0, "🧬 Generation 0");
-
         auto callback_generation = [&](Population *population, int generation)
         {
             // Update the progress bar
-            progress_bar->update(generation, "🧬 Generation " + std::to_string(generation));
+            progress_bar->update(generation);
 
             // Update the best traders
             this->set_best_traders(generation);
@@ -482,12 +481,12 @@ int Training::run()
         return 1;
     }
 
-    progress_bar->complete();
+    // progress_bar->complete();
     std::cout << "🎉 Training finished!" << std::endl;
 
     // Save the best genome found
-    std::string directory = "cache/" + this->config.general.name + "/" + this->config.general.version + "/training_" + this->id;
-    this->population->best_genome->save(directory);
+    // std::string directory = "cache/" + this->config.general.name + "/" + this->config.general.version + "/training_" + this->id + ".pkl";
+    // this->population->best_genome->save(directory);
 
     return 0;
 }

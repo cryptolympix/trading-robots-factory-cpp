@@ -1,5 +1,4 @@
 #include <gtest/gtest.h>
-#include <gmock/gmock.h>
 #include <filesystem>
 #include <iostream>
 #include <ctime>
@@ -7,56 +6,54 @@
 #include "../neat/config.hpp"
 #include "../neat/genome.hpp"
 #include "../indicators/momentum.hpp"
-#include "../trading_tools.hpp"
+#include "../trading/trading_tools.hpp"
 #include "../symbols.hpp"
 #include "../types.hpp"
 #include "../trader.hpp"
 
-Config mock_config = {
-    .general = {
-        .name = "test",
-        .version = "1.0",
-        .symbol = "EURUSD",
-        .leverage = 100,
-        .initial_balance = 1000,
-        .account_currency = "USD",
-    },
-    .strategy = {.timeframe = TimeFrame::H1, .maximum_risk = 0.02, .maximum_spread = 8, .minimum_trade_duration = 5, .maximum_trade_duration = 20, .take_profit_stop_loss_config = {
-                                                                                                                                                       .type_stop_loss = TypeTakeProfitStopLoss::POINTS,
-                                                                                                                                                       .stop_loss_in_points = 300,
-                                                                                                                                                       .stop_loss_in_percent = 0.01,
-                                                                                                                                                       .type_take_profit = TypeTakeProfitStopLoss::POINTS,
-                                                                                                                                                       .take_profit_in_points = 300,
-                                                                                                                                                       .take_profit_in_percent = 0.01,
-                                                                                                                                                   },
-                 .trading_schedule = {.monday = {false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false}, .tuesday = {false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false}, .wednesday = {false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false}, .thursday = {false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false}, .friday = {false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false}, .saturday = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false}, .sunday = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false}}},
-    .training = {.generations = 5, .bad_trader_threshold = 0.01, .inactive_trader_threshold = 500, .inputs = {
-                                                                                                       .indicators = {{TimeFrame::M15, {RSI()}}},
-                                                                                                       .position = {PositionInfo::TYPE, PositionInfo::PNL, PositionInfo::DURATION},
-                                                                                                   }},
-    .evaluation = {
-        .nb_trade_minimum = 30,
-        .average_profit = 0.01,
-        .maximum_drawdown = 0.1,
-        .minimum_growth_per_month = 0.1,
-        .minimum_profit_factor = 2,
-        .minimum_winrate = 0.5,
-    },
-    .neat = load_config("src/configs/neat_config_test.ini"),
-};
-
 class TraderTest : public ::testing::Test
 {
 protected:
-    Config config;
     std::filesystem::path temp_dir;
     Trader *trader;
     SymbolInfo symbol_info;
+    Config config;
 
     void SetUp() override
     {
         // Mock configurations
-        config = mock_config;
+        config = {
+            .general = {
+                .name = "test",
+                .version = "1.0",
+                .symbol = "EURUSD",
+                .leverage = 100,
+                .initial_balance = 1000,
+                .account_currency = "USD",
+            },
+            .strategy = {.timeframe = TimeFrame::H1, .maximum_risk = 0.02, .maximum_spread = 8, .minimum_trade_duration = 5, .maximum_trade_duration = 20, .take_profit_stop_loss_config = {
+                                                                                                                                                               .type_stop_loss = TypeTakeProfitStopLoss::POINTS,
+                                                                                                                                                               .stop_loss_in_points = 300,
+                                                                                                                                                               .stop_loss_in_percent = 0.01,
+                                                                                                                                                               .type_take_profit = TypeTakeProfitStopLoss::POINTS,
+                                                                                                                                                               .take_profit_in_points = 300,
+                                                                                                                                                               .take_profit_in_percent = 0.01,
+                                                                                                                                                           },
+                         .trading_schedule = {.monday = {false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false}, .tuesday = {false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false}, .wednesday = {false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false}, .thursday = {false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false}, .friday = {false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false}, .saturday = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false}, .sunday = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false}}},
+            .training = {.generations = 5, .bad_trader_threshold = 0.01, .inactive_trader_threshold = 500, .inputs = {
+                                                                                                               .indicators = {{TimeFrame::M15, {new RSI()}}},
+                                                                                                               .position = {PositionInfo::TYPE, PositionInfo::PNL, PositionInfo::DURATION},
+                                                                                                           }},
+            .evaluation = {
+                .nb_trade_minimum = 30,
+                .average_profit = 0.01,
+                .maximum_drawdown = 0.1,
+                .minimum_growth_per_month = 0.1,
+                .minimum_profit_factor = 2,
+                .minimum_winrate = 0.5,
+            },
+            .neat = load_config("src/configs/neat_config_test.ini"),
+        };
         config.neat.population_size = 5;
         config.neat.num_inputs = 4;
         config.neat.num_outputs = 5;
@@ -76,7 +73,7 @@ protected:
 
         // Trader configurations
         trader = new Trader(new Genome(config.neat), config, false);
-        trader->balance = mock_config.general.initial_balance;
+        trader->balance = config.general.initial_balance;
         trader->current_position = nullptr;
         trader->open_orders = {};
         trader->balance_history = {};
@@ -216,7 +213,7 @@ TEST_F(TraderTest, UpdateWithInactiveTrader)
 TEST_F(TraderTest, UpdateWithBadTrader)
 {
     // Mock data for testing
-    trader->balance = config.training.bad_trader_threshold.value() * mock_config.general.initial_balance;
+    trader->balance = config.training.bad_trader_threshold.value() * config.general.initial_balance;
 
     // Call the update method
     trader->update();
@@ -239,7 +236,7 @@ TEST_F(TraderTest, CheckTpOrderHit)
     trader->current_position->pnl = calculate_profit_loss(1.00500, *trader->current_position, trader->symbol_info, trader->current_base_currency_conversion_rate);
 
     // Calculation of balance after the execution of the order
-    double new_balance = mock_config.general.initial_balance + trader->current_position->pnl - trader->symbol_info.commission_per_lot * trader->current_position->size * trader->current_base_currency_conversion_rate;
+    double new_balance = config.general.initial_balance + trader->current_position->pnl - trader->symbol_info.commission_per_lot * trader->current_position->size * trader->current_base_currency_conversion_rate;
 
     // Call the update method
     trader->check_open_orders();
@@ -264,7 +261,7 @@ TEST_F(TraderTest, CheckSlOrderHit)
     trader->current_position->pnl = calculate_profit_loss(0.99500, *trader->current_position, trader->symbol_info, trader->current_base_currency_conversion_rate);
 
     // Calculation of the balance after the execution of the order
-    double new_balance = mock_config.general.initial_balance + trader->current_position->pnl - trader->symbol_info.commission_per_lot * trader->current_position->size * trader->current_base_currency_conversion_rate;
+    double new_balance = config.general.initial_balance + trader->current_position->pnl - trader->symbol_info.commission_per_lot * trader->current_position->size * trader->current_base_currency_conversion_rate;
 
     // Call the update method
     trader->check_open_orders();
@@ -284,7 +281,7 @@ TEST_F(TraderTest, TradeCloseLongWithProfit)
                                             .pnl = 50.0};
 
     // Calculation of the new balance after liquidation
-    double new_balance = mock_config.general.initial_balance + trader->current_position->pnl - trader->symbol_info.commission_per_lot * trader->current_position->size * trader->current_base_currency_conversion_rate;
+    double new_balance = config.general.initial_balance + trader->current_position->pnl - trader->symbol_info.commission_per_lot * trader->current_position->size * trader->current_base_currency_conversion_rate;
 
     // Call the method
     trader->close_position_by_market();
@@ -304,7 +301,7 @@ TEST_F(TraderTest, TradeCloseLongWithLoss)
                                             .pnl = -50.0};
 
     // Calculation of the new balance after liquidation
-    double new_balance = mock_config.general.initial_balance + trader->current_position->pnl - trader->symbol_info.commission_per_lot * trader->current_position->size * trader->current_base_currency_conversion_rate;
+    double new_balance = config.general.initial_balance + trader->current_position->pnl - trader->symbol_info.commission_per_lot * trader->current_position->size * trader->current_base_currency_conversion_rate;
 
     // Call the method
     trader->close_position_by_market();
@@ -324,7 +321,7 @@ TEST_F(TraderTest, TradeCloseShortWithProfit)
                                             .pnl = 50.0};
 
     // Calculation of the new balance after liquidation
-    double new_balance = mock_config.general.initial_balance + trader->current_position->pnl - trader->symbol_info.commission_per_lot * trader->current_position->size * trader->current_base_currency_conversion_rate;
+    double new_balance = config.general.initial_balance + trader->current_position->pnl - trader->symbol_info.commission_per_lot * trader->current_position->size * trader->current_base_currency_conversion_rate;
 
     // Call the method
     trader->close_position_by_market();
@@ -344,7 +341,7 @@ TEST_F(TraderTest, TradeCloseShortWithLoss)
                                             .pnl = -50.0};
 
     // Calculation of the new balance after liquidation
-    double new_balance = mock_config.general.initial_balance + trader->current_position->pnl - trader->symbol_info.commission_per_lot * trader->current_position->size * trader->current_base_currency_conversion_rate;
+    double new_balance = config.general.initial_balance + trader->current_position->pnl - trader->symbol_info.commission_per_lot * trader->current_position->size * trader->current_base_currency_conversion_rate;
 
     // Call the method
     trader->close_position_by_market();
