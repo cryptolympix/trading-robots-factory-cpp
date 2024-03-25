@@ -109,7 +109,7 @@ std::vector<double> BollingerChannelHighBand::calculate(const std::vector<Candle
                 return bollinger_channel_high_band_values;
             }
             
-            std::vector<double> closes = get_candles_with_source(candles, CandleSource::Close);
+            std::vector<double> closes = get_candles_with_source(candles, "close");
             std::vector<double> sma_values = calculate_simple_moving_average(closes, period);
             std::vector<double> std_dev_values = calculate_standard_deviation(closes, period);
 
@@ -152,7 +152,7 @@ std::vector<double> BollingerChannelLowBand::calculate(const std::vector<Candle>
                 return bollinger_channel_low_band_values;
             }
             
-            std::vector<double> closes = get_candles_with_source(candles, CandleSource::Close);
+            std::vector<double> closes = get_candles_with_source(candles, "close");
             std::vector<double> sma_values = calculate_simple_moving_average(closes, period);
             std::vector<double> std_dev_values = calculate_standard_deviation(closes, period);
 
@@ -194,7 +194,7 @@ std::vector<double> BollingerChannelMiddleBand::calculate(const std::vector<Cand
                 return bollinger_channel_middle_band_values;
             }
             
-            std::vector<double> closes = get_candles_with_source(candles, CandleSource::Close);
+            std::vector<double> closes = get_candles_with_source(candles, "close");
             std::vector<double> sma_values = calculate_simple_moving_average(closes, period);
 
             for (size_t i = 0; i < candles.size(); ++i)
@@ -236,7 +236,7 @@ std::vector<double> BollingerChannelPercentageBand::calculate(const std::vector<
                 return bollinger_channel_percentage_band_values;
             }
             
-            std::vector<double> closes = get_candles_with_source(candles, CandleSource::Close);
+            std::vector<double> closes = get_candles_with_source(candles, "close");
             std::vector<double> sma_values = calculate_simple_moving_average(closes, period);
             std::vector<double> std_dev_values = calculate_standard_deviation(closes, period);
 
@@ -283,7 +283,7 @@ std::vector<double> BollingerChannelWidthBand::calculate(const std::vector<Candl
                 return bollinger_channel_width_band_values;
             }
             
-            std::vector<double> closes = get_candles_with_source(candles, CandleSource::Close);
+            std::vector<double> closes = get_candles_with_source(candles, "close");
             std::vector<double> sma_values = calculate_simple_moving_average(closes, period);
             std::vector<double> std_dev_values = calculate_standard_deviation(closes, period);
 
@@ -474,7 +474,7 @@ std::vector<double> KeltnerChannelHighBand::calculate(const std::vector<Candle> 
                 return keltner_channel_high_band_values;
             }
             
-            std::vector<double> closes = get_candles_with_source(candles, CandleSource::Close);
+            std::vector<double> closes = get_candles_with_source(candles, "close");
             std::vector<double> ema_values = calculate_exponential_moving_average(closes, period);
             std::vector<double> atr_values = ATR(atr_period).calculate(candles);
 
@@ -518,7 +518,7 @@ std::vector<double> KeltnerChannelLowBand::calculate(const std::vector<Candle> &
                 return keltner_channel_low_band_values;
             }
             
-            std::vector<double> closes = get_candles_with_source(candles, CandleSource::Close);
+            std::vector<double> closes = get_candles_with_source(candles, "close");
             std::vector<double> ema_values = calculate_exponential_moving_average(closes, period);
             std::vector<double> atr_values = ATR(atr_period).calculate(candles);
 
@@ -560,7 +560,7 @@ std::vector<double> KeltnerChannelMiddleBand::calculate(const std::vector<Candle
                 return keltner_channel_middle_band_values;
             }
             
-            std::vector<double> closes = get_candles_with_source(candles, CandleSource::Close);
+            std::vector<double> closes = get_candles_with_source(candles, "close");
             std::vector<double> ema_values = calculate_exponential_moving_average(closes, period);
 
             for (size_t i = period - 1; i < candles.size(); ++i)
@@ -601,7 +601,7 @@ std::vector<double> UI::calculate(const std::vector<Candle> &candles, bool norma
                 return ui_values;
             }
             
-            std::vector<double> closes = get_candles_with_source(candles, CandleSource::Close);
+            std::vector<double> closes = get_candles_with_source(candles, "close");
             std::vector<double> max_values(candles.size(), 0.0);
 
             for (size_t i = period - 1; i < candles.size(); ++i)
@@ -665,7 +665,7 @@ std::vector<double> StandardDeviation::calculate(const std::vector<Candle> &cand
                 return stddev_values;
             }
 
-            std::vector<double> closes = get_candles_with_source(candles, CandleSource::Close);
+            std::vector<double> closes = get_candles_with_source(candles, "close");
             stddev_values = calculate_standard_deviation(closes, period);
 
             return stddev_values; },

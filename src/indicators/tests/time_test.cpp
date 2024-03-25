@@ -72,7 +72,7 @@ TEST(TimeIndicatorsTest, NFPWeek)
 TEST(TimeIndicatorsTest, MarketSession)
 {
     // London
-    MarketSession london(MarketSessionZone::LONDON);
+    MarketSession london("london");
     std::vector<Candle> test_candles_london;
     for (int h = 7; h < 14; ++h)
     {
@@ -91,7 +91,7 @@ TEST(TimeIndicatorsTest, MarketSession)
     ASSERT_EQ(result_london, std::vector<double>({0, 1, 1, 1, 1, 1, 0}));
 
     // New York
-    MarketSession newYork(MarketSessionZone::NEW_YORK);
+    MarketSession newYork("new-york");
     std::vector<Candle> test_candles_newyork;
     for (int h = 13; h < 22; ++h)
     {
@@ -110,7 +110,7 @@ TEST(TimeIndicatorsTest, MarketSession)
     ASSERT_EQ(result_newyork, std::vector<double>({0, 1, 1, 1, 1, 1, 1, 1, 0}));
 
     // Tokyo
-    MarketSession tokyo(MarketSessionZone::TOKYO);
+    MarketSession tokyo("tokyo");
     std::vector<Candle> test_candles_tokyo;
     for (int h = 1; h < 10; ++h)
     {

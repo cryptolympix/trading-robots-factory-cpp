@@ -31,7 +31,7 @@ std::vector<double> AwesomeOscillator::calculate(const std::vector<Candle> &cand
                 return std::vector<double>(candles.size(), 0.0); // Not enough data
             }
 
-            std::vector<double> median_prices = get_candles_with_source(candles, CandleSource::HL2);
+            std::vector<double> median_prices = get_candles_with_source(candles, "hl2");
             std::vector<double> average_5 = calculate_exponential_moving_average(median_prices, 5);
             std::vector<double> average_34 = calculate_exponential_moving_average(median_prices, 34);
             std::vector<double> result = subtract_vectors(average_5, average_34);
@@ -71,7 +71,7 @@ std::vector<double> KAMA::calculate(const std::vector<Candle> &candles, bool nor
                 return kama_values; // Return an empty vector if there are not enough candles
             }
 
-            std::vector<double> closes = get_candles_with_source(candles, CandleSource::Close); // Extract close prices from candles
+            std::vector<double> closes = get_candles_with_source(candles, "close"); // Extract close prices from candles
             std::vector<double> er_values = calculate_er(closes);                               // Calculate Efficiency Ratio (ER)
             std::vector<double> sc_values = calculate_sc(er_values);                            // Calculate Smoothing Constant (SC)
 
@@ -182,7 +182,7 @@ std::vector<double> MFI::calculate(const std::vector<Candle> &candles, bool norm
     }
 
     // Calculate Typical Price, Raw Money Flow, Positive Money Flow, and Negative Money Flow
-    std::vector<double> typical_prices = get_candles_with_source(candles, CandleSource::HLC3);
+    std::vector<double> typical_prices = get_candles_with_source(candles, "hlc3");
     std::vector<double> raw_money_flow;
     std::vector<double> positive_money_flow;
     std::vector<double> negative_money_flow;
@@ -273,7 +273,7 @@ std::vector<double> PPO::calculate(const std::vector<Candle> &candles, bool norm
                 return std::vector<double>(candles.size(), 0.0); // Not enough data
             }
 
-            std::vector<double> closes = get_candles_with_source(candles, CandleSource::Close);
+            std::vector<double> closes = get_candles_with_source(candles, "close");
             std::vector<double> short_ema = calculate_exponential_moving_average(closes, short_period);
             std::vector<double> long_ema = calculate_exponential_moving_average(closes, long_period);
 
@@ -319,7 +319,7 @@ std::vector<double> PVO::calculate(const std::vector<Candle> &candles, bool norm
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
-            std::vector<double> volume_values = get_candles_with_source(candles, CandleSource::Volume);
+            std::vector<double> volume_values = get_candles_with_source(candles, "volume");
             std::vector<double> pvo_values(candles.size(), 0.0); // Initialize result vector with the same size as input
 
             if (volume_values.size() < static_cast<size_t>(slow_period)) {
@@ -379,7 +379,7 @@ std::vector<double> ROC::calculate(const std::vector<Candle> &candles, bool norm
                 return result; // Not enough data
             }
 
-            std::vector<double> closes = get_candles_with_source(candles, CandleSource::Close);
+            std::vector<double> closes = get_candles_with_source(candles, "close");
             size_t n = closes.size();
             if (n <= 1) return result; // Not enough data
 
@@ -420,7 +420,7 @@ std::vector<double> RSI::calculate(const std::vector<Candle> &candles, bool norm
                 return std::vector<double>(candles.size(), 0.0); // Not enough data
             }
 
-            std::vector<double> closes = get_candles_with_source(candles, CandleSource::Close);
+            std::vector<double> closes = get_candles_with_source(candles, "close");
             std::vector<double> result(closes.size(), 0.0); // Initialize result vector with the same size as input
             size_t n = closes.size();
 
@@ -557,8 +557,8 @@ std::vector<double> StochasticOscillator::calculate(const std::vector<Candle> &c
                 return result; // Not enough data
             }
 
-            std::vector<double> all_highs = get_candles_with_source(candles, CandleSource::High);
-            std::vector<double> all_lows = get_candles_with_source(candles, CandleSource::Low);
+            std::vector<double> all_highs = get_candles_with_source(candles, "high");
+            std::vector<double> all_lows = get_candles_with_source(candles, "low");
 
             for (size_t i = d_period - 1; i < n; ++i)
             {

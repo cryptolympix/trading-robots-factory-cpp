@@ -53,12 +53,15 @@ Training::Training(Config &config, bool debug, const std::string &cache_file)
  */
 void Training::prepare()
 {
-    this->cache_file = "cache/data/" + config.general.name + "_" + config.general.version + ".pkl";
-    if (std::filesystem::exists(cache_file))
+    if (this->cache_file.empty())
     {
-        cache_exist = true;
+        this->cache_file = "cache/data/" + config.general.name + "_" + config.general.version + ".pkl";
+    }
+    if (std::filesystem::exists(this->cache_file))
+    {
+        this->cache_exist = true;
         std::cout << "⏳ Import the data from the cache..." << std::endl;
-        cache = load_cached_dictionary<DatedCache>(cache_file);
+        cache = load_cached_dictionary<DatedCache>(this->cache_file);
         std::cout << "✅ Cache ready!" << std::endl;
     }
     else
@@ -67,19 +70,19 @@ void Training::prepare()
         std::cout << "⏳ Load the candles..." << std::endl;
         int total_iter1 = this->get_all_timeframes().size();
         ProgressBar *progress_bar1 = new ProgressBar(100, total_iter1);
-        load_candles(progress_bar1);
+        this->load_candles(progress_bar1);
         std::cout << "✅ Candles loaded!" << std::endl;
 
         std::cout << "⏳ Load the indicators..." << std::endl;
         int total_iter2 = this->count_indicators();
         ProgressBar *progress_bar2 = new ProgressBar(100, total_iter2);
-        load_indicators(progress_bar2);
+        this->load_indicators(progress_bar2);
         std::cout << "✅ Indicators loaded!" << std::endl;
 
         std::cout << "⏳ Load the base currency conversion rate..." << std::endl;
         int total_iter3 = 1;
         ProgressBar *progress_bar3 = new ProgressBar(100, total_iter3);
-        load_base_currency_conversion_rate(progress_bar3);
+        this->load_base_currency_conversion_rate(progress_bar3);
         std::cout << "✅ Base currency conversion rate loaded!" << std::endl;
 
         std::cout << "⏳ Cache the data..." << std::endl;
@@ -89,7 +92,7 @@ void Training::prepare()
         std::chrono::system_clock::time_point training_end_date = this->config.training.training_end_date;
         int total_iter4 = (std::chrono::duration_cast<std::chrono::minutes>(training_end_date - training_start_date).count()) / loop_timeframe_minutes;
         ProgressBar *progress_bar4 = new ProgressBar(100, total_iter4);
-        cache_data(progress_bar4);
+        this->cache_data(progress_bar4);
         std::cout << "✅ Cache ready!" << std::endl;
     }
 }
@@ -140,7 +143,7 @@ void Training::load_indicators(ProgressBar *progress_bar)
 
             if (!included)
             {
-                this->indicators[tf][tf_indicator->id] = tf_indicator->calculate(this->candles[tf], false);
+                this->indicators[tf][tf_indicator->id] = tf_indicator->calculate(this->candles[tf], true);
             }
 
             if (progress_bar)

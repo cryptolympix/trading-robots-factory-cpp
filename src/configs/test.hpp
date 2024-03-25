@@ -3,6 +3,13 @@
 #include "neat/config.hpp"
 #include "indicators/indicator.hpp"
 #include "indicators/candle.hpp"
+#include "indicators/candle_patterns.hpp"
+#include "indicators/candle_signals.hpp"
+#include "indicators/momentum.hpp"
+#include "indicators/time.hpp"
+#include "indicators/trend.hpp"
+#include "indicators/volatility.hpp"
+#include "indicators/volume.hpp"
 
 TradingSchedule schedule = {
     .monday = {false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false},
@@ -70,7 +77,47 @@ Config test_config = {
         .test_end_date = std::chrono::system_clock::from_time_t(std::mktime(&end_test_date)),
         .inputs = {
             .indicators = {
-                {TimeFrame::M15, {new CandlePriceChange()}}},
+                {TimeFrame::M15, {
+                                     new Hour(),
+                                     new NFPWeek(),
+                                     new MarketSession("london"),
+                                     new MarketSession("new-york"),
+                                     new MarketSession("tokyo"),
+                                     new WeekDay(),
+                                     new CandlePriceChange(),
+                                     new CandleClose(),
+                                     new CandleVolume(),
+                                     new PeakDistance(20, 0),
+                                     new PeakCandleDistance(20, 0),
+                                     new DojiCandlePattern(),
+                                     new SingleCandlePattern(),
+                                     new DoubleCandlePattern(),
+                                     new TripleCandlePattern(),
+                                     new NewHighSignal(20, 0),
+                                     new NewLowSignal(20, 0),
+                                     new HighBreakSignal(20, 0),
+                                     new LowBreakSignal(20, 0),
+                                     new MFI(),
+                                     new RSI(),
+                                     new StochasticOscillator(),
+                                     new TSI(),
+                                     new WilliamsPercentR(),
+                                     new CCI(),
+                                     new DPO(),
+                                     new InstitutionalBias(),
+                                     new EMADifference(),
+                                     new AroonTrend(),
+                                     new IchimokuCloudTrend(),
+                                     new IchimokuKijunTenkanTrend(),
+                                     new EMASlope(21, "close"),
+                                     new ATR(),
+                                     new StandardDeviation(),
+                                     new AveragePriceChange(),
+                                     new CMF(),
+                                     new OBV(),
+                                     new POC(),
+                                     new VWAP(),
+                                 }}},
             .position = {PositionInfo::TYPE, PositionInfo::PNL, PositionInfo::DURATION}}},
     .evaluation{.nb_trade_minimum = 30, .average_profit = 0.01, .maximum_drawdown = 0.1, .minimum_growth_per_month = 0.2, .minimum_profit_factor = 2, .minimum_winrate = 0.5},
     .neat = load_config("src/configs/neat_config_test.ini")};

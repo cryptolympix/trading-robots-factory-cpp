@@ -76,19 +76,15 @@ std::vector<double> NFPWeek::calculate(const std::vector<Candle> &candles, bool 
 // *********************************************************************************************
 
 /**
- * @brief Map for different market session zone.
- */
-std::map<MarketSessionZone, std::string> MarketSessionZoneMap = {
-    {MarketSessionZone::LONDON, "london"},
-    {MarketSessionZone::NEW_YORK, "new-york"},
-    {MarketSessionZone::TOKYO, "tokyo"}};
-
-/**
  * @brief Construct a new MarketSession object.
  *
+ * @param zone Market session zone.
  * @param offset Offset value. Default is 0.
  */
-MarketSession::MarketSession(MarketSessionZone zone, int offset) : Indicator("Market Session " + std::string(1, std::toupper(MarketSessionZoneMap[zone][0])), "market-session-" + MarketSessionZoneMap[zone] + "-" + std::to_string(offset), offset), zone(zone) {}
+MarketSession::MarketSession(std::string zone, int offset) : Indicator(zone == "new-york" ? "New York Market Session" : zone == "london" ? "London Market Session"
+                                                                                                                                         : "Tokyo Market Session",
+                                                                       "market-session-" + zone + "-" + std::to_string(offset), offset),
+                                                             zone(zone) {}
 
 /**
  * @brief Check if the candle is on a market session.
@@ -109,18 +105,15 @@ std::vector<double> MarketSession::calculate(const std::vector<Candle> &candles,
                 // Check if the candle's date falls within the market session
                 tm *time = localtime(&candle.date);
                 bool is_market_session = false;
-                switch (zone)
-                {
-                    case MarketSessionZone::LONDON:
-                        is_market_session = time->tm_hour >= 8 && time->tm_hour <= 12;
-                        break;
-                    case MarketSessionZone::NEW_YORK:
-                        is_market_session = time->tm_hour >= 14 && time->tm_hour <= 20;
-                        break;
-                    case MarketSessionZone::TOKYO:
-                        is_market_session = time->tm_hour >= 2 && time->tm_hour <= 8;
-                        break;
+
+                if (zone == "london") {
+                    is_market_session = time->tm_hour >= 8 && time->tm_hour <= 12;
+                } else if (zone == "new-york") {
+                    is_market_session = time->tm_hour >= 14 && time->tm_hour <= 20;
+                } else if (zone == "tokyo") {
+                    is_market_session = time->tm_hour >= 2 && time->tm_hour <= 8;
                 }
+
                 result.push_back(is_market_session ? 1.0 : 0.0);
             }
 

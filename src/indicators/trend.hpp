@@ -225,7 +225,7 @@ public:
      * @param period Period value.
      * @param offset Offset value. Default is 0.
      */
-    EMA(CandleSource source, int period, int offset = 0);
+    EMA(std::string source, int period, int offset = 0);
 
     /**
      * @brief Calculate the EMA values.
@@ -237,7 +237,7 @@ public:
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 
 private:
-    CandleSource source;
+    std::string source;
     int period;
 };
 
@@ -413,7 +413,7 @@ public:
      * @param period Period for the SMA calculation.
      * @param offset Offset value. Default is 0.
      */
-    SMA(CandleSource source, int period, int offset = 0);
+    SMA(std::string source, int period, int offset = 0);
 
     /**
      * @brief Calculate the Simple Moving Average (SMA).
@@ -425,8 +425,8 @@ public:
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 
 private:
-    CandleSource source; // Candle source
-    int period;          // Period for the SMA calculation
+    std::string source; // Candle source
+    int period;         // Period for the SMA calculation
 };
 
 // *********************************************************************************************
@@ -703,7 +703,7 @@ public:
      * @param source The source of data (e.g., close, high, low).
      * @param offset Offset value. Default is 0.
      */
-    SMASlope(int period, CandleSource source, int offset = 0);
+    SMASlope(int period, std::string source, int offset = 0);
 
     /**
      * @brief Calculate the slope of the simple moving average.
@@ -715,8 +715,8 @@ public:
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 
 private:
-    int period;          // The period for the simple moving average.
-    CandleSource source; // The source of data (e.g., close, high, low).
+    int period;         // The period for the simple moving average.
+    std::string source; // The source of data (e.g., close, high, low).
 };
 
 // *********************************************************************************************
@@ -731,7 +731,7 @@ public:
      * @param source The source of data (e.g., close, high, low).
      * @param offset Offset value. Default is 0.
      */
-    EMASlope(int period, CandleSource source, int offset = 0);
+    EMASlope(int period, std::string source, int offset = 0);
 
     /**
      * @brief Calculate the slope of the exponential moving average.
@@ -743,8 +743,8 @@ public:
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 
 private:
-    int period;          // The period for the exponential moving average.
-    CandleSource source; // The source of data (e.g., close, high, low).
+    int period;         // The period for the exponential moving average.
+    std::string source; // The source of data (e.g., close, high, low).
 };
 
 #endif // TREND_INDICATORS_HPP

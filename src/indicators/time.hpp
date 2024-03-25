@@ -24,7 +24,7 @@ public:
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    virtual std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 };
 
 // *********************************************************************************************
@@ -45,25 +45,10 @@ public:
      * @param candles Vector of Candle data.
      * @return std::vector<double> Vector containing 1 if the candle is on NFP week, 0 otherwise.
      */
-    virtual std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 };
 
 // *********************************************************************************************
-
-/**
- * @brief Enum for MarketSession indicator.
- */
-enum class MarketSessionZone
-{
-    NEW_YORK,
-    LONDON,
-    TOKYO,
-};
-
-/**
- * @brief Map for different market session zone.
- */
-extern std::map<MarketSessionZone, std::string> MarketSessionZoneMap;
 
 class MarketSession : public Indicator
 {
@@ -71,20 +56,22 @@ public:
     /**
      * @brief Construct a new MarketSession object.
      *
+     * @param zone Market session zone.
      * @param offset Offset value. Default is 0.
      */
-    MarketSession(MarketSessionZone zone, int offset = 0);
+    MarketSession(std::string zone, int offset = 0);
 
     /**
      * @brief Check if the candle is on a market session.
      *
      * @param candles Vector of Candle data.
+     * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing 1 if the candle is on the market session, 0 otherwise.
      */
-    virtual std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 
 private:
-    MarketSessionZone zone; // Market session zone
+    std::string zone; // Market session zone
 };
 
 // *********************************************************************************************
@@ -105,7 +92,7 @@ public:
      * @param candles Vector of Candle data.
      * @return std::vector<double> Vector containing the number of each candle day (0-6).
      */
-    virtual std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 };
 
 #endif // TIME_INDICATORS_HPP

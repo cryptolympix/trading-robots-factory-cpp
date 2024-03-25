@@ -26,8 +26,8 @@ std::vector<double> NewHighSignal::calculate(const std::vector<Candle> &candles,
         candles, [this](std::vector<Candle> candles)
         {
             std::vector<double> values(candles.size(), 0);
-            std::vector<double> highest_highs = PivotHighValue(CandleSource::High, left_bars, right_bars).calculate(candles, false);
-            std::vector<double> highs = get_candles_with_source(candles, CandleSource::High);
+            std::vector<double> highest_highs = PivotHighValue("high", left_bars, right_bars).calculate(candles, false);
+            std::vector<double> highs = get_candles_with_source(candles, "high");
 
             for (size_t i = std::max(left_bars + right_bars, 1); i < candles.size() - right_bars; ++i)
             {
@@ -67,8 +67,8 @@ std::vector<double> NewLowSignal::calculate(const std::vector<Candle> &candles, 
         candles, [this](std::vector<Candle> candles)
         {
             std::vector<double> values(candles.size(), 0);
-            std::vector<double> lowest_lows = PivotLowValue(CandleSource::Low, left_bars, right_bars).calculate(candles, false);
-            std::vector<double> lows = get_candles_with_source(candles, CandleSource::Low);
+            std::vector<double> lowest_lows = PivotLowValue("low", left_bars, right_bars).calculate(candles, false);
+            std::vector<double> lows = get_candles_with_source(candles, "low");
 
             for (size_t i = std::max(left_bars + right_bars, 1); i < candles.size() - right_bars; ++i)
             {
@@ -108,8 +108,8 @@ std::vector<double> HighBreakSignal::calculate(const std::vector<Candle> &candle
         candles, [this](std::vector<Candle> candles)
         {
             std::vector<double> values(candles.size(), 0);
-            std::vector<double> highest_highs = PivotHighValue(CandleSource::High, left_bars, right_bars).calculate(candles, false);
-            std::vector<double> closes = get_candles_with_source(candles, CandleSource::Close);
+            std::vector<double> highest_highs = PivotHighValue("high", left_bars, right_bars).calculate(candles, false);
+            std::vector<double> closes = get_candles_with_source(candles, "close");
 
             for (size_t i = 1; i < candles.size(); ++i)
             {
@@ -148,8 +148,8 @@ std::vector<double> LowBreakSignal::calculate(const std::vector<Candle> &candles
         candles, [this](std::vector<Candle> candles)
         {
             std::vector<double> values(candles.size(), 0);
-            std::vector<double> lowest_lows = PivotLowValue(CandleSource::Low, left_bars, right_bars).calculate(candles, false);
-            std::vector<double> closes = get_candles_with_source(candles, CandleSource::Close);
+            std::vector<double> lowest_lows = PivotLowValue("low", left_bars, right_bars).calculate(candles, false);
+            std::vector<double> closes = get_candles_with_source(candles, "close");
 
             for (size_t i = 1; i < candles.size(); ++i)
             {

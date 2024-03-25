@@ -71,7 +71,7 @@ TEST_F(TrendIndicatorsTest, DPO)
 
 TEST_F(TrendIndicatorsTest, EMA)
 {
-    EMA ema(CandleSource::Close, 14);
+    EMA ema("close", 14);
     std::vector<double> result_ema = ema.calculate(mock_candles);
 
     ASSERT_EQ(result_ema.size(), mock_candles.size());
@@ -111,7 +111,7 @@ TEST_F(TrendIndicatorsTest, ParabolicSAR)
 
 TEST_F(TrendIndicatorsTest, SMA)
 {
-    SMA sma(CandleSource::Close, 21);
+    SMA sma("close", 21);
     std::vector<double> result_sma = sma.calculate(mock_candles);
 
     ASSERT_EQ(result_sma.size(), mock_candles.size());
@@ -195,7 +195,7 @@ TEST_F(TrendIndicatorsTest, IchimokuKijunTenkanTrend)
 
 TEST_F(TrendIndicatorsTest, SMASlope)
 {
-    SMASlope sma_slope(21, CandleSource::Close);
+    SMASlope sma_slope(21, "close");
     std::vector<double> result_sma_slope = sma_slope.calculate(mock_candles);
 
     ASSERT_EQ(result_sma_slope.size(), mock_candles.size());
@@ -203,7 +203,7 @@ TEST_F(TrendIndicatorsTest, SMASlope)
 
 TEST_F(TrendIndicatorsTest, EMASlope)
 {
-    EMASlope ema_slope(21, CandleSource::Close);
+    EMASlope ema_slope(21, "close");
     std::vector<double> result_ema_slope = ema_slope.calculate(mock_candles);
 
     ASSERT_EQ(result_ema_slope.size(), mock_candles.size());

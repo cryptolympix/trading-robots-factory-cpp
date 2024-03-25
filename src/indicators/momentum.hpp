@@ -354,7 +354,7 @@ public:
      * @param long_period Long period value. Default is 25.
      * @param offset Offset value. Default is 0.
      */
-    TSI(int short_period, int long_period, int offset = 0);
+    TSI(int short_period = 13, int long_period = 25, int offset = 0);
 
     /**
      * @brief Calculate the TSI values.
@@ -432,10 +432,10 @@ public:
     /**
      * @brief Construct a new Williams Percent R object.
      *
-     * @param period The period for calculating Williams %R.
+     * @param period The period for calculating Williams %R. Default to 14.
      * @param offset Offset value. Default is 0.
      */
-    WilliamsPercentR(int period, int offset = 0);
+    WilliamsPercentR(int period = 14, int offset = 0);
 
     /**
      * @brief Calculate the Williams Percent R values.

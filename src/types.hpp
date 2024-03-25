@@ -29,22 +29,6 @@ enum class TimeFrame
 };
 
 /**
- * @brief Enum for different sources of candle data.
- */
-enum class CandleSource
-{
-    Open,
-    High,
-    Low,
-    Close,
-    Volume,
-    HL2,
-    HLC3,
-    OHLC4,
-    HLCC4,
-};
-
-/**
  * @brief Struct representing a candle.
  */
 struct Candle

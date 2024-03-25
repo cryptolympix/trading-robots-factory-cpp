@@ -210,7 +210,7 @@ public:
      * @param right_bars Number of right bars.
      * @param offset Offset value. Default is 0.
      */
-    PivotHigh(CandleSource source, int left_bars, int right_bars, int offset = 0);
+    PivotHigh(std::string source, int left_bars, int right_bars, int offset = 0);
 
     /**
      * @brief Calculate the PivotHigh values.
@@ -222,7 +222,7 @@ public:
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 
 private:
-    CandleSource source;
+    std::string source;
     int left_bars;
     int right_bars;
 };
@@ -241,7 +241,7 @@ public:
      * @param right_bars Number of right bars.
      * @param offset Offset value. Default is 0.
      */
-    PivotLow(CandleSource source, int left_bars, int right_bars, int offset = 0);
+    PivotLow(std::string source, int left_bars, int right_bars, int offset = 0);
 
     /**
      * @brief Calculate the PivotLow values.
@@ -253,7 +253,7 @@ public:
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 
 private:
-    CandleSource source;
+    std::string source;
     int left_bars;
     int right_bars;
 };
@@ -272,7 +272,7 @@ public:
      * @param right_bars Number of right bars.
      * @param offset Offset value. Default is 0.
      */
-    PivotHighValue(CandleSource source, int left_bars, int right_bars, int offset = 0);
+    PivotHighValue(std::string source, int left_bars, int right_bars, int offset = 0);
 
     /**
      * @brief Calculate the PivotHighValue values.
@@ -284,7 +284,7 @@ public:
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 
 private:
-    CandleSource source;
+    std::string source;
     int left_bars;
     int right_bars;
 };
@@ -303,7 +303,7 @@ public:
      * @param right_bars Number of right bars.
      * @param offset Offset value. Default is 0.
      */
-    PivotLowValue(CandleSource source, int left_bars, int right_bars, int offset = 0);
+    PivotLowValue(std::string source, int left_bars, int right_bars, int offset = 0);
 
     /**
      * @brief Calculate the PivotLowValue values.
@@ -315,7 +315,7 @@ public:
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 
 private:
-    CandleSource source;
+    std::string source;
     int left_bars;
     int right_bars;
 };

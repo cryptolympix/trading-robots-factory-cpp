@@ -307,7 +307,7 @@ std::vector<double> CCI::calculate(const std::vector<Candle> &candles, bool norm
                 return cci_values; // Not enough data
             }
 
-            std::vector<double> typical_prices = get_candles_with_source(candles, CandleSource::HLC3);
+            std::vector<double> typical_prices = get_candles_with_source(candles, "hlc3");
             std::vector<double> sma_values = calculate_simple_moving_average(typical_prices, period);
             std::vector<double> mean_deviation_values = calculate_mean_deviation(typical_prices, sma_values);
 
@@ -388,7 +388,7 @@ std::vector<double> DPO::calculate(const std::vector<Candle> &candles, bool norm
             }
 
             // Calculate the X-period simple moving average
-            SMA sma(CandleSource::Close, period);
+            SMA sma("close", period);
             std::vector<double> sma_values = sma.calculate(candles, false);
 
             // Calculate the Detrended Price Oscillator (DPO)
@@ -412,7 +412,7 @@ std::vector<double> DPO::calculate(const std::vector<Candle> &candles, bool norm
  * @param period Period value.
  * @param offset Offset value. Default is 0.
  */
-EMA::EMA(CandleSource source, int period, int offset) : Indicator("Exponential Moving Average", "ema-" + CandleSourceMap[source] + "-" + std::to_string(period) + "-" + std::to_string(offset), offset), source(source), period(period) {}
+EMA::EMA(std::string source, int period, int offset) : Indicator("Exponential Moving Average", "ema-" + source + "-" + std::to_string(period) + "-" + std::to_string(offset), offset), source(source), period(period) {}
 
 /**
  * @brief Calculate the EMA values.
@@ -529,7 +529,7 @@ std::vector<double> MACD::calculate(const std::vector<Candle> &candles, bool nor
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
-            std::vector<double> closes = get_candles_with_source(candles, CandleSource::Close);
+            std::vector<double> closes = get_candles_with_source(candles, "close");
 
             std::vector<double> macd_line = calculate_macd_line(closes);
             std::vector<double> signal_line = calculate_signal_line(macd_line);
@@ -738,7 +738,7 @@ std::vector<double> ParabolicSAR::calculate(const std::vector<Candle> &candles, 
  * @param period Period for the SMA calculation.
  * @param offset Offset value. Default is 0.
  */
-SMA::SMA(CandleSource source, int period, int offset) : Indicator("Simple Moving Average", "sma-" + CandleSourceMap[source] + "-" + std::to_string(period) + "-" + std::to_string(offset), offset), source(source), period(period) {}
+SMA::SMA(std::string source, int period, int offset) : Indicator("Simple Moving Average", "sma-" + source + "-" + std::to_string(period) + "-" + std::to_string(offset), offset), source(source), period(period) {}
 
 /**
  * @brief Calculate the Simple Moving Average (SMA).
@@ -850,7 +850,7 @@ std::vector<double> TRIX::calculate(const std::vector<Candle> &candles, bool nor
     return Indicator::calculate(
         candles, [this](const std::vector<Candle> &candles) -> std::vector<double>
         {
-                std::vector<double> closes = get_candles_with_source(candles, CandleSource::Close);
+                std::vector<double> closes = get_candles_with_source(candles, "close");
                 std::vector<double> ema1 = calculate_exponential_moving_average(closes, period);
                 std::vector<double> ema2 = calculate_exponential_moving_average(ema1, period);
                 std::vector<double> ema3 = calculate_exponential_moving_average(ema2, period);
@@ -962,7 +962,7 @@ std::vector<double> InstitutionalBias::calculate(const std::vector<Candle> &cand
     return Indicator::calculate(
         candles, [this](const std::vector<Candle> &candles) -> std::vector<double>
         {
-            std::vector<double> closes = get_candles_with_source(candles, CandleSource::Close);
+            std::vector<double> closes = get_candles_with_source(candles, "close");
             std::vector<double> short_ema = calculate_exponential_moving_average(closes, short_period);
             std::vector<double> long_ema = calculate_exponential_moving_average(closes, long_period);
 
@@ -1008,7 +1008,7 @@ std::vector<double> EMADifference::calculate(const std::vector<Candle> &candles,
     return Indicator::calculate(
         candles, [this](const std::vector<Candle> &candles) -> std::vector<double>
         {
-            std::vector<double> closes = get_candles_with_source(candles, CandleSource::Close);
+            std::vector<double> closes = get_candles_with_source(candles, "close");
             std::vector<double> short_ema = calculate_exponential_moving_average(closes, short_period);
             std::vector<double> long_ema = calculate_exponential_moving_average(closes, long_period);
 
@@ -1315,8 +1315,8 @@ std::vector<double> IchimokuKijunTenkanTrend::calculate(const std::vector<Candle
  * @param source The source of data (e.g., close, high, low).
  * @param offset Offset value. Default is 0.
  */
-SMASlope::SMASlope(int period, CandleSource source, int offset)
-    : Indicator("Simple Moving Average Slope", "sma-slope-" + std::to_string(period) + "-" + CandleSourceMap[source] + "-" + std::to_string(offset), offset),
+SMASlope::SMASlope(int period, std::string source, int offset)
+    : Indicator("Simple Moving Average Slope", "sma-slope-" + std::to_string(period) + "-" + source + "-" + std::to_string(offset), offset),
       period(period),
       source(source) {}
 
@@ -1358,8 +1358,8 @@ std::vector<double> SMASlope::calculate(const std::vector<Candle> &candles, bool
  * @param source The source of data (e.g., close, high, low).
  * @param offset Offset value. Default is 0.
  */
-EMASlope::EMASlope(int period, CandleSource source, int offset)
-    : Indicator("Exponential Moving Average Slope", "ema-slope-" + std::to_string(period) + "-" + CandleSourceMap[source] + "-" + std::to_string(offset), offset),
+EMASlope::EMASlope(int period, std::string source, int offset)
+    : Indicator("Exponential Moving Average Slope", "ema-slope-" + std::to_string(period) + "-" + source + "-" + std::to_string(offset), offset),
       period(period),
       source(source) {}
 

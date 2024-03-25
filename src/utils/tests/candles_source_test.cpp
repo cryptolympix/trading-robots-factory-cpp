@@ -34,61 +34,61 @@ protected:
 
 TEST_F(TestCandlesSource, GetCandlesWithUnknownSource)
 {
-    EXPECT_THROW(get_candles_with_source(mock_candles, static_cast<CandleSource>(-1)), std::runtime_error);
+    EXPECT_THROW(get_candles_with_source(mock_candles, "unknown"), std::runtime_error);
 }
 
 TEST_F(TestCandlesSource, GetCandlesWithSource)
 {
     // Open
-    std::vector<double> candles = get_candles_with_source(mock_candles, CandleSource::Open);
+    std::vector<double> candles = get_candles_with_source(mock_candles, "open");
     ASSERT_EQ(candles.size(), 2);
     EXPECT_EQ(candles[0], 2);
     EXPECT_EQ(candles[1], 2);
 
     // High
-    candles = get_candles_with_source(mock_candles, CandleSource::High);
+    candles = get_candles_with_source(mock_candles, "high");
     ASSERT_EQ(candles.size(), 2);
     EXPECT_EQ(candles[0], 3);
     EXPECT_EQ(candles[1], 3);
 
     // Low
-    candles = get_candles_with_source(mock_candles, CandleSource::Low);
+    candles = get_candles_with_source(mock_candles, "low");
     ASSERT_EQ(candles.size(), 2);
     EXPECT_EQ(candles[0], 1);
     EXPECT_EQ(candles[1], 1);
 
     // Close
-    candles = get_candles_with_source(mock_candles, CandleSource::Close);
+    candles = get_candles_with_source(mock_candles, "close");
     ASSERT_EQ(candles.size(), 2);
     EXPECT_EQ(candles[0], 2);
     EXPECT_EQ(candles[1], 2);
 
     // Volume
-    candles = get_candles_with_source(mock_candles, CandleSource::Volume);
+    candles = get_candles_with_source(mock_candles, "volume");
     ASSERT_EQ(candles.size(), 2);
     EXPECT_EQ(candles[0], 100);
     EXPECT_EQ(candles[1], 110);
 
     // HL2
-    candles = get_candles_with_source(mock_candles, CandleSource::HL2);
+    candles = get_candles_with_source(mock_candles, "hl2");
     ASSERT_EQ(candles.size(), 2);
     EXPECT_EQ(candles[0], 2);
     EXPECT_EQ(candles[1], 2);
 
     // HLC3
-    candles = get_candles_with_source(mock_candles, CandleSource::HLC3);
+    candles = get_candles_with_source(mock_candles, "hlc3");
     ASSERT_EQ(candles.size(), 2);
     EXPECT_EQ(candles[0], 2);
     EXPECT_EQ(candles[1], 2);
 
     // OHLC4
-    candles = get_candles_with_source(mock_candles, CandleSource::OHLC4);
+    candles = get_candles_with_source(mock_candles, "ohlc4");
     ASSERT_EQ(candles.size(), 2);
     EXPECT_EQ(candles[0], 2);
     EXPECT_EQ(candles[1], 2);
 
     // HLCC4
-    candles = get_candles_with_source(mock_candles, CandleSource::HLCC4);
+    candles = get_candles_with_source(mock_candles, "hlcc4");
     ASSERT_EQ(candles.size(), 2);
     EXPECT_EQ(candles[0], 2);
     EXPECT_EQ(candles[1], 2);

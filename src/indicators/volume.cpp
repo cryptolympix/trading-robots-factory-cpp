@@ -81,7 +81,7 @@ std::vector<double> CMF::calculate(const std::vector<Candle> &candles, bool norm
             std::vector<double> cmf_values(candles.size(), 0.0);
 
             // Get the typical prices for the candles
-            std::vector<double> typical_prices = get_candles_with_source(candles, CandleSource::HLC3);
+            std::vector<double> typical_prices = get_candles_with_source(candles, "hlc3");
 
             for (size_t i = period - 1; i < candles.size(); ++i)
             {
@@ -393,7 +393,7 @@ std::vector<double> VWAP::calculate(const std::vector<Candle> &candles, bool nor
             double cumulative_price_volume = 0.0;
             double cumulative_volume = 0.0;
 
-            std::vector<double> typical_prices = get_candles_with_source(candles, CandleSource::HLC3);
+            std::vector<double> typical_prices = get_candles_with_source(candles, "hlc3");
 
             for (size_t i = 0; i < candles.size(); ++i)
             {
