@@ -358,7 +358,7 @@ void Training::set_best_traders(int generation)
     }
 
     // Update the best trader of all the training
-    if (!this->best_trader || best_trader->fitness > this->best_trader->fitness)
+    if (!this->best_trader || best_trader->score > this->best_trader->score)
     {
         this->best_trader = best_trader;
     }
