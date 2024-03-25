@@ -291,13 +291,26 @@ std::vector<double> PivotHigh::calculate(const std::vector<Candle> &candles, boo
 
             for (size_t i = 0; i < candles.size() - right_bars; ++i)
             {
+
+                std::vector<double>::iterator start = (i < left_bars) ? source_candles.begin() : source_candles.begin() + i - left_bars;
+                std::vector<double>::iterator end = source_candles.begin() + i + right_bars + 1;
+
+                if (i - left_bars < 0)
+                {
+                    start = source_candles.begin();
+                }
+                if (i + right_bars + 1 > source_candles.size())
+                {
+                    end = source_candles.end();
+                }
+
                 if (i < left_bars)
                 {
-                    values[i] = std::max_element(source_candles.begin(), source_candles.begin() + i + right_bars + 1) == source_candles.begin() + i ? 1 : 0;
+                    values[i] = std::max_element(start, end) == source_candles.begin() + i ? 1 : 0;
                 }
                 else
                 {
-                    values[i] = std::max_element(source_candles.begin() + i - left_bars, source_candles.begin() + i + right_bars + 1) == source_candles.begin() + i ? 1 : 0;
+                    values[i] = std::max_element(start, end) == source_candles.begin() + i ? 1 : 0;
                 }
             }
 
@@ -332,7 +345,6 @@ std::vector<double> PivotLow::calculate(const std::vector<Candle> &candles, bool
         candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
             std::vector<double> values(candles.size(), 0); // Initialize values vector with size of candles
-
             std::vector<double> source_candles = get_candles_with_source(candles, source);
 
             // Ensure source_candles size is at least candles.size()
@@ -342,15 +354,34 @@ std::vector<double> PivotLow::calculate(const std::vector<Candle> &candles, bool
                 return values;
             }
 
+            
+
             for (size_t i = 0; i < candles.size() - right_bars; ++i)
             {
+
+                std::vector<double>::iterator start = (i < left_bars) ? source_candles.begin() : source_candles.begin() + i - left_bars;
+                std::vector<double>::iterator end = source_candles.begin() + i + right_bars + 1;
+
+                if (i - left_bars < 0)
+                {
+                    start = source_candles.begin();
+                }
+                if (i + right_bars + 1 > source_candles.size())
+                {
+                    end = source_candles.end();
+                }
+
                 if (i < left_bars)
                 {
-                    values[i] = (std::min_element(source_candles.begin(), source_candles.begin() + i + right_bars + 1) == source_candles.begin() + i) ? 1 : 0;
+                    std::vector<double>::iterator start = source_candles.begin();
+                    std::vector<double>::iterator end = source_candles.begin() + i + right_bars + 1;
+                    values[i] = (std::min_element(start, end) == source_candles.begin() + i) ? 1 : 0;
                 }
                 else
                 {
-                    values[i] = (std::min_element(source_candles.begin() + i - left_bars, source_candles.begin() + i + right_bars + 1) == source_candles.begin() + i) ? 1 : 0;
+                    std::vector<double>::iterator start = source_candles.begin() + i - left_bars;
+                    std::vector<double>::iterator end = source_candles.begin() + i + right_bars + 1;
+                    values[i] = (std::min_element(start, end) == source_candles.begin() + i) ? 1 : 0;
                 }
             }
 
@@ -399,7 +430,8 @@ std::vector<double> PivotHighValue::calculate(const std::vector<Candle> &candles
                 values[i] = source_candles[current_pivot_index];
             }
 
-            for (size_t i = 0 ; i < candles.size(); ++i) {
+            for (size_t i = 0; i < candles.size() - right_bars; ++i)
+            {
                 if (pivots[i] == 1)
                 {
                     current_pivot_index = i;
@@ -452,7 +484,8 @@ std::vector<double> PivotLowValue::calculate(const std::vector<Candle> &candles,
                 values[i] = source_candles[current_pivot_index];
             }
 
-            for (size_t i = 0 ; i < candles.size(); ++i) {
+            for (size_t i = 0; i < candles.size() - right_bars; ++i)
+            {
                 if (pivots[i] == 1)
                 {
                     current_pivot_index = i;
@@ -464,6 +497,8 @@ std::vector<double> PivotLowValue::calculate(const std::vector<Candle> &candles,
 
         normalize_data);
 }
+
+// *********************************************************************************************
 
 /**
  * @brief Construct a new HighestHigh object.

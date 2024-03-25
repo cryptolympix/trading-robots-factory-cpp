@@ -211,9 +211,12 @@ TEST_F(TrainingTest, BestTraders)
 
 TEST_F(TrainingTest, Run)
 {
-    training->prepare();
-    int result = training->run();
+    for (int i = 0; i < 10; ++i)
+    {
+        training->prepare();
+        int result = training->run();
 
-    // Asserts that the training went well
-    ASSERT_EQ(result, 0);
+        // Asserts that the training went well
+        ASSERT_EQ(result, 0);
+    }
 }

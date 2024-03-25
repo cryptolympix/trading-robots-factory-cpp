@@ -411,22 +411,25 @@ void Training::evaluate_genome(Genome *genome, int generation)
         time_t mock_date_time_t = std::chrono::system_clock::to_time_t(mock_date);
         std::string mock_date_string = std::string(std::ctime(&mock_date_time_t));
 
-        // Get the data from cache
-        CandlesData current_candles = this->cache[mock_date_string].candles;
-        IndicatorsData current_indicators = this->cache[mock_date_string].indicators;
-        BaseCurrencyConversionRateData current_base_currency_conversion_rate = this->cache[mock_date_string].base_currency_conversion_rate;
-        std::vector<PositionInfo> position = this->config.training.inputs.position;
+        if (this->cache.find(mock_date_string) != this->cache.end())
+        {
+            // Get the data from cache
+            CandlesData current_candles = this->cache[mock_date_string].candles;
+            IndicatorsData current_indicators = this->cache[mock_date_string].indicators;
+            BaseCurrencyConversionRateData current_base_currency_conversion_rate = this->cache[mock_date_string].base_currency_conversion_rate;
+            std::vector<PositionInfo> position = this->config.training.inputs.position;
 
-        // Update the individual
-        if (!trader->dead)
-        {
-            trader->look(current_candles, current_indicators, current_base_currency_conversion_rate, position);
-            trader->think();
-            trader->update();
-        }
-        else
-        {
-            break;
+            // Update the individual
+            if (!trader->dead)
+            {
+                trader->look(current_candles, current_indicators, current_base_currency_conversion_rate, position);
+                trader->think();
+                trader->update();
+            }
+            else
+            {
+                break;
+            }
         }
 
         mock_date += std::chrono::minutes(loop_timeframe_minutes);
