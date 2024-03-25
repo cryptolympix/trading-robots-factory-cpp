@@ -53,7 +53,7 @@ Training::Training(Config &config, bool debug, const std::string &cache_file)
  */
 void Training::prepare()
 {
-    std::string cache_file = "cache/data/" + config.general.name + "_" + config.general.version + ".pkl";
+    this->cache_file = "cache/data/" + config.general.name + "_" + config.general.version + ".pkl";
     if (std::filesystem::exists(cache_file))
     {
         cache_exist = true;
