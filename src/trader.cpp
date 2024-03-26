@@ -39,6 +39,9 @@ std::string time_t_to_string(time_t time)
     return ss.str();
 }
 
+// Set the training date to the current time
+time_t training_date = get_current_time();
+
 /**
  * @brief Constructor for the Trader class.
  * @param genome Genome object.
@@ -54,7 +57,7 @@ Trader::Trader(Genome *genome, Config config, bool debug)
     // Vision
     this->candles = {};
     this->current_base_currency_conversion_rate = 1.0;
-    this->current_date = get_current_time();
+    this->current_date = training_date;
 
     // Balance and history
     this->balance = config.general.initial_balance;
@@ -349,7 +352,7 @@ void Trader::calculate_fitness()
 
     // this->fitness = (1 + nb_trade_eval * max_drawdown_eval * profit_factor_eval * win_rate_eval * average_profit_eval) / (1 + nb_trade_weight * max_drawdown_weight * profit_factor_weight * win_rate_weight * average_profit_weight);
 
-    this->fitness = this->stats.total_trades * (this->stats.average_profit + 1) / (this->stats.average_loss + 1) * this->stats.win_rate;
+    this->fitness = (this->stats.average_profit + 1) / (this->stats.average_loss + 1) * this->stats.win_rate;
 }
 
 /**

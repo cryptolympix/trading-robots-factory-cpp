@@ -6,12 +6,31 @@
 /**
  * @brief Initializes the Logger.
  *
- * @param name The name of the logger.
  * @param log_file The relative or absolute path to the log file (default is 'logs/log.txt').
- * @param level The logging level (default is logging.DEBUG).
  */
-Logger::Logger(const std::string &name, const std::string &log_file, int level)
-    : name(name), file_path(log_file), level(level), file_handler(log_file) {}
+Logger::Logger(const std::string &log_file) : file_path(std::filesystem::absolute(log_file))
+{
+    // Check if the directory exists
+    std::filesystem::path log_dir = std::filesystem::path(file_path).parent_path();
+    if (!std::filesystem::exists(log_dir))
+    {
+        try
+        {
+            std::filesystem::create_directories(log_dir);
+        }
+        catch (const std::filesystem::filesystem_error &e)
+        {
+            std::cerr << "Error creating directories: " << e.what() << std::endl;
+        }
+    }
+
+    // Open the log file
+    file_handler.open(file_path, std::ios::out | std::ios::app);
+    if (!file_handler.is_open())
+    {
+        std::cerr << "Failed to open log file: " << file_path << std::endl;
+    }
+}
 
 /**
  * @brief Logs an informational message.

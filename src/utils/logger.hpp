@@ -10,10 +10,8 @@
 class Logger
 {
 public:
-    std::string name;           /**< The name of the logger. */
-    std::string file_path;      /**< The absolute path to the log file. */
-    int level;                  /**< The logging level. */
-    std::ofstream file_handler; /**< The file handler for logging. */
+    std::string file_path;      // The absolute path to the log file.
+    std::ofstream file_handler; // The file handler for logging.
 
     /**
      * @brief Default constructor for the Logger class.
@@ -23,11 +21,9 @@ public:
     /**
      * @brief Initializes the Logger.
      *
-     * @param name The name of the logger.
      * @param log_file The relative or absolute path to the log file (default is 'logs/log.txt').
-     * @param level The logging level (default is logging.DEBUG).
      */
-    Logger(const std::string &name, const std::string &log_file = "logs/log.txt", int level = 20);
+    Logger(const std::string &log_file = "logs/log.txt");
 
     /**
      * @brief Logs an informational message.

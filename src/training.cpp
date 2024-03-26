@@ -345,10 +345,15 @@ void Training::set_best_traders(int generation)
 
     for (auto &trader : traders[generation])
     {
-        if (trader->score > best_score)
+        // if (trader->score > best_score)
+        // {
+        //     best_trader = trader;
+        //     best_score = trader->score;
+        // }
+        if (trader->fitness > best_fitness)
         {
             best_trader = trader;
-            best_score = trader->score;
+            best_fitness = trader->fitness;
         }
     }
 
@@ -361,7 +366,7 @@ void Training::set_best_traders(int generation)
     }
 
     // Update the best trader of all the training
-    if (!this->best_trader || best_trader->score > this->best_trader->score)
+    if (!this->best_trader || best_trader->fitness > this->best_trader->fitness)
     {
         this->best_trader = best_trader;
     }
@@ -467,7 +472,7 @@ int Training::run()
         auto callback_generation = [&](Population *population, int generation)
         {
             // Update the progress bar
-            progress_bar->update(generation);
+            progress_bar->update(1);
 
             // Update the best traders
             this->set_best_traders(generation);
