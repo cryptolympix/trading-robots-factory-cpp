@@ -81,7 +81,7 @@ protected:
         config.neat.population_size = 5;
         config.neat.num_inputs = 6;
         config.neat.num_outputs = 5;
-        training = new Training(config, false, "cache/tests/data.pkl");
+        training = new Training("test", config, false, "cache/tests/data.pkl");
         temp_dir = std::filesystem::temp_directory_path() / "training_test";
     }
 
@@ -211,11 +211,14 @@ TEST_F(TrainingTest, BestTraders)
 
 TEST_F(TrainingTest, Run)
 {
+    training->load_candles();
+    training->load_indicators();
+    training->load_base_currency_conversion_rate();
+    training->cache_data();
+
     for (int i = 0; i < 10; ++i)
     {
-        training->prepare();
         int result = training->run();
-
         // Asserts that the training went well
         ASSERT_EQ(result, 0);
     }

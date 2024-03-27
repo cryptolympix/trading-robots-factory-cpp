@@ -8,6 +8,7 @@
 #include <functional>
 #include <chrono>
 #include "types.hpp"
+#include "utils/logger.hpp"
 #include "utils/cache.cpp"
 #include "utils/indexer.hpp"
 #include "utils/uid.hpp"
@@ -22,30 +23,32 @@
 
 /**
  * @brief Constructor for the Training class.
+ * @param id Unique identifier for the training process.
  * @param config Configuration object.
  * @param debug Debug mode flag.
  * @param cache_file Optional cache file path.
  */
-Training::Training(Config &config, bool debug, const std::string &cache_file)
-    : id(generate_uid(8)), config(config), debug(debug), cache_file(cache_file)
+Training::Training(std::string id, Config &config, bool debug, const std::string &cache_file)
+    : id(id), config(config), debug(debug), cache_file(cache_file)
 {
-    // Initialize the population.
-    config.neat.num_inputs = count_indicators() + config.training.inputs.position.size();
-    population = new Population(config.neat);
+    this->directory = "cache/" + this->config.general.name + "/" + this->config.general.version + "/" + id;
 
-    candles = {};
-    indicators = {};
+    // Initialize the population.
+    this->config.neat.num_inputs = this->count_indicators() + this->config.training.inputs.position.size();
+    this->population = new Population(this->config.neat);
+
+    this->candles = {};
+    this->indicators = {};
 
     // Conversion rate when the base of asset traded is different of the account currency
-    base_currency_conversion_rate = {};
-    cache = {};
-    cache_exist = false;
+    this->base_currency_conversion_rate = {};
+    this->cache = {};
 
     // History for statistics
     int generations = config.training.generations;
-    traders = {};
-    best_traders = {};
-    best_trader = nullptr;
+    this->traders = {};
+    this->best_traders = {};
+    this->best_trader = nullptr;
 }
 
 /**
@@ -59,7 +62,6 @@ void Training::prepare()
     }
     if (std::filesystem::exists(this->cache_file))
     {
-        this->cache_exist = true;
         std::cout << "⏳ Import the data from the cache..." << std::endl;
         cache = load_cached_dictionary<DatedCache>(this->cache_file);
         std::cout << "✅ Cache ready!" << std::endl;
@@ -103,7 +105,7 @@ void Training::prepare()
  */
 void Training::load_candles(ProgressBar *progress_bar)
 {
-    std::vector<TimeFrame> all_timeframes = get_all_timeframes();
+    std::vector<TimeFrame> all_timeframes = this->get_all_timeframes();
     for (int i = 0; i < all_timeframes.size(); i++)
     {
         TimeFrame tf = all_timeframes[i];
@@ -173,9 +175,9 @@ void Training::load_indicators(ProgressBar *progress_bar)
  */
 void Training::load_base_currency_conversion_rate(ProgressBar *progress_bar)
 {
-    std::string account_currency = config.general.account_currency;
-    std::string base_currency_traded = symbol_infos[config.general.symbol].base;
-    TimeFrame loop_timeframe = config.strategy.timeframe;
+    std::string account_currency = this->config.general.account_currency;
+    std::string base_currency_traded = symbol_infos[this->config.general.symbol].base;
+    TimeFrame loop_timeframe = this->config.strategy.timeframe;
 
     if (account_currency == base_currency_traded)
     {
@@ -187,7 +189,9 @@ void Training::load_base_currency_conversion_rate(ProgressBar *progress_bar)
     else
     {
         std::string symbol = account_currency + base_currency_traded;
-        std::vector<Candle> data = read_data(symbol, loop_timeframe, config.training.training_start_date, config.training.training_end_date);
+        std::chrono::system_clock::time_point start_date = this->config.training.training_start_date;
+        std::chrono::system_clock::time_point end_date = this->config.training.training_end_date;
+        std::vector<Candle> data = read_data(symbol, loop_timeframe, start_date, end_date);
         for (const auto &candle : data)
         {
             base_currency_conversion_rate[candle.date] = candle.close;
@@ -207,13 +211,13 @@ void Training::load_base_currency_conversion_rate(ProgressBar *progress_bar)
  */
 void Training::cache_data(ProgressBar *progress_bar)
 {
-    std::vector<TimeFrame> all_timeframes = get_all_timeframes();
-    TimeFrame loop_timeframe = config.strategy.timeframe;
+    std::vector<TimeFrame> all_timeframes = this->get_all_timeframes();
+    TimeFrame loop_timeframe = this->config.strategy.timeframe;
     int loop_timeframe_minutes = get_time_frame_value(loop_timeframe);
-    std::chrono::system_clock::time_point mock_date = find_training_start_date();
+    std::chrono::system_clock::time_point mock_date = this->find_training_start_date();
     Indexer *indexer = new Indexer(candles, MINIMUM_CANDLES);
 
-    while (mock_date < config.training.training_end_date)
+    while (mock_date < this->config.training.training_end_date)
     {
         indexer->update_indexes(mock_date);
         CandlesData current_candles = {};
@@ -234,7 +238,7 @@ void Training::cache_data(ProgressBar *progress_bar)
         for (const auto &tf : all_timeframes)
         {
             std::pair<int, int> index = indexer->get_indexes(tf);
-            for (const auto &indicator : config.training.inputs.indicators[tf])
+            for (const auto &indicator : this->config.training.inputs.indicators[tf])
             {
                 std::vector<double> indicator_values = {};
                 for (int i = std::max(index.second - INDICATOR_WINDOW, 0); i <= index.second; i++)
@@ -270,7 +274,7 @@ void Training::cache_data(ProgressBar *progress_bar)
         }
     }
 
-    cache_dictionary(cache, cache_file);
+    cache_dictionary(this->cache, this->cache_file);
 
     if (progress_bar)
     {
@@ -287,7 +291,7 @@ int Training::count_indicators() const
     int nb_indicators = 0;
 
     // Count the number of indicators
-    auto indicators = config.training.inputs.indicators;
+    auto indicators = this->config.training.inputs.indicators;
     for (const auto &tf_indicators : indicators)
     {
         nb_indicators += tf_indicators.second.size();
@@ -303,7 +307,7 @@ int Training::count_indicators() const
 std::vector<TimeFrame> Training::get_all_timeframes() const
 {
     std::vector<TimeFrame> timeframes;
-    for (const auto &indicators : config.training.inputs.indicators)
+    for (const auto &indicators : this->config.training.inputs.indicators)
     {
         timeframes.push_back(indicators.first);
     }
@@ -316,18 +320,18 @@ std::vector<TimeFrame> Training::get_all_timeframes() const
  */
 std::chrono::system_clock::time_point Training::find_training_start_date() const
 {
-    TimeFrame loop_timeframe = config.strategy.timeframe;
-    TimeFrame max_timeframe = highest_time_frame(get_all_timeframes());
+    TimeFrame loop_timeframe = this->config.strategy.timeframe;
+    TimeFrame highest_timeframe = highest_time_frame(this->get_all_timeframes());
 
-    std::__1::chrono::system_clock::time_point training_start_date = config.training.training_start_date;
+    std::__1::chrono::system_clock::time_point training_start_date = this->config.training.training_start_date;
 
-    std::vector<Candle> candles_tf = candles.at(loop_timeframe);
+    std::vector<Candle> candles_tf = this->candles.at(loop_timeframe);
     std::__1::chrono::system_clock::time_point candles_start_date = std::__1::chrono::system_clock::from_time_t(candles_tf[0].date);
 
-    int max_timeframe_value = get_time_frame_value(max_timeframe);
-    while (training_start_date < candles_start_date + std::chrono::minutes((MINIMUM_CANDLES - 1) * max_timeframe_value))
+    int highest_timeframe_value = get_time_frame_value(highest_timeframe);
+    while (training_start_date < candles_start_date + std::chrono::minutes((MINIMUM_CANDLES - 1) * highest_timeframe_value))
     {
-        training_start_date += std::chrono::minutes(max_timeframe_value);
+        training_start_date += std::chrono::minutes(highest_timeframe_value);
     }
 
     return training_start_date;
@@ -357,7 +361,7 @@ void Training::set_best_traders(int generation)
         }
     }
 
-    best_traders[generation] = best_trader;
+    this->best_traders[generation] = best_trader;
 
     if (!best_trader)
     {
@@ -396,7 +400,7 @@ void Training::print_trader_stats(Trader *trader)
               << ": " << trader->score << std::endl;
     std::cout << "==================================================================" << std::endl;
 
-    trader->print_stats();
+    trader->print_stats_to_console();
 
     std::cout << "==================================================================" << std::endl;
 }
@@ -411,7 +415,9 @@ void Training::evaluate_genome(Genome *genome, int generation)
     TimeFrame loop_timeframe = this->config.strategy.timeframe;
     int loop_timeframe_minutes = get_time_frame_value(loop_timeframe);
     std::chrono::system_clock::time_point mock_date = this->find_training_start_date();
-    Trader *trader = new Trader(genome, this->config, this->debug);
+
+    Logger *logger = new Logger(this->directory + "/logs/trader_" + genome->id + ".log");
+    Trader *trader = new Trader(genome, this->config, logger);
 
     while (mock_date < this->config.training.training_end_date)
     {
@@ -495,9 +501,28 @@ int Training::run()
     // progress_bar->complete();
     std::cout << "🎉 Training finished!" << std::endl;
 
-    // Save the best genome found
-    std::string directory = "cache/" + this->config.general.name + "/" + this->config.general.version + "/training_" + this->id + ".pkl";
-    this->population->best_genome->save(directory);
-
     return 0;
+}
+
+/**
+ * @brief Report the results of the training process.
+ */
+void Training::report()
+{
+    // Save all the best genome of each generation
+    std::vector<Genome *> genomes_saved = {};
+    for (int i = 0; i < this->config.training.generations; i++)
+    {
+        Trader *best_trader = this->get_best_trader_of_generation(i);
+        if (std::find(genomes_saved.begin(), genomes_saved.end(), best_trader->genome) == genomes_saved.end())
+        {
+            std::string genome_save_file = this->directory + "/trader_" + std::to_string(i) + "_" + best_trader->genome->id + "_genome_save.pkl";
+            std::string graphic_file = this->directory + "/trader_" + std::to_string(i) + "_" + best_trader->genome->id + "_balance_history.png";
+            std::string stats_file = this->directory + "/trader_" + std::to_string(i) + "_" + best_trader->genome->id + "_stats.txt";
+            best_trader->genome->save(genome_save_file);
+            best_trader->print_balance_history_graph(graphic_file);
+            best_trader->print_stats_to_file(stats_file);
+            genomes_saved.push_back(best_trader->genome);
+        }
+    }
 }

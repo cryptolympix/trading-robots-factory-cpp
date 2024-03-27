@@ -31,27 +31,30 @@ class Training
 private:
     std::string cache_file; // Optional cache file path.
     Population *population; // NEAT population for evolution.
-    bool cache_exist;       // Flag indicating whether cache exists.
 
 public:
-    bool debug;                                                   // Debug mode flag.
-    std::string id;                                               // Unique identifier for the training process.
-    Config config;                                                // Configuration object.
+    std::string id;        // Unique identifier for the training process.
+    bool debug;            // Debug mode flag.
+    Config config;         // Configuration object.
+    std::string directory; // Directory to save the training results.
+
     CandlesData candles;                                          // Candle data for all time frames.
     IndicatorsData indicators;                                    // Indicator data for all time frames.
     BaseCurrencyConversionRateData base_currency_conversion_rate; // Conversion rate when the base asset traded is different from the account currency.
     Cache cache;                                                  // Cached data for faster access.
-    std::map<int, std::vector<Trader *>> traders;                 // Map of traders for each generation.
-    std::map<int, Trader *> best_traders;                         // Map of the best trader for each generation.
-    Trader *best_trader;                                          // Best trader overall.
+
+    std::map<int, std::vector<Trader *>> traders; // Map of traders for each generation.
+    std::map<int, Trader *> best_traders;         // Map of the best trader for each generation.
+    Trader *best_trader;                          // Best trader overall.
 
     /**
      * @brief Constructor for the Training class.
+     * @param id Unique identifier for the training process.
      * @param config Configuration object.
      * @param debug Debug mode flag.
      * @param cache_file Optional cache file path.
      */
-    Training(Config &config, bool debug = false, const std::string &cache_file = "");
+    Training(std::string id, Config &config, bool debug = false, const std::string &cache_file = "");
 
     /**
      * @brief Prepare the training data by loading candles, calculating indicators, and caching the data.
@@ -131,6 +134,11 @@ public:
      * @return The exit code of the training process. 0 if successful, 1 otherwise.
      */
     int run();
+
+    /**
+     * @brief Report the results of the training process.
+     */
+    void report();
 };
 
 #endif // TRAINING_HPP

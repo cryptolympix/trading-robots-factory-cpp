@@ -11,7 +11,6 @@ class Trader
 public:
     Config config;
     SymbolInfo symbol_info;
-    bool debug;
 
     // Vision
     CandlesData candles;
@@ -20,7 +19,7 @@ public:
 
     // Balance and history
     double balance;
-    std::vector<double> balance_history;
+    std::vector<std::pair<time_t, double>> balance_history;
     Position *current_position;
     std::vector<Order> open_orders;
     time_t last_position_date;
@@ -45,9 +44,9 @@ public:
      * @brief Constructor for the Trader class.
      * @param genome Genome object.
      * @param config Configuration object.
-     * @param debug Debug mode flag.
+     * @param logger Logger object.
      */
-    Trader(Genome *genome, Config config, bool debug = false);
+    Trader(Genome *genome, Config config, Logger *logger = nullptr);
 
     /**
      * @brief Get inputs for genome.
@@ -72,11 +71,6 @@ public:
      * @brief Calculate the fitness of the trader.
      */
     void calculate_fitness();
-
-    /**
-     * @brief Print the statistics of the trader.
-     */
-    void print_stats();
 
     /**
      * @brief Trade according to the decision.
@@ -138,6 +132,23 @@ public:
      * @brief Update the trader statistics.
      */
     void update_stats();
+
+    /**
+     * @brief Print the statistics of the trader in the console.
+     */
+    void print_stats_to_console();
+
+    /**
+     * @brief Print the graph of the balance history.
+     * @param filename Filename of the graph.
+     */
+    void print_balance_history_graph(const std::string &filename);
+
+    /**
+     * @brief Print the statistics of the trader in a file.
+     * @param filename Filename of the file.
+     */
+    void print_stats_to_file(const std::string &filename);
 };
 
 #endif // TRADER_HPP

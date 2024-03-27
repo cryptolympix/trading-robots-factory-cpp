@@ -9,23 +9,11 @@
 #include "utils/logger.hpp"
 #include "utils/time_frame.hpp"
 #include "utils/math.hpp"
+#include "includes/gnuplot-iostream.hpp"
 #include "trading/trading_schedule.hpp"
 #include "trading/trading_tools.hpp"
 #include "symbols.hpp"
 #include "trader.hpp"
-
-// Function to get the current time in a string format (YYYYMMDDHHMMSS)
-
-/**
- * @brief Get the current time in a string format (YYYYMMDDHHMMSS).
- * @return Current time in a string format.
- */
-time_t get_current_time()
-{
-    auto now = std::chrono::system_clock::now();
-    auto in_time_t = std::chrono::system_clock::to_time_t(now);
-    return in_time_t;
-}
 
 /**
  * @brief Convert time_t to string.
@@ -39,29 +27,26 @@ std::string time_t_to_string(time_t time)
     return ss.str();
 }
 
-// Set the training date to the current time
-time_t training_date = get_current_time();
-
 /**
  * @brief Constructor for the Trader class.
  * @param genome Genome object.
  * @param config Configuration object.
- * @param debug Debug mode flag.
+ * @param logger Logger object.
  */
-Trader::Trader(Genome *genome, Config config, bool debug)
+Trader::Trader(Genome *genome, Config config, Logger *logger)
 {
     this->config = config;
-    this->debug = debug;
     this->symbol_info = symbol_infos[config.general.symbol];
+    this->logger = logger;
 
     // Vision
     this->candles = {};
     this->current_base_currency_conversion_rate = 1.0;
-    this->current_date = training_date;
+    // this->current_date = current_date;
 
     // Balance and history
     this->balance = config.general.initial_balance;
-    this->balance_history = {config.general.initial_balance};
+    this->balance_history = {};
     this->open_orders = {};
     this->last_position_date = NULL;
     this->current_position = nullptr;
@@ -103,15 +88,6 @@ Trader::Trader(Genome *genome, Config config, bool debug)
     this->decisions = {};
     this->lifespan = 0;
     this->dead = false;
-
-    // Logger
-    if (this->debug)
-    {
-        std::stringstream date_string;
-        date_string << std::put_time(std::localtime(&this->current_date), "%Y%m%d%H%M%S");
-        std::string directory = "logs/" + this->config.general.name + "/" + this->config.general.version + "/" + date_string.str();
-        this->logger = new Logger(directory + "/trader_" + this->genome->id + ".log");
-    }
 };
 
 /**
@@ -205,7 +181,7 @@ void Trader::update()
     if (this->config.training.bad_trader_threshold.has_value() && balance <= this->stats.initial_balance * config.training.bad_trader_threshold.value())
     {
         this->dead = true;
-        if (this->debug && this->logger != nullptr)
+        if (this->logger != nullptr)
         {
             this->logger->info("[" + time_t_to_string(this->current_date) + "] [$" + std::to_string(this->balance) + "] Killed because of bad performance.");
         }
@@ -216,7 +192,7 @@ void Trader::update()
     if (this->config.training.inactive_trader_threshold.has_value() && this->lifespan >= this->config.training.inactive_trader_threshold.value() && this->stats.total_trades == 0)
     {
         this->dead = true;
-        if (this->debug && this->logger != nullptr)
+        if (this->logger != nullptr)
         {
             this->logger->info("[" + time_t_to_string(this->current_date) + "] [$" + std::to_string(this->balance) + "] Killed because of inactivity.");
         }
@@ -234,7 +210,7 @@ void Trader::update()
     this->score = this->stats.total_net_profit;
 
     // Record the balance to history
-    this->balance_history.push_back(this->balance);
+    this->balance_history.push_back(std::make_pair(this->current_date, this->balance));
 }
 
 /**
@@ -353,34 +329,6 @@ void Trader::calculate_fitness()
     // this->fitness = (1 + nb_trade_eval * max_drawdown_eval * profit_factor_eval * win_rate_eval * average_profit_eval) / (1 + nb_trade_weight * max_drawdown_weight * profit_factor_weight * win_rate_weight * average_profit_weight);
 
     this->fitness = (this->stats.average_profit + 1) / (this->stats.average_loss + 1) * this->stats.win_rate;
-}
-
-/**
- * @brief Print the statistics of the trader.
- */
-void Trader::print_stats()
-{
-    std::cout << "------------------------------ STATS -----------------------------" << std::endl;
-    std::cout << "Initial balance: $" << decimal_floor(this->stats.initial_balance, 2) << std::endl;
-    std::cout << "Final balance: $" << decimal_floor(this->stats.final_balance, 2) << std::endl;
-    std::cout << "Total net profit: $" << decimal_floor(this->stats.total_net_profit, 2) << std::endl;
-    std::cout << "Total profit: $" << decimal_floor(this->stats.total_profit, 2) << std::endl;
-    std::cout << "Total loss: $" << decimal_floor(this->stats.total_loss, 2) << std::endl;
-    std::cout << "Total fees: $" << decimal_floor(this->stats.total_fees, 2) << std::endl;
-    std::cout << "Total trades: " << this->stats.total_trades << std::endl;
-    std::cout << "Total long trades: " << this->stats.total_long_trades << std::endl;
-    std::cout << "Total short trades: " << this->stats.total_short_trades << std::endl;
-    std::cout << "Total winning trades: " << this->stats.total_winning_trades << std::endl;
-    std::cout << "Total lost trades: " << this->stats.total_lost_trades << std::endl;
-    std::cout << "Max drawdown: " << decimal_floor(-this->stats.max_drawdown * 100, 2) << "%" << std::endl;
-    std::cout << "Win rate: " << decimal_floor(this->stats.win_rate * 100, 2) << "%" << std::endl;
-    std::cout << "Long win rate: " << decimal_floor(this->stats.long_win_rate * 100, 2) << "%" << std::endl;
-    std::cout << "Short win rate: " << decimal_floor(this->stats.short_win_rate * 100, 2) << "%" << std::endl;
-    std::cout << "Average profit: $" << decimal_floor(this->stats.average_profit, 2) << std::endl;
-    std::cout << "Average loss: $" << decimal_floor(this->stats.average_loss, 2) << std::endl;
-    std::cout << "Profit factor: " << decimal_floor(this->stats.profit_factor, 2) << std::endl;
-    std::cout << "Sharpe ratio: " << decimal_floor(this->stats.sharpe_ratio, 2) << std::endl;
-    std::cout << "Sortino ratio: " << decimal_floor(this->stats.sortino_ratio, 2) << std::endl;
 }
 
 /**
@@ -552,7 +500,7 @@ void Trader::open_position_by_market(double price, double size, OrderSide side)
             .size = size,
             .side = PositionSide::LONG,
             .pnl = 0.0};
-        if (debug && this->logger != nullptr)
+        if (this->logger != nullptr)
         {
             this->logger->info("[" + time_t_to_string(this->current_date) + "] [$" + std::to_string(balance) + "] : Open long position by market at $" + std::to_string(price) + " with " + std::to_string(size) + " lots and $" + std::to_string(fees) + " of fees.");
         }
@@ -570,7 +518,7 @@ void Trader::open_position_by_market(double price, double size, OrderSide side)
             .size = size,
             .side = PositionSide::SHORT,
             .pnl = 0.0};
-        if (debug && this->logger != nullptr)
+        if (this->logger != nullptr)
         {
             this->logger->info("[" + time_t_to_string(this->current_date) + "] [$" + std::to_string(balance) + "] : Open short position by market at $" + std::to_string(price) + " with " + std::to_string(size) + " lots and $" + std::to_string(fees) + " of fees.");
         }
@@ -629,7 +577,7 @@ void Trader::close_position_by_market(double price)
             }
         }
 
-        if (this->debug && this->logger != nullptr)
+        if (this->logger != nullptr)
         {
             this->logger->info("[" + time_t_to_string(this->current_date) + "] [$" + std::to_string(this->balance) + "] : Close position by market at $" + std::to_string(price) + " with $" + std::to_string(this->current_position->pnl) + " of profit and $" + std::to_string(fees) + " of fees.");
         }
@@ -690,7 +638,7 @@ void Trader::close_position_by_limit(double price)
             }
         }
 
-        if (this->debug && this->logger != nullptr)
+        if (this->logger != nullptr)
         {
             this->logger->info("[" + time_t_to_string(this->current_date) + "] [$" + std::to_string(this->balance) + "] : Close position by limit at $" + std::to_string(price) + " with $" + std::to_string(this->current_position->pnl) + " of profit and $" + std::to_string(fees) + " of fees.");
         }
@@ -715,7 +663,7 @@ void Trader::create_open_order(OrderType type, OrderSide side, double price)
         .price = price};
     this->open_orders.push_back(order);
 
-    if (this->debug && this->logger != nullptr)
+    if (this->logger != nullptr)
     {
         std::string order_type = type == OrderType::TAKE_PROFIT ? "take profit" : "stop loss";
         std::string order_side = side == OrderSide::LONG ? "long" : "short";
@@ -857,20 +805,20 @@ void Trader::update_stats()
         this->stats.total_net_profit = this->stats.total_profit - this->stats.total_loss - this->stats.total_fees;
     }
 
-    auto calculate_drawdown = [&](std::vector<double> balance_history)
+    auto calculate_drawdown = [&](std::vector<std::pair<time_t, double>> balance_history)
     {
         if (balance_history.empty() || balance_history.size() < 2)
         {
             return 0.0; // No drawdown if there are fewer than two data points
         }
 
-        double peak = balance_history[0];
-        double trough = balance_history[0];
+        double peak = balance_history[0].second;
+        double trough = balance_history[0].second;
         double max_drawdown = 0.0;
 
         for (size_t i = 1; i < balance_history.size(); ++i)
         {
-            double balance = balance_history[i];
+            double balance = balance_history[i].second;
             if (balance > peak)
             {
                 peak = balance;
@@ -926,4 +874,131 @@ void Trader::update_stats()
     {
         this->stats.profit_factor = this->stats.average_profit / this->stats.average_loss;
     }
+}
+
+/**
+ * @brief Print the statistics of the trader in the console.
+ */
+void Trader::print_stats_to_console()
+{
+    std::cout << "------------------------------ STATS -----------------------------" << std::endl;
+    std::cout << "Initial balance: $" << decimal_floor(this->stats.initial_balance, 2) << std::endl;
+    std::cout << "Final balance: $" << decimal_floor(this->stats.final_balance, 2) << std::endl;
+    std::cout << "Total net profit: $" << decimal_floor(this->stats.total_net_profit, 2) << std::endl;
+    std::cout << "Total profit: $" << decimal_floor(this->stats.total_profit, 2) << std::endl;
+    std::cout << "Total loss: $" << decimal_floor(this->stats.total_loss, 2) << std::endl;
+    std::cout << "Total fees: $" << decimal_floor(this->stats.total_fees, 2) << std::endl;
+    std::cout << "Total trades: " << this->stats.total_trades << std::endl;
+    std::cout << "Total long trades: " << this->stats.total_long_trades << std::endl;
+    std::cout << "Total short trades: " << this->stats.total_short_trades << std::endl;
+    std::cout << "Total winning trades: " << this->stats.total_winning_trades << std::endl;
+    std::cout << "Total lost trades: " << this->stats.total_lost_trades << std::endl;
+    std::cout << "Max drawdown: " << decimal_floor(-this->stats.max_drawdown * 100, 2) << "%" << std::endl;
+    std::cout << "Win rate: " << decimal_floor(this->stats.win_rate * 100, 2) << "%" << std::endl;
+    std::cout << "Long win rate: " << decimal_floor(this->stats.long_win_rate * 100, 2) << "%" << std::endl;
+    std::cout << "Short win rate: " << decimal_floor(this->stats.short_win_rate * 100, 2) << "%" << std::endl;
+    std::cout << "Average profit: $" << decimal_floor(this->stats.average_profit, 2) << std::endl;
+    std::cout << "Average loss: $" << decimal_floor(this->stats.average_loss, 2) << std::endl;
+    std::cout << "Profit factor: " << decimal_floor(this->stats.profit_factor, 2) << std::endl;
+    std::cout << "Sharpe ratio: " << decimal_floor(this->stats.sharpe_ratio, 2) << std::endl;
+    std::cout << "Sortino ratio: " << decimal_floor(this->stats.sortino_ratio, 2) << std::endl;
+}
+
+/**
+ * @brief Print the graph of the balance history.
+ * @param filename Filename of the graph.
+ */
+void Trader::print_balance_history_graph(const std::string &filename)
+{
+    // Check if the directory exists
+    std::filesystem::path dir = std::filesystem::path(filename).parent_path();
+    if (!std::filesystem::exists(dir))
+    {
+        try
+        {
+            std::filesystem::create_directories(dir);
+        }
+        catch (const std::filesystem::filesystem_error &e)
+        {
+            std::cerr << "Error creating directories: " << e.what() << std::endl;
+        }
+    }
+
+    // Create a Gnuplot object
+    Gnuplot gp;
+
+    // Generate data for the sine wave
+    std::vector<std::pair<double, double>> data;
+    for (int i = 0; i < this->balance_history.size(); ++i)
+    {
+        std::string date = time_t_to_string(this->balance_history[i].first);
+        data.push_back(std::make_pair(i, this->balance_history[i].second));
+    }
+
+    // Specify terminal type and output file
+    gp << "set term png\n";
+    gp << "set output '" + filename + "'\n";
+
+    // Set plot options
+    gp << "set title 'Balance History'\n";
+    gp << "set xlabel 'Date'\n";
+    gp << "set ylabel 'Balance'\n";
+
+    // Plot data
+    gp << "plot '-' with lines title 'balance'\n";
+    gp.send(data); // Send the data to Gnuplot for plotting
+
+    // Close output and terminate Gnuplot
+    gp << "unset output\n";
+    gp << "exit\n";
+}
+
+/**
+ * @brief Print the statistics of the trader in a file.
+ * @param filename Filename of the file.
+ */
+void Trader::print_stats_to_file(const std::string &filename)
+{
+    // Check if the directory exists
+    std::filesystem::path dir = std::filesystem::path(filename).parent_path();
+    if (!std::filesystem::exists(dir))
+    {
+        try
+        {
+            std::filesystem::create_directories(dir);
+        }
+        catch (const std::filesystem::filesystem_error &e)
+        {
+            std::cerr << "Error creating directories: " << e.what() << std::endl;
+        }
+    }
+
+    // Open the file
+    std::ofstream file(filename);
+
+    // Write the statistics to the file
+    file << "------------------------------ STATS -----------------------------" << std::endl;
+    file << "Initial balance: $" << decimal_floor(this->stats.initial_balance, 2) << std::endl;
+    file << "Final balance: $" << decimal_floor(this->stats.final_balance, 2) << std::endl;
+    file << "Total net profit: $" << decimal_floor(this->stats.total_net_profit, 2) << std::endl;
+    file << "Total profit: $" << decimal_floor(this->stats.total_profit, 2) << std::endl;
+    file << "Total loss: $" << decimal_floor(this->stats.total_loss, 2) << std::endl;
+    file << "Total fees: $" << decimal_floor(this->stats.total_fees, 2) << std::endl;
+    file << "Total trades: " << this->stats.total_trades << std::endl;
+    file << "Total long trades: " << this->stats.total_long_trades << std::endl;
+    file << "Total short trades: " << this->stats.total_short_trades << std::endl;
+    file << "Total winning trades: " << this->stats.total_winning_trades << std::endl;
+    file << "Total lost trades: " << this->stats.total_lost_trades << std::endl;
+    file << "Max drawdown: " << decimal_floor(-this->stats.max_drawdown * 100, 2) << "%" << std::endl;
+    file << "Win rate : " << decimal_floor(this->stats.win_rate * 100, 2) << "%" << std::endl;
+    file << "Long win rate : " << decimal_floor(this->stats.long_win_rate * 100, 2) << "%" << std::endl;
+    file << "Short win rate : " << decimal_floor(this->stats.short_win_rate * 100, 2) << "%" << std::endl;
+    file << "Average profit: $" << decimal_floor(this->stats.average_profit, 2) << std::endl;
+    file << "Average loss: $" << decimal_floor(this->stats.average_loss, 2) << std::endl;
+    file << "Profit factor: " << decimal_floor(this->stats.profit_factor, 2) << std::endl;
+    file << "Sharpe ratio: " << decimal_floor(this->stats.sharpe_ratio, 2) << std::endl;
+    file << "Sortino ratio: " << decimal_floor(this->stats.sortino_ratio, 2) << std::endl;
+
+    // Close the file
+    file.close();
 }

@@ -10,7 +10,7 @@ protected:
     void SetUp() override
     {
         // Initialize logger with a temporary log file
-        logger = new Logger("TestLogger", "test_log.txt");
+        logger = new Logger("test_log.txt");
     }
 
     void TearDown() override

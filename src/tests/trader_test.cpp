@@ -72,7 +72,7 @@ protected:
         time_t date = std::mktime(&date_tm);
 
         // Trader configurations
-        trader = new Trader(new Genome(config.neat), config, false);
+        trader = new Trader(new Genome(config.neat), config, nullptr);
         trader->balance = config.general.initial_balance;
         trader->current_position = nullptr;
         trader->open_orders = {};
@@ -705,7 +705,7 @@ TEST_F(TraderTest, UpdateShortPositionPnl)
 TEST_F(TraderTest, UpdateStatsDrawdown)
 {
     // Mock data for testing
-    trader->balance_history = {1000.0, 900.0, 1100.0, 1000.0};
+    trader->balance_history = {{0, 1000.0}, {0, 900.0}, {0, 1100.0}, {0, 1000.0}};
 
     // Call the update_stats method
     trader->update_stats();
@@ -793,4 +793,17 @@ TEST_F(TraderTest, CalculateFitness)
 
     // Check if fitness is calculated correctly
     ASSERT_GT(trader->fitness, 0.0);
+}
+
+TEST_F(TraderTest, PrintBalanceHistoryGraph)
+{
+    // Mock data for testing
+    trader->balance_history = {{0, 1000.0}, {0, 900.0}, {0, 1100.0}, {0, 1000.0}};
+
+    // Call the print_balance_history_graphic method
+    std::filesystem::path file = "cache/tests/trader_balance_history.png";
+    trader->print_balance_history_graph(file);
+
+    // Check if the graphic is created
+    ASSERT_TRUE(std::filesystem::exists(file));
 }
