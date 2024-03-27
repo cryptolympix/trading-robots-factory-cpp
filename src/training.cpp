@@ -112,7 +112,7 @@ void Training::load_candles(ProgressBar *progress_bar)
         candles[tf] = read_data(config.general.symbol, tf, config.training.training_start_date, config.training.training_end_date);
         if (progress_bar)
         {
-            progress_bar->update(i + 1);
+            progress_bar->update(1);
         }
     }
 
@@ -192,6 +192,7 @@ void Training::load_base_currency_conversion_rate(ProgressBar *progress_bar)
         std::chrono::system_clock::time_point start_date = this->config.training.training_start_date;
         std::chrono::system_clock::time_point end_date = this->config.training.training_end_date;
         std::vector<Candle> data = read_data(symbol, loop_timeframe, start_date, end_date);
+
         for (const auto &candle : data)
         {
             base_currency_conversion_rate[candle.date] = candle.close;
@@ -211,18 +212,18 @@ void Training::load_base_currency_conversion_rate(ProgressBar *progress_bar)
  */
 void Training::cache_data(ProgressBar *progress_bar)
 {
-    std::vector<TimeFrame> all_timeframes = this->get_all_timeframes();
-    TimeFrame loop_timeframe = this->config.strategy.timeframe;
+    std::vector<TimeFrame> all_timeframes = get_all_timeframes();
+    TimeFrame loop_timeframe = config.strategy.timeframe;
     int loop_timeframe_minutes = get_time_frame_value(loop_timeframe);
-    std::chrono::system_clock::time_point mock_date = this->find_training_start_date();
+    std::chrono::system_clock::time_point mock_date = find_training_start_date();
     Indexer *indexer = new Indexer(candles, MINIMUM_CANDLES);
 
-    while (mock_date < this->config.training.training_end_date)
+    while (mock_date < config.training.training_end_date)
     {
         indexer->update_indexes(mock_date);
         CandlesData current_candles = {};
         IndicatorsData current_indicators = {};
-        BaseCurrencyConversionRateData current_base_currency_conversion_rate = {};
+        double current_base_currency_conversion_rate = {};
 
         // Get the candles for the current date
         for (const auto &tf : all_timeframes)
@@ -238,7 +239,7 @@ void Training::cache_data(ProgressBar *progress_bar)
         for (const auto &tf : all_timeframes)
         {
             std::pair<int, int> index = indexer->get_indexes(tf);
-            for (const auto &indicator : this->config.training.inputs.indicators[tf])
+            for (const auto &indicator : config.training.inputs.indicators[tf])
             {
                 std::vector<double> indicator_values = {};
                 for (int i = std::max(index.second - INDICATOR_WINDOW, 0); i <= index.second; i++)
@@ -254,7 +255,7 @@ void Training::cache_data(ProgressBar *progress_bar)
         {
             if (base_currency_conversion_rate.find(candle.date) != base_currency_conversion_rate.end())
             {
-                current_base_currency_conversion_rate[candle.date] = base_currency_conversion_rate[candle.date];
+                current_base_currency_conversion_rate = base_currency_conversion_rate[candle.date];
             }
         }
 
@@ -274,7 +275,7 @@ void Training::cache_data(ProgressBar *progress_bar)
         }
     }
 
-    cache_dictionary(this->cache, this->cache_file);
+    cache_dictionary(cache, cache_file);
 
     if (progress_bar)
     {
@@ -430,7 +431,7 @@ void Training::evaluate_genome(Genome *genome, int generation)
             // Get the data from cache
             CandlesData current_candles = this->cache[mock_date_string].candles;
             IndicatorsData current_indicators = this->cache[mock_date_string].indicators;
-            BaseCurrencyConversionRateData current_base_currency_conversion_rate = this->cache[mock_date_string].base_currency_conversion_rate;
+            double current_base_currency_conversion_rate = this->cache[mock_date_string].base_currency_conversion_rate;
             std::vector<PositionInfo> position = this->config.training.inputs.position;
 
             // Update the individual

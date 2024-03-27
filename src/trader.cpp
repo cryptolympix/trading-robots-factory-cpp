@@ -94,10 +94,10 @@ Trader::Trader(Genome *genome, Config config, Logger *logger)
  * @brief Get inputs for genome.
  * @param candles Candle data for all time frames.
  * @param indicators Indicator data for all time frames.
- * @param base_currency_conversion_rate Conversion rate data when the base asset traded is different from the account currency.
+ * @param base_currency_conversion_rate Conversion rate when the base asset traded is different from the account currency.
  * @param position_infos Vector of position information.
  */
-void Trader::look(CandlesData &candles, IndicatorsData &indicators, BaseCurrencyConversionRateData base_currency_conversion_rate, std::vector<PositionInfo> position_infos)
+void Trader::look(CandlesData &candles, IndicatorsData &indicators, double base_currency_conversion_rate, std::vector<PositionInfo> position_infos)
 {
     std::vector<double> indicators_values = {};
     std::unordered_map<TimeFrame, std::vector<Indicator *>> indicators_inputs = config.training.inputs.indicators;
@@ -105,7 +105,7 @@ void Trader::look(CandlesData &candles, IndicatorsData &indicators, BaseCurrency
     this->candles = candles;
     Candle last_candle = candles[config.strategy.timeframe].back();
     this->current_date = last_candle.date;
-    this->current_base_currency_conversion_rate = base_currency_conversion_rate[last_candle.date];
+    this->current_base_currency_conversion_rate = base_currency_conversion_rate;
 
     // Get the values of the indicators
     for (const auto &indicator : indicators_inputs)

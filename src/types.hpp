@@ -55,9 +55,9 @@ using BaseCurrencyConversionRateData = std::unordered_map<time_t, double>;
  */
 struct DatedCache
 {
-    CandlesData candles;                                          // Cached candle data
-    IndicatorsData indicators;                                    // Cached indicator data
-    BaseCurrencyConversionRateData base_currency_conversion_rate; // Cached base currency conversion rates
+    CandlesData candles;                  // Cached candle data
+    IndicatorsData indicators;            // Cached indicator data
+    double base_currency_conversion_rate; // Cached base currency conversion rates
 };
 
 /**
