@@ -870,9 +870,9 @@ void Trader::update_stats()
     }
 
     // Update the profit factor
-    if (this->stats.average_profit != 0 && this->stats.average_loss != 0)
+    if (this->stats.total_profit != 0 && this->stats.total_loss != 0)
     {
-        this->stats.profit_factor = this->stats.average_profit / this->stats.average_loss;
+        this->stats.profit_factor = (this->stats.win_rate * this->stats.average_profit) / ((1 - this->stats.win_rate) * this->stats.average_loss);
     }
 }
 

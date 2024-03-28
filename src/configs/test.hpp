@@ -40,7 +40,7 @@ std::tm start_training_date = {
 // 2023-01-31 00:00:00
 std::tm end_training_date = {
     .tm_year = 2022 - 1900,
-    .tm_mon = 6,
+    .tm_mon = 2,
     .tm_mday = 31,
     .tm_hour = 0,
     .tm_min = 0,

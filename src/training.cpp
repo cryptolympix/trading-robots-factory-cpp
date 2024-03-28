@@ -533,6 +533,7 @@ void Training::report()
     catch (const std::exception &e)
     {
         std::cerr << "Error: " << e.what() << std::endl;
+        return;
     }
 
     std::cout << "📊 Report saved!" << std::endl;
