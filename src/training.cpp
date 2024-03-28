@@ -491,6 +491,7 @@ int Training::run()
             std::cout << "✅ Training of generation " << generation << " finished!" << std::endl;
         };
 
+        std::cout << "🚀 Start the training..." << std::endl;
         this->population->run(std::bind(&Training::evaluate_genome, this, std::placeholders::_1, std::placeholders::_2), nb_generations, callback_generation);
     }
     catch (const std::exception &e)
@@ -499,7 +500,7 @@ int Training::run()
         return 1;
     }
 
-    // progress_bar->complete();
+    progress_bar->complete();
     std::cout << "🎉 Training finished!" << std::endl;
 
     return 0;
@@ -510,20 +511,29 @@ int Training::run()
  */
 void Training::report()
 {
-    // Save all the best genome of each generation
-    std::vector<Genome *> genomes_saved = {};
-    for (int i = 0; i < this->config.training.generations; i++)
+    try
     {
-        Trader *best_trader = this->get_best_trader_of_generation(i);
-        if (std::find(genomes_saved.begin(), genomes_saved.end(), best_trader->genome) == genomes_saved.end())
+        // Save all the best genome of each generation
+        std::vector<Genome *> genomes_saved = {};
+        for (int i = 0; i < this->config.training.generations; i++)
         {
-            std::string genome_save_file = this->directory + "/trader_" + std::to_string(i) + "_" + best_trader->genome->id + "_genome_save.pkl";
-            std::string graphic_file = this->directory + "/trader_" + std::to_string(i) + "_" + best_trader->genome->id + "_balance_history.png";
-            std::string stats_file = this->directory + "/trader_" + std::to_string(i) + "_" + best_trader->genome->id + "_stats.txt";
-            best_trader->genome->save(genome_save_file);
-            best_trader->print_balance_history_graph(graphic_file);
-            best_trader->print_stats_to_file(stats_file);
-            genomes_saved.push_back(best_trader->genome);
+            Trader *best_trader = this->get_best_trader_of_generation(i);
+            if (std::find(genomes_saved.begin(), genomes_saved.end(), best_trader->genome) == genomes_saved.end())
+            {
+                std::string genome_save_file = this->directory + "/trader_" + std::to_string(i) + "_" + best_trader->genome->id + "_genome_save.pkl";
+                std::string graphic_file = this->directory + "/trader_" + std::to_string(i) + "_" + best_trader->genome->id + "_balance_history.png";
+                std::string stats_file = this->directory + "/trader_" + std::to_string(i) + "_" + best_trader->genome->id + "_stats.txt";
+                best_trader->genome->save(genome_save_file);
+                best_trader->print_balance_history_graph(graphic_file);
+                best_trader->print_stats_to_file(stats_file);
+                genomes_saved.push_back(best_trader->genome);
+            }
         }
     }
+    catch (const std::exception &e)
+    {
+        std::cerr << "Error: " << e.what() << std::endl;
+    }
+
+    std::cout << "📊 Report saved!" << std::endl;
 }

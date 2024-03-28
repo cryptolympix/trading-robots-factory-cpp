@@ -328,7 +328,7 @@ void Trader::calculate_fitness()
 
     // this->fitness = (1 + nb_trade_eval * max_drawdown_eval * profit_factor_eval * win_rate_eval * average_profit_eval) / (1 + nb_trade_weight * max_drawdown_weight * profit_factor_weight * win_rate_weight * average_profit_weight);
 
-    this->fitness = (this->stats.average_profit + 1) / (this->stats.average_loss + 1) * this->stats.win_rate;
+    this->fitness = (this->stats.average_profit + 1) / (this->stats.average_loss + 1) * this->stats.win_rate * (1 - this->stats.max_drawdown);
 }
 
 /**
