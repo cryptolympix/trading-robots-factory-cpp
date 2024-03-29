@@ -232,66 +232,40 @@ void Trader::calculate_fitness()
     double win_rate_eval = 0;
     double average_profit_eval = 0;
 
-    double nb_trade_weight = 500;
-    double max_drawdown_weight = 100;
-    double profit_factor_weight = 100;
-    double win_rate_weight = 100;
-    double average_profit_weight = 100;
+    double nb_trade_weight = 5;
+    double max_drawdown_weight = 1;
+    double profit_factor_weight = 1;
+    double win_rate_weight = 1;
+    double average_profit_weight = 1;
 
-    if (goals.nb_trade_minimum.has_value() && stats.total_trades > 0)
+    if (goals.nb_trade_minimum.has_value())
     {
         int diff = abs(goals.nb_trade_minimum.value() - stats.total_trades);
-        double nb_trade_eval;
-        if (diff > 0)
-        {
-            nb_trade_eval = nb_trade_weight / diff;
-        }
-        else
-        {
-            nb_trade_eval = nb_trade_weight;
-        }
+        nb_trade_eval = nb_trade_weight / std::exp(diff);
     }
 
-    if (goals.maximum_drawdown.has_value() && stats.max_drawdown < 0)
+    if (goals.maximum_drawdown.has_value())
     {
-        max_drawdown_eval = max_drawdown_weight / stats.max_drawdown;
+        double diff = 10 * std::max(0.0, stats.max_drawdown - goals.maximum_drawdown.value());
+        max_drawdown_eval = max_drawdown_weight / std::exp(diff);
     }
 
-    if (goals.minimum_profit_factor.has_value() && stats.profit_factor != 0)
+    if (goals.minimum_profit_factor.has_value())
     {
-        if (stats.profit_factor > *goals.minimum_profit_factor)
-        {
-            profit_factor_eval = profit_factor_weight;
-        }
-        else
-        {
-            profit_factor_eval = profit_factor_weight * (stats.profit_factor / goals.minimum_profit_factor.value());
-        }
+        double diff = 10 * std::max(0.0, goals.minimum_profit_factor.value() - stats.profit_factor);
+        profit_factor_eval = profit_factor_weight / std::exp(diff);
     }
 
-    if (goals.minimum_winrate.has_value() && stats.total_trades > 0)
+    if (goals.minimum_winrate.has_value())
     {
-        if (stats.win_rate < *goals.minimum_winrate)
-        {
-            win_rate_eval = win_rate_weight * (stats.win_rate / goals.minimum_winrate.value());
-        }
-        else
-        {
-            win_rate_eval = win_rate_weight;
-        }
+        double diff = 10 * std::max(0.0, goals.minimum_winrate.value() - stats.win_rate);
+        win_rate_eval = win_rate_weight / std::exp(diff);
     }
 
-    if (goals.average_profit.has_value() && stats.average_profit > 0)
+    if (goals.average_profit.has_value())
     {
-        double average_profit_percent = stats.average_profit / stats.initial_balance;
-        if (average_profit_percent > goals.average_profit.value())
-        {
-            average_profit_eval = average_profit_weight;
-        }
-        else
-        {
-            average_profit_eval = average_profit_weight * (average_profit_percent / *goals.average_profit);
-        }
+        double diff = 10 * std::max(0.0, goals.average_profit.value() - stats.average_profit);
+        average_profit_eval = average_profit_weight / std::exp(diff);
     }
 
     if (!use_nb_trade_eval)
@@ -326,9 +300,7 @@ void Trader::calculate_fitness()
 
     // ***************** FORMULA TO CALCULATE FITNESS ***************** //
 
-    // this->fitness = (1 + nb_trade_eval * max_drawdown_eval * profit_factor_eval * win_rate_eval * average_profit_eval) / (1 + nb_trade_weight * max_drawdown_weight * profit_factor_weight * win_rate_weight * average_profit_weight);
-
-    this->fitness = (this->stats.average_profit + 1) / (this->stats.average_loss + 1) * this->stats.win_rate * (1 - this->stats.max_drawdown);
+    this->fitness = nb_trade_eval * win_rate_eval * max_drawdown_eval * profit_factor_eval;
 }
 
 /**
