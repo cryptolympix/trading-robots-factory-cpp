@@ -771,6 +771,7 @@ TEST_F(TraderTest, UpdateStatsProfitFactor)
     // Mock data for testing
     trader->stats.average_profit = 100;
     trader->stats.average_loss = 50;
+    trader->stats.win_rate = 0.5;
 
     // Call update method
     trader->update_stats();
@@ -806,4 +807,7 @@ TEST_F(TraderTest, PrintBalanceHistoryGraph)
 
     // Check if the graphic is created
     ASSERT_TRUE(std::filesystem::exists(file));
+
+    // Remove the file
+    std::filesystem::remove_all(file.parent_path());
 }

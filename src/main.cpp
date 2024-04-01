@@ -14,6 +14,5 @@ int main()
     Training training(id, test_config, true);
     training.prepare();
     training.run();
-    training.report();
     return 0;
 }

@@ -26,12 +26,12 @@
  * @param id Unique identifier for the training process.
  * @param config Configuration object.
  * @param debug Debug mode flag.
- * @param cache_file Optional cache file path.
  */
-Training::Training(std::string id, Config &config, bool debug, const std::string &cache_file)
-    : id(id), config(config), debug(debug), cache_file(cache_file)
+Training::Training(std::string id, Config &config, bool debug)
+    : id(id), config(config), debug(debug)
 {
     this->directory = "cache/" + this->config.general.name + "/" + this->config.general.version + "/" + id;
+    this->cache_file = "cache/" + this->config.general.name + "/" + this->config.general.version + "/data.pkl";
 
     // Initialize the population.
     this->config.neat.num_inputs = this->count_indicators() + this->config.training.inputs.position.size();
@@ -56,10 +56,6 @@ Training::Training(std::string id, Config &config, bool debug, const std::string
  */
 void Training::prepare()
 {
-    if (this->cache_file.empty())
-    {
-        this->cache_file = "cache/data/" + config.general.name + "_" + config.general.version + ".pkl";
-    }
     if (std::filesystem::exists(this->cache_file))
     {
         std::cout << "⏳ Import the data from the cache..." << std::endl;
@@ -417,7 +413,7 @@ void Training::evaluate_genome(Genome *genome, int generation)
     int loop_timeframe_minutes = get_time_frame_value(loop_timeframe);
     std::chrono::system_clock::time_point mock_date = this->find_training_start_date();
 
-    Logger *logger = new Logger(this->directory + "/logs/trader_" + genome->id + ".log");
+    Logger *logger = new Logger(this->directory.generic_string() + "/logs/trader_" + genome->id + ".log");
     Trader *trader = new Trader(genome, this->config, logger);
 
     while (mock_date < this->config.training.training_end_date)
@@ -487,6 +483,15 @@ int Training::run()
             // Print the best trader stats
             this->print_trader_stats(this->best_trader);
 
+            // Save the best trader info of the generation
+            std::string genome_save_file = this->directory.generic_string() + "/trader_" + std::to_string(generation) + "_" + best_trader->genome->id + "_genome_save.pkl";
+            std::string graphic_file = this->directory.generic_string() + "/trader_" + std::to_string(generation) + "_" + best_trader->genome->id + "_balance_history.png";
+            std::string stats_file = this->directory.generic_string() + "/trader_" + std::to_string(generation) + "_" + best_trader->genome->id + "_stats.txt";
+            best_trader->genome->save(genome_save_file);
+            best_trader->print_balance_history_graph(graphic_file);
+            best_trader->print_stats_to_file(stats_file);
+            std::cout << "📊 Trader report saved!" << std::endl;
+
             // The training of generation is finished
             std::cout << "✅ Training of generation " << generation << " finished!" << std::endl;
         };
@@ -504,37 +509,4 @@ int Training::run()
     std::cout << "🎉 Training finished!" << std::endl;
 
     return 0;
-}
-
-/**
- * @brief Report the results of the training process.
- */
-void Training::report()
-{
-    try
-    {
-        // Save all the best genome of each generation
-        std::vector<Genome *> genomes_saved = {};
-        for (int i = 0; i < this->config.training.generations; i++)
-        {
-            Trader *best_trader = this->get_best_trader_of_generation(i);
-            if (std::find(genomes_saved.begin(), genomes_saved.end(), best_trader->genome) == genomes_saved.end())
-            {
-                std::string genome_save_file = this->directory + "/trader_" + std::to_string(i) + "_" + best_trader->genome->id + "_genome_save.pkl";
-                std::string graphic_file = this->directory + "/trader_" + std::to_string(i) + "_" + best_trader->genome->id + "_balance_history.png";
-                std::string stats_file = this->directory + "/trader_" + std::to_string(i) + "_" + best_trader->genome->id + "_stats.txt";
-                best_trader->genome->save(genome_save_file);
-                best_trader->print_balance_history_graph(graphic_file);
-                best_trader->print_stats_to_file(stats_file);
-                genomes_saved.push_back(best_trader->genome);
-            }
-        }
-    }
-    catch (const std::exception &e)
-    {
-        std::cerr << "Error: " << e.what() << std::endl;
-        return;
-    }
-
-    std::cout << "📊 Report saved!" << std::endl;
 }

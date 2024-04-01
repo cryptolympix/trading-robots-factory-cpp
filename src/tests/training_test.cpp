@@ -81,17 +81,16 @@ protected:
         config.neat.population_size = 5;
         config.neat.num_inputs = 6;
         config.neat.num_outputs = 5;
-        training = new Training("test", config, false, "cache/tests/data.pkl");
+        training = new Training("test", config, false);
         temp_dir = std::filesystem::temp_directory_path() / "training_test";
     }
 
     void TearDown() override
     {
+        std::filesystem::remove_all(training->directory);
+        std::filesystem::remove(training->cache_file);
+        std::filesystem::remove_all(temp_dir);
         delete training;
-        if (std::filesystem::exists(temp_dir))
-        {
-            std::filesystem::remove_all(temp_dir);
-        }
     }
 };
 
