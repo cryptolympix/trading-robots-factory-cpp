@@ -19,7 +19,8 @@ public:
 
     // Balance and history
     double balance;
-    std::vector<std::pair<time_t, double>> balance_history;
+    std::vector<double> balance_history;
+    std::vector<Trade> trades_history;
     Position *current_position;
     std::vector<Order> open_orders;
     time_t last_position_date;
@@ -129,9 +130,9 @@ public:
     void update_position_pnl(double price = 0.0);
 
     /**
-     * @brief Update the trader statistics.
+     * @brief Calcule the trader statistics.
      */
-    void update_stats();
+    void calculate_stats();
 
     /**
      * @brief Print the statistics of the trader in the console.

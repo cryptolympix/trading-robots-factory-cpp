@@ -125,6 +125,20 @@ struct Order
 };
 
 /**
+ * @brief Struct representing a trade.
+ */
+struct Trade
+{
+    PositionSide side;  // Side of the trade
+    std::tm entry_date; // Entry date of the trade
+    std::tm exit_date;  // Exit date of the trade
+    double entry_price; // Entry price of the trade
+    double exit_price;  // Exit price of the trade
+    double pnl;         // Profit and Loss of the trade
+    double fees;        // Fees of the trade
+};
+
+/**
  * @brief Struct representing trading statistics.
  */
 struct Stats

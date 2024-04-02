@@ -18,6 +18,7 @@ protected:
     Trader *trader;
     SymbolInfo symbol_info;
     Config config;
+    std::tm date_tm;
 
     void SetUp() override
     {
@@ -62,7 +63,7 @@ protected:
         temp_dir = std::filesystem::temp_directory_path() / "trader_test";
 
         // 2023-01-01 00:00:00
-        std::tm date_tm = {
+        date_tm = {
             .tm_year = 2023 - 1900,
             .tm_mon = 0,
             .tm_mday = 1,
@@ -77,6 +78,7 @@ protected:
         trader->current_position = nullptr;
         trader->open_orders = {};
         trader->balance_history = {};
+        trader->trades_history = {};
         trader->decisions = {0, 0, 0, 0, 1};
         trader->current_date = date;
         trader->candles = {{TimeFrame::H1, {
@@ -133,6 +135,7 @@ TEST_F(TraderTest, UpdateWithNoPositionAndNoOrders)
     ASSERT_EQ(trader->stats.total_fees, 0.0);
     ASSERT_EQ(trader->stats.max_drawdown, 0.0);
     ASSERT_EQ(trader->balance_history.size(), 1);
+    ASSERT_EQ(trader->trades_history.size(), 0);
 }
 
 TEST_F(TraderTest, UpdateWithPosition)
@@ -157,6 +160,7 @@ TEST_F(TraderTest, UpdateWithPosition)
     ASSERT_EQ(trader->stats.total_winning_trades, 0);
     ASSERT_EQ(trader->stats.max_drawdown, 0.0);
     ASSERT_EQ(trader->balance_history.size(), 1);
+    ASSERT_EQ(trader->trades_history.size(), 0);
 }
 
 TEST_F(TraderTest, UpdateWithOpenOrders)
@@ -174,14 +178,17 @@ TEST_F(TraderTest, UpdateWithOpenOrders)
     ASSERT_EQ(trader->stats.total_winning_trades, 0);
     ASSERT_EQ(trader->stats.max_drawdown, 0.0);
     ASSERT_EQ(trader->balance_history.size(), 1);
+    ASSERT_EQ(trader->trades_history.size(), 0);
 }
 
 TEST_F(TraderTest, UpdateWithPositionLiquidation)
 {
     // Mock data for testing
-    trader->current_position = new Position{.entry_price = 100.0,
-                                            .size = 0.01,
-                                            .side = PositionSide::LONG};
+    trader->current_position = new Position{
+        .entry_price = 100.0,
+        .entry_date = date_tm,
+        .size = 0.01,
+        .side = PositionSide::LONG};
 
     // Simulate liquidation condition
     trader->candles[TimeFrame::H1][0].close = 99.0;
@@ -193,6 +200,12 @@ TEST_F(TraderTest, UpdateWithPositionLiquidation)
     ASSERT_EQ(trader->current_position, nullptr);
     ASSERT_EQ(trader->open_orders.size(), 0);
     ASSERT_EQ(trader->balance, 0.0);
+    ASSERT_EQ(trader->trades_history.size(), 1);
+    ASSERT_EQ(std::mktime(&trader->trades_history[0].entry_date), std::mktime(&date_tm));
+    ASSERT_EQ(std::mktime(&trader->trades_history[0].exit_date), std::mktime(&date_tm));
+    ASSERT_EQ(trader->trades_history[0].side, PositionSide::LONG);
+    ASSERT_LT(trader->trades_history[0].pnl, 0.0);
+    ASSERT_GT(trader->trades_history[0].fees, 0.0);
 }
 
 TEST_F(TraderTest, UpdateWithInactiveTrader)
@@ -206,6 +219,7 @@ TEST_F(TraderTest, UpdateWithInactiveTrader)
     // Check if the position is closed and open orders are cleared
     ASSERT_EQ(trader->current_position, nullptr);
     ASSERT_EQ(trader->open_orders.size(), 0);
+    ASSERT_EQ(trader->trades_history.size(), 0);
     ASSERT_EQ(trader->lifespan, config.training.inactive_trader_threshold.value() + 1);
     ASSERT_TRUE(trader->dead);
 }
@@ -229,7 +243,11 @@ TEST_F(TraderTest, CheckTpOrderHit)
                                            Candle{.close = 1.00500, .high = 1.00600, .low = 0.99900, .spread = 2},
                                        }}};
 
-    trader->current_position = new Position{.side = PositionSide::LONG, .size = 1, .entry_price = 1.00000};
+    trader->current_position = new Position{
+        .entry_date = date_tm,
+        .side = PositionSide::LONG,
+        .size = 1,
+        .entry_price = 1.00000};
     trader->open_orders = {
         {.side = OrderSide::SHORT, .type = OrderType::TAKE_PROFIT, .price = 1.00500}};
 
@@ -238,6 +256,9 @@ TEST_F(TraderTest, CheckTpOrderHit)
     // Calculation of balance after the execution of the order
     double new_balance = config.general.initial_balance + trader->current_position->pnl - trader->symbol_info.commission_per_lot * trader->current_position->size * trader->current_base_currency_conversion_rate;
 
+    // Save the pnl before the execution of the order
+    double pnl = trader->current_position->pnl;
+
     // Call the update method
     trader->check_open_orders();
 
@@ -245,6 +266,12 @@ TEST_F(TraderTest, CheckTpOrderHit)
     ASSERT_EQ(trader->current_position, nullptr);
     ASSERT_EQ(trader->balance, new_balance);
     ASSERT_EQ(trader->open_orders.size(), 0);
+    ASSERT_EQ(trader->trades_history.size(), 1);
+    ASSERT_EQ(std::mktime(&trader->trades_history[0].entry_date), std::mktime(&date_tm));
+    ASSERT_EQ(std::mktime(&trader->trades_history[0].exit_date), std::mktime(&date_tm));
+    ASSERT_EQ(trader->trades_history[0].side, PositionSide::LONG);
+    ASSERT_EQ(trader->trades_history[0].pnl, pnl);
+    ASSERT_GT(trader->trades_history[0].fees, 0.0);
 }
 
 TEST_F(TraderTest, CheckSlOrderHit)
@@ -254,7 +281,11 @@ TEST_F(TraderTest, CheckSlOrderHit)
                                            Candle{.close = 0.99400, .high = 1.00500, .low = 0.99300, .spread = 2},
                                        }}};
 
-    trader->current_position = new Position{.side = PositionSide::LONG, .size = 1.0, .entry_price = 1.00000};
+    trader->current_position = new Position{
+        .entry_date = date_tm,
+        .side = PositionSide::LONG,
+        .size = 1.0,
+        .entry_price = 1.00000};
     trader->open_orders = {
         {.side = OrderSide::SHORT, .type = OrderType::STOP_LOSS, .price = 0.99500}};
 
@@ -263,6 +294,9 @@ TEST_F(TraderTest, CheckSlOrderHit)
     // Calculation of the balance after the execution of the order
     double new_balance = config.general.initial_balance + trader->current_position->pnl - trader->symbol_info.commission_per_lot * trader->current_position->size * trader->current_base_currency_conversion_rate;
 
+    // Save the pnl before the execution of the order
+    double pnl = trader->current_position->pnl;
+
     // Call the update method
     trader->check_open_orders();
 
@@ -270,15 +304,24 @@ TEST_F(TraderTest, CheckSlOrderHit)
     ASSERT_EQ(trader->current_position, nullptr);
     ASSERT_EQ(trader->balance, new_balance);
     ASSERT_EQ(trader->open_orders.size(), 0);
+    ASSERT_EQ(trader->trades_history.size(), 1);
+    ASSERT_EQ(std::mktime(&trader->trades_history[0].entry_date), std::mktime(&date_tm));
+    ASSERT_EQ(std::mktime(&trader->trades_history[0].exit_date), std::mktime(&date_tm));
+    ASSERT_EQ(trader->trades_history[0].side, PositionSide::LONG);
+    ASSERT_EQ(trader->trades_history[0].pnl, pnl);
+    ASSERT_GT(trader->trades_history[0].fees, 0.0);
 }
 
 TEST_F(TraderTest, TradeCloseLongWithProfit)
 {
     // Mock data for testing
-    trader->current_position = new Position{.entry_price = 1.00000,
-                                            .size = 1.0,
-                                            .side = PositionSide::LONG,
-                                            .pnl = 50.0};
+    double pnl = 50.0;
+    trader->current_position = new Position{
+        .entry_date = date_tm,
+        .entry_price = 1.00000,
+        .size = 1.0,
+        .side = PositionSide::LONG,
+        .pnl = pnl};
 
     // Calculation of the new balance after liquidation
     double new_balance = config.general.initial_balance + trader->current_position->pnl - trader->symbol_info.commission_per_lot * trader->current_position->size * trader->current_base_currency_conversion_rate;
@@ -290,15 +333,24 @@ TEST_F(TraderTest, TradeCloseLongWithProfit)
     ASSERT_EQ(trader->current_position, nullptr);
     ASSERT_EQ(trader->balance, new_balance);
     ASSERT_EQ(trader->open_orders.size(), 0);
+    ASSERT_EQ(trader->trades_history.size(), 1);
+    ASSERT_EQ(std::mktime(&trader->trades_history[0].entry_date), std::mktime(&date_tm));
+    ASSERT_EQ(std::mktime(&trader->trades_history[0].exit_date), std::mktime(&date_tm));
+    ASSERT_EQ(trader->trades_history[0].side, PositionSide::LONG);
+    ASSERT_EQ(trader->trades_history[0].pnl, pnl);
+    ASSERT_GT(trader->trades_history[0].fees, 0.0);
 }
 
 TEST_F(TraderTest, TradeCloseLongWithLoss)
 {
     // Mock data for testing
-    trader->current_position = new Position{.entry_price = 1.00000,
-                                            .size = 1.0,
-                                            .side = PositionSide::LONG,
-                                            .pnl = -50.0};
+    double pnl = -50.0;
+    trader->current_position = new Position{
+        .entry_date = date_tm,
+        .entry_price = 1.00000,
+        .size = 1.0,
+        .side = PositionSide::LONG,
+        .pnl = pnl};
 
     // Calculation of the new balance after liquidation
     double new_balance = config.general.initial_balance + trader->current_position->pnl - trader->symbol_info.commission_per_lot * trader->current_position->size * trader->current_base_currency_conversion_rate;
@@ -310,15 +362,24 @@ TEST_F(TraderTest, TradeCloseLongWithLoss)
     ASSERT_EQ(trader->current_position, nullptr);
     ASSERT_EQ(trader->balance, new_balance);
     ASSERT_EQ(trader->open_orders.size(), 0);
+    ASSERT_EQ(trader->trades_history.size(), 1);
+    ASSERT_EQ(std::mktime(&trader->trades_history[0].entry_date), std::mktime(&date_tm));
+    ASSERT_EQ(std::mktime(&trader->trades_history[0].exit_date), std::mktime(&date_tm));
+    ASSERT_EQ(trader->trades_history[0].side, PositionSide::LONG);
+    ASSERT_EQ(trader->trades_history[0].pnl, pnl);
+    ASSERT_GT(trader->trades_history[0].fees, 0.0);
 }
 
 TEST_F(TraderTest, TradeCloseShortWithProfit)
 {
     // Mock data for testing
-    trader->current_position = new Position{.entry_price = 1.00000,
-                                            .size = 1.0,
-                                            .side = PositionSide::SHORT,
-                                            .pnl = 50.0};
+    double pnl = 50.0;
+    trader->current_position = new Position{
+        .entry_date = date_tm,
+        .entry_price = 1.00000,
+        .size = 1.0,
+        .side = PositionSide::SHORT,
+        .pnl = pnl};
 
     // Calculation of the new balance after liquidation
     double new_balance = config.general.initial_balance + trader->current_position->pnl - trader->symbol_info.commission_per_lot * trader->current_position->size * trader->current_base_currency_conversion_rate;
@@ -330,15 +391,24 @@ TEST_F(TraderTest, TradeCloseShortWithProfit)
     ASSERT_EQ(trader->current_position, nullptr);
     ASSERT_EQ(trader->balance, new_balance);
     ASSERT_EQ(trader->open_orders.size(), 0);
+    ASSERT_EQ(trader->trades_history.size(), 1);
+    ASSERT_EQ(std::mktime(&trader->trades_history[0].entry_date), std::mktime(&date_tm));
+    ASSERT_EQ(std::mktime(&trader->trades_history[0].exit_date), std::mktime(&date_tm));
+    ASSERT_EQ(trader->trades_history[0].side, PositionSide::SHORT);
+    ASSERT_EQ(trader->trades_history[0].pnl, pnl);
+    ASSERT_GT(trader->trades_history[0].fees, 0.0);
 }
 
 TEST_F(TraderTest, TradeCloseShortWithLoss)
 {
     // Mock data for testing
-    trader->current_position = new Position{.entry_price = 1.00000,
-                                            .size = 1.0,
-                                            .side = PositionSide::SHORT,
-                                            .pnl = -50.0};
+    double pnl = -50.0;
+    trader->current_position = new Position{
+        .entry_date = date_tm,
+        .entry_price = 1.00000,
+        .size = 1.0,
+        .side = PositionSide::SHORT,
+        .pnl = pnl};
 
     // Calculation of the new balance after liquidation
     double new_balance = config.general.initial_balance + trader->current_position->pnl - trader->symbol_info.commission_per_lot * trader->current_position->size * trader->current_base_currency_conversion_rate;
@@ -350,6 +420,12 @@ TEST_F(TraderTest, TradeCloseShortWithLoss)
     ASSERT_EQ(trader->current_position, nullptr);
     ASSERT_EQ(trader->balance, new_balance);
     ASSERT_EQ(trader->open_orders.size(), 0);
+    ASSERT_EQ(trader->trades_history.size(), 1);
+    ASSERT_EQ(std::mktime(&trader->trades_history[0].entry_date), std::mktime(&date_tm));
+    ASSERT_EQ(std::mktime(&trader->trades_history[0].exit_date), std::mktime(&date_tm));
+    ASSERT_EQ(trader->trades_history[0].side, PositionSide::SHORT);
+    ASSERT_EQ(trader->trades_history[0].pnl, pnl);
+    ASSERT_GT(trader->trades_history[0].fees, 0.0);
 }
 
 TEST_F(TraderTest, TradeEnterLong)
@@ -429,7 +505,13 @@ TEST_F(TraderTest, ClosePositionForDurationExceeded)
         .tm_min = 0,
         .tm_sec = 0};
     auto entry_datetime = std::chrono::system_clock::from_time_t(std::mktime(&entry_date));
-    trader->current_position = new Position{.entry_date = entry_date, .entry_price = 100.0, .size = 1.0, .side = PositionSide::LONG, .pnl = 0.0};
+
+    trader->current_position = new Position{
+        .entry_date = entry_date,
+        .entry_price = 1.01,
+        .size = 1.0,
+        .side = PositionSide::LONG,
+        .pnl = -10.0};
 
     // Set trader's date after the maximum trade duration has passed
     auto exit_datetime = entry_datetime + std::chrono::minutes((config.strategy.maximum_trade_duration.value() + 1) * get_time_frame_value(config.strategy.timeframe));
@@ -440,8 +522,13 @@ TEST_F(TraderTest, ClosePositionForDurationExceeded)
 
     // Check if the position is closed
     ASSERT_EQ(trader->current_position, nullptr);
-    // Balance decreased due to fees
-    ASSERT_LT(trader->balance, 1000.0);
+    ASSERT_LT(trader->balance, 1000.0); // Balance decreased due to fees
+    ASSERT_EQ(trader->trades_history.size(), 1);
+    ASSERT_EQ(std::mktime(&trader->trades_history[0].entry_date), std::mktime(&date_tm));
+    ASSERT_EQ(std::mktime(&trader->trades_history[0].exit_date), trader->current_date);
+    ASSERT_EQ(trader->trades_history[0].side, PositionSide::LONG);
+    ASSERT_NE(trader->trades_history[0].pnl, 0.0);
+    ASSERT_GT(trader->trades_history[0].fees, 0.0);
 }
 
 TEST_F(TraderTest, WaitForDurationBeforeClosePosition)
@@ -705,10 +792,10 @@ TEST_F(TraderTest, UpdateShortPositionPnl)
 TEST_F(TraderTest, UpdateStatsDrawdown)
 {
     // Mock data for testing
-    trader->balance_history = {{0, 1000.0}, {0, 900.0}, {0, 1100.0}, {0, 1000.0}};
+    trader->balance_history = {1000.0, 900.0, 1100.0, 1000.0};
 
-    // Call the update_stats method
-    trader->update_stats();
+    // Call the calculate_stats method
+    trader->calculate_stats();
 
     // Check if stats are updated correctly
     ASSERT_EQ(trader->stats.max_drawdown, 0.1);
@@ -717,34 +804,35 @@ TEST_F(TraderTest, UpdateStatsDrawdown)
 TEST_F(TraderTest, UpdateStatsWinrate)
 {
     // Mock data for testing
-    trader->stats.total_trades = 10;
-    trader->stats.total_long_trades = 6;
-    trader->stats.total_short_trades = 4;
-    trader->stats.total_winning_trades = 6;
-    trader->stats.total_winning_long_trades = 3;
-    trader->stats.total_winning_short_trades = 3;
-    trader->stats.total_lost_trades = 4;
-    trader->stats.total_lost_long_trades = 3;
-    trader->stats.total_lost_short_trades = 1;
+    trader->trades_history = {
+        {.side = PositionSide::LONG, .pnl = 100},
+        {.side = PositionSide::LONG, .pnl = -50},
+        {.side = PositionSide::LONG, .pnl = -50},
+        {.side = PositionSide::LONG, .pnl = 100},
+        {.side = PositionSide::SHORT, .pnl = -50},
+        {.side = PositionSide::SHORT, .pnl = -50},
+        {.side = PositionSide::SHORT, .pnl = 50},
+        {.side = PositionSide::SHORT, .pnl = 50}};
 
     // Call update method
-    trader->update_stats();
+    trader->calculate_stats();
 
     // Check the new stats
-    ASSERT_EQ(trader->stats.win_rate, 0.6);
+    ASSERT_EQ(trader->stats.win_rate, 0.5);
     ASSERT_EQ(trader->stats.long_win_rate, 0.5);
-    ASSERT_EQ(trader->stats.short_win_rate, 0.75);
+    ASSERT_EQ(trader->stats.short_win_rate, 0.5);
 }
 
 TEST_F(TraderTest, UpdateStatsTotalNetProfit)
 {
     // Mock data for testing
-    trader->stats.total_profit = 1000;
-    trader->stats.total_loss = 500;
-    trader->stats.total_fees = 50;
+    trader->trades_history = {
+        {.pnl = 1000},
+        {.pnl = -500},
+        {.pnl = -50}};
 
     // Call update method
-    trader->update_stats();
+    trader->calculate_stats();
 
     // Check the new stats
     ASSERT_EQ(trader->stats.total_net_profit, 1000 - 500 - 50);
@@ -753,17 +841,20 @@ TEST_F(TraderTest, UpdateStatsTotalNetProfit)
 TEST_F(TraderTest, UpdateStatsAverageProfitLoss)
 {
     // Mock data for testing
-    trader->stats.total_profit = 1000;
-    trader->stats.total_loss = 500;
-    trader->stats.total_winning_trades = 10;
-    trader->stats.total_lost_trades = 10;
+    trader->trades_history = {
+        {.pnl = 100},
+        {.pnl = 50},
+        {.pnl = -100},
+        {.pnl = -50},
+        {.pnl = 100},
+        {.pnl = 50}};
 
     // Call update method
-    trader->update_stats();
+    trader->calculate_stats();
 
     // Check the new stats
-    ASSERT_EQ(trader->stats.average_profit, 100.0);
-    ASSERT_EQ(trader->stats.average_loss, 50.0);
+    ASSERT_EQ(trader->stats.average_profit, 75.0);
+    ASSERT_EQ(trader->stats.average_loss, 75.0);
 }
 
 TEST_F(TraderTest, UpdateStatsProfitFactor)
@@ -771,10 +862,13 @@ TEST_F(TraderTest, UpdateStatsProfitFactor)
     // Mock data for testing
     trader->stats.average_profit = 100;
     trader->stats.average_loss = 50;
-    trader->stats.win_rate = 0.5;
+    trader->trades_history = {
+        {.pnl = 100},
+        {.pnl = -50},
+    };
 
     // Call update method
-    trader->update_stats();
+    trader->calculate_stats();
 
     // Check the new stats
     ASSERT_EQ(trader->stats.profit_factor, 2.0);
@@ -799,11 +893,27 @@ TEST_F(TraderTest, CalculateFitness)
 TEST_F(TraderTest, PrintBalanceHistoryGraph)
 {
     // Mock data for testing
-    trader->balance_history = {{0, 1000.0}, {0, 900.0}, {0, 1100.0}, {0, 1000.0}};
+    trader->balance_history = {1000.0, 900.0, 1100.0, 1000.0};
 
     // Call the print_balance_history_graphic method
     std::filesystem::path file = "cache/tests/trader_balance_history.png";
     trader->print_balance_history_graph(file);
+
+    // Check if the graphic is created
+    ASSERT_TRUE(std::filesystem::exists(file));
+
+    // Remove the file
+    std::filesystem::remove_all(file.parent_path());
+}
+
+TEST_F(TraderTest, PrintStatsToFIle)
+{
+    // Mock data for testing
+    trader->calculate_stats();
+
+    // Call the print_stats_to_file method
+    std::filesystem::path file = "cache/tests/trader_stats.png";
+    trader->print_stats_to_file(file);
 
     // Check if the graphic is created
     ASSERT_TRUE(std::filesystem::exists(file));

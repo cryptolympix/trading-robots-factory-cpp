@@ -42,11 +42,11 @@ Trader::Trader(Genome *genome, Config config, Logger *logger)
     // Vision
     this->candles = {};
     this->current_base_currency_conversion_rate = 1.0;
-    // this->current_date = current_date;
 
     // Balance and history
     this->balance = config.general.initial_balance;
     this->balance_history = {};
+    this->trades_history = {};
     this->open_orders = {};
     this->last_position_date = NULL;
     this->current_position = nullptr;
@@ -204,14 +204,13 @@ void Trader::update()
     this->check_open_orders();
     this->check_position_liquidation();
     this->update_position_pnl();
-    this->update_stats();
     this->trade();
 
     // Formula to calculate the score of the individual
     this->score = this->stats.total_net_profit;
 
     // Record the balance to history
-    this->balance_history.push_back(std::make_pair(this->current_date, this->balance));
+    this->balance_history.push_back(this->balance);
 }
 
 /**
@@ -519,36 +518,14 @@ void Trader::close_position_by_market(double price)
     if (this->current_position != nullptr)
     {
         double fees = calculate_commission(this->symbol_info.commission_per_lot, this->current_position->size, this->current_base_currency_conversion_rate);
-
         this->balance = std::max(0.0, decimal_round(this->balance + this->current_position->pnl - fees, 2));
-        this->stats.total_fees += fees;
-
-        if (this->current_position->pnl >= 0)
-        {
-            this->stats.total_profit += this->current_position->pnl;
-            this->stats.total_winning_trades++;
-            if (this->current_position->side == PositionSide::LONG)
-            {
-                this->stats.total_winning_long_trades++;
-            }
-            else
-            {
-                this->stats.total_winning_short_trades++;
-            }
-        }
-        else
-        {
-            this->stats.total_loss += abs(this->current_position->pnl);
-            this->stats.total_lost_trades++;
-            if (this->current_position->side == PositionSide::LONG)
-            {
-                this->stats.total_lost_long_trades++;
-            }
-            else
-            {
-                this->stats.total_lost_short_trades++;
-            }
-        }
+        this->trades_history.push_back(Trade{.entry_date = this->current_position->entry_date,
+                                             .entry_price = this->current_position->entry_price,
+                                             .exit_date = *std::localtime(&this->current_date),
+                                             .exit_price = price,
+                                             .side = this->current_position->side,
+                                             .pnl = this->current_position->pnl,
+                                             .fees = fees});
 
         if (this->logger != nullptr)
         {
@@ -580,36 +557,14 @@ void Trader::close_position_by_limit(double price)
     if (this->current_position != nullptr)
     {
         double fees = calculate_commission(this->symbol_info.commission_per_lot, this->current_position->size, this->current_base_currency_conversion_rate);
-
         this->balance = std::max(0.0, decimal_round(this->balance + this->current_position->pnl - fees, 2));
-        this->stats.total_fees += fees;
-
-        if (this->current_position->pnl >= 0)
-        {
-            this->stats.total_profit += this->current_position->pnl;
-            this->stats.total_winning_trades++;
-            if (this->current_position->side == PositionSide::LONG)
-            {
-                this->stats.total_winning_long_trades++;
-            }
-            else
-            {
-                this->stats.total_winning_short_trades++;
-            }
-        }
-        else
-        {
-            this->stats.total_loss += abs(this->current_position->pnl);
-            this->stats.total_lost_trades++;
-            if (this->current_position->side == PositionSide::LONG)
-            {
-                this->stats.total_lost_long_trades++;
-            }
-            else
-            {
-                this->stats.total_lost_short_trades++;
-            }
-        }
+        this->trades_history.push_back(Trade{.entry_date = this->current_position->entry_date,
+                                             .entry_price = this->current_position->entry_price,
+                                             .exit_date = *std::localtime(&this->current_date),
+                                             .exit_price = price,
+                                             .side = this->current_position->side,
+                                             .pnl = this->current_position->pnl,
+                                             .fees = fees});
 
         if (this->logger != nullptr)
         {
@@ -759,42 +714,89 @@ void Trader::update_position_pnl(double price)
 }
 
 /**
- * @brief Update the trader statistics.
+ * @brief Calcule the trader statistics.
  */
-void Trader::update_stats()
+void Trader::calculate_stats()
 {
-    // Update the final capital
+    // Reset the stats
+    this->stats.total_net_profit = 0;
+    this->stats.total_profit = 0;
+    this->stats.total_loss = 0;
+    this->stats.total_fees = 0;
+
+    // Update the total trades
+    this->stats.total_trades = this->trades_history.size();
+
+    // Calcualte the number of long/short trades
+    this->stats.total_long_trades = std::count_if(this->trades_history.begin(), this->trades_history.end(), [](Trade trade)
+                                                  { return trade.side == PositionSide::LONG; });
+    this->stats.total_short_trades = this->stats.total_trades - this->stats.total_long_trades;
+
+    // Update the stats of the trades
+    for (const auto &trade : this->trades_history)
+    {
+        if (trade.pnl >= 0)
+        {
+            this->stats.total_profit += trade.pnl;
+            this->stats.total_winning_trades++;
+            this->stats.total_fees += trade.fees;
+            if (trade.side == PositionSide::LONG)
+            {
+                this->stats.total_winning_long_trades++;
+            }
+            else
+            {
+                this->stats.total_winning_short_trades++;
+            }
+        }
+        else
+        {
+            this->stats.total_loss += abs(trade.pnl);
+            this->stats.total_lost_trades++;
+            this->stats.total_fees += trade.fees;
+            if (trade.side == PositionSide::LONG)
+            {
+                this->stats.total_lost_long_trades++;
+            }
+            else
+            {
+                this->stats.total_lost_short_trades++;
+            }
+        }
+    }
+
+    // Calculate the final capital
     this->stats.final_balance = this->balance;
 
-    // Update the performance
+    // Calculate the performance
     this->stats.performance = (this->stats.final_balance - this->stats.initial_balance) / this->stats.initial_balance;
 
-    // Update the sharpe ratio
+    // Calculate the sharpe ratio
     this->stats.sharpe_ratio = 0;
 
-    // Update the sortino ratio
+    // Calculate the sortino ratio
     this->stats.sortino_ratio = 0;
 
-    // Update the total net profit
+    // Calculate the total net profit
     if (this->stats.total_loss != 0 || this->stats.total_fees != 0)
     {
         this->stats.total_net_profit = this->stats.total_profit - this->stats.total_loss - this->stats.total_fees;
     }
 
-    auto calculate_drawdown = [&](std::vector<std::pair<time_t, double>> balance_history)
+    auto calculate_drawdown = [&](std::vector<double> balance_history)
     {
         if (balance_history.empty() || balance_history.size() < 2)
         {
             return 0.0; // No drawdown if there are fewer than two data points
         }
 
-        double peak = balance_history[0].second;
-        double trough = balance_history[0].second;
+        double peak = balance_history[0];
+        double trough = balance_history[0];
         double max_drawdown = 0.0;
 
         for (size_t i = 1; i < balance_history.size(); ++i)
         {
-            double balance = balance_history[i].second;
+            double balance = balance_history[i];
             if (balance > peak)
             {
                 peak = balance;
@@ -812,40 +814,40 @@ void Trader::update_stats()
         return max_drawdown;
     };
 
-    // Update the drawdown
+    // Calculate the drawdown
     this->stats.max_drawdown = calculate_drawdown(this->balance_history);
 
-    // Update the winrate
+    // Calculate the winrate
     if (this->stats.total_trades > 0)
     {
         this->stats.win_rate = static_cast<double>(this->stats.total_winning_trades) / static_cast<double>(this->stats.total_trades);
     }
 
-    // Update the winrate for longs
+    // Calculate the winrate for longs
     if (this->stats.total_long_trades > 0)
     {
         this->stats.long_win_rate = static_cast<double>(this->stats.total_winning_long_trades) / static_cast<double>(this->stats.total_long_trades);
     }
 
-    // Update the winrate for shorts
+    // Calculate the winrate for shorts
     if (this->stats.total_short_trades > 0)
     {
         this->stats.short_win_rate = static_cast<double>(this->stats.total_winning_short_trades) / static_cast<double>(this->stats.total_short_trades);
     }
 
-    // Update the average profit per trade
+    // Calculate the average profit per trade
     if (this->stats.total_winning_trades > 0)
     {
         this->stats.average_profit = this->stats.total_profit / static_cast<double>(this->stats.total_winning_trades);
     }
 
-    // Update the average loss per trade
+    // Calculate the average loss per trade
     if (this->stats.total_lost_trades > 0)
     {
         this->stats.average_loss = this->stats.total_loss / static_cast<double>(this->stats.total_lost_trades);
     }
 
-    // Update the profit factor
+    // Calculate the profit factor
     if (this->stats.average_profit != 0 && this->stats.average_loss != 0)
     {
         this->stats.profit_factor = (this->stats.win_rate * this->stats.average_profit) / ((1 - this->stats.win_rate) * this->stats.average_loss);
@@ -908,8 +910,7 @@ void Trader::print_balance_history_graph(const std::string &filename)
     std::vector<std::pair<double, double>> data;
     for (int i = 0; i < this->balance_history.size(); ++i)
     {
-        std::string date = time_t_to_string(this->balance_history[i].first);
-        data.push_back(std::make_pair(i, this->balance_history[i].second));
+        data.push_back(std::make_pair(i, this->balance_history[i]));
     }
 
     // Specify terminal type and output file

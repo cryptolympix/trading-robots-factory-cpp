@@ -446,6 +446,9 @@ void Training::evaluate_genome(Genome *genome, int generation)
         mock_date += std::chrono::minutes(loop_timeframe_minutes);
     }
 
+    // Calculate the stats of the trader
+    trader->calculate_stats();
+
     // Calculate fitness
     trader->calculate_fitness();
     genome->fitness = trader->fitness;
