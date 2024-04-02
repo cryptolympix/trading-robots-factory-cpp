@@ -132,7 +132,13 @@ TEST(TimeIndicatorsTest, MarketSession)
 TEST(TimeIndicatorsTest, WeekDay)
 {
     // Create an instance of the WeekDay class
-    WeekDay weekDay;
+    WeekDay weekDay_sunday("sunday");
+    WeekDay weekDay_monday("monday");
+    WeekDay weekDay_tuesday("tuesday");
+    WeekDay weekDay_wednesday("wednesday");
+    WeekDay weekDay_thursday("thursday");
+    WeekDay weekDay_friday("friday");
+    WeekDay weekDay_saturday("saturday");
 
     // Create test data for the days of the week
     std::vector<Candle> test_candles_weekday;
@@ -148,8 +154,20 @@ TEST(TimeIndicatorsTest, WeekDay)
     }
 
     // Call the calculate method
-    std::vector<double> result_weekday = weekDay.calculate(test_candles_weekday, false);
+    std::vector<double> result_sunday = weekDay_sunday.calculate(test_candles_weekday, false);
+    std::vector<double> result_monday = weekDay_monday.calculate(test_candles_weekday, false);
+    std::vector<double> result_tuesday = weekDay_tuesday.calculate(test_candles_weekday, false);
+    std::vector<double> result_wednesday = weekDay_wednesday.calculate(test_candles_weekday, false);
+    std::vector<double> result_thursday = weekDay_thursday.calculate(test_candles_weekday, false);
+    std::vector<double> result_friday = weekDay_friday.calculate(test_candles_weekday, false);
+    std::vector<double> result_saturday = weekDay_saturday.calculate(test_candles_weekday, false);
 
     // Validate the result for WeekDay
-    ASSERT_EQ(result_weekday, std::vector<double>({0, 1, 2, 3, 4, 5, 6}));
+    ASSERT_EQ(result_sunday, std::vector<double>({1, 0, 0, 0, 0, 0, 0}));
+    ASSERT_EQ(result_monday, std::vector<double>({0, 1, 0, 0, 0, 0, 0}));
+    ASSERT_EQ(result_tuesday, std::vector<double>({0, 0, 1, 0, 0, 0, 0}));
+    ASSERT_EQ(result_wednesday, std::vector<double>({0, 0, 0, 1, 0, 0, 0}));
+    ASSERT_EQ(result_thursday, std::vector<double>({0, 0, 0, 0, 1, 0, 0}));
+    ASSERT_EQ(result_friday, std::vector<double>({0, 0, 0, 0, 0, 1, 0}));
+    ASSERT_EQ(result_saturday, std::vector<double>({0, 0, 0, 0, 0, 0, 1}));
 }

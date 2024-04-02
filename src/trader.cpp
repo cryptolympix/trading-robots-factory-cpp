@@ -55,6 +55,7 @@ Trader::Trader(Genome *genome, Config config, Logger *logger)
     this->stats = {
         .initial_balance = config.general.initial_balance,
         .final_balance = config.general.initial_balance,
+        .performance = 0,
         .total_net_profit = 0,
         .total_profit = 0,
         .total_loss = 0,
@@ -765,6 +766,9 @@ void Trader::update_stats()
     // Update the final capital
     this->stats.final_balance = this->balance;
 
+    // Update the performance
+    this->stats.performance = (this->stats.final_balance - this->stats.initial_balance) / this->stats.initial_balance;
+
     // Update the sharpe ratio
     this->stats.sharpe_ratio = 0;
 
@@ -856,6 +860,7 @@ void Trader::print_stats_to_console()
     std::cout << "------------------------------ STATS -----------------------------" << std::endl;
     std::cout << "Initial balance: $" << decimal_floor(this->stats.initial_balance, 2) << std::endl;
     std::cout << "Final balance: $" << decimal_floor(this->stats.final_balance, 2) << std::endl;
+    std::cout << "Performance: " << decimal_floor(this->stats.performance * 100, 2) << "%" << std::endl;
     std::cout << "Total net profit: $" << decimal_floor(this->stats.total_net_profit, 2) << std::endl;
     std::cout << "Total profit: $" << decimal_floor(this->stats.total_profit, 2) << std::endl;
     std::cout << "Total loss: $" << decimal_floor(this->stats.total_loss, 2) << std::endl;
@@ -913,7 +918,7 @@ void Trader::print_balance_history_graph(const std::string &filename)
 
     // Set plot options
     gp << "set title 'Balance History'\n";
-    gp << "set xlabel 'Date'\n";
+    gp << "set xlabel 'Temps'\n";
     gp << "set ylabel 'Balance'\n";
 
     // Plot data
@@ -952,6 +957,7 @@ void Trader::print_stats_to_file(const std::string &filename)
     file << "------------------------------ STATS -----------------------------" << std::endl;
     file << "Initial balance: $" << decimal_floor(this->stats.initial_balance, 2) << std::endl;
     file << "Final balance: $" << decimal_floor(this->stats.final_balance, 2) << std::endl;
+    file << "Performance: " << decimal_floor(this->stats.performance * 100, 2) << "%" << std::endl;
     file << "Total net profit: $" << decimal_floor(this->stats.total_net_profit, 2) << std::endl;
     file << "Total profit: $" << decimal_floor(this->stats.total_profit, 2) << std::endl;
     file << "Total loss: $" << decimal_floor(this->stats.total_loss, 2) << std::endl;

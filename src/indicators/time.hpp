@@ -82,9 +82,10 @@ public:
     /**
      * @brief Construct a new WeekDay object.
      *
+     * @param day Day of the week.
      * @param offset Offset value. Default is 0.
      */
-    WeekDay(int offset = 0);
+    WeekDay(std::string day, int offset = 0);
 
     /**
      * @brief Get the days of the candle.
@@ -93,6 +94,9 @@ public:
      * @return std::vector<double> Vector containing the number of each candle day (0-6).
      */
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+
+private:
+    std::string day; // Day of the week (monday, tuesday, wednesday, thursday, friday, saturday, sunday)
 };
 
 #endif // TIME_INDICATORS_HPP

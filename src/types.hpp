@@ -131,6 +131,7 @@ struct Stats
 {
     double initial_balance;         // Initial balance
     double final_balance;           // Final balance
+    double performance;             // Performance
     double total_net_profit;        // Total net profit
     double total_profit;            // Total profit
     double total_loss;              // Total loss

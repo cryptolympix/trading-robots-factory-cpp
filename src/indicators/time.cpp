@@ -127,9 +127,10 @@ std::vector<double> MarketSession::calculate(const std::vector<Candle> &candles,
 /**
  * @brief Construct a new WeekDay object.
  *
+ * @param day Week day.
  * @param offset Offset value. Default is 0.
  */
-WeekDay::WeekDay(int offset) : Indicator("Week Day", "week-day-" + std::to_string(offset), offset) {}
+WeekDay::WeekDay(std::string day, int offset) : Indicator("Week Day (" + day + ")", "week-day-" + day + "-" + std::to_string(offset), offset), day(day) {}
 
 /**
  * @brief Get the days of the candle.
@@ -145,13 +146,33 @@ std::vector<double> WeekDay::calculate(const std::vector<Candle> &candles, bool 
             std::vector<double> result;
             result.reserve(candles.size());
 
+            int attempt_day = 0;
+            if (day == "sunday") {
+                attempt_day = 0;
+            } else if (day == "monday") {
+                attempt_day = 1;
+            } else if (day == "tuesday") {
+                attempt_day = 2;
+            } else if (day == "wednesday") {
+                attempt_day = 3;
+            } else if (day == "thursday") {
+                attempt_day = 4;
+            } else if (day == "friday") {
+                attempt_day = 5;
+            } else if (day == "saturday") {
+                attempt_day = 6;
+            }
+
             for (const auto &candle : candles)
             {
                 // Convert time_t to std::tm
                 tm *time = localtime(&candle.date);
 
                 // Extract the weekday (Sunday is 0, Monday is 1, etc.)
-                result.push_back(time->tm_wday);
+                int candle_day = time->tm_wday;
+
+                // Check if the candle's date falls on the specified day
+                result.push_back(candle_day == attempt_day ? 1.0 : 0.0);
             }
             
             return result; },
