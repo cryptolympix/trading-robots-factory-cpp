@@ -6,20 +6,6 @@
 #include "../types.hpp"
 #include "cache.hpp"
 
-inline std::ostream &operator<<(std::ostream &os, const DatedCache &dc)
-{
-    // Write the DatedCache to the ostream in the desired format
-    // This is just an example, you should replace it with the actual code
-    return os;
-}
-
-inline std::istream &operator>>(std::istream &is, DatedCache &dc)
-{
-    // Read the DatedCache from the istream in the desired format
-    // This is just an example, you should replace it with the actual code
-    return is;
-}
-
 /**
  * @brief Cache a dictionary to a file.
  *
@@ -44,7 +30,13 @@ void cache_dictionary(const std::unordered_map<std::string, T> &data, const std:
     {
         for (const auto &pair : data)
         {
-            file << pair.first << ' ' << pair.second << '\n';
+            // Write key size and key
+            std::size_t key_size = pair.first.size();
+            file.write(reinterpret_cast<const char *>(&key_size), sizeof(key_size));
+            file.write(pair.first.c_str(), key_size);
+
+            // Write value
+            file.write(reinterpret_cast<const char *>(&pair.second), sizeof(T));
         }
         file.close();
     }
@@ -68,22 +60,27 @@ std::unordered_map<std::string, T> load_cached_dictionary(const std::string &fil
 
     try
     {
-        // Check if the directory exists, create it if it doesn't
-        std::size_t found = file_path.find_last_of("/\\");
-        if (found != std::string::npos)
-        {
-            std::string dir = file_path.substr(0, found);
-            system(("mkdir -p " + dir).c_str());
-        }
-
-        // Read dictionary from file
         std::ifstream file(file_path, std::ios::binary);
         if (file.is_open())
         {
-            std::string key;
-            T value;
-            while (file >> key >> value)
+            while (!file.eof())
             {
+                // Read key size
+                std::size_t key_size;
+                file.read(reinterpret_cast<char *>(&key_size), sizeof(key_size));
+                if (file.eof()) // Check if reached end of file after attempting to read key size
+                    break;
+
+                // Read key
+                std::string key;
+                key.resize(key_size);
+                file.read(&key[0], key_size);
+
+                // Read value
+                T value;
+                file.read(reinterpret_cast<char *>(&value), sizeof(T));
+
+                // Store key-value pair in the map
                 data[key] = value;
             }
             file.close();

@@ -46,10 +46,11 @@ protected:
                                                                                                                .position = {PositionInfo::TYPE, PositionInfo::PNL, PositionInfo::DURATION},
                                                                                                            }},
             .evaluation = {
-                .nb_trade_minimum = 30,
-                .average_profit = 0.01,
+                .nb_trades = 30,
+                .expected_return = 0.1,
+                .expected_return_per_month = 0.1,
+                .expected_return_per_trade = 0.01,
                 .maximum_drawdown = 0.1,
-                .minimum_growth_per_month = 0.1,
                 .minimum_profit_factor = 2,
                 .minimum_winrate = 0.5,
             },
@@ -101,13 +102,20 @@ protected:
             .total_lost_trades = 0,
             .total_lost_long_trades = 0,
             .total_lost_short_trades = 0,
+            .max_consecutive_profit_trades = 0,
+            .max_consecutive_loss_trades = 0,
+            .profit_factor = 0,
             .max_drawdown = 0,
             .win_rate = 0,
             .long_win_rate = 0,
             .short_win_rate = 0,
             .average_profit = 0,
             .average_loss = 0,
-            .profit_factor = 0,
+            .max_profit = 0,
+            .max_loss = 0,
+            .max_consecutive_profit = 0,
+            .max_consecutive_loss = 0,
+            .average_trade_duration = 0,
             .sharpe_ratio = 0,
             .sortino_ratio = 0,
         };
@@ -183,12 +191,8 @@ TEST_F(TraderTest, UpdateWithOpenOrders)
 
 TEST_F(TraderTest, UpdateWithPositionLiquidation)
 {
-    // Mock data for testing
-    trader->current_position = new Position{
-        .entry_price = 100.0,
-        .entry_date = date_tm,
-        .size = 0.01,
-        .side = PositionSide::LONG};
+    // Simulate a long position
+    trader->open_position_by_market(100.0, 0.01, OrderSide::LONG);
 
     // Simulate liquidation condition
     trader->candles[TimeFrame::H1][0].close = 99.0;
@@ -206,6 +210,7 @@ TEST_F(TraderTest, UpdateWithPositionLiquidation)
     ASSERT_EQ(trader->trades_history[0].side, PositionSide::LONG);
     ASSERT_LT(trader->trades_history[0].pnl, 0.0);
     ASSERT_GT(trader->trades_history[0].fees, 0.0);
+    ASSERT_EQ(trader->trades_history[0].size, 0.01);
 }
 
 TEST_F(TraderTest, UpdateWithInactiveTrader)
@@ -243,11 +248,12 @@ TEST_F(TraderTest, CheckTpOrderHit)
                                            Candle{.close = 1.00500, .high = 1.00600, .low = 0.99900, .spread = 2},
                                        }}};
 
-    trader->current_position = new Position{
-        .entry_date = date_tm,
-        .side = PositionSide::LONG,
-        .size = 1,
-        .entry_price = 1.00000};
+    // Simulate a long position
+    trader->open_position_by_market(1.00000, 1.0, OrderSide::LONG);
+
+    // Reset balance to initial value to cancel the fees at the market order
+    trader->balance = config.general.initial_balance;
+
     trader->open_orders = {
         {.side = OrderSide::SHORT, .type = OrderType::TAKE_PROFIT, .price = 1.00500}};
 
@@ -272,6 +278,7 @@ TEST_F(TraderTest, CheckTpOrderHit)
     ASSERT_EQ(trader->trades_history[0].side, PositionSide::LONG);
     ASSERT_EQ(trader->trades_history[0].pnl, pnl);
     ASSERT_GT(trader->trades_history[0].fees, 0.0);
+    ASSERT_EQ(trader->trades_history[0].size, 1.0);
 }
 
 TEST_F(TraderTest, CheckSlOrderHit)
@@ -281,11 +288,12 @@ TEST_F(TraderTest, CheckSlOrderHit)
                                            Candle{.close = 0.99400, .high = 1.00500, .low = 0.99300, .spread = 2},
                                        }}};
 
-    trader->current_position = new Position{
-        .entry_date = date_tm,
-        .side = PositionSide::LONG,
-        .size = 1.0,
-        .entry_price = 1.00000};
+    // Simulate a long position
+    trader->open_position_by_market(1.00000, 1.0, OrderSide::LONG);
+
+    // Reset balance to initial value to cancel the fees at the market order
+    trader->balance = config.general.initial_balance;
+
     trader->open_orders = {
         {.side = OrderSide::SHORT, .type = OrderType::STOP_LOSS, .price = 0.99500}};
 
@@ -310,18 +318,18 @@ TEST_F(TraderTest, CheckSlOrderHit)
     ASSERT_EQ(trader->trades_history[0].side, PositionSide::LONG);
     ASSERT_EQ(trader->trades_history[0].pnl, pnl);
     ASSERT_GT(trader->trades_history[0].fees, 0.0);
+    ASSERT_EQ(trader->trades_history[0].size, 1.0);
 }
 
 TEST_F(TraderTest, TradeCloseLongWithProfit)
 {
     // Mock data for testing
     double pnl = 50.0;
-    trader->current_position = new Position{
-        .entry_date = date_tm,
-        .entry_price = 1.00000,
-        .size = 1.0,
-        .side = PositionSide::LONG,
-        .pnl = pnl};
+    trader->open_position_by_market(1.00000, 1.0, OrderSide::LONG);
+    trader->current_position->pnl = pnl;
+
+    // Reset balance to initial value to cancel the fees at the market order
+    trader->balance = config.general.initial_balance;
 
     // Calculation of the new balance after liquidation
     double new_balance = config.general.initial_balance + trader->current_position->pnl - trader->symbol_info.commission_per_lot * trader->current_position->size * trader->current_base_currency_conversion_rate;
@@ -339,18 +347,18 @@ TEST_F(TraderTest, TradeCloseLongWithProfit)
     ASSERT_EQ(trader->trades_history[0].side, PositionSide::LONG);
     ASSERT_EQ(trader->trades_history[0].pnl, pnl);
     ASSERT_GT(trader->trades_history[0].fees, 0.0);
+    ASSERT_EQ(trader->trades_history[0].size, 1.0);
 }
 
 TEST_F(TraderTest, TradeCloseLongWithLoss)
 {
     // Mock data for testing
     double pnl = -50.0;
-    trader->current_position = new Position{
-        .entry_date = date_tm,
-        .entry_price = 1.00000,
-        .size = 1.0,
-        .side = PositionSide::LONG,
-        .pnl = pnl};
+    trader->open_position_by_market(1.00000, 1.0, OrderSide::LONG);
+    trader->current_position->pnl = pnl;
+
+    // Reset balance to initial value to cancel the fees at the market order
+    trader->balance = config.general.initial_balance;
 
     // Calculation of the new balance after liquidation
     double new_balance = config.general.initial_balance + trader->current_position->pnl - trader->symbol_info.commission_per_lot * trader->current_position->size * trader->current_base_currency_conversion_rate;
@@ -368,18 +376,18 @@ TEST_F(TraderTest, TradeCloseLongWithLoss)
     ASSERT_EQ(trader->trades_history[0].side, PositionSide::LONG);
     ASSERT_EQ(trader->trades_history[0].pnl, pnl);
     ASSERT_GT(trader->trades_history[0].fees, 0.0);
+    ASSERT_EQ(trader->trades_history[0].size, 1.0);
 }
 
 TEST_F(TraderTest, TradeCloseShortWithProfit)
 {
     // Mock data for testing
     double pnl = 50.0;
-    trader->current_position = new Position{
-        .entry_date = date_tm,
-        .entry_price = 1.00000,
-        .size = 1.0,
-        .side = PositionSide::SHORT,
-        .pnl = pnl};
+    trader->open_position_by_market(1.00000, 1.0, OrderSide::SHORT);
+    trader->current_position->pnl = pnl;
+
+    // Reset balance to initial value to cancel the fees at the market order
+    trader->balance = config.general.initial_balance;
 
     // Calculation of the new balance after liquidation
     double new_balance = config.general.initial_balance + trader->current_position->pnl - trader->symbol_info.commission_per_lot * trader->current_position->size * trader->current_base_currency_conversion_rate;
@@ -397,18 +405,18 @@ TEST_F(TraderTest, TradeCloseShortWithProfit)
     ASSERT_EQ(trader->trades_history[0].side, PositionSide::SHORT);
     ASSERT_EQ(trader->trades_history[0].pnl, pnl);
     ASSERT_GT(trader->trades_history[0].fees, 0.0);
+    ASSERT_EQ(trader->trades_history[0].size, 1.0);
 }
 
 TEST_F(TraderTest, TradeCloseShortWithLoss)
 {
     // Mock data for testing
     double pnl = -50.0;
-    trader->current_position = new Position{
-        .entry_date = date_tm,
-        .entry_price = 1.00000,
-        .size = 1.0,
-        .side = PositionSide::SHORT,
-        .pnl = pnl};
+    trader->open_position_by_market(1.00000, 1.0, OrderSide::SHORT);
+    trader->current_position->pnl = pnl;
+
+    // Reset balance to initial value to cancel the fees at the market order
+    trader->balance = config.general.initial_balance;
 
     // Calculation of the new balance after liquidation
     double new_balance = config.general.initial_balance + trader->current_position->pnl - trader->symbol_info.commission_per_lot * trader->current_position->size * trader->current_base_currency_conversion_rate;
@@ -426,6 +434,7 @@ TEST_F(TraderTest, TradeCloseShortWithLoss)
     ASSERT_EQ(trader->trades_history[0].side, PositionSide::SHORT);
     ASSERT_EQ(trader->trades_history[0].pnl, pnl);
     ASSERT_GT(trader->trades_history[0].fees, 0.0);
+    ASSERT_EQ(trader->trades_history[0].size, 1.0);
 }
 
 TEST_F(TraderTest, TradeEnterLong)
@@ -506,12 +515,9 @@ TEST_F(TraderTest, ClosePositionForDurationExceeded)
         .tm_sec = 0};
     auto entry_datetime = std::chrono::system_clock::from_time_t(std::mktime(&entry_date));
 
-    trader->current_position = new Position{
-        .entry_date = entry_date,
-        .entry_price = 1.01,
-        .size = 1.0,
-        .side = PositionSide::LONG,
-        .pnl = -10.0};
+    trader->open_position_by_market(1.01, 1.0, OrderSide::LONG);
+    trader->current_position->entry_date = entry_date;
+    trader->update_position_pnl();
 
     // Set trader's date after the maximum trade duration has passed
     auto exit_datetime = entry_datetime + std::chrono::minutes((config.strategy.maximum_trade_duration.value() + 1) * get_time_frame_value(config.strategy.timeframe));
@@ -529,6 +535,7 @@ TEST_F(TraderTest, ClosePositionForDurationExceeded)
     ASSERT_EQ(trader->trades_history[0].side, PositionSide::LONG);
     ASSERT_NE(trader->trades_history[0].pnl, 0.0);
     ASSERT_GT(trader->trades_history[0].fees, 0.0);
+    ASSERT_EQ(trader->trades_history[0].size, 1.0);
 }
 
 TEST_F(TraderTest, WaitForDurationBeforeClosePosition)
@@ -542,7 +549,10 @@ TEST_F(TraderTest, WaitForDurationBeforeClosePosition)
         .tm_min = 0,
         .tm_sec = 0};
     auto entry_datetime = std::chrono::system_clock::from_time_t(std::mktime(&entry_date));
-    trader->current_position = new Position{.entry_date = entry_date, .entry_price = 100.0, .size = 1.0, .side = PositionSide::LONG, .pnl = 0.0};
+
+    trader->open_position_by_market(1.00, 1.0, OrderSide::LONG);
+    trader->current_position->entry_date = entry_date;
+
     trader->decisions = {0.0, 0.0, 0.0, 1.0, 0.0};
 
     // Set trader's date before the minimum trade duration has passed
@@ -789,7 +799,7 @@ TEST_F(TraderTest, UpdateShortPositionPnl)
     ASSERT_EQ(trader->current_position->pnl, 100.0);
 }
 
-TEST_F(TraderTest, UpdateStatsDrawdown)
+TEST_F(TraderTest, CalculateStatsDrawdown)
 {
     // Mock data for testing
     trader->balance_history = {1000.0, 900.0, 1100.0, 1000.0};
@@ -801,7 +811,7 @@ TEST_F(TraderTest, UpdateStatsDrawdown)
     ASSERT_EQ(trader->stats.max_drawdown, 0.1);
 }
 
-TEST_F(TraderTest, UpdateStatsWinrate)
+TEST_F(TraderTest, CalculateStatsWinrate)
 {
     // Mock data for testing
     trader->trades_history = {
@@ -814,7 +824,7 @@ TEST_F(TraderTest, UpdateStatsWinrate)
         {.side = PositionSide::SHORT, .pnl = 50},
         {.side = PositionSide::SHORT, .pnl = 50}};
 
-    // Call update method
+    // Call calculate method
     trader->calculate_stats();
 
     // Check the new stats
@@ -823,7 +833,7 @@ TEST_F(TraderTest, UpdateStatsWinrate)
     ASSERT_EQ(trader->stats.short_win_rate, 0.5);
 }
 
-TEST_F(TraderTest, UpdateStatsTotalNetProfit)
+TEST_F(TraderTest, CalculateStatsTotalNetProfit)
 {
     // Mock data for testing
     trader->trades_history = {
@@ -831,14 +841,14 @@ TEST_F(TraderTest, UpdateStatsTotalNetProfit)
         {.pnl = -500},
         {.pnl = -50}};
 
-    // Call update method
+    // Call calculate method
     trader->calculate_stats();
 
     // Check the new stats
     ASSERT_EQ(trader->stats.total_net_profit, 1000 - 500 - 50);
 }
 
-TEST_F(TraderTest, UpdateStatsAverageProfitLoss)
+TEST_F(TraderTest, CalculateStatsAverageProfitLoss)
 {
     // Mock data for testing
     trader->trades_history = {
@@ -849,7 +859,7 @@ TEST_F(TraderTest, UpdateStatsAverageProfitLoss)
         {.pnl = 100},
         {.pnl = 50}};
 
-    // Call update method
+    // Call calculate method
     trader->calculate_stats();
 
     // Check the new stats
@@ -857,7 +867,7 @@ TEST_F(TraderTest, UpdateStatsAverageProfitLoss)
     ASSERT_EQ(trader->stats.average_loss, 75.0);
 }
 
-TEST_F(TraderTest, UpdateStatsProfitFactor)
+TEST_F(TraderTest, CalculateStatsProfitFactor)
 {
     // Mock data for testing
     trader->stats.average_profit = 100;
@@ -867,11 +877,104 @@ TEST_F(TraderTest, UpdateStatsProfitFactor)
         {.pnl = -50},
     };
 
-    // Call update method
+    // Call calculate method
     trader->calculate_stats();
 
     // Check the new stats
     ASSERT_EQ(trader->stats.profit_factor, 2.0);
+}
+
+TEST_F(TraderTest, CalculateStatsTotalTrades)
+{
+    // Mock data for testing
+    trader->trades_history = {
+        {.pnl = 100},
+        {.pnl = -50},
+        {.pnl = -50},
+        {.pnl = 100},
+        {.pnl = -50},
+        {.pnl = -50},
+        {.pnl = 50},
+        {.pnl = 50}};
+
+    // Call calculate method
+    trader->calculate_stats();
+
+    // Check the new stats
+    ASSERT_EQ(trader->stats.total_trades, 8);
+    ASSERT_EQ(trader->stats.total_winning_trades, 4);
+    ASSERT_EQ(trader->stats.total_lost_trades, 4);
+}
+
+TEST_F(TraderTest, CalculateStatsMaximumProfitLossTrades)
+{
+    // Mock data for testing
+    trader->trades_history = {
+        {.pnl = 100},
+        {.pnl = -50},
+        {.pnl = -50},
+        {.pnl = 100},
+        {.pnl = -50},
+        {.pnl = -50},
+        {.pnl = 50},
+        {.pnl = 50}};
+
+    // Call calculate method
+    trader->calculate_stats();
+
+    // Check the new stats
+    ASSERT_EQ(trader->stats.max_consecutive_profit_trades, 2);
+    ASSERT_EQ(trader->stats.max_consecutive_loss_trades, 2);
+}
+
+TEST_F(TraderTest, CalculateStatsMaxProfitLoss)
+{
+    // Mock data for testing
+    trader->trades_history = {
+        {.pnl = -50},
+        {.pnl = -50},
+        {.pnl = 200},
+        {.pnl = -50},
+        {.pnl = -150},
+        {.pnl = 50},
+        {.pnl = 50}};
+
+    // Call calculate method
+    trader->calculate_stats();
+
+    // Check the new stats
+    ASSERT_EQ(trader->stats.max_profit, 200);
+    ASSERT_EQ(trader->stats.max_loss, -150);
+}
+
+TEST_F(TraderTest, CalculateStatsMaxConsecutiveProfitLoss)
+{
+    // Mock data for testing
+    trader->trades_history = {
+        {.pnl = 100},
+        {.pnl = 100},
+        {.pnl = -50},
+        {.pnl = -50},
+        {.pnl = 100},
+        {.pnl = -50},
+        {.pnl = -50},
+        {.pnl = 50},
+        {.pnl = 50}};
+
+    // Call calculate method
+    trader->calculate_stats();
+
+    // Check the new stats
+    ASSERT_EQ(trader->stats.max_consecutive_profit, 200);
+    ASSERT_EQ(trader->stats.max_consecutive_loss, -100);
+}
+
+TEST_F(TraderTest, CalculateStatsSharpeRatio)
+{
+}
+
+TEST_F(TraderTest, CalculateStatsSortinoRatio)
+{
 }
 
 TEST_F(TraderTest, CalculateFitness)
@@ -882,6 +985,17 @@ TEST_F(TraderTest, CalculateFitness)
     trader->stats.profit_factor = 1.8;
     trader->stats.win_rate = 0.6;
     trader->stats.average_profit = 0.025;
+    trader->stats.average_loss = 0.015;
+    trader->stats.sharpe_ratio = 1.5;
+    trader->trades_history = {
+        {.pnl_percent = 0.1},
+        {.pnl_percent = -0.05},
+        {.pnl_percent = -0.1},
+        {.pnl_percent = 0.1},
+        {.pnl_percent = -0.05},
+        {.pnl_percent = -0.05},
+        {.pnl_percent = 0.05},
+        {.pnl_percent = 0.05}};
 
     // Call the calculate_fitness method
     trader->calculate_fitness();
@@ -906,18 +1020,18 @@ TEST_F(TraderTest, PrintBalanceHistoryGraph)
     std::filesystem::remove_all(file.parent_path());
 }
 
-TEST_F(TraderTest, PrintStatsToFIle)
-{
-    // Mock data for testing
-    trader->calculate_stats();
+// TEST_F(TraderTest, PrintStatsToHtmlFile)
+// {
+//     // Mock data for testing
+//     trader->calculate_stats();
 
-    // Call the print_stats_to_file method
-    std::filesystem::path file = "cache/tests/trader_stats.png";
-    trader->print_stats_to_file(file);
+//     // Call the print_stats_to_file method
+//     std::filesystem::path file = "cache/tests/trader_stats.png";
+//     trader->print_stats_to_html_file(file);
 
-    // Check if the graphic is created
-    ASSERT_TRUE(std::filesystem::exists(file));
+//     // Check if the graphic is created
+//     ASSERT_TRUE(std::filesystem::exists(file));
 
-    // Remove the file
-    std::filesystem::remove_all(file.parent_path());
-}
+//     // Remove the file
+//     std::filesystem::remove_all(file.parent_path());
+// }

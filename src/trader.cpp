@@ -12,6 +12,7 @@
 #include "includes/gnuplot-iostream.hpp"
 #include "trading/trading_schedule.hpp"
 #include "trading/trading_tools.hpp"
+#include "indicators/utils.hpp"
 #include "symbols.hpp"
 #include "trader.hpp"
 
@@ -69,13 +70,20 @@ Trader::Trader(Genome *genome, Config config, Logger *logger)
         .total_lost_trades = 0,
         .total_lost_long_trades = 0,
         .total_lost_short_trades = 0,
+        .profit_factor = 0,
+        .max_consecutive_profit_trades = 0,
+        .max_consecutive_loss_trades = 0,
         .max_drawdown = 0,
         .win_rate = 0,
         .long_win_rate = 0,
         .short_win_rate = 0,
         .average_profit = 0,
         .average_loss = 0,
-        .profit_factor = 0,
+        .max_profit = 0,
+        .max_loss = 0,
+        .max_consecutive_profit = 0,
+        .max_consecutive_loss = 0,
+        .average_trade_duration = 0,
         .sharpe_ratio = 0,
         .sortino_ratio = 0,
     };
@@ -206,9 +214,6 @@ void Trader::update()
     this->update_position_pnl();
     this->trade();
 
-    // Formula to calculate the score of the individual
-    this->score = this->stats.total_net_profit;
-
     // Record the balance to history
     this->balance_history.push_back(this->balance);
 }
@@ -220,28 +225,26 @@ void Trader::calculate_fitness()
 {
     EvaluationConfig goals = this->config.evaluation;
 
-    bool use_nb_trade_eval = true;
-    bool use_max_drawdown_eval = true;
-    bool use_profit_factor_eval = true;
-    bool use_win_rate_eval = true;
-    bool use_average_profit_eval = true;
+    double nb_trades_eval = 1;
+    double max_drawdown_eval = 1;
+    double profit_factor_eval = 1;
+    double win_rate_eval = 1;
+    double expected_return_eval = 1;
+    double expected_return_per_month_eval = 1;
+    double expected_return_per_trade_eval = 1;
 
-    double nb_trade_eval = 0;
-    double max_drawdown_eval = 0;
-    double profit_factor_eval = 0;
-    double win_rate_eval = 0;
-    double average_profit_eval = 0;
-
-    double nb_trade_weight = 5;
+    double nb_trades_weight = 1;
     double max_drawdown_weight = 1;
     double profit_factor_weight = 1;
     double win_rate_weight = 1;
-    double average_profit_weight = 1;
+    double expected_return_weight = 1;
+    double expected_return_per_month_weight = 1;
+    double expected_return_per_trade_weight = 1;
 
-    if (goals.nb_trade_minimum.has_value())
+    if (goals.nb_trades.has_value())
     {
-        int diff = abs(goals.nb_trade_minimum.value() - stats.total_trades);
-        nb_trade_eval = nb_trade_weight / std::exp(diff);
+        int diff = abs(goals.nb_trades.value() - stats.total_trades);
+        nb_trades_eval = nb_trades_weight / std::exp(diff);
     }
 
     if (goals.maximum_drawdown.has_value())
@@ -262,45 +265,278 @@ void Trader::calculate_fitness()
         win_rate_eval = win_rate_weight / std::exp(diff);
     }
 
-    if (goals.average_profit.has_value())
+    if (goals.expected_return.has_value())
     {
-        double diff = 10 * std::max(0.0, goals.average_profit.value() - stats.average_profit);
-        average_profit_eval = average_profit_weight / std::exp(diff);
+        double diff = 10 * std::max(0.0, goals.expected_return.value() - stats.performance);
+        expected_return_eval = expected_return_weight / std::exp(diff);
     }
 
-    if (!use_nb_trade_eval)
+    if (goals.expected_return_per_month.has_value())
     {
-        nb_trade_eval = 1;
-        nb_trade_weight = 1;
     }
 
-    if (!use_max_drawdown_eval)
+    if (goals.expected_return_per_trade.has_value())
     {
-        max_drawdown_eval = 1;
-        max_drawdown_weight = 1;
-    }
+        std::vector<double> winning_trades_returns = {};
+        for (const auto &trade : this->trades_history)
+        {
+            if (trade.pnl >= 0)
+            {
+                winning_trades_returns.push_back(trade.pnl_percent);
+            }
+        }
 
-    if (!use_profit_factor_eval)
-    {
-        profit_factor_eval = 1;
-        profit_factor_weight = 1;
-    }
-
-    if (!use_win_rate_eval)
-    {
-        win_rate_eval = 1;
-        win_rate_weight = 1;
-    }
-
-    if (!use_average_profit_eval)
-    {
-        average_profit_eval = 1;
-        average_profit_weight = 1;
+        for (const auto &winning_trade_return : winning_trades_returns)
+        {
+            double diff = 10 * std::max(0.0, goals.expected_return_per_trade.value() - winning_trade_return);
+            double max_weight_per_trade = expected_return_per_trade_weight / static_cast<double>(winning_trades_returns.size());
+            expected_return_per_trade_eval += max_weight_per_trade / std::exp(diff);
+        }
     }
 
     // ***************** FORMULA TO CALCULATE FITNESS ***************** //
 
-    this->fitness = nb_trade_eval * win_rate_eval * max_drawdown_eval * profit_factor_eval;
+    this->fitness = nb_trades_eval * win_rate_eval * max_drawdown_eval * profit_factor_eval * expected_return_eval * expected_return_per_month_eval * expected_return_per_trade_eval;
+}
+
+/**
+ * @brief Calcule the trader statistics.
+ */
+void Trader::calculate_stats()
+{
+    // Update the total trades
+    this->stats.total_trades = this->trades_history.size();
+
+    // Calcualte the number of long/short trades
+    this->stats.total_long_trades = std::count_if(this->trades_history.begin(), this->trades_history.end(), [](Trade trade)
+                                                  { return trade.side == PositionSide::LONG; });
+    this->stats.total_short_trades = this->stats.total_trades - this->stats.total_long_trades;
+
+    // Update the stats of the trades
+    for (const auto &trade : this->trades_history)
+    {
+        if (trade.pnl >= 0)
+        {
+            this->stats.total_profit += trade.pnl;
+            this->stats.total_winning_trades++;
+            this->stats.total_fees += trade.fees;
+            if (trade.side == PositionSide::LONG)
+            {
+                this->stats.total_winning_long_trades++;
+            }
+            else
+            {
+                this->stats.total_winning_short_trades++;
+            }
+        }
+        else
+        {
+            this->stats.total_loss += abs(trade.pnl);
+            this->stats.total_lost_trades++;
+            this->stats.total_fees += trade.fees;
+            if (trade.side == PositionSide::LONG)
+            {
+                this->stats.total_lost_long_trades++;
+            }
+            else
+            {
+                this->stats.total_lost_short_trades++;
+            }
+        }
+    }
+
+    // Calculate the final capital
+    this->stats.final_balance = this->balance;
+
+    // Calculate the performance
+    this->stats.performance = (this->stats.final_balance - this->stats.initial_balance) / this->stats.initial_balance;
+
+    // Calculate the total net profit
+    if (this->stats.total_loss != 0 || this->stats.total_fees != 0)
+    {
+        this->stats.total_net_profit = this->stats.total_profit - this->stats.total_loss - this->stats.total_fees;
+    }
+
+    auto calculate_drawdown = [&](std::vector<double> balance_history)
+    {
+        if (balance_history.empty() || balance_history.size() < 2)
+        {
+            return 0.0; // No drawdown if there are fewer than two data points
+        }
+
+        double peak = balance_history[0];
+        double trough = balance_history[0];
+        double max_drawdown = 0.0;
+
+        for (size_t i = 1; i < balance_history.size(); ++i)
+        {
+            double balance = balance_history[i];
+            if (balance > peak)
+            {
+                peak = balance;
+                trough = balance;
+            }
+            else if (balance < trough)
+            {
+                trough = balance;
+            }
+
+            double drawdown = (peak - trough) / peak;
+            max_drawdown = std::max(max_drawdown, drawdown);
+        }
+
+        return max_drawdown;
+    };
+
+    // Calculate the drawdown
+    this->stats.max_drawdown = calculate_drawdown(this->balance_history);
+
+    // Calculate the winrate
+    if (this->stats.total_trades > 0)
+    {
+        this->stats.win_rate = static_cast<double>(this->stats.total_winning_trades) / static_cast<double>(this->stats.total_trades);
+    }
+
+    // Calculate the winrate for longs
+    if (this->stats.total_long_trades > 0)
+    {
+        this->stats.long_win_rate = static_cast<double>(this->stats.total_winning_long_trades) / static_cast<double>(this->stats.total_long_trades);
+    }
+
+    // Calculate the winrate for shorts
+    if (this->stats.total_short_trades > 0)
+    {
+        this->stats.short_win_rate = static_cast<double>(this->stats.total_winning_short_trades) / static_cast<double>(this->stats.total_short_trades);
+    }
+
+    // Calculate the average profit per trade
+    if (this->stats.total_winning_trades > 0)
+    {
+        this->stats.average_profit = this->stats.total_profit / static_cast<double>(this->stats.total_winning_trades);
+    }
+
+    // Calculate the average loss per trade
+    if (this->stats.total_lost_trades > 0)
+    {
+        this->stats.average_loss = this->stats.total_loss / static_cast<double>(this->stats.total_lost_trades);
+    }
+
+    // Calculate the profit factor
+    if (this->stats.average_profit != 0 && this->stats.average_loss != 0)
+    {
+        this->stats.profit_factor = (this->stats.win_rate * this->stats.average_profit) / ((1 - this->stats.win_rate) * this->stats.average_loss);
+    }
+
+    // Calculate the maximum profit
+    if (this->stats.total_winning_trades > 0)
+    {
+        this->stats.max_profit = (*std::max_element(this->trades_history.begin(), this->trades_history.end(), [](Trade a, Trade b)
+                                                    { return a.pnl < b.pnl; }))
+                                     .pnl;
+    }
+
+    // Calculate the maximum loss
+    if (this->stats.total_lost_trades > 0)
+    {
+        this->stats.max_loss = (*std::min_element(this->trades_history.begin(), this->trades_history.end(), [](Trade a, Trade b)
+                                                  { return a.pnl < b.pnl; }))
+                                   .pnl;
+    }
+
+    // Calculate the maximum consecutive profit trades
+    this->stats.max_consecutive_profit_trades = 0;
+    int current_consecutive_profit_trades = 0;
+    for (const auto &trade : this->trades_history)
+    {
+        if (trade.pnl >= 0)
+        {
+            current_consecutive_profit_trades++;
+            this->stats.max_consecutive_profit_trades = std::max(this->stats.max_consecutive_profit_trades, current_consecutive_profit_trades);
+        }
+        else
+        {
+            current_consecutive_profit_trades = 0;
+        }
+    }
+
+    // Calculate the maximum consecutive loss trades
+    this->stats.max_consecutive_loss_trades = 0;
+    int current_consecutive_loss_trades = 0;
+    for (const auto &trade : this->trades_history)
+    {
+        if (trade.pnl < 0)
+        {
+            current_consecutive_loss_trades++;
+            this->stats.max_consecutive_loss_trades = std::max(this->stats.max_consecutive_loss_trades, current_consecutive_loss_trades);
+        }
+        else
+        {
+            current_consecutive_loss_trades = 0;
+        }
+    }
+
+    // Calculate the average trade duration
+    if (this->stats.total_trades > 0)
+    {
+        double total_duration = 0;
+        for (auto &trade : this->trades_history)
+        {
+            // Convert entry and exit dates to std::time_t
+            std::time_t entry_time = std::mktime(&trade.entry_date);
+            std::time_t exit_time = std::mktime(&trade.exit_date);
+
+            // Check if entry and exit times are valid
+            if (entry_time != -1 && exit_time != -1)
+            {
+                // Calculate the duration in seconds
+                double duration = std::difftime(exit_time, entry_time);
+                total_duration += duration;
+            }
+        }
+        // Get the average duration in minutes
+        this->stats.average_trade_duration = (total_duration / static_cast<double>(this->stats.total_trades)) / 60.0;
+    }
+
+    // Calculate the maximum consecutive profit
+    this->stats.max_consecutive_profit = 0;
+    double current_consecutive_profit = 0;
+    for (const auto &trade : this->trades_history)
+    {
+        if (trade.pnl >= 0)
+        {
+            current_consecutive_profit += trade.pnl;
+            this->stats.max_consecutive_profit = std::max(this->stats.max_consecutive_profit, current_consecutive_profit);
+        }
+        else
+        {
+            current_consecutive_profit = 0;
+        }
+    }
+
+    // Calculate the maximum consecutive loss
+    this->stats.max_consecutive_loss = 0;
+    double current_consecutive_loss = 0;
+    for (const auto &trade : this->trades_history)
+    {
+        if (trade.pnl < 0)
+        {
+            current_consecutive_loss += trade.pnl;
+            this->stats.max_consecutive_loss = std::min(this->stats.max_consecutive_loss, current_consecutive_loss);
+        }
+        else
+        {
+            current_consecutive_loss = 0;
+        }
+    }
+
+    // Calculate the sharpe ratio
+    this->stats.sharpe_ratio = 0;
+
+    // Calculate the sortino ratio
+    this->stats.sortino_ratio = 0;
+
+    // ******************** Formula to calculate the score of the individual **********************
+    this->score = this->stats.total_net_profit;
 }
 
 /**
@@ -464,14 +700,21 @@ void Trader::open_position_by_market(double price, double size, OrderSide side)
         std::tm date_tm = *std::localtime(&this->current_date);
         this->stats.total_trades++;
         this->stats.total_long_trades++;
-        this->stats.total_fees += fees;
         balance -= fees;
+
+        this->trades_history.push_back(Trade{.entry_date = date_tm,
+                                             .entry_price = price,
+                                             .side = PositionSide::LONG,
+                                             .size = size,
+                                             .fees = fees});
+
         this->current_position = new Position{
             .entry_date = date_tm,
             .entry_price = price,
             .size = size,
             .side = PositionSide::LONG,
             .pnl = 0.0};
+
         if (this->logger != nullptr)
         {
             this->logger->info("[" + time_t_to_string(this->current_date) + "] [$" + std::to_string(balance) + "] : Open long position by market at $" + std::to_string(price) + " with " + std::to_string(size) + " lots and $" + std::to_string(fees) + " of fees.");
@@ -482,14 +725,21 @@ void Trader::open_position_by_market(double price, double size, OrderSide side)
         std::tm date_tm = *std::localtime(&this->current_date);
         this->stats.total_trades++;
         this->stats.total_short_trades++;
-        this->stats.total_fees += fees;
         balance -= fees;
+
+        this->trades_history.push_back(Trade{.entry_date = date_tm,
+                                             .entry_price = price,
+                                             .side = PositionSide::SHORT,
+                                             .size = size,
+                                             .fees = fees});
+
         this->current_position = new Position{
             .entry_date = date_tm,
             .entry_price = price,
             .size = size,
             .side = PositionSide::SHORT,
             .pnl = 0.0};
+
         if (this->logger != nullptr)
         {
             this->logger->info("[" + time_t_to_string(this->current_date) + "] [$" + std::to_string(balance) + "] : Open short position by market at $" + std::to_string(price) + " with " + std::to_string(size) + " lots and $" + std::to_string(fees) + " of fees.");
@@ -518,14 +768,14 @@ void Trader::close_position_by_market(double price)
     if (this->current_position != nullptr)
     {
         double fees = calculate_commission(this->symbol_info.commission_per_lot, this->current_position->size, this->current_base_currency_conversion_rate);
-        this->balance = std::max(0.0, decimal_round(this->balance + this->current_position->pnl - fees, 2));
-        this->trades_history.push_back(Trade{.entry_date = this->current_position->entry_date,
-                                             .entry_price = this->current_position->entry_price,
-                                             .exit_date = *std::localtime(&this->current_date),
-                                             .exit_price = price,
-                                             .side = this->current_position->side,
-                                             .pnl = this->current_position->pnl,
-                                             .fees = fees});
+        this->balance = std::max(0.0, this->balance + this->current_position->pnl - fees);
+
+        // Update the trade history
+        this->trades_history.back().exit_date = *std::localtime(&this->current_date);
+        this->trades_history.back().exit_price = price;
+        this->trades_history.back().pnl = this->current_position->pnl;
+        this->trades_history.back().pnl_percent = this->current_position->pnl / this->balance;
+        this->trades_history.back().fees += fees;
 
         if (this->logger != nullptr)
         {
@@ -557,14 +807,14 @@ void Trader::close_position_by_limit(double price)
     if (this->current_position != nullptr)
     {
         double fees = calculate_commission(this->symbol_info.commission_per_lot, this->current_position->size, this->current_base_currency_conversion_rate);
-        this->balance = std::max(0.0, decimal_round(this->balance + this->current_position->pnl - fees, 2));
-        this->trades_history.push_back(Trade{.entry_date = this->current_position->entry_date,
-                                             .entry_price = this->current_position->entry_price,
-                                             .exit_date = *std::localtime(&this->current_date),
-                                             .exit_price = price,
-                                             .side = this->current_position->side,
-                                             .pnl = this->current_position->pnl,
-                                             .fees = fees});
+        this->balance = std::max(0.0, this->balance + this->current_position->pnl - fees);
+
+        // Update the trade history
+        this->trades_history.back().exit_date = *std::localtime(&this->current_date);
+        this->trades_history.back().exit_price = price;
+        this->trades_history.back().pnl = this->current_position->pnl;
+        this->trades_history.back().pnl_percent = this->current_position->pnl / this->balance;
+        this->trades_history.back().fees += fees;
 
         if (this->logger != nullptr)
         {
@@ -714,147 +964,6 @@ void Trader::update_position_pnl(double price)
 }
 
 /**
- * @brief Calcule the trader statistics.
- */
-void Trader::calculate_stats()
-{
-    // Reset the stats
-    this->stats.total_net_profit = 0;
-    this->stats.total_profit = 0;
-    this->stats.total_loss = 0;
-    this->stats.total_fees = 0;
-
-    // Update the total trades
-    this->stats.total_trades = this->trades_history.size();
-
-    // Calcualte the number of long/short trades
-    this->stats.total_long_trades = std::count_if(this->trades_history.begin(), this->trades_history.end(), [](Trade trade)
-                                                  { return trade.side == PositionSide::LONG; });
-    this->stats.total_short_trades = this->stats.total_trades - this->stats.total_long_trades;
-
-    // Update the stats of the trades
-    for (const auto &trade : this->trades_history)
-    {
-        if (trade.pnl >= 0)
-        {
-            this->stats.total_profit += trade.pnl;
-            this->stats.total_winning_trades++;
-            this->stats.total_fees += trade.fees;
-            if (trade.side == PositionSide::LONG)
-            {
-                this->stats.total_winning_long_trades++;
-            }
-            else
-            {
-                this->stats.total_winning_short_trades++;
-            }
-        }
-        else
-        {
-            this->stats.total_loss += abs(trade.pnl);
-            this->stats.total_lost_trades++;
-            this->stats.total_fees += trade.fees;
-            if (trade.side == PositionSide::LONG)
-            {
-                this->stats.total_lost_long_trades++;
-            }
-            else
-            {
-                this->stats.total_lost_short_trades++;
-            }
-        }
-    }
-
-    // Calculate the final capital
-    this->stats.final_balance = this->balance;
-
-    // Calculate the performance
-    this->stats.performance = (this->stats.final_balance - this->stats.initial_balance) / this->stats.initial_balance;
-
-    // Calculate the sharpe ratio
-    this->stats.sharpe_ratio = 0;
-
-    // Calculate the sortino ratio
-    this->stats.sortino_ratio = 0;
-
-    // Calculate the total net profit
-    if (this->stats.total_loss != 0 || this->stats.total_fees != 0)
-    {
-        this->stats.total_net_profit = this->stats.total_profit - this->stats.total_loss - this->stats.total_fees;
-    }
-
-    auto calculate_drawdown = [&](std::vector<double> balance_history)
-    {
-        if (balance_history.empty() || balance_history.size() < 2)
-        {
-            return 0.0; // No drawdown if there are fewer than two data points
-        }
-
-        double peak = balance_history[0];
-        double trough = balance_history[0];
-        double max_drawdown = 0.0;
-
-        for (size_t i = 1; i < balance_history.size(); ++i)
-        {
-            double balance = balance_history[i];
-            if (balance > peak)
-            {
-                peak = balance;
-                trough = balance;
-            }
-            else if (balance < trough)
-            {
-                trough = balance;
-            }
-
-            double drawdown = (peak - trough) / peak;
-            max_drawdown = std::max(max_drawdown, drawdown);
-        }
-
-        return max_drawdown;
-    };
-
-    // Calculate the drawdown
-    this->stats.max_drawdown = calculate_drawdown(this->balance_history);
-
-    // Calculate the winrate
-    if (this->stats.total_trades > 0)
-    {
-        this->stats.win_rate = static_cast<double>(this->stats.total_winning_trades) / static_cast<double>(this->stats.total_trades);
-    }
-
-    // Calculate the winrate for longs
-    if (this->stats.total_long_trades > 0)
-    {
-        this->stats.long_win_rate = static_cast<double>(this->stats.total_winning_long_trades) / static_cast<double>(this->stats.total_long_trades);
-    }
-
-    // Calculate the winrate for shorts
-    if (this->stats.total_short_trades > 0)
-    {
-        this->stats.short_win_rate = static_cast<double>(this->stats.total_winning_short_trades) / static_cast<double>(this->stats.total_short_trades);
-    }
-
-    // Calculate the average profit per trade
-    if (this->stats.total_winning_trades > 0)
-    {
-        this->stats.average_profit = this->stats.total_profit / static_cast<double>(this->stats.total_winning_trades);
-    }
-
-    // Calculate the average loss per trade
-    if (this->stats.total_lost_trades > 0)
-    {
-        this->stats.average_loss = this->stats.total_loss / static_cast<double>(this->stats.total_lost_trades);
-    }
-
-    // Calculate the profit factor
-    if (this->stats.average_profit != 0 && this->stats.average_loss != 0)
-    {
-        this->stats.profit_factor = (this->stats.win_rate * this->stats.average_profit) / ((1 - this->stats.win_rate) * this->stats.average_loss);
-    }
-}
-
-/**
  * @brief Print the statistics of the trader in the console.
  */
 void Trader::print_stats_to_console()
@@ -872,13 +981,20 @@ void Trader::print_stats_to_console()
     std::cout << "Total short trades: " << this->stats.total_short_trades << std::endl;
     std::cout << "Total winning trades: " << this->stats.total_winning_trades << std::endl;
     std::cout << "Total lost trades: " << this->stats.total_lost_trades << std::endl;
+    std::cout << "Max consecutive profit trades: " << this->stats.max_consecutive_profit_trades << std::endl;
+    std::cout << "Max consecutive loss trades: " << this->stats.max_consecutive_loss_trades << std::endl;
+    std::cout << "Profit factor: " << decimal_floor(this->stats.profit_factor, 2) << std::endl;
+    std::cout << "Max consecutive win: " << this->stats.max_consecutive_profit_trades << std::endl;
+    std::cout << "Max consecutive loss: " << this->stats.max_consecutive_loss_trades << std::endl;
     std::cout << "Max drawdown: " << decimal_floor(-this->stats.max_drawdown * 100, 2) << "%" << std::endl;
     std::cout << "Win rate: " << decimal_floor(this->stats.win_rate * 100, 2) << "%" << std::endl;
     std::cout << "Long win rate: " << decimal_floor(this->stats.long_win_rate * 100, 2) << "%" << std::endl;
     std::cout << "Short win rate: " << decimal_floor(this->stats.short_win_rate * 100, 2) << "%" << std::endl;
     std::cout << "Average profit: $" << decimal_floor(this->stats.average_profit, 2) << std::endl;
     std::cout << "Average loss: $" << decimal_floor(this->stats.average_loss, 2) << std::endl;
-    std::cout << "Profit factor: " << decimal_floor(this->stats.profit_factor, 2) << std::endl;
+    std::cout << "Max profit: $" << decimal_floor(this->stats.max_profit, 2) << std::endl;
+    std::cout << "Max loss: $" << decimal_floor(this->stats.max_loss, 2) << std::endl;
+    std::cout << "Average trade duration: " << this->stats.average_trade_duration << " minutes" << std::endl;
     std::cout << "Sharpe ratio: " << decimal_floor(this->stats.sharpe_ratio, 2) << std::endl;
     std::cout << "Sortino ratio: " << decimal_floor(this->stats.sortino_ratio, 2) << std::endl;
 }
@@ -932,10 +1048,10 @@ void Trader::print_balance_history_graph(const std::string &filename)
 }
 
 /**
- * @brief Print the statistics of the trader in a file.
- * @param filename Filename of the file.
+ * @brief Print the statistics adn the trades list of the trader in a HTML file.
+ * @param filename Filename of the HTML file.
  */
-void Trader::print_stats_to_file(const std::string &filename)
+void Trader::print_stats_to_html_file(const std::string &filename)
 {
     // Check if the directory exists
     std::filesystem::path dir = std::filesystem::path(filename).parent_path();
@@ -954,29 +1070,326 @@ void Trader::print_stats_to_file(const std::string &filename)
     // Open the file
     std::ofstream file(filename);
 
-    // Write the statistics to the file
-    file << "------------------------------ STATS -----------------------------" << std::endl;
-    file << "Initial balance: $" << decimal_floor(this->stats.initial_balance, 2) << std::endl;
-    file << "Final balance: $" << decimal_floor(this->stats.final_balance, 2) << std::endl;
-    file << "Performance: " << decimal_floor(this->stats.performance * 100, 2) << "%" << std::endl;
-    file << "Total net profit: $" << decimal_floor(this->stats.total_net_profit, 2) << std::endl;
-    file << "Total profit: $" << decimal_floor(this->stats.total_profit, 2) << std::endl;
-    file << "Total loss: $" << decimal_floor(this->stats.total_loss, 2) << std::endl;
-    file << "Total fees: $" << decimal_floor(this->stats.total_fees, 2) << std::endl;
-    file << "Total trades: " << this->stats.total_trades << std::endl;
-    file << "Total long trades: " << this->stats.total_long_trades << std::endl;
-    file << "Total short trades: " << this->stats.total_short_trades << std::endl;
-    file << "Total winning trades: " << this->stats.total_winning_trades << std::endl;
-    file << "Total lost trades: " << this->stats.total_lost_trades << std::endl;
-    file << "Max drawdown: " << decimal_floor(-this->stats.max_drawdown * 100, 2) << "%" << std::endl;
-    file << "Win rate : " << decimal_floor(this->stats.win_rate * 100, 2) << "%" << std::endl;
-    file << "Long win rate : " << decimal_floor(this->stats.long_win_rate * 100, 2) << "%" << std::endl;
-    file << "Short win rate : " << decimal_floor(this->stats.short_win_rate * 100, 2) << "%" << std::endl;
-    file << "Average profit: $" << decimal_floor(this->stats.average_profit, 2) << std::endl;
-    file << "Average loss: $" << decimal_floor(this->stats.average_loss, 2) << std::endl;
-    file << "Profit factor: " << decimal_floor(this->stats.profit_factor, 2) << std::endl;
-    file << "Sharpe ratio: " << decimal_floor(this->stats.sharpe_ratio, 2) << std::endl;
-    file << "Sortino ratio: " << decimal_floor(this->stats.sortino_ratio, 2) << std::endl;
+    // Write the HTML content using the provided template
+    file << R"(
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@1.2.1/dist/chartjs-plugin-zoom.min.js"></script>
+    <title>Strategy Report</title>
+    <style>
+        html, body {
+            height: 100%;
+            font-family: 'Avenir';
+        }
+        body {
+            margin: 0;
+            text-align: center;
+        }
+        h1 {
+            margin-top: 10px;
+        }
+        h2 {
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        h3 {
+            color: #666;
+            font-style: italic;
+        }
+        #parameters {
+            margin: 30px auto;
+        }
+        #parameters th {
+            padding: 0px 10px;
+            min-width: 100px;
+        }
+        .report {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            border: solid 1px black;
+            width: max-content;
+            margin: 50px auto;
+        }
+        .report-frame {
+            display: block;
+            margin: 10px;
+            padding: 15px;
+            max-width: 600px;
+        }
+        #chart {
+            padding: auto;
+            margin: auto;
+            width: 1200px;
+        }
+        #historic {
+            text-align: left;
+            width: auto;
+            margin: auto;
+            border-collapse: collapse;
+        }
+        #historic th {
+            padding: 10px;
+            min-width: 65px;
+            border: solid 1px #BBB;
+        }
+        #historic tbody th {
+            font-weight: 200;
+        }
+        #historic td {
+            padding: 10px;
+            border: solid 1px #BBB;
+        }
+    </style>
+</head>
+<body>
+    <h1>Strategy Report</h1>
+    <h3>)"
+         << this->config.general.name + " " + this->config.general.version << R"(</h3>
+
+    <div class="report">
+        <div class="report-frame">
+            <table>
+                <tr>
+                    <td><b>Period:</b></td>
+                    <td>)"
+         << time_t_to_string(std::chrono::system_clock::to_time_t(this->config.training.training_start_date)) + " to " + time_t_to_string(std::chrono::system_clock::to_time_t(this->config.training.training_end_date)) << R"(</td>
+                </tr>
+                <tr>
+                    <td><b>Initial balance:</b></td>
+                    <td>)"
+         << "$" << this->stats.initial_balance << R"(</td>
+                </tr>
+                <tr>
+                    <td><b>Final balance:</b></td>
+                    <td>)"
+         << "$" << this->stats.final_balance << R"(</td>
+                </tr>
+                <tr>
+                    <td><b>Sharpe ratio:</b></td>
+                    <td>)"
+         << this->stats.sharpe_ratio << R"(</td>
+                </tr>
+                <tr>
+                    <td><b>Sortino ratio:</b></td>
+                    <td>)"
+         << this->stats.sortino_ratio << R"(</td>
+                </tr>
+                <tr>
+                    <td><b>Total net profit:</b></td>
+                    <td>)"
+         << "$" << this->stats.total_net_profit << R"(</td>
+                </tr>
+                <tr>
+                    <td><b>Total profit:</b></td>
+                    <td>)"
+         << "$" << this->stats.total_profit << R"(</td>
+                </tr>
+                <tr>
+                    <td><b>Total loss:</b></td>
+                    <td>)"
+         << "$" << this->stats.total_loss << R"(</td>
+                </tr>
+                <tr>
+                    <td><b>Total fees:</b></td>
+                    <td>)"
+         << "$" << this->stats.total_fees << R"(</td>
+                </tr>
+                <tr>
+                    <td><b>Profit factor:</b></td>
+                    <td>)"
+         << this->stats.profit_factor << R"(</td>
+                </tr>
+                <tr>
+                    <td><b>Max drawdown:</b></td>
+                    <td>)"
+         << this->stats.max_drawdown * 100 << "%" << R"(</td>
+                </tr>
+            </table>
+        </div>
+        <div class="report-frame">
+            <table>
+                <tr>
+                    <td><b>Total trades:</b></td>
+                    <td>)"
+         << this->stats.total_trades << R"(</td>
+                </tr>
+                <tr>
+                    <td><b>Total win rate:</b></td>
+                    <td>)"
+         << this->stats.win_rate * 100 << "%" << R"(</td>
+                </tr>
+                <tr>
+                    <td><b>Long win rate:</b></td>
+                    <td>)"
+         << this->stats.long_win_rate * 100 << "%" << R"(</td>
+                </tr>
+                <tr>
+                    <td><b>Short win rate:</b></td>
+                    <td>)"
+         << this->stats.short_win_rate * 100 << "%" << R"(</td>
+                </tr>
+                <tr>
+                    <td><b>Max profit:</b></td>
+                    <td>)"
+         << "$" << this->stats.max_profit << R"(</td>
+                </tr>
+                <tr>
+                    <td><b>Max loss:</b></td>
+                    <td>)"
+         << "$" << std::abs(this->stats.max_loss) << R"(</td>
+                </tr>
+                <tr>
+                    <td><b>Max consecutive profit:</b></td>
+                    <td>)"
+         << "$" << this->stats.max_consecutive_profit << R"(</td>
+                </tr>
+                <tr>
+                    <td><b>Max consecutive loss:</b></td>
+                    <td>)"
+         << "$" << std::abs(this->stats.max_consecutive_loss) << R"(</td>
+                </tr>
+                <tr>
+                    <td><b>Max consecutive wins (count):</b></td>
+                    <td>)"
+         << this->stats.max_consecutive_profit_trades << R"(</td>
+                </tr>
+                <tr>
+                    <td><b>Max consecutive losses (count):</b></td>
+                    <td>)"
+         << this->stats.max_consecutive_loss_trades << R"(</td>
+                </tr>
+                <tr>
+                    <td><b>Average trade duration:</b></td>
+                    <td>)"
+         << this->stats.average_trade_duration << " minutes" << R"(</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <canvas id="chart"></canvas>
+
+    <h2>Trades Historic</h2>
+        <table id="historic">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Entry date</th>
+              <th>Exit date</th>
+              <th>Symbol</th>
+              <th>Side</th>
+              <th>Size</th>
+              <th>Entry price</th>
+              <th>Exit price</th>
+              <th>Pnl</th>
+              <th>Fees</th>
+              <th>Balance</th>
+            </tr>
+          </thead>
+          <tbody>)";
+
+    // Write the trades history to the file
+    double balance = this->stats.initial_balance;
+    for (int i = 0; i < this->trades_history.size(); ++i)
+    {
+        Trade trade = this->trades_history[i];
+        balance += trade.pnl - trade.fees;
+
+        file << R"(
+        <tr>
+            <td>)"
+             << i << R"(</td>
+            <td>)"
+             << time_t_to_string(std::mktime(&trade.entry_date)) << R"(</td>
+            <td>)"
+             << time_t_to_string(std::mktime(&trade.exit_date)) << R"(</td>
+            <td>)"
+             << this->config.general.symbol << R"(</td>
+            <td>)"
+             << (trade.side == PositionSide::LONG ? "LONG" : "SHORT") << R"(</td>
+            <td>)"
+             << trade.size << R"(</td>
+            <td>)"
+             << trade.entry_price << R"(</td>
+            <td>)"
+             << trade.exit_price << R"(</td>
+            <td>)"
+             << trade.pnl << " (" << decimal_round(trade.pnl_percent * 100, 2) << "%)" << R"(</td>
+            <td>)"
+             << decimal_floor(trade.fees, 2) << R"(</td>
+            <td>)"
+             << balance << R"(</td>
+        </tr>)";
+    }
+
+    std::string labels = "";
+    std::string lineData = "";
+    balance = this->stats.initial_balance;
+    for (int i = 0; i < this->trades_history.size(); ++i)
+    {
+        Trade trade = this->trades_history[i];
+        balance += trade.pnl - trade.fees;
+        labels += "\"" + time_t_to_string(std::mktime(&trade.entry_date)) + "\",";
+        lineData += std::to_string(balance) + ",";
+    }
+
+    file << R"(
+        <script>
+            var ctx = document.getElementById('chart').getContext('2d');
+            const data = {
+            labels : [)"
+         << labels <<
+        R"(],
+            datasets : [
+                {
+                    label : 'Balance',
+                    data : [)"
+         << lineData <<
+        R"(],
+                    fill : false,
+                    borderColor : '#007FFF',
+                    tension : 0.1,
+                }
+            ],
+        };
+
+        var config = {
+            type : 'line',
+            data : data,
+            options : {
+                pointRadius : 0,
+                plugins : {
+                    title : {
+                        display : true,
+                        text : 'Balance history',
+                        font : {
+                            size : 32
+                        }
+                    },
+                    zoom : {
+                        zoom : {
+                            wheel : {
+                                enabled : true,
+                            },
+                            mode : 'x',
+                        }
+                    }
+                }
+            }
+        };
+
+        chart = new Chart(ctx, config);
+        
+        </script>
+    </body>
+</html>)";
 
     // Close the file
     file.close();

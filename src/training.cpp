@@ -384,25 +384,6 @@ Trader *Training::get_best_trader_of_generation(int generation) const
 }
 
 /**
- * @brief Print the statistics and details of a given trader.
- * @param trader The Trader object for which to print the statistics.
- */
-void Training::print_trader_stats(Trader *trader)
-{
-    std::cout << "========================== BEST TRADER ==========================" << std::endl;
-    std::cout << "📋 Genome ID: " << trader->genome->id << std::endl;
-    std::cout << "📈 Fitness"
-              << ": " << trader->fitness << std::endl;
-    std::cout << "📈 Score"
-              << ": " << trader->score << std::endl;
-    std::cout << "==================================================================" << std::endl;
-
-    trader->print_stats_to_console();
-
-    std::cout << "==================================================================" << std::endl;
-}
-
-/**
  * @brief Evaluate the performance of a trading algorithm for a given genome and generation.
  * @param genome The genome to be evaluated.
  * @param generation The current generation number.
@@ -484,16 +465,25 @@ int Training::run()
             this->set_best_traders(generation);
 
             // Print the best trader stats
-            this->print_trader_stats(this->best_trader);
+            std::cout << "========================== BEST TRADER ==========================" << std::endl;
+            std::cout << "📋 Genome ID: " << this->best_trader->genome->id << std::endl;
+            std::cout << "📈 Fitness"
+                      << ": " << this->best_trader->fitness << std::endl;
+            std::cout << "📈 Score"
+                      << ": " << this->best_trader->score << std::endl;
+            std::cout << "==================================================================" << std::endl;
+            this->best_trader->print_stats_to_console();
+            std::cout << "==================================================================" << std::endl;
 
             // Save the best trader info of the generation
             std::string genome_save_file = this->directory.generic_string() + "/trader_" + std::to_string(generation) + "_" + best_trader->genome->id + "_genome_save.pkl";
             std::string graphic_file = this->directory.generic_string() + "/trader_" + std::to_string(generation) + "_" + best_trader->genome->id + "_balance_history.png";
             std::string stats_file = this->directory.generic_string() + "/trader_" + std::to_string(generation) + "_" + best_trader->genome->id + "_stats.txt";
+            std::string html_file = this->directory.generic_string() + "/trader_" + std::to_string(generation) + "_" + best_trader->genome->id + "_stats.html";
             best_trader->genome->save(genome_save_file);
             best_trader->print_balance_history_graph(graphic_file);
-            best_trader->print_stats_to_file(stats_file);
-            std::cout << "📊 Trader report saved!" << std::endl;
+            best_trader->print_stats_to_html_file(html_file);
+            std::cout << "📊 Trader report generated!" << std::endl;
 
             // The training of generation is finished
             std::cout << "✅ Training of generation " << generation << " finished!" << std::endl;

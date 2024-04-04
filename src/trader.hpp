@@ -74,6 +74,11 @@ public:
     void calculate_fitness();
 
     /**
+     * @brief Calcule the trader statistics.
+     */
+    void calculate_stats();
+
+    /**
      * @brief Trade according to the decision.
      */
     void trade();
@@ -130,11 +135,6 @@ public:
     void update_position_pnl(double price = 0.0);
 
     /**
-     * @brief Calcule the trader statistics.
-     */
-    void calculate_stats();
-
-    /**
      * @brief Print the statistics of the trader in the console.
      */
     void print_stats_to_console();
@@ -146,10 +146,10 @@ public:
     void print_balance_history_graph(const std::string &filename);
 
     /**
-     * @brief Print the statistics of the trader in a file.
-     * @param filename Filename of the file.
+     * @brief Print the statistics adn the trades list of the trader in a HTML file.
+     * @param filename Filename of the HTML file.
      */
-    void print_stats_to_file(const std::string &filename);
+    void print_stats_to_html_file(const std::string &filename);
 };
 
 #endif // TRADER_HPP

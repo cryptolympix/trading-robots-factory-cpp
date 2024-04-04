@@ -114,12 +114,6 @@ public:
     Trader *get_best_trader_of_generation(int generation) const;
 
     /**
-     * @brief Print the statistics and details of a given trader.
-     * @param trader The Trader object for which to print the statistics.
-     */
-    void print_trader_stats(Trader *trader);
-
-    /**
      * @brief Evaluate the performance of a trading algorithm for a given genome and generation.
      * @param genome The genome to be evaluated.
      * @param generation The current generation number.

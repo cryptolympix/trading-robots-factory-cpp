@@ -178,5 +178,5 @@ double calculate_liquidation_price(Position position, int leverage, SymbolInfo s
 double calculate_commission(double commission_per_lot, double lot_size, double base_currency_conversion_rate)
 {
     double commission = commission_per_lot * lot_size * base_currency_conversion_rate;
-    return decimal_round(commission, 2);
+    return commission;
 }
