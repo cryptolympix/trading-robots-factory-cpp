@@ -229,22 +229,34 @@ void Trader::calculate_fitness()
     double max_drawdown_eval = 0;
     double profit_factor_eval = 0;
     double win_rate_eval = 0;
-    double expected_return_eval = 0;
+    double expected_return_per_day_eval = 0;
     double expected_return_per_month_eval = 0;
-    double expected_return_per_trade_eval = 0;
 
     double nb_trades_weight = 1;
     double max_drawdown_weight = 1;
     double profit_factor_weight = 1;
     double win_rate_weight = 1;
-    double expected_return_weight = 1;
+    double expected_return_per_day_weight = 1;
     double expected_return_per_month_weight = 1;
-    double expected_return_per_trade_weight = 1;
 
-    if (goals.nb_trades.has_value())
+    if (goals.nb_trades_minimum.has_value() || goals.nb_trades_maximum.has_value())
     {
-        int diff = abs(goals.nb_trades.value() - stats.total_trades);
-        nb_trades_eval = nb_trades_weight / std::exp(diff);
+        if (goals.nb_trades_minimum.has_value() && goals.nb_trades_maximum.has_value())
+        {
+            double diff_min = 10 * std::max(0, goals.nb_trades_minimum.value() - this->stats.total_trades);
+            double diff_max = 10 * std::max(0, this->stats.total_trades - goals.nb_trades_maximum.value());
+            nb_trades_eval = nb_trades_weight / std::exp(diff_min + diff_max);
+        }
+        else if (goals.nb_trades_minimum.has_value())
+        {
+            double diff = 10 * std::max(0, goals.nb_trades_minimum.value() - this->stats.total_trades);
+            nb_trades_eval = nb_trades_weight / std::exp(diff);
+        }
+        else if (goals.nb_trades_maximum.has_value())
+        {
+            double diff = 10 * std::max(0, this->stats.total_trades - goals.nb_trades_maximum.value());
+            nb_trades_eval = nb_trades_weight / std::exp(diff);
+        }
     }
 
     if (goals.maximum_drawdown.has_value())
@@ -265,32 +277,43 @@ void Trader::calculate_fitness()
         win_rate_eval = win_rate_weight / std::exp(diff);
     }
 
-    if (goals.expected_return.has_value())
+    if (goals.expected_return_per_day.has_value())
     {
-        double diff = 10 * std::max(0.0, goals.expected_return.value() - stats.performance);
-        expected_return_eval = expected_return_weight / std::exp(diff);
+        std::map<std::string, double> daily_returns = {};
+        for (const auto &trade : this->trades_history)
+        {
+            std::tm exit_date = trade.exit_date;
+            double trade_return = trade.pnl_percent;
+            std::stringstream date_key;
+            date_key << std::put_time(&exit_date, "%Y-%m-%d");
+            daily_returns[date_key.str()] = trade_return;
+        }
+
+        int nb_days = daily_returns.size();
+        for (const auto &daily_return : daily_returns)
+        {
+            double diff = 10 * std::max(0.0, goals.expected_return_per_day.value() - daily_return.second);
+            expected_return_per_day_eval += expected_return_per_day_weight / (nb_days * std::exp(diff));
+        }
     }
 
     if (goals.expected_return_per_month.has_value())
     {
-    }
-
-    if (goals.expected_return_per_trade.has_value())
-    {
-        std::vector<double> winning_trades_returns = {};
+        std::map<std::string, double> monthly_returns = {};
         for (const auto &trade : this->trades_history)
         {
-            if (trade.pnl >= 0)
-            {
-                winning_trades_returns.push_back(trade.pnl_percent);
-            }
+            std::tm exit_date = trade.exit_date;
+            double trade_return = trade.pnl_percent;
+            std::stringstream date_key;
+            date_key << std::put_time(&exit_date, "%Y-%m");
+            monthly_returns[date_key.str()] += trade_return;
         }
 
-        for (const auto &winning_trade_return : winning_trades_returns)
+        int nb_months = monthly_returns.size();
+        for (const auto &monthly_return : monthly_returns)
         {
-            double diff = 10 * std::max(0.0, goals.expected_return_per_trade.value() - winning_trade_return);
-            double max_weight_per_trade = expected_return_per_trade_weight / static_cast<double>(winning_trades_returns.size());
-            expected_return_per_trade_eval += max_weight_per_trade / std::exp(diff);
+            double diff = 10 * std::max(0.0, goals.expected_return_per_month.value() - monthly_return.second);
+            expected_return_per_month_eval += expected_return_per_month_weight / (nb_months * std::exp(diff));
         }
     }
 
@@ -303,8 +326,7 @@ void Trader::calculate_fitness()
         this->fitness = 0;
         return;
     }
-
-    if (goals.nb_trades.has_value())
+    if (goals.nb_trades_minimum.has_value() || goals.nb_trades_maximum.has_value())
     {
         this->fitness *= nb_trades_eval;
     }
@@ -320,13 +342,13 @@ void Trader::calculate_fitness()
     {
         this->fitness *= win_rate_eval;
     }
-    if (goals.expected_return.has_value())
+    if (goals.expected_return_per_day.has_value())
     {
-        this->fitness *= expected_return_eval;
+        this->fitness *= expected_return_per_day_eval;
     }
-    if (goals.expected_return_per_trade.has_value())
+    if (goals.expected_return_per_month.has_value())
     {
-        this->fitness *= expected_return_per_trade_eval;
+        this->fitness *= expected_return_per_month_eval;
     }
 }
 
@@ -607,9 +629,31 @@ void Trader::trade()
 
     // Check if the trader can trade at the moment
     bool schedule_is_ok = true;
-    std::tm current_time = *std::localtime(&this->current_date);
-    TradingSchedule trading_schedule = this->config.strategy.trading_schedule;
-    schedule_is_ok = is_on_trading_schedule(current_time, trading_schedule);
+    if (this->config.strategy.trading_schedule.has_value())
+    {
+        std::tm current_time = *std::localtime(&this->current_date);
+        TradingSchedule trading_schedule = this->config.strategy.trading_schedule.value();
+        schedule_is_ok = is_on_trading_schedule(current_time, trading_schedule);
+    }
+
+    // Check the number trades made today
+    bool number_of_trades_per_day_is_ok = true;
+    if (this->config.strategy.maximum_trades_per_day.has_value())
+    {
+        int number_of_trades_today = 0;
+        for (const auto &trade : this->trades_history)
+        {
+            int current_year = std::localtime(&this->current_date)->tm_year;
+            int current_month = std::localtime(&this->current_date)->tm_mon;
+            int current_day = std::localtime(&this->current_date)->tm_mday;
+
+            if (trade.entry_date.tm_year == current_year && trade.entry_date.tm_mon == current_month && trade.entry_date.tm_mday == current_day)
+            {
+                number_of_trades_today++;
+            }
+        }
+        number_of_trades_per_day_is_ok = number_of_trades_today < this->config.strategy.maximum_trades_per_day.value();
+    }
 
     // Check if the spread is ok
     bool spread_is_ok = true;
@@ -627,7 +671,7 @@ void Trader::trade()
     }
 
     // Check if the trader can trade now
-    bool can_trade_now = schedule_is_ok && spread_is_ok && time_after_previous_trade_is_ok;
+    bool can_trade_now = schedule_is_ok && number_of_trades_per_day_is_ok && spread_is_ok && time_after_previous_trade_is_ok;
 
     // Check if the trader can close a trade
     bool can_close_position = true;

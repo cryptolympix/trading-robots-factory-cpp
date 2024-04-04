@@ -253,12 +253,13 @@ struct StrategyConfig
 {
     TimeFrame timeframe;                                   // Time frame
     double maximum_risk;                                   // Maximum risk
+    std::optional<int> maximum_trades_per_day;             // Maximum trades per day
     std::optional<double> maximum_spread;                  // Maximum spread
     std::optional<int> minimum_trade_duration;             // Minimum trade duration
     std::optional<int> maximum_trade_duration;             // Maximum trade duration
     std::optional<int> minimum_duration_before_next_trade; // Minimum duration before the next trade
     TakeProfitStopLossConfig take_profit_stop_loss_config; // Take profit and stop loss configuration
-    TradingSchedule trading_schedule;                      // Trading schedule
+    std::optional<TradingSchedule> trading_schedule;       // Trading schedule
 };
 
 /**
@@ -290,10 +291,10 @@ struct TrainingConfig
  */
 struct EvaluationConfig
 {
-    std::optional<int> nb_trades;                    // Number of trades
-    std::optional<double> expected_return;           // Expected return in % of capital
+    std::optional<int> nb_trades_minimum;            // Minimum number of trades
+    std::optional<int> nb_trades_maximum;            // Maximum number of trades
+    std::optional<double> expected_return_per_day;   // Expected return per day in % of capital
     std::optional<double> expected_return_per_month; // Expected return per month in % of capital
-    std::optional<double> expected_return_per_trade; // Expected return per trade in % of capital
     std::optional<double> maximum_drawdown;          // Maximum drawdown
     std::optional<double> minimum_winrate;           // Minimum win rate
     std::optional<double> minimum_profit_factor;     // Minimum profit factor

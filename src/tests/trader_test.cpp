@@ -513,15 +513,13 @@ TEST_F(TraderTest, ClosePositionForDurationExceeded)
         .tm_hour = 0,
         .tm_min = 0,
         .tm_sec = 0};
-    auto entry_datetime = std::chrono::system_clock::from_time_t(std::mktime(&entry_date));
 
     trader->open_position_by_market(1.01, 1.0, OrderSide::LONG);
     trader->current_position->entry_date = entry_date;
     trader->update_position_pnl();
 
     // Set trader's date after the maximum trade duration has passed
-    auto exit_datetime = entry_datetime + std::chrono::minutes((config.strategy.maximum_trade_duration.value() + 1) * get_time_frame_value(config.strategy.timeframe));
-    trader->current_date = std::chrono::system_clock::to_time_t(exit_datetime);
+    trader->current_date = std::mktime(&entry_date) + (config.strategy.maximum_trade_duration.value() + 1) * 60 * get_time_frame_value(config.strategy.timeframe);
 
     // Call the update method
     trader->trade();
@@ -548,7 +546,6 @@ TEST_F(TraderTest, WaitForDurationBeforeClosePosition)
         .tm_hour = 0,
         .tm_min = 0,
         .tm_sec = 0};
-    auto entry_datetime = std::chrono::system_clock::from_time_t(std::mktime(&entry_date));
 
     trader->open_position_by_market(1.00, 1.0, OrderSide::LONG);
     trader->current_position->entry_date = entry_date;
@@ -556,8 +553,7 @@ TEST_F(TraderTest, WaitForDurationBeforeClosePosition)
     trader->decisions = {0.0, 0.0, 0.0, 1.0, 0.0};
 
     // Set trader's date before the minimum trade duration has passed
-    auto exit_datetime = entry_datetime + std::chrono::minutes((config.strategy.maximum_trade_duration.value() - 1) * get_time_frame_value(config.strategy.timeframe));
-    trader->current_date = std::chrono::system_clock::to_time_t(exit_datetime);
+    trader->current_date = std::mktime(&entry_date) + (config.strategy.maximum_trade_duration.value() - 1) * 60 * get_time_frame_value(config.strategy.timeframe);
 
     // Call the trade method
     trader->trade();
@@ -585,6 +581,15 @@ TEST_F(TraderTest, WaitForNextTrade)
 
     // Check if the position is still in progress
     ASSERT_EQ(trader->current_position, nullptr);
+
+    // Set trader's date after the minimum duration before next trade has passed
+    trader->current_date = std::mktime(&date_tm) + (config.strategy.minimum_duration_before_next_trade.value() + 1) * 60 * get_time_frame_value(config.strategy.timeframe);
+
+    // Call the trade method
+    trader->trade();
+
+    // Check if a new position is opened
+    ASSERT_TRUE(trader->current_position != nullptr);
 }
 
 TEST_F(TraderTest, CreateTpSlForLongPosition)
