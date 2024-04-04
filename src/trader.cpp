@@ -156,8 +156,8 @@ void Trader::look(CandlesData &candles, IndicatorsData &indicators, double base_
         else if (info == PositionInfo::DURATION)
         {
             // check the difference between the current date and the entry date in minutes
-            std::time_t entry_date = std::mktime(&this->current_position->entry_date);
-            double position_duration = std::difftime(this->current_date, entry_date) / get_time_frame_value(config.strategy.timeframe);
+            time_t entry_date = std::mktime(&this->current_position->entry_date);
+            double position_duration = std::difftime(this->current_date, entry_date) / (get_time_frame_value(config.strategy.timeframe) * 60);
             position_info.push_back(position_duration);
         }
     }
@@ -225,13 +225,13 @@ void Trader::calculate_fitness()
 {
     EvaluationConfig goals = this->config.evaluation;
 
-    double nb_trades_eval = 1;
-    double max_drawdown_eval = 1;
-    double profit_factor_eval = 1;
-    double win_rate_eval = 1;
-    double expected_return_eval = 1;
-    double expected_return_per_month_eval = 1;
-    double expected_return_per_trade_eval = 1;
+    double nb_trades_eval = 0;
+    double max_drawdown_eval = 0;
+    double profit_factor_eval = 0;
+    double win_rate_eval = 0;
+    double expected_return_eval = 0;
+    double expected_return_per_month_eval = 0;
+    double expected_return_per_trade_eval = 0;
 
     double nb_trades_weight = 1;
     double max_drawdown_weight = 1;
@@ -296,7 +296,38 @@ void Trader::calculate_fitness()
 
     // ***************** FORMULA TO CALCULATE FITNESS ***************** //
 
-    this->fitness = nb_trades_eval * win_rate_eval * max_drawdown_eval * profit_factor_eval * expected_return_eval * expected_return_per_month_eval * expected_return_per_trade_eval;
+    this->fitness = 1;
+
+    if (this->trades_history.empty())
+    {
+        this->fitness = 0;
+        return;
+    }
+
+    if (goals.nb_trades.has_value())
+    {
+        this->fitness *= nb_trades_eval;
+    }
+    if (goals.maximum_drawdown.has_value())
+    {
+        this->fitness *= max_drawdown_eval;
+    }
+    if (goals.minimum_profit_factor.has_value())
+    {
+        this->fitness *= profit_factor_eval;
+    }
+    if (goals.minimum_winrate.has_value())
+    {
+        this->fitness *= win_rate_eval;
+    }
+    if (goals.expected_return.has_value())
+    {
+        this->fitness *= expected_return_eval;
+    }
+    if (goals.expected_return_per_trade.has_value())
+    {
+        this->fitness *= expected_return_per_trade_eval;
+    }
 }
 
 /**
@@ -481,20 +512,14 @@ void Trader::calculate_stats()
         double total_duration = 0;
         for (auto &trade : this->trades_history)
         {
-            // Convert entry and exit dates to std::time_t
-            std::time_t entry_time = std::mktime(&trade.entry_date);
-            std::time_t exit_time = std::mktime(&trade.exit_date);
-
-            // Check if entry and exit times are valid
-            if (entry_time != -1 && exit_time != -1)
+            if (trade.exit_date.tm_year != 0)
             {
-                // Calculate the duration in seconds
-                double duration = std::difftime(exit_time, entry_time);
-                total_duration += duration;
+                time_t entry_date = std::mktime(&trade.entry_date);
+                time_t exit_date = std::mktime(&trade.exit_date);
+                total_duration += std::difftime(exit_date, entry_date) / 60;
             }
         }
-        // Get the average duration in minutes
-        this->stats.average_trade_duration = (total_duration / static_cast<double>(this->stats.total_trades)) / 60.0;
+        this->stats.average_trade_duration = total_duration / static_cast<double>(this->stats.total_trades) / static_cast<double>(get_time_frame_value(this->config.strategy.timeframe));
     }
 
     // Calculate the maximum consecutive profit
@@ -560,7 +585,7 @@ void Trader::trade()
         int max_trade_duration_minutes = config.strategy.maximum_trade_duration.value() * get_time_frame_value(loop_interval);
 
         // Check if the position has reached the maximum trade duration
-        if (std::chrono::system_clock::from_time_t(this->current_date) > std::chrono::system_clock::from_time_t(std::mktime(&entry_date)) + std::chrono::minutes(max_trade_duration_minutes))
+        if (this->current_date >= std::mktime(&entry_date) + 60 * max_trade_duration_minutes)
         {
             this->close_position_by_market(last_candle.close);
         }
@@ -595,11 +620,10 @@ void Trader::trade()
 
     // Check if the time after the previous trade is ok
     bool time_after_previous_trade_is_ok = true;
-    if (this->last_position_date)
+    if (this->last_position_date || this->trades_history.empty())
     {
-        std::tm last_position_date = *std::localtime(&this->last_position_date);
-        int minutes_after_previous_trade = std::difftime(this->current_date, std::mktime(&last_position_date)) / get_time_frame_value(this->config.strategy.timeframe);
-        time_after_previous_trade_is_ok = minutes_after_previous_trade > this->config.strategy.minimum_duration_before_next_trade;
+        int minutes_after_previous_trade = std::difftime(this->current_date, this->last_position_date) / (60 * loop_interval_minutes);
+        time_after_previous_trade_is_ok = minutes_after_previous_trade >= this->config.strategy.minimum_duration_before_next_trade;
     }
 
     // Check if the trader can trade now
@@ -617,9 +641,9 @@ void Trader::trade()
     }
     else
     {
-        std::chrono::system_clock::time_point current_date = std::chrono::system_clock::from_time_t(this->current_date);
-        std::chrono::system_clock::time_point entry_date = std::chrono::system_clock::from_time_t(std::mktime(&this->current_position->entry_date));
-        can_close_position = current_date > entry_date + std::chrono::minutes(loop_interval_minutes) * this->config.strategy.minimum_trade_duration.value();
+        time_t current_date = this->current_date;
+        time_t entry_date = std::mktime(&this->current_position->entry_date);
+        can_close_position = current_date > entry_date + loop_interval_minutes * 60 * this->config.strategy.minimum_trade_duration.value();
     }
 
     if (can_trade_now)
@@ -994,7 +1018,7 @@ void Trader::print_stats_to_console()
     std::cout << "Max loss: " << this->stats.max_loss << std::endl;
     std::cout << "Max consecutive profit: " << this->stats.max_consecutive_profit << std::endl;
     std::cout << "Max consecutive loss: " << this->stats.max_consecutive_loss << std::endl;
-    std::cout << "Average trade duration: " << this->stats.average_trade_duration << " minutes" << std::endl;
+    std::cout << "Average trade duration: " << this->stats.average_trade_duration << " candles" << std::endl;
     std::cout << "Sharpe ratio: " << decimal_floor(this->stats.sharpe_ratio, 2) << std::endl;
     std::cout << "Sortino ratio: " << decimal_floor(this->stats.sortino_ratio, 2) << std::endl;
 }
@@ -1273,7 +1297,7 @@ void Trader::generate_report(const std::string &filename)
                 <tr>
                     <td><b>Average trade duration:</b></td>
                     <td>)"
-         << this->stats.average_trade_duration << " minutes" << R"(</td>
+         << this->stats.average_trade_duration << " candles" << R"(</td>
                 </tr>
             </table>
         </div>
@@ -1339,12 +1363,16 @@ void Trader::generate_report(const std::string &filename)
 
     std::string labels = "";
     std::string lineData = "";
+
     balance = this->stats.initial_balance;
+    labels += "\"" + time_t_to_string(std::chrono::system_clock::to_time_t(this->config.training.training_start_date)) + "\",";
+    lineData += std::to_string(balance) + ",";
+
     for (int i = 0; i < this->trades_history.size(); ++i)
     {
         Trade trade = this->trades_history[i];
         balance += trade.pnl - trade.fees;
-        labels += "\"" + time_t_to_string(std::mktime(&trade.entry_date)) + "\",";
+        labels += "\"" + time_t_to_string(std::mktime(&trade.exit_date)) + "\",";
         lineData += std::to_string(balance) + ",";
     }
 

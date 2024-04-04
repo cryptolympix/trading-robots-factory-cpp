@@ -55,7 +55,7 @@ protected:
                 .initial_balance = 1000,
                 .account_currency = "USD",
             },
-            .strategy = {.timeframe = TimeFrame::H1, .maximum_risk = 0.02, .maximum_spread = 8, .minimum_trade_duration = 5, .maximum_trade_duration = 20, .take_profit_stop_loss_config = {
+            .strategy = {.timeframe = TimeFrame::H1, .maximum_risk = 0.02, .maximum_spread = 8, .minimum_trade_duration = 4, .maximum_trade_duration = 20, .take_profit_stop_loss_config = {
                                                                                                                                                                .type_stop_loss = TypeTakeProfitStopLoss::POINTS,
                                                                                                                                                                .stop_loss_in_points = 300,
                                                                                                                                                                .stop_loss_in_percent = 0.01,
@@ -68,15 +68,7 @@ protected:
                                                                                                                                                                                  .indicators = {{TimeFrame::M15, {new RSI()}}, {TimeFrame::M30, {new RSI()}}, {TimeFrame::H1, {new RSI()}}},
                                                                                                                                                                                  .position = {PositionInfo::TYPE, PositionInfo::PNL, PositionInfo::DURATION},
                                                                                                                                                                              }},
-            .evaluation = {
-                .nb_trades = 30,
-                .maximum_drawdown = 0.1,
-                .expected_return = 0.1,
-                .expected_return_per_month = 0.1,
-                .expected_return_per_trade = 0.01,
-                .minimum_profit_factor = 2,
-                .minimum_winrate = 0.5,
-            },
+            .evaluation = {.nb_trades = 30, .maximum_drawdown = 0.1, .expected_return = 0.1, .expected_return_per_month = 0.1, .expected_return_per_trade = 0.01, .minimum_profit_factor = 2, .minimum_winrate = 0.5},
             .neat = load_config("src/configs/neat_config_test.ini"),
         };
         config.neat.population_size = 5;

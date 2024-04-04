@@ -65,8 +65,22 @@ std::tm end_test_date = {
     .tm_sec = 0};
 
 Config test_config = {
-    .general{.name = "test", .version = "1.0", .symbol = "EURUSD", .initial_balance = 1000.0, .account_currency = "USD", .leverage = 100},
-    .strategy{.timeframe = TimeFrame::M15, .maximum_risk = 0.1, .maximum_spread = 8, .minimum_trade_duration = 5, .maximum_trade_duration = 50, .trading_schedule = schedule, .take_profit_stop_loss_config = tpsl_config},
+    .general{
+        .name = "test",
+        .version = "1.0",
+        .symbol = "EURUSD",
+        .initial_balance = 1000.0,
+        .account_currency = "USD",
+        .leverage = 100},
+    .strategy{
+        .timeframe = TimeFrame::M15,
+        .maximum_risk = 0.1,
+        .maximum_spread = 8,
+        .minimum_trade_duration = 0,
+        .maximum_trade_duration = 4,
+        .minimum_duration_before_next_trade = 20,
+        .trading_schedule = schedule,
+        .take_profit_stop_loss_config = tpsl_config},
     .training{
         .generations = 100,
         .bad_trader_threshold = 0.01,
