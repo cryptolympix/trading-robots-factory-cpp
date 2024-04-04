@@ -1317,7 +1317,8 @@ void Trader::generate_report(const std::string &filename)
              << time_t_to_string(std::mktime(&trade.exit_date)) << R"(</td>
             <td>)"
              << this->config.general.symbol << R"(</td>
-            <td>)"
+            <td style=)"
+             << (trade.side == PositionSide::LONG ? "\"color: green;\"" : "\"color: red;\"") << R"(>)"
              << (trade.side == PositionSide::LONG ? "LONG" : "SHORT") << R"(</td>
             <td>)"
              << trade.size << R"(</td>
@@ -1325,8 +1326,10 @@ void Trader::generate_report(const std::string &filename)
              << trade.entry_price << R"(</td>
             <td>)"
              << trade.exit_price << R"(</td>
-            <td>)"
-             << trade.pnl << " (" << decimal_round(trade.pnl_percent * 100, 2) << "%)" << R"(</td>
+            <td style=)"
+             << (trade.pnl >= 0 ? "\"color: green;\"" : "\"color: red;\"") << R"(>)"
+             << trade.pnl << " (" << decimal_round(trade.pnl_percent * 100, 2) << "%)"
+             << R"(</td>
             <td>)"
              << decimal_floor(trade.fees, 2) << R"(</td>
             <td>)"
