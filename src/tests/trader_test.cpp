@@ -102,8 +102,8 @@ protected:
             .total_lost_trades = 0,
             .total_lost_long_trades = 0,
             .total_lost_short_trades = 0,
-            .max_consecutive_profit_trades = 0,
-            .max_consecutive_loss_trades = 0,
+            .max_consecutive_winning_trades = 0,
+            .max_consecutive_lost_trades = 0,
             .profit_factor = 0,
             .max_drawdown = 0,
             .win_rate = 0,
@@ -923,8 +923,8 @@ TEST_F(TraderTest, CalculateStatsMaximumProfitLossTrades)
     trader->calculate_stats();
 
     // Check the new stats
-    ASSERT_EQ(trader->stats.max_consecutive_profit_trades, 2);
-    ASSERT_EQ(trader->stats.max_consecutive_loss_trades, 2);
+    ASSERT_EQ(trader->stats.max_consecutive_winning_trades, 2);
+    ASSERT_EQ(trader->stats.max_consecutive_lost_trades, 2);
 }
 
 TEST_F(TraderTest, CalculateStatsMaxProfitLoss)
@@ -1004,14 +1004,14 @@ TEST_F(TraderTest, CalculateFitness)
     ASSERT_GT(trader->fitness, 0.0);
 }
 
-TEST_F(TraderTest, PrintBalanceHistoryGraph)
+TEST_F(TraderTest, GenerateBalanceHistoryGraph)
 {
     // Mock data for testing
     trader->balance_history = {1000.0, 900.0, 1100.0, 1000.0};
 
-    // Call the print_balance_history_graphic method
+    // Call the generate_balance_history_graphic method
     std::filesystem::path file = "cache/tests/trader_balance_history.png";
-    trader->print_balance_history_graph(file);
+    trader->generate_balance_history_graph(file);
 
     // Check if the graphic is created
     ASSERT_TRUE(std::filesystem::exists(file));
@@ -1020,14 +1020,14 @@ TEST_F(TraderTest, PrintBalanceHistoryGraph)
     std::filesystem::remove_all(file.parent_path());
 }
 
-// TEST_F(TraderTest, PrintStatsToHtmlFile)
+// TEST_F(TraderTest, GenerateReport)
 // {
 //     // Mock data for testing
 //     trader->calculate_stats();
 
-//     // Call the print_stats_to_file method
-//     std::filesystem::path file = "cache/tests/trader_stats.png";
-//     trader->print_stats_to_html_file(file);
+//     // Call the generate_report method
+//     std::filesystem::path file = "cache/tests/trader_report.png";
+//     trader->generate_report(file);
 
 //     // Check if the graphic is created
 //     ASSERT_TRUE(std::filesystem::exists(file));

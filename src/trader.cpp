@@ -71,8 +71,8 @@ Trader::Trader(Genome *genome, Config config, Logger *logger)
         .total_lost_long_trades = 0,
         .total_lost_short_trades = 0,
         .profit_factor = 0,
-        .max_consecutive_profit_trades = 0,
-        .max_consecutive_loss_trades = 0,
+        .max_consecutive_winning_trades = 0,
+        .max_consecutive_lost_trades = 0,
         .max_drawdown = 0,
         .win_rate = 0,
         .long_win_rate = 0,
@@ -443,35 +443,35 @@ void Trader::calculate_stats()
                                    .pnl;
     }
 
-    // Calculate the maximum consecutive profit trades
-    this->stats.max_consecutive_profit_trades = 0;
-    int current_consecutive_profit_trades = 0;
+    // Calculate the maximum consecutive winning trades
+    this->stats.max_consecutive_winning_trades = 0;
+    int current_consecutive_winning_trades = 0;
     for (const auto &trade : this->trades_history)
     {
         if (trade.pnl >= 0)
         {
-            current_consecutive_profit_trades++;
-            this->stats.max_consecutive_profit_trades = std::max(this->stats.max_consecutive_profit_trades, current_consecutive_profit_trades);
+            current_consecutive_winning_trades++;
+            this->stats.max_consecutive_winning_trades = std::max(this->stats.max_consecutive_winning_trades, current_consecutive_winning_trades);
         }
         else
         {
-            current_consecutive_profit_trades = 0;
+            current_consecutive_winning_trades = 0;
         }
     }
 
-    // Calculate the maximum consecutive loss trades
-    this->stats.max_consecutive_loss_trades = 0;
-    int current_consecutive_loss_trades = 0;
+    // Calculate the maximum consecutive lost trades
+    this->stats.max_consecutive_lost_trades = 0;
+    int current_consecutive_lost_trades = 0;
     for (const auto &trade : this->trades_history)
     {
         if (trade.pnl < 0)
         {
-            current_consecutive_loss_trades++;
-            this->stats.max_consecutive_loss_trades = std::max(this->stats.max_consecutive_loss_trades, current_consecutive_loss_trades);
+            current_consecutive_lost_trades++;
+            this->stats.max_consecutive_lost_trades = std::max(this->stats.max_consecutive_lost_trades, current_consecutive_lost_trades);
         }
         else
         {
-            current_consecutive_loss_trades = 0;
+            current_consecutive_lost_trades = 0;
         }
     }
 
@@ -969,41 +969,41 @@ void Trader::update_position_pnl(double price)
 void Trader::print_stats_to_console()
 {
     std::cout << "------------------------------ STATS -----------------------------" << std::endl;
-    std::cout << "Initial balance: $" << decimal_floor(this->stats.initial_balance, 2) << std::endl;
-    std::cout << "Final balance: $" << decimal_floor(this->stats.final_balance, 2) << std::endl;
+    std::cout << "Initial balance: " << decimal_floor(this->stats.initial_balance, 2) << std::endl;
+    std::cout << "Final balance: " << decimal_floor(this->stats.final_balance, 2) << std::endl;
     std::cout << "Performance: " << decimal_floor(this->stats.performance * 100, 2) << "%" << std::endl;
-    std::cout << "Total net profit: $" << decimal_floor(this->stats.total_net_profit, 2) << std::endl;
-    std::cout << "Total profit: $" << decimal_floor(this->stats.total_profit, 2) << std::endl;
-    std::cout << "Total loss: $" << decimal_floor(this->stats.total_loss, 2) << std::endl;
-    std::cout << "Total fees: $" << decimal_floor(this->stats.total_fees, 2) << std::endl;
+    std::cout << "Total net profit: " << decimal_floor(this->stats.total_net_profit, 2) << std::endl;
+    std::cout << "Total profit: " << decimal_floor(this->stats.total_profit, 2) << std::endl;
+    std::cout << "Total loss: " << decimal_floor(this->stats.total_loss, 2) << std::endl;
+    std::cout << "Total fees: " << decimal_floor(this->stats.total_fees, 2) << std::endl;
     std::cout << "Total trades: " << this->stats.total_trades << std::endl;
     std::cout << "Total long trades: " << this->stats.total_long_trades << std::endl;
     std::cout << "Total short trades: " << this->stats.total_short_trades << std::endl;
     std::cout << "Total winning trades: " << this->stats.total_winning_trades << std::endl;
     std::cout << "Total lost trades: " << this->stats.total_lost_trades << std::endl;
-    std::cout << "Max consecutive profit trades: " << this->stats.max_consecutive_profit_trades << std::endl;
-    std::cout << "Max consecutive loss trades: " << this->stats.max_consecutive_loss_trades << std::endl;
+    std::cout << "Max consecutive winning trades: " << this->stats.max_consecutive_winning_trades << std::endl;
+    std::cout << "Max consecutive lost trades: " << this->stats.max_consecutive_lost_trades << std::endl;
     std::cout << "Profit factor: " << decimal_floor(this->stats.profit_factor, 2) << std::endl;
-    std::cout << "Max consecutive win: " << this->stats.max_consecutive_profit_trades << std::endl;
-    std::cout << "Max consecutive loss: " << this->stats.max_consecutive_loss_trades << std::endl;
     std::cout << "Max drawdown: " << decimal_floor(-this->stats.max_drawdown * 100, 2) << "%" << std::endl;
     std::cout << "Win rate: " << decimal_floor(this->stats.win_rate * 100, 2) << "%" << std::endl;
     std::cout << "Long win rate: " << decimal_floor(this->stats.long_win_rate * 100, 2) << "%" << std::endl;
     std::cout << "Short win rate: " << decimal_floor(this->stats.short_win_rate * 100, 2) << "%" << std::endl;
-    std::cout << "Average profit: $" << decimal_floor(this->stats.average_profit, 2) << std::endl;
-    std::cout << "Average loss: $" << decimal_floor(this->stats.average_loss, 2) << std::endl;
-    std::cout << "Max profit: $" << decimal_floor(this->stats.max_profit, 2) << std::endl;
-    std::cout << "Max loss: $" << decimal_floor(this->stats.max_loss, 2) << std::endl;
+    std::cout << "Average profit: " << decimal_floor(this->stats.average_profit, 2) << std::endl;
+    std::cout << "Average loss: " << decimal_floor(this->stats.average_loss, 2) << std::endl;
+    std::cout << "Max profit: " << decimal_floor(this->stats.max_profit, 2) << std::endl;
+    std::cout << "Max loss: " << decimal_floor(this->stats.max_loss, 2) << std::endl;
+    std::cout << "Max consecutive profit: " << decimal_floor(this->stats.max_consecutive_profit, 2) << std::endl;
+    std::cout << "Max consecutive loss: " << decimal_floor(this->stats.max_consecutive_loss, 2) << std::endl;
     std::cout << "Average trade duration: " << this->stats.average_trade_duration << " minutes" << std::endl;
     std::cout << "Sharpe ratio: " << decimal_floor(this->stats.sharpe_ratio, 2) << std::endl;
     std::cout << "Sortino ratio: " << decimal_floor(this->stats.sortino_ratio, 2) << std::endl;
 }
 
 /**
- * @brief Print the graph of the balance history.
+ * @brief Generate the graph of the balance history.
  * @param filename Filename of the graph.
  */
-void Trader::print_balance_history_graph(const std::string &filename)
+void Trader::generate_balance_history_graph(const std::string &filename)
 {
     // Check if the directory exists
     std::filesystem::path dir = std::filesystem::path(filename).parent_path();
@@ -1048,10 +1048,10 @@ void Trader::print_balance_history_graph(const std::string &filename)
 }
 
 /**
- * @brief Print the statistics adn the trades list of the trader in a HTML file.
+ * @brief Print the statistics and the trades list of the trader in a HTML file.
  * @param filename Filename of the HTML file.
  */
-void Trader::print_stats_to_html_file(const std::string &filename)
+void Trader::generate_report(const std::string &filename)
 {
     // Check if the directory exists
     std::filesystem::path dir = std::filesystem::path(filename).parent_path();
@@ -1164,12 +1164,17 @@ void Trader::print_stats_to_html_file(const std::string &filename)
                 <tr>
                     <td><b>Initial balance:</b></td>
                     <td>)"
-         << "$" << this->stats.initial_balance << R"(</td>
+         << this->stats.initial_balance << R"(</td>
                 </tr>
                 <tr>
                     <td><b>Final balance:</b></td>
                     <td>)"
-         << "$" << this->stats.final_balance << R"(</td>
+         << this->stats.final_balance << R"(</td>
+                </tr>
+                <tr>
+                    <td><b>Performance:</b></td>
+                    <td>)"
+         << this->stats.performance * 100 << "%" << R"(</td>
                 </tr>
                 <tr>
                     <td><b>Sharpe ratio:</b></td>
@@ -1184,22 +1189,22 @@ void Trader::print_stats_to_html_file(const std::string &filename)
                 <tr>
                     <td><b>Total net profit:</b></td>
                     <td>)"
-         << "$" << this->stats.total_net_profit << R"(</td>
+         << this->stats.total_net_profit << R"(</td>
                 </tr>
                 <tr>
                     <td><b>Total profit:</b></td>
                     <td>)"
-         << "$" << this->stats.total_profit << R"(</td>
+         << this->stats.total_profit << R"(</td>
                 </tr>
                 <tr>
                     <td><b>Total loss:</b></td>
                     <td>)"
-         << "$" << this->stats.total_loss << R"(</td>
+         << this->stats.total_loss << R"(</td>
                 </tr>
                 <tr>
                     <td><b>Total fees:</b></td>
                     <td>)"
-         << "$" << this->stats.total_fees << R"(</td>
+         << this->stats.total_fees << R"(</td>
                 </tr>
                 <tr>
                     <td><b>Profit factor:</b></td>
@@ -1238,32 +1243,32 @@ void Trader::print_stats_to_html_file(const std::string &filename)
                 <tr>
                     <td><b>Max profit:</b></td>
                     <td>)"
-         << "$" << this->stats.max_profit << R"(</td>
+         << this->stats.max_profit << R"(</td>
                 </tr>
                 <tr>
                     <td><b>Max loss:</b></td>
                     <td>)"
-         << "$" << std::abs(this->stats.max_loss) << R"(</td>
+         << std::abs(this->stats.max_loss) << R"(</td>
                 </tr>
                 <tr>
                     <td><b>Max consecutive profit:</b></td>
                     <td>)"
-         << "$" << this->stats.max_consecutive_profit << R"(</td>
+         << this->stats.max_consecutive_profit << R"(</td>
                 </tr>
                 <tr>
                     <td><b>Max consecutive loss:</b></td>
                     <td>)"
-         << "$" << std::abs(this->stats.max_consecutive_loss) << R"(</td>
+         << std::abs(this->stats.max_consecutive_loss) << R"(</td>
                 </tr>
                 <tr>
-                    <td><b>Max consecutive wins (count):</b></td>
+                    <td><b>Max consecutive winning trades:</b></td>
                     <td>)"
-         << this->stats.max_consecutive_profit_trades << R"(</td>
+         << this->stats.max_consecutive_winning_trades << R"(</td>
                 </tr>
                 <tr>
-                    <td><b>Max consecutive losses (count):</b></td>
+                    <td><b>Max consecutive lost trades:</b></td>
                     <td>)"
-         << this->stats.max_consecutive_loss_trades << R"(</td>
+         << this->stats.max_consecutive_lost_trades << R"(</td>
                 </tr>
                 <tr>
                     <td><b>Average trade duration:</b></td>
@@ -1276,7 +1281,7 @@ void Trader::print_stats_to_html_file(const std::string &filename)
 
     <canvas id="chart"></canvas>
 
-    <h2>Trades Historic</h2>
+    <h2>Trades</h2>
         <table id="historic">
           <thead>
             <tr>

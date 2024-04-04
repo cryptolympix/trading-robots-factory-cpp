@@ -140,16 +140,16 @@ public:
     void print_stats_to_console();
 
     /**
-     * @brief Print the graph of the balance history.
+     * @brief Generate the graph of the balance history.
      * @param filename Filename of the graph.
      */
-    void print_balance_history_graph(const std::string &filename);
+    void generate_balance_history_graph(const std::string &filename);
 
     /**
-     * @brief Print the statistics adn the trades list of the trader in a HTML file.
+     * @brief Print the statistics aanddn the trades list of the trader in a HTML file.
      * @param filename Filename of the HTML file.
      */
-    void print_stats_to_html_file(const std::string &filename);
+    void generate_report(const std::string &filename);
 };
 
 #endif // TRADER_HPP

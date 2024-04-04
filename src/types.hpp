@@ -145,38 +145,38 @@ struct Trade
  */
 struct Stats
 {
-    double initial_balance;            // Initial balance
-    double final_balance;              // Final balance
-    double performance;                // Performance
-    double total_net_profit;           // Total net profit
-    double total_profit;               // Total profit
-    double total_loss;                 // Total loss
-    double total_fees;                 // Total fees
-    int total_trades;                  // Total number of trades
-    int total_long_trades;             // Total number of long trades
-    int total_short_trades;            // Total number of short trades
-    int total_winning_trades;          // Total number of winning trades
-    int total_winning_long_trades;     // Total number of winning long trades
-    int total_winning_short_trades;    // Total number of winning short trades
-    int total_lost_trades;             // Total number of lost trades
-    int total_lost_long_trades;        // Total number of lost long trades
-    int total_lost_short_trades;       // Total number of lost short trades
-    int max_consecutive_profit_trades; // Maximum consecutive profit trades
-    int max_consecutive_loss_trades;   // Maximum consecutive loss trades
-    double profit_factor;              // Profit factor
-    double max_drawdown;               // Maximum drawdown
-    double win_rate;                   // Win rate
-    double long_win_rate;              // Long trade win rate
-    double short_win_rate;             // Short trade win rate
-    double average_profit;             // Average profit per trade
-    double average_loss;               // Average loss per trade
-    double max_profit;                 // Maximum profit
-    double max_loss;                   // Maximum loss
-    double max_consecutive_profit;     // Maximum consecutive profit
-    double max_consecutive_loss;       // Maximum consecutive losses
-    double average_trade_duration;     // Average trade duration
-    double sharpe_ratio;               // Sharpe ratio
-    double sortino_ratio;              // Sortino ratio
+    double initial_balance;             // Initial balance
+    double final_balance;               // Final balance
+    double performance;                 // Performance
+    double total_net_profit;            // Total net profit
+    double total_profit;                // Total profit
+    double total_loss;                  // Total loss
+    double total_fees;                  // Total fees
+    int total_trades;                   // Total number of trades
+    int total_long_trades;              // Total number of long trades
+    int total_short_trades;             // Total number of short trades
+    int total_winning_trades;           // Total number of winning trades
+    int total_winning_long_trades;      // Total number of winning long trades
+    int total_winning_short_trades;     // Total number of winning short trades
+    int total_lost_trades;              // Total number of lost trades
+    int total_lost_long_trades;         // Total number of lost long trades
+    int total_lost_short_trades;        // Total number of lost short trades
+    int max_consecutive_winning_trades; // Maximum consecutive winning trades
+    int max_consecutive_lost_trades;    // Maximum consecutive lost trades
+    double profit_factor;               // Profit factor
+    double max_drawdown;                // Maximum drawdown
+    double win_rate;                    // Win rate
+    double long_win_rate;               // Long trade win rate
+    double short_win_rate;              // Short trade win rate
+    double average_profit;              // Average profit per trade
+    double average_loss;                // Average loss per trade
+    double max_profit;                  // Maximum profit
+    double max_loss;                    // Maximum loss
+    double max_consecutive_profit;      // Maximum consecutive profit
+    double max_consecutive_loss;        // Maximum consecutive losses
+    double average_trade_duration;      // Average trade duration
+    double sharpe_ratio;                // Sharpe ratio
+    double sortino_ratio;               // Sortino ratio
 };
 
 /**

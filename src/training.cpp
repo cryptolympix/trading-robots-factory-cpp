@@ -478,11 +478,10 @@ int Training::run()
             // Save the best trader info of the generation
             std::string genome_save_file = this->directory.generic_string() + "/trader_" + std::to_string(generation) + "_" + best_trader->genome->id + "_genome_save.pkl";
             std::string graphic_file = this->directory.generic_string() + "/trader_" + std::to_string(generation) + "_" + best_trader->genome->id + "_balance_history.png";
-            std::string stats_file = this->directory.generic_string() + "/trader_" + std::to_string(generation) + "_" + best_trader->genome->id + "_stats.txt";
-            std::string html_file = this->directory.generic_string() + "/trader_" + std::to_string(generation) + "_" + best_trader->genome->id + "_stats.html";
+            std::string report_file = this->directory.generic_string() + "/trader_" + std::to_string(generation) + "_" + best_trader->genome->id + "_report.html";
             best_trader->genome->save(genome_save_file);
-            best_trader->print_balance_history_graph(graphic_file);
-            best_trader->print_stats_to_html_file(html_file);
+            best_trader->generate_balance_history_graph(graphic_file);
+            best_trader->generate_report(report_file);
             std::cout << "📊 Trader report generated!" << std::endl;
 
             // The training of generation is finished
