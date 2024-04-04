@@ -969,13 +969,13 @@ void Trader::update_position_pnl(double price)
 void Trader::print_stats_to_console()
 {
     std::cout << "------------------------------ STATS -----------------------------" << std::endl;
-    std::cout << "Initial balance: " << decimal_floor(this->stats.initial_balance, 2) << std::endl;
-    std::cout << "Final balance: " << decimal_floor(this->stats.final_balance, 2) << std::endl;
+    std::cout << "Initial balance: " << this->stats.initial_balance << std::endl;
+    std::cout << "Final balance: " << this->stats.final_balance << std::endl;
     std::cout << "Performance: " << decimal_floor(this->stats.performance * 100, 2) << "%" << std::endl;
-    std::cout << "Total net profit: " << decimal_floor(this->stats.total_net_profit, 2) << std::endl;
-    std::cout << "Total profit: " << decimal_floor(this->stats.total_profit, 2) << std::endl;
-    std::cout << "Total loss: " << decimal_floor(this->stats.total_loss, 2) << std::endl;
-    std::cout << "Total fees: " << decimal_floor(this->stats.total_fees, 2) << std::endl;
+    std::cout << "Total net profit: " << this->stats.total_net_profit << std::endl;
+    std::cout << "Total profit: " << this->stats.total_profit << std::endl;
+    std::cout << "Total loss: " << this->stats.total_loss << std::endl;
+    std::cout << "Total fees: " << this->stats.total_fees << std::endl;
     std::cout << "Total trades: " << this->stats.total_trades << std::endl;
     std::cout << "Total long trades: " << this->stats.total_long_trades << std::endl;
     std::cout << "Total short trades: " << this->stats.total_short_trades << std::endl;
@@ -988,12 +988,12 @@ void Trader::print_stats_to_console()
     std::cout << "Win rate: " << decimal_floor(this->stats.win_rate * 100, 2) << "%" << std::endl;
     std::cout << "Long win rate: " << decimal_floor(this->stats.long_win_rate * 100, 2) << "%" << std::endl;
     std::cout << "Short win rate: " << decimal_floor(this->stats.short_win_rate * 100, 2) << "%" << std::endl;
-    std::cout << "Average profit: " << decimal_floor(this->stats.average_profit, 2) << std::endl;
-    std::cout << "Average loss: " << decimal_floor(this->stats.average_loss, 2) << std::endl;
-    std::cout << "Max profit: " << decimal_floor(this->stats.max_profit, 2) << std::endl;
-    std::cout << "Max loss: " << decimal_floor(this->stats.max_loss, 2) << std::endl;
-    std::cout << "Max consecutive profit: " << decimal_floor(this->stats.max_consecutive_profit, 2) << std::endl;
-    std::cout << "Max consecutive loss: " << decimal_floor(this->stats.max_consecutive_loss, 2) << std::endl;
+    std::cout << "Average profit: " << this->stats.average_profit << std::endl;
+    std::cout << "Average loss: " << this->stats.average_loss << std::endl;
+    std::cout << "Max profit: " << this->stats.max_profit << std::endl;
+    std::cout << "Max loss: " << this->stats.max_loss << std::endl;
+    std::cout << "Max consecutive profit: " << this->stats.max_consecutive_profit << std::endl;
+    std::cout << "Max consecutive loss: " << this->stats.max_consecutive_loss << std::endl;
     std::cout << "Average trade duration: " << this->stats.average_trade_duration << " minutes" << std::endl;
     std::cout << "Sharpe ratio: " << decimal_floor(this->stats.sharpe_ratio, 2) << std::endl;
     std::cout << "Sortino ratio: " << decimal_floor(this->stats.sortino_ratio, 2) << std::endl;
@@ -1179,12 +1179,12 @@ void Trader::generate_report(const std::string &filename)
                 <tr>
                     <td><b>Sharpe ratio:</b></td>
                     <td>)"
-         << this->stats.sharpe_ratio << R"(</td>
+         << decimal_floor(this->stats.sharpe_ratio, 2) << R"(</td>
                 </tr>
                 <tr>
                     <td><b>Sortino ratio:</b></td>
                     <td>)"
-         << this->stats.sortino_ratio << R"(</td>
+         << decimal_floor(this->stats.sortino_ratio, 2) << R"(</td>
                 </tr>
                 <tr>
                     <td><b>Total net profit:</b></td>
