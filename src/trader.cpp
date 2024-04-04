@@ -1296,17 +1296,17 @@ void Trader::generate_report(const std::string &filename)
                 <tr>
                     <td><b>Total win rate:</b></td>
                     <td>)"
-         << this->stats.win_rate * 100 << "%" << R"(</td>
+         << decimal_floor(this->stats.win_rate * 100, 2) << "%" << R"(</td>
                 </tr>
                 <tr>
                     <td><b>Long win rate:</b></td>
                     <td>)"
-         << this->stats.long_win_rate * 100 << "%" << R"(</td>
+         << decimal_floor(this->stats.long_win_rate * 100, 2) << "%" << R"(</td>
                 </tr>
                 <tr>
                     <td><b>Short win rate:</b></td>
                     <td>)"
-         << this->stats.short_win_rate * 100 << "%" << R"(</td>
+         << decimal_floor(this->stats.short_win_rate * 100, 2) << "%" << R"(</td>
                 </tr>
                 <tr>
                     <td><b>Max profit:</b></td>
@@ -1341,7 +1341,7 @@ void Trader::generate_report(const std::string &filename)
                 <tr>
                     <td><b>Average trade duration:</b></td>
                     <td>)"
-         << this->stats.average_trade_duration << " candles" << R"(</td>
+         << decimal_floor(this->stats.average_trade_duration, 2) << " candles" << R"(</td>
                 </tr>
             </table>
         </div>
