@@ -1174,7 +1174,7 @@ void Trader::generate_report(const std::string &filename)
                 <tr>
                     <td><b>Performance:</b></td>
                     <td>)"
-         << this->stats.performance * 100 << "%" << R"(</td>
+         << decimal_floor(this->stats.performance * 100, 2) << "%" << R"(</td>
                 </tr>
                 <tr>
                     <td><b>Sharpe ratio:</b></td>
@@ -1209,12 +1209,12 @@ void Trader::generate_report(const std::string &filename)
                 <tr>
                     <td><b>Profit factor:</b></td>
                     <td>)"
-         << this->stats.profit_factor << R"(</td>
+         << decimal_floor(this->stats.profit_factor, 2) << R"(</td>
                 </tr>
                 <tr>
                     <td><b>Max drawdown:</b></td>
                     <td>)"
-         << this->stats.max_drawdown * 100 << "%" << R"(</td>
+         << -decimal_floor(this->stats.max_drawdown * 100, 2) << "%" << R"(</td>
                 </tr>
             </table>
         </div>
@@ -1248,7 +1248,7 @@ void Trader::generate_report(const std::string &filename)
                 <tr>
                     <td><b>Max loss:</b></td>
                     <td>)"
-         << std::abs(this->stats.max_loss) << R"(</td>
+         << this->stats.max_loss << R"(</td>
                 </tr>
                 <tr>
                     <td><b>Max consecutive profit:</b></td>
@@ -1258,7 +1258,7 @@ void Trader::generate_report(const std::string &filename)
                 <tr>
                     <td><b>Max consecutive loss:</b></td>
                     <td>)"
-         << std::abs(this->stats.max_consecutive_loss) << R"(</td>
+         << this->stats.max_consecutive_loss << R"(</td>
                 </tr>
                 <tr>
                     <td><b>Max consecutive winning trades:</b></td>
