@@ -217,6 +217,7 @@ void Training::cache_data(ProgressBar *progress_bar)
     while (mock_date < config.training.training_end_date)
     {
         indexer->update_indexes(mock_date);
+
         CandlesData current_candles = {};
         IndicatorsData current_indicators = {};
         double current_base_currency_conversion_rate = {};

@@ -41,33 +41,36 @@ protected:
     }
 };
 
-TEST_F(TestIndexer, TestIncrementIndexes)
+TEST_F(TestIndexer, TestIndexes)
 {
-    std::pair<int, int> before_indexes = indexer->get_indexes(TimeFrame::H1);
-
-    // Mock date for update
-    std::time_t mock_date = initial_date + 3600; // Equivalent to 2023-01-01 02:00:00
-    std::chrono::system_clock::time_point new_date = std::chrono::system_clock::from_time_t(mock_date);
-
-    // Call the function to update indexes
-    indexer->update_indexes(new_date);
-
-    // Get the indexes for H1 timeframe and check if they are updated correctly
-    std::pair<int, int> after_indexes = indexer->get_indexes(TimeFrame::H1);
-    EXPECT_EQ(after_indexes.first, before_indexes.first);
-    EXPECT_EQ(after_indexes.second, before_indexes.second + 1);
-}
-
-TEST_F(TestIndexer, TestIndexesRespectWindow)
-{
-    // Mock date for update
-    std::time_t mock_date = initial_date + window * 3600; // Equivalent to 2023-01-01 02:00:00
-    std::chrono::system_clock::time_point new_date = std::chrono::system_clock::from_time_t(mock_date);
-
-    // Call the function to update indexes
-    indexer->update_indexes(new_date);
-
-    // Get the indexes for H1 timeframe and check if they are updated correctly
     std::pair<int, int> indexes = indexer->get_indexes(TimeFrame::H1);
-    EXPECT_EQ(indexes.second - indexes.first, window);
+
+    // Mock date for update
+    std::time_t mock_date = initial_date;
+
+    for (int i = 0; i < 3; ++i)
+    {
+        // New date to update indexes
+        time_t new_date_time_t = mock_date + i * get_time_frame_value(TimeFrame::H1) * 60;
+        std::chrono::system_clock::time_point new_date = std::chrono::system_clock::from_time_t(new_date_time_t);
+
+        // Call the function to update indexes
+        indexer->update_indexes(new_date);
+
+        // Get the indexes for H1 timeframe and check if they are updated correctly
+        int start_index = std::get<0>(indexer->get_indexes(TimeFrame::H1));
+        int end_index = std::get<1>(indexer->get_indexes(TimeFrame::H1));
+
+        EXPECT_EQ(start_index, std::max(0, indexes.second - window + i));
+        EXPECT_EQ(end_index, indexes.second + i);
+
+        if (end_index >= window)
+        {
+            EXPECT_EQ(end_index - start_index, window);
+        }
+        else
+        {
+            EXPECT_EQ(end_index - start_index, end_index);
+        }
+    }
 }
