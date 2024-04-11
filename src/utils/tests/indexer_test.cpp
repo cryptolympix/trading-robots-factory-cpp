@@ -48,11 +48,10 @@ TEST_F(TestIndexer, TestIndexes)
     // Mock date for update
     std::time_t mock_date = initial_date;
 
-    for (int i = 0; i < 3; ++i)
+    for (int i = 0; i < 5; ++i)
     {
         // New date to update indexes
-        time_t new_date_time_t = mock_date + i * get_time_frame_value(TimeFrame::H1) * 60;
-        std::chrono::system_clock::time_point new_date = std::chrono::system_clock::from_time_t(new_date_time_t);
+        time_t new_date = mock_date + i * get_time_frame_value(TimeFrame::H1) * 60;
 
         // Call the function to update indexes
         indexer->update_indexes(new_date);

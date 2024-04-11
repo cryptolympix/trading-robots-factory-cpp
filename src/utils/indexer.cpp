@@ -9,15 +9,15 @@
 /**
  * @brief Constructs an Indexer object with candles data and a window size.
  *
- * @param candles A dictionary containing candle data for different timeframes.
+ * @param candles_data A dictionary containing candle data for different timeframes.
  * @param window The size of the window for parsing candles.
  */
 Indexer::Indexer(const CandlesData &candles, int window) : candles(candles), window(window)
 {
     // Initialize indexes with start and end set to 0 for each timeframe
-    for (const auto &pair : candles)
+    for (const auto &[tf, c] : candles)
     {
-        indexes[pair.first] = std::make_pair(0, 0);
+        indexes[tf] = std::make_pair(0, 0);
     }
 }
 
@@ -26,14 +26,12 @@ Indexer::Indexer(const CandlesData &candles, int window) : candles(candles), win
  *
  * @param date The date used to update the indexes.
  */
-void Indexer::update_indexes(std::chrono::system_clock::time_point &date)
+void Indexer::update_indexes(time_t date)
 {
-    for (auto &pair : candles)
+    for (auto &[tf, c] : candles)
     {
-        TimeFrame tf = pair.first;
-        std::vector<Candle> &candles = pair.second;
-        while (indexes[tf].second < candles.size() &&
-               std::chrono::system_clock::from_time_t(candles[indexes[tf].second].date) + std::chrono::minutes(get_time_frame_value(tf)) <= date)
+        while (indexes[tf].second < c.size() &&
+               c[indexes[tf].second].date + get_time_frame_value(tf) * 60 <= date)
         {
             // Increment the index
             indexes[tf].second++;

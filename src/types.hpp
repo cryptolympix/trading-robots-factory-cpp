@@ -277,14 +277,14 @@ struct NeuralNetworkInputs
  */
 struct TrainingConfig
 {
-    int generations;                                           // Number of generations
-    std::optional<double> bad_trader_threshold;                // Threshold for identifying bad traders
-    std::optional<double> inactive_trader_threshold;           // Threshold for identifying inactive traders
-    std::chrono::system_clock::time_point training_start_date; // Start date for training
-    std::chrono::system_clock::time_point training_end_date;   // End date for training
-    std::chrono::system_clock::time_point test_start_date;     // Start date for testing
-    std::chrono::system_clock::time_point test_end_date;       // End date for testing
-    NeuralNetworkInputs inputs;                                // Inputs for neural network
+    int generations;                                 // Number of generations
+    std::optional<double> bad_trader_threshold;      // Threshold for identifying bad traders
+    std::optional<double> inactive_trader_threshold; // Threshold for identifying inactive traders
+    time_t training_start_date;                      // Start date for training
+    time_t training_end_date;                        // End date for training
+    time_t test_start_date;                          // Start date for testing
+    time_t test_end_date;                            // End date for testing
+    NeuralNetworkInputs inputs;                      // Inputs for neural network
 };
 
 /**

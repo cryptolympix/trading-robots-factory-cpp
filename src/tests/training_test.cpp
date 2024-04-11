@@ -31,7 +31,7 @@ protected:
             .tm_yday = 0,
             .tm_isdst = 0,
         };
-        std::chrono::system_clock::time_point start_date = std::chrono::system_clock::from_time_t(std::mktime(&start_date_tm));
+        time_t start_date = std::mktime(&start_date_tm);
 
         std::tm end_date_tm = {
             .tm_sec = 0,
@@ -44,7 +44,7 @@ protected:
             .tm_yday = 0,
             .tm_isdst = 0,
         };
-        std::chrono::system_clock::time_point end_date = std::chrono::system_clock::from_time_t(std::mktime(&end_date_tm));
+        time_t end_date = std::mktime(&end_date_tm);
 
         config = Config{
             .general = {
@@ -123,28 +123,15 @@ TEST_F(TrainingTest, CacheData)
     training->load_base_currency_conversion_rate();
     training->cache_data();
 
-    std::chrono::system_clock::time_point start_date = training->find_training_start_date();
-    std::chrono::system_clock::time_point end_date = config.training.training_end_date;
+    time_t start_date = training->find_training_start_date();
+    time_t end_date = config.training.training_end_date;
     TimeFrame loop_timeframe = config.strategy.timeframe;
     int loop_timeframe_minutes = get_time_frame_value(loop_timeframe);
+    int nb_dates = training->candles[loop_timeframe].size();
 
     // Check the dates is in the cache
-    for (auto date = start_date; date < end_date; date += std::chrono::minutes(loop_timeframe_minutes))
-    {
-        time_t date_time_t = std::chrono::system_clock::to_time_t(date);
-        std::string date_string = std::string(std::ctime(&date_time_t));
-        ASSERT_TRUE(training->cache.find(date_string) != training->cache.end());
-    }
-
-    // Check the candles are ordered in the data cache
-    for (auto &[date, data] : training->cache)
-    {
-        for (auto &[timeframe, candles] : data.candles)
-        {
-            ASSERT_TRUE(std::is_sorted(candles.begin(), candles.end(), [](Candle const &a, Candle const &b)
-                                       { return a.date < b.date; }));
-        }
-    }
+    ASSERT_EQ(training->cache.size(), nb_dates);
+    ASSERT_TRUE(std::filesystem::exists(training->cache_file));
 }
 
 TEST_F(TrainingTest, CountIndicators)
@@ -165,7 +152,7 @@ TEST_F(TrainingTest, GetAllTimeframes)
 TEST_F(TrainingTest, FindTrainingStartDate)
 {
     training->load_candles();
-    std::chrono::system_clock::time_point start_date = training->find_training_start_date();
+    time_t start_date = training->find_training_start_date();
     ASSERT_GE(start_date, config.training.training_start_date);
 }
 
@@ -212,6 +199,24 @@ TEST_F(TrainingTest, Run)
     for (int i = 0; i < 10; ++i)
     {
         int result = training->run();
+
+        for (const auto &[generation, traders] : training->traders)
+        {
+            for (const auto &trader : traders)
+            {
+                for (const auto &trade : trader->trades_history)
+                {
+                    if (trade.exit_date < trade.entry_date)
+                    {
+                        std::cout << "Trader: " << trader->genome->id << std::endl;
+                        std::cout << "Entry date: " << trade.entry_date << std::endl;
+                        std::cout << "Exit date: " << trade.exit_date << std::endl;
+                    }
+                    ASSERT_TRUE(trade.entry_date < trade.exit_date);
+                }
+            }
+        }
+
         // Asserts that the training went well
         ASSERT_EQ(result, 0);
     }

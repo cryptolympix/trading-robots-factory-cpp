@@ -21,7 +21,7 @@ public:
     /**
      * @brief Constructs an Indexer object with candles data and a window size.
      *
-     * @param candles A dictionary containing candle data for different timeframes.
+     * @param candles_data A dictionary containing candle data for different timeframes.
      * @param window The size of the window for parsing candles.
      */
     Indexer(const CandlesData &candles, int window);
@@ -31,7 +31,7 @@ public:
      *
      * @param date The date used to update the indexes.
      */
-    void update_indexes(std::chrono::system_clock::time_point &date);
+    void update_indexes(time_t date);
 
     /**
      * @brief Retrieves the start and end indexes for the given timeframe.

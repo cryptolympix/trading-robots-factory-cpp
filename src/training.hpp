@@ -98,7 +98,7 @@ public:
      * @brief Adjust the training start date based on available candles.
      * @return Adjusted training start date.
      */
-    std::chrono::system_clock::time_point find_training_start_date() const;
+    time_t find_training_start_date() const;
 
     /**
      * @brief Update the best trader of all the training and the best trader of a generation.

@@ -86,10 +86,10 @@ Config test_config = {
         .generations = 100,
         .bad_trader_threshold = 0.01,
         .inactive_trader_threshold = 500,
-        .training_start_date = std::chrono::system_clock::from_time_t(std::mktime(&start_training_date)),
-        .training_end_date = std::chrono::system_clock::from_time_t(std::mktime(&end_training_date)),
-        .test_start_date = std::chrono::system_clock::from_time_t(std::mktime(&start_test_date)),
-        .test_end_date = std::chrono::system_clock::from_time_t(std::mktime(&end_test_date)),
+        .training_start_date = std::mktime(&start_training_date),
+        .training_end_date = std::mktime(&end_training_date),
+        .test_start_date = std::mktime(&start_test_date),
+        .test_end_date = std::mktime(&end_test_date),
         .inputs = {
             .indicators = {
                 {TimeFrame::M15, {

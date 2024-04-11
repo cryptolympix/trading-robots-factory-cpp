@@ -84,11 +84,7 @@ void Training::prepare()
         std::cout << "✅ Base currency conversion rate loaded!" << std::endl;
 
         std::cout << "⏳ Cache the data..." << std::endl;
-        TimeFrame loop_timeframe = this->config.strategy.timeframe;
-        int loop_timeframe_minutes = get_time_frame_value(loop_timeframe);
-        std::chrono::system_clock::time_point training_start_date = this->find_training_start_date();
-        std::chrono::system_clock::time_point training_end_date = this->config.training.training_end_date;
-        int total_iter4 = (std::chrono::duration_cast<std::chrono::minutes>(training_end_date - training_start_date).count()) / loop_timeframe_minutes;
+        int total_iter4 = this->candles[this->config.strategy.timeframe].size();
         ProgressBar *progress_bar4 = new ProgressBar(100, total_iter4);
         this->cache_data(progress_bar4);
         std::cout << "✅ Cache ready!" << std::endl;
@@ -105,7 +101,9 @@ void Training::load_candles(ProgressBar *progress_bar)
     for (int i = 0; i < all_timeframes.size(); i++)
     {
         TimeFrame tf = all_timeframes[i];
-        candles[tf] = read_data(config.general.symbol, tf, config.training.training_start_date, config.training.training_end_date);
+        std::chrono::system_clock::time_point start_date = std::chrono::system_clock::from_time_t(this->config.training.training_start_date);
+        std::chrono::system_clock::time_point end_date = std::chrono::system_clock::from_time_t(this->config.training.training_end_date);
+        candles[tf] = read_data(config.general.symbol, tf, start_date, end_date);
         if (progress_bar)
         {
             progress_bar->update(1);
@@ -185,8 +183,8 @@ void Training::load_base_currency_conversion_rate(ProgressBar *progress_bar)
     else
     {
         std::string symbol = account_currency + base_currency_traded;
-        std::chrono::system_clock::time_point start_date = this->config.training.training_start_date;
-        std::chrono::system_clock::time_point end_date = this->config.training.training_end_date;
+        std::chrono::system_clock::time_point start_date = std::chrono::system_clock::from_time_t(this->config.training.training_start_date);
+        std::chrono::system_clock::time_point end_date = std::chrono::system_clock::from_time_t(this->config.training.training_end_date);
         std::vector<Candle> data = read_data(symbol, loop_timeframe, start_date, end_date);
 
         for (const auto &candle : data)
@@ -211,12 +209,20 @@ void Training::cache_data(ProgressBar *progress_bar)
     std::vector<TimeFrame> all_timeframes = get_all_timeframes();
     TimeFrame loop_timeframe = config.strategy.timeframe;
     int loop_timeframe_minutes = get_time_frame_value(loop_timeframe);
-    std::chrono::system_clock::time_point mock_date = find_training_start_date();
     Indexer *indexer = new Indexer(candles, MINIMUM_CANDLES);
 
-    while (mock_date < config.training.training_end_date)
+    // Get all the dates from teh candles in the loop timeframe
+    std::vector<time_t> dates = {};
+    for (const auto &candle : candles[loop_timeframe])
     {
-        indexer->update_indexes(mock_date);
+        dates.push_back(candle.date);
+    }
+
+    for (const auto &date : dates)
+    {
+        std::string date_string = std::string(std::ctime(&date));
+
+        indexer->update_indexes(date);
 
         CandlesData current_candles = {};
         IndicatorsData current_indicators = {};
@@ -256,15 +262,8 @@ void Training::cache_data(ProgressBar *progress_bar)
             }
         }
 
-        // Convert the date to a string and cache the data
-        time_t date_time_t = std::chrono::system_clock::to_time_t(mock_date);
-        std::string date_string = std::string(std::ctime(&date_time_t));
-
-        cache[date_string].candles = current_candles;
-        cache[date_string].indicators = current_indicators;
-        cache[date_string].base_currency_conversion_rate = current_base_currency_conversion_rate;
-
-        mock_date += std::chrono::minutes(loop_timeframe_minutes);
+        // Cache the data
+        cache[date_string] = DatedCache{.candles = current_candles, .indicators = current_indicators, .base_currency_conversion_rate = current_base_currency_conversion_rate};
 
         if (progress_bar)
         {
@@ -316,20 +315,18 @@ std::vector<TimeFrame> Training::get_all_timeframes() const
  * @brief Adjust the training start date based on available candles.
  * @return Adjusted training start date.
  */
-std::chrono::system_clock::time_point Training::find_training_start_date() const
+time_t Training::find_training_start_date() const
 {
     TimeFrame loop_timeframe = this->config.strategy.timeframe;
     TimeFrame highest_timeframe = highest_time_frame(this->get_all_timeframes());
 
-    std::__1::chrono::system_clock::time_point training_start_date = this->config.training.training_start_date;
-
+    time_t training_start_date = this->config.training.training_start_date;
     std::vector<Candle> candles_tf = this->candles.at(loop_timeframe);
-    std::__1::chrono::system_clock::time_point candles_start_date = std::__1::chrono::system_clock::from_time_t(candles_tf[0].date);
 
     int highest_timeframe_value = get_time_frame_value(highest_timeframe);
-    while (training_start_date < candles_start_date + std::chrono::minutes((MINIMUM_CANDLES - 1) * highest_timeframe_value))
+    while (training_start_date < candles_tf[0].date + (MINIMUM_CANDLES - 1) * highest_timeframe_value * 60)
     {
-        training_start_date += std::chrono::minutes(highest_timeframe_value);
+        training_start_date += highest_timeframe_value * 60;
     }
 
     return training_start_date;
@@ -393,7 +390,7 @@ void Training::evaluate_genome(Genome *genome, int generation)
 {
     TimeFrame loop_timeframe = this->config.strategy.timeframe;
     int loop_timeframe_minutes = get_time_frame_value(loop_timeframe);
-    std::chrono::system_clock::time_point mock_date = this->find_training_start_date();
+    time_t mock_date = this->find_training_start_date();
 
     Logger *logger = new Logger(this->directory.generic_string() + "/logs/trader_" + genome->id + ".log");
     Trader *trader = new Trader(genome, this->config, logger);
@@ -401,8 +398,7 @@ void Training::evaluate_genome(Genome *genome, int generation)
     while (mock_date < this->config.training.training_end_date)
     {
         // Convert the date to a string and cache the data
-        time_t mock_date_time_t = std::chrono::system_clock::to_time_t(mock_date);
-        std::string mock_date_string = std::string(std::ctime(&mock_date_time_t));
+        std::string mock_date_string = std::string(std::ctime(&mock_date));
 
         if (this->cache.find(mock_date_string) != this->cache.end())
         {
@@ -425,7 +421,7 @@ void Training::evaluate_genome(Genome *genome, int generation)
             }
         }
 
-        mock_date += std::chrono::minutes(loop_timeframe_minutes);
+        mock_date += loop_timeframe_minutes * 60;
     }
 
     // Calculate the stats of the trader

@@ -1224,7 +1224,7 @@ void Trader::generate_report(const std::string &filename)
                 <tr>
                     <td><b>Period:</b></td>
                     <td>)"
-         << time_t_to_string(std::chrono::system_clock::to_time_t(this->config.training.training_start_date)) + " to " + time_t_to_string(std::chrono::system_clock::to_time_t(this->config.training.training_end_date)) << R"(</td>
+         << time_t_to_string(this->config.training.training_start_date) + " to " + time_t_to_string(this->config.training.training_end_date) << R"(</td>
                 </tr>
                 <tr>
                     <td><b>Initial balance:</b></td>
@@ -1406,7 +1406,7 @@ void Trader::generate_report(const std::string &filename)
     std::string lineData = "";
 
     balance = this->stats.initial_balance;
-    labels += "\"" + time_t_to_string(std::chrono::system_clock::to_time_t(this->config.training.training_start_date)) + "\",";
+    labels += "\"" + time_t_to_string(this->config.training.training_start_date) + "\",";
     lineData += std::to_string(balance) + ",";
 
     for (int i = 0; i < this->trades_history.size(); ++i)
