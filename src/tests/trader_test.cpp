@@ -71,7 +71,7 @@ protected:
         trader->open_orders = {};
         trader->balance_history = {};
         trader->trades_history = {};
-        trader->decisions = {0, 0, 1};
+        trader->decisions = {0, 0, 0, 0, 1};
         trader->current_date = date;
         trader->candles = {{TimeFrame::H1, {
                                                Candle{.date = date, .close = 1.0},
@@ -459,7 +459,7 @@ TEST_F(TraderTest, TradeEnterLong)
     time_t date = std::mktime(&date_tm);
 
     // Set neural network output to enter long
-    trader->decisions = {1.0, 0.0, 0.0};
+    trader->decisions = {1.0, 0.0, 0.0, 0.0, 0.0};
     trader->current_date = date;
 
     // Call the trade method
@@ -495,7 +495,7 @@ TEST_F(TraderTest, TradeEnterShort)
     time_t date = std::mktime(&date_tm);
 
     // Set neural network output to enter short
-    trader->decisions = {0.0, 1.0, 0.0};
+    trader->decisions = {0.0, 1.0, 0.0, 0.0, 0.0};
     trader->current_date = date;
 
     // Call the trade method
@@ -522,7 +522,7 @@ TEST_F(TraderTest, TradeEnterShort)
 TEST_F(TraderTest, TradeNoAction)
 {
     // Set neural network output to no action
-    trader->decisions = {0.0, 0.0, 1.0};
+    trader->decisions = {0.0, 0.0, 0.0, 0.0, 1.0};
 
     // Call the trade method
     trader->trade();
@@ -583,7 +583,7 @@ TEST_F(TraderTest, WaitForDurationBeforeClosePosition)
     trader->open_position_by_market(1.00, 1.0, OrderSide::LONG);
     trader->current_position->entry_date = std::mktime(&entry_date);
 
-    trader->decisions = {0.0, 1.0, 0.0};
+    trader->decisions = {0.0, 0.0, 1.0, 0.0, 0.0};
 
     // Call the update method for the maximum trade duration - 1
     for (int i = 0; i < config.strategy.minimum_trade_duration.value() - 1; ++i)
@@ -601,6 +601,21 @@ TEST_F(TraderTest, WaitForDurationBeforeClosePosition)
     ASSERT_GT(trader->trades_history[0].fees, 0.0);
     ASSERT_EQ(trader->trades_history[0].size, 1.0);
     ASSERT_FALSE(trader->trades_history[0].closed);
+
+    // Call the update method for the last trade duration
+    trader->update();
+
+    // Assertions
+    ASSERT_EQ(trader->current_position, nullptr);
+    ASSERT_LT(trader->balance, 1000.0); // Balance decreased due to fees
+    ASSERT_EQ(trader->trades_history.size(), 1);
+    ASSERT_EQ(trader->trades_history[0].entry_date, std::mktime(&date_tm));
+    ASSERT_EQ(trader->trades_history[0].entry_price, 1.00);
+    ASSERT_EQ(trader->trades_history[0].side, PositionSide::LONG);
+    ASSERT_GT(trader->trades_history[0].fees, 0.0);
+    ASSERT_EQ(trader->trades_history[0].size, 1.0);
+    ASSERT_EQ(trader->trades_history[0].duration, config.strategy.minimum_trade_duration.value());
+    ASSERT_TRUE(trader->trades_history[0].closed);
 }
 
 TEST_F(TraderTest, WaitForNextTrade)
@@ -614,7 +629,7 @@ TEST_F(TraderTest, WaitForNextTrade)
         .tm_sec = 0};
     time_t date = std::mktime(&date_tm);
 
-    trader->decisions = {1.0, 0.0, 0.0};
+    trader->decisions = {1.0, 0.0, 0.0, 0.0, 0.0};
     trader->duration_without_trade = 0;
     trader->current_date = date;
 
@@ -644,7 +659,7 @@ TEST_F(TraderTest, WaitForNextTrade)
 TEST_F(TraderTest, CreateTpSlForLongPosition)
 {
     // Set neural network output to no action
-    trader->decisions = {1.0, 0.0, 0.0};
+    trader->decisions = {1.0, 0.0, 0.0, 0.0, 0.0};
     std::tm date_tm = {
         .tm_year = 2023 - 1900,
         .tm_mon = 0,
@@ -671,7 +686,7 @@ TEST_F(TraderTest, CreateTpSlForLongPosition)
 TEST_F(TraderTest, CreateTpSlForShortPosition)
 {
     // Set neural network output to no action
-    trader->decisions = {0.0, 1.0, 0.0};
+    trader->decisions = {0.0, 1.0, 0.0, 0.0, 0.0};
     std::tm date_tm = {
         .tm_year = 2023 - 1900,
         .tm_mon = 0,
@@ -698,7 +713,7 @@ TEST_F(TraderTest, CreateTpSlForShortPosition)
 TEST_F(TraderTest, TradeNotOutOfTradingSchedule)
 {
     // Set neural network output to enter long
-    trader->decisions = {1.0, 0.0, 0.0};
+    trader->decisions = {1.0, 0.0, 0.0, 0.0, 0.0};
 
     // try to trade sunday
     std::tm date_tm_1 = {
@@ -764,7 +779,7 @@ TEST_F(TraderTest, TradeNotOutOfTradingSchedule)
 TEST_F(TraderTest, TradeOnTradingSchedule)
 {
     // Set neural network output to enter long
-    trader->decisions = {1.0, 0.0, 0.0};
+    trader->decisions = {1.0, 0.0, 0.0, 0.0, 0.0};
 
     std::tm date_tm = {
         .tm_year = 2023 - 1900,
@@ -789,7 +804,7 @@ TEST_F(TraderTest, TradeOnTradingSchedule)
 TEST_F(TraderTest, TradeNotWhenSpreadHigh)
 {
     // Set neural network output to enter long
-    trader->decisions = {1.0, 0.0, 0.0};
+    trader->decisions = {1.0, 0.0, 0.0, 0.0, 0.0};
     std::tm date_tm = {
         .tm_year = 2023 - 1900,
         .tm_mon = 0,

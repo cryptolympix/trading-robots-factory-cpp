@@ -632,17 +632,13 @@ void Trader::trade()
 
     // Decision taken
     double maximum = *std::max_element(this->decisions.begin(), this->decisions.end());
-    bool long_decision = maximum == this->decisions[0];
-    bool short_decision = maximum == this->decisions[1];
-    bool wait_decision = maximum == this->decisions[2];
+    bool enter_long = maximum == this->decisions[0];
+    bool enter_short = maximum == this->decisions[1];
+    bool close_long = maximum == this->decisions[2];
+    bool close_short = maximum == this->decisions[3];
+    bool wait = maximum == this->decisions[4];
 
-    // Wait
-    if (wait_decision)
-    {
-        return;
-    }
-
-    if (maximum < 0.5)
+    if (wait)
     {
         return;
     }
@@ -708,18 +704,18 @@ void Trader::trade()
     {
         if (has_position)
         {
-            if (has_long_position && short_decision && can_close_position)
+            if (has_long_position && close_long && can_close_position)
             {
                 this->close_position_by_market(last_candle.close);
             }
-            else if (has_short_position && long_decision && can_close_position)
+            else if (has_short_position && close_short && can_close_position)
             {
                 this->close_position_by_market(last_candle.close);
             }
         }
         else
         {
-            if (long_decision)
+            if (enter_long)
             {
                 // Calculate order parameters
                 auto order_prices = calculate_tp_sl_price(last_candle.close, PositionSide::LONG, this->config.strategy.take_profit_stop_loss_config, this->symbol_info);
@@ -733,7 +729,7 @@ void Trader::trade()
                 this->create_open_order(OrderType::TAKE_PROFIT, OrderSide::SHORT, tp_price);
                 this->create_open_order(OrderType::STOP_LOSS, OrderSide::SHORT, sl_price);
             }
-            else if (short_decision)
+            else if (enter_short)
             {
                 // Calculate order parameters
                 auto order_prices = calculate_tp_sl_price(last_candle.close, PositionSide::SHORT, this->config.strategy.take_profit_stop_loss_config, this->symbol_info);
@@ -751,11 +747,11 @@ void Trader::trade()
     }
     else if (has_position)
     {
-        if (has_long_position && short_decision && can_close_position)
+        if (has_long_position && close_long && can_close_position)
         {
             this->close_position_by_market(last_candle.close);
         }
-        else if (has_short_position && long_decision && can_close_position)
+        else if (has_short_position && close_short && can_close_position)
         {
             this->close_position_by_market(last_candle.close);
         }
