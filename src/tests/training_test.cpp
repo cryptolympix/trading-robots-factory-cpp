@@ -202,17 +202,17 @@ TEST_F(TrainingTest, BestTraders)
     ASSERT_EQ(training->get_best_trader_of_generation(0), new_best_trader);
 }
 
-// TEST_F(TrainingTest, Run)
-// {
-//     training->load_candles();
-//     training->load_indicators();
-//     training->load_base_currency_conversion_rate();
-//     training->cache_data();
+TEST_F(TrainingTest, Run)
+{
+    training->load_candles();
+    training->load_indicators();
+    training->load_base_currency_conversion_rate();
+    training->cache_data();
 
-//     for (int i = 0; i < 10; ++i)
-//     {
-//         int result = training->run();
-//         // Asserts that the training went well
-//         ASSERT_EQ(result, 0);
-//     }
-// }
+    for (int i = 0; i < 10; ++i)
+    {
+        int result = training->run();
+        // Asserts that the training went well
+        ASSERT_EQ(result, 0);
+    }
+}

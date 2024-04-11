@@ -139,7 +139,6 @@ struct Trade
     double pnl_percent; // Profit and Loss as a percentage of the balance
     double fees;        // Fees of the trade
     int duration;       // Duration of the trade
-    bool closed;        // Whether the trade is closed
 };
 
 /**

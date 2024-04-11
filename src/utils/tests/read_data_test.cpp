@@ -65,4 +65,10 @@ TEST(ReadDataTest, TestReadDataWithDateRange)
 
     // Assert that the number of candles is correct
     ASSERT_EQ(candles_count, candles.size());
+
+    // Check the candles are sorted by their dates
+    for (int i = 1; i < candles.size(); i++)
+    {
+        ASSERT_TRUE(candles[i - 1].date < candles[i].date);
+    }
 }
