@@ -23,7 +23,7 @@ protected:
     void SetUp() override
     {
         // Mock configurations
-        config = {
+        config = Config{
             .general = {
                 .name = "test",
                 .version = "1.0",
@@ -32,33 +32,24 @@ protected:
                 .initial_balance = 1000,
                 .account_currency = "USD",
             },
-            .strategy = {.timeframe = TimeFrame::H1, .maximum_risk = 0.02, .maximum_spread = 8, .minimum_trade_duration = 4, .maximum_trade_duration = 20, .minimum_duration_before_next_trade = 5, .take_profit_stop_loss_config = {
-                                                                                                                                                                                                        .type_stop_loss = TypeTakeProfitStopLoss::POINTS,
-                                                                                                                                                                                                        .stop_loss_in_points = 300,
-                                                                                                                                                                                                        .stop_loss_in_percent = 0.01,
-                                                                                                                                                                                                        .type_take_profit = TypeTakeProfitStopLoss::POINTS,
-                                                                                                                                                                                                        .take_profit_in_points = 300,
-                                                                                                                                                                                                        .take_profit_in_percent = 0.01,
-                                                                                                                                                                                                    },
-                         .trading_schedule = {.monday = {false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false}, .tuesday = {false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false}, .wednesday = {false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false}, .thursday = {false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false}, .friday = {false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false}, .saturday = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false}, .sunday = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false}}},
+            .strategy = {.timeframe = TimeFrame::H1, .maximum_risk = 0.02, .maximum_spread = 8, .minimum_trade_duration = 2, .maximum_trade_duration = 4, .minimum_duration_before_next_trade = 4, .take_profit_stop_loss_config = {
+                                                                                                                                                                                                       .type_stop_loss = TypeTakeProfitStopLoss::POINTS,
+                                                                                                                                                                                                       .stop_loss_in_points = 300,
+                                                                                                                                                                                                       .stop_loss_in_percent = 0.01,
+                                                                                                                                                                                                       .type_take_profit = TypeTakeProfitStopLoss::POINTS,
+                                                                                                                                                                                                       .take_profit_in_points = 300,
+                                                                                                                                                                                                       .take_profit_in_percent = 0.01,
+                                                                                                                                                                                                   },
+                         .trading_schedule = {{.monday = {false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false}, .tuesday = {false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false}, .wednesday = {false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false}, .thursday = {false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false}, .friday = {false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false}, .saturday = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false}, .sunday = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false}}}},
             .training = {.generations = 5, .bad_trader_threshold = 0.01, .inactive_trader_threshold = 500, .inputs = {
-                                                                                                               .indicators = {{TimeFrame::M15, {new RSI()}}},
+                                                                                                               .indicators = {{TimeFrame::M15, {new RSI()}}, {TimeFrame::M30, {new RSI()}}, {TimeFrame::H1, {new RSI()}}},
                                                                                                                .position = {PositionInfo::TYPE, PositionInfo::PNL, PositionInfo::DURATION},
                                                                                                            }},
-            .evaluation = {
-                .nb_trades = 30,
-                .expected_return = 0.1,
-                .expected_return_per_month = 0.1,
-                .expected_return_per_trade = 0.01,
-                .maximum_drawdown = 0.1,
-                .minimum_profit_factor = 2,
-                .minimum_winrate = 0.5,
-            },
+            .evaluation = {.nb_trades_minimum = 0, .nb_trades_maximum = 40, .maximum_drawdown = 0.1, .expected_return_per_day = 0.01, .expected_return_per_month = 0.1, .minimum_profit_factor = 2, .minimum_winrate = 0.5},
             .neat = load_config("src/configs/neat_config_test.ini"),
         };
         config.neat.population_size = 5;
         config.neat.num_inputs = 4;
-        config.neat.num_outputs = 5;
 
         symbol_info = symbol_infos.at(config.general.symbol);
         temp_dir = std::filesystem::temp_directory_path() / "trader_test";
@@ -80,7 +71,7 @@ protected:
         trader->open_orders = {};
         trader->balance_history = {};
         trader->trades_history = {};
-        trader->decisions = {0, 0, 0, 0, 1};
+        trader->decisions = {0, 0, 1};
         trader->current_date = date;
         trader->candles = {{TimeFrame::H1, {
                                                Candle{.date = date, .close = 1.0},
@@ -151,24 +142,24 @@ TEST_F(TraderTest, UpdateWithPosition)
     std::tm date_tm = {
         .tm_year = 2023 - 1900,
         .tm_mon = 0,
-        .tm_mday = 1,
+        .tm_mday = 5,
         .tm_hour = 0,
         .tm_min = 0,
         .tm_sec = 0};
 
-    trader->current_position = new Position{
-        .entry_date = date_tm, .entry_price = 1.00000, .size = 1.0, .side = PositionSide::LONG, .pnl = 5.0};
+    trader->open_position_by_market(1.00000, 1.0, OrderSide::LONG);
+    trader->balance = config.general.initial_balance; // Reset balance to initial value to cancel the fees at the market order
 
     // Call the update method
     trader->update();
 
     // Check if balance and stats are updated correctly
     ASSERT_EQ(trader->balance, 1000.0);
+    ASSERT_EQ(trader->duration_in_position, 1);
     ASSERT_EQ(trader->stats.total_profit, 0);
     ASSERT_EQ(trader->stats.total_winning_trades, 0);
     ASSERT_EQ(trader->stats.max_drawdown, 0.0);
-    ASSERT_EQ(trader->balance_history.size(), 1);
-    ASSERT_EQ(trader->trades_history.size(), 0);
+    ASSERT_EQ(trader->trades_history.size(), 1);
 }
 
 TEST_F(TraderTest, UpdateWithOpenOrders)
@@ -205,12 +196,13 @@ TEST_F(TraderTest, UpdateWithPositionLiquidation)
     ASSERT_EQ(trader->open_orders.size(), 0);
     ASSERT_EQ(trader->balance, 0.0);
     ASSERT_EQ(trader->trades_history.size(), 1);
-    ASSERT_EQ(std::mktime(&trader->trades_history[0].entry_date), std::mktime(&date_tm));
-    ASSERT_EQ(std::mktime(&trader->trades_history[0].exit_date), std::mktime(&date_tm));
+    ASSERT_EQ(trader->trades_history[0].entry_date, std::mktime(&date_tm));
+    ASSERT_EQ(trader->trades_history[0].exit_date, std::mktime(&date_tm));
     ASSERT_EQ(trader->trades_history[0].side, PositionSide::LONG);
     ASSERT_LT(trader->trades_history[0].pnl, 0.0);
     ASSERT_GT(trader->trades_history[0].fees, 0.0);
     ASSERT_EQ(trader->trades_history[0].size, 0.01);
+    ASSERT_TRUE(trader->trades_history[0].closed);
 }
 
 TEST_F(TraderTest, UpdateWithInactiveTrader)
@@ -273,12 +265,15 @@ TEST_F(TraderTest, CheckTpOrderHit)
     ASSERT_EQ(trader->balance, new_balance);
     ASSERT_EQ(trader->open_orders.size(), 0);
     ASSERT_EQ(trader->trades_history.size(), 1);
-    ASSERT_EQ(std::mktime(&trader->trades_history[0].entry_date), std::mktime(&date_tm));
-    ASSERT_EQ(std::mktime(&trader->trades_history[0].exit_date), std::mktime(&date_tm));
+    ASSERT_EQ(trader->trades_history[0].entry_date, std::mktime(&date_tm));
+    ASSERT_EQ(trader->trades_history[0].exit_date, std::mktime(&date_tm));
+    ASSERT_EQ(trader->trades_history[0].entry_price, 1.0);
+    ASSERT_EQ(trader->trades_history[0].exit_price, 1.00500);
     ASSERT_EQ(trader->trades_history[0].side, PositionSide::LONG);
     ASSERT_EQ(trader->trades_history[0].pnl, pnl);
     ASSERT_GT(trader->trades_history[0].fees, 0.0);
     ASSERT_EQ(trader->trades_history[0].size, 1.0);
+    ASSERT_TRUE(trader->trades_history[0].closed);
 }
 
 TEST_F(TraderTest, CheckSlOrderHit)
@@ -313,12 +308,15 @@ TEST_F(TraderTest, CheckSlOrderHit)
     ASSERT_EQ(trader->balance, new_balance);
     ASSERT_EQ(trader->open_orders.size(), 0);
     ASSERT_EQ(trader->trades_history.size(), 1);
-    ASSERT_EQ(std::mktime(&trader->trades_history[0].entry_date), std::mktime(&date_tm));
-    ASSERT_EQ(std::mktime(&trader->trades_history[0].exit_date), std::mktime(&date_tm));
+    ASSERT_EQ(trader->trades_history[0].entry_date, std::mktime(&date_tm));
+    ASSERT_EQ(trader->trades_history[0].exit_date, std::mktime(&date_tm));
+    ASSERT_EQ(trader->trades_history[0].entry_price, 1.0);
+    ASSERT_EQ(trader->trades_history[0].exit_price, 0.99500);
     ASSERT_EQ(trader->trades_history[0].side, PositionSide::LONG);
     ASSERT_EQ(trader->trades_history[0].pnl, pnl);
     ASSERT_GT(trader->trades_history[0].fees, 0.0);
     ASSERT_EQ(trader->trades_history[0].size, 1.0);
+    ASSERT_TRUE(trader->trades_history[0].closed);
 }
 
 TEST_F(TraderTest, TradeCloseLongWithProfit)
@@ -342,12 +340,15 @@ TEST_F(TraderTest, TradeCloseLongWithProfit)
     ASSERT_EQ(trader->balance, new_balance);
     ASSERT_EQ(trader->open_orders.size(), 0);
     ASSERT_EQ(trader->trades_history.size(), 1);
-    ASSERT_EQ(std::mktime(&trader->trades_history[0].entry_date), std::mktime(&date_tm));
-    ASSERT_EQ(std::mktime(&trader->trades_history[0].exit_date), std::mktime(&date_tm));
+    ASSERT_EQ(trader->trades_history[0].entry_date, std::mktime(&date_tm));
+    ASSERT_EQ(trader->trades_history[0].exit_date, std::mktime(&date_tm));
+    ASSERT_EQ(trader->trades_history[0].entry_price, 1.0);
+    ASSERT_EQ(trader->trades_history[0].exit_price, 1.0);
     ASSERT_EQ(trader->trades_history[0].side, PositionSide::LONG);
     ASSERT_EQ(trader->trades_history[0].pnl, pnl);
     ASSERT_GT(trader->trades_history[0].fees, 0.0);
     ASSERT_EQ(trader->trades_history[0].size, 1.0);
+    ASSERT_TRUE(trader->trades_history[0].closed);
 }
 
 TEST_F(TraderTest, TradeCloseLongWithLoss)
@@ -371,12 +372,15 @@ TEST_F(TraderTest, TradeCloseLongWithLoss)
     ASSERT_EQ(trader->balance, new_balance);
     ASSERT_EQ(trader->open_orders.size(), 0);
     ASSERT_EQ(trader->trades_history.size(), 1);
-    ASSERT_EQ(std::mktime(&trader->trades_history[0].entry_date), std::mktime(&date_tm));
-    ASSERT_EQ(std::mktime(&trader->trades_history[0].exit_date), std::mktime(&date_tm));
+    ASSERT_EQ(trader->trades_history[0].entry_date, std::mktime(&date_tm));
+    ASSERT_EQ(trader->trades_history[0].exit_date, std::mktime(&date_tm));
+    ASSERT_EQ(trader->trades_history[0].entry_price, 1.0);
+    ASSERT_EQ(trader->trades_history[0].exit_price, 1.0);
     ASSERT_EQ(trader->trades_history[0].side, PositionSide::LONG);
     ASSERT_EQ(trader->trades_history[0].pnl, pnl);
     ASSERT_GT(trader->trades_history[0].fees, 0.0);
     ASSERT_EQ(trader->trades_history[0].size, 1.0);
+    ASSERT_TRUE(trader->trades_history[0].closed);
 }
 
 TEST_F(TraderTest, TradeCloseShortWithProfit)
@@ -400,12 +404,15 @@ TEST_F(TraderTest, TradeCloseShortWithProfit)
     ASSERT_EQ(trader->balance, new_balance);
     ASSERT_EQ(trader->open_orders.size(), 0);
     ASSERT_EQ(trader->trades_history.size(), 1);
-    ASSERT_EQ(std::mktime(&trader->trades_history[0].entry_date), std::mktime(&date_tm));
-    ASSERT_EQ(std::mktime(&trader->trades_history[0].exit_date), std::mktime(&date_tm));
+    ASSERT_EQ(trader->trades_history[0].entry_date, std::mktime(&date_tm));
+    ASSERT_EQ(trader->trades_history[0].exit_date, std::mktime(&date_tm));
+    ASSERT_EQ(trader->trades_history[0].entry_price, 1.0);
+    ASSERT_EQ(trader->trades_history[0].exit_price, 1.0);
     ASSERT_EQ(trader->trades_history[0].side, PositionSide::SHORT);
     ASSERT_EQ(trader->trades_history[0].pnl, pnl);
     ASSERT_GT(trader->trades_history[0].fees, 0.0);
     ASSERT_EQ(trader->trades_history[0].size, 1.0);
+    ASSERT_TRUE(trader->trades_history[0].closed);
 }
 
 TEST_F(TraderTest, TradeCloseShortWithLoss)
@@ -429,12 +436,15 @@ TEST_F(TraderTest, TradeCloseShortWithLoss)
     ASSERT_EQ(trader->balance, new_balance);
     ASSERT_EQ(trader->open_orders.size(), 0);
     ASSERT_EQ(trader->trades_history.size(), 1);
-    ASSERT_EQ(std::mktime(&trader->trades_history[0].entry_date), std::mktime(&date_tm));
-    ASSERT_EQ(std::mktime(&trader->trades_history[0].exit_date), std::mktime(&date_tm));
+    ASSERT_EQ(trader->trades_history[0].entry_date, std::mktime(&date_tm));
+    ASSERT_EQ(trader->trades_history[0].exit_date, std::mktime(&date_tm));
+    ASSERT_EQ(trader->trades_history[0].entry_price, 1.0);
+    ASSERT_EQ(trader->trades_history[0].exit_price, 1.0);
     ASSERT_EQ(trader->trades_history[0].side, PositionSide::SHORT);
     ASSERT_EQ(trader->trades_history[0].pnl, pnl);
     ASSERT_GT(trader->trades_history[0].fees, 0.0);
     ASSERT_EQ(trader->trades_history[0].size, 1.0);
+    ASSERT_TRUE(trader->trades_history[0].closed);
 }
 
 TEST_F(TraderTest, TradeEnterLong)
@@ -449,7 +459,7 @@ TEST_F(TraderTest, TradeEnterLong)
     time_t date = std::mktime(&date_tm);
 
     // Set neural network output to enter long
-    trader->decisions = {1.0, 0.0, 0.0, 0.0, 0.0};
+    trader->decisions = {1.0, 0.0, 0.0};
     trader->current_date = date;
 
     // Call the trade method
@@ -459,8 +469,18 @@ TEST_F(TraderTest, TradeEnterLong)
     ASSERT_TRUE(trader->current_position != nullptr);
     ASSERT_EQ(trader->current_position->side, PositionSide::LONG);
     ASSERT_GE(trader->current_position->size, 0);
+    ASSERT_EQ(trader->current_position->entry_date, std::mktime(&date_tm));
+    ASSERT_EQ(trader->duration_in_position, 0);
     ASSERT_EQ(trader->open_orders.size(), 2);
     ASSERT_LE(trader->balance, 1000.0);
+    ASSERT_EQ(trader->trades_history.size(), 1);
+    ASSERT_EQ(trader->trades_history[0].duration, 0);
+    ASSERT_EQ(trader->trades_history[0].entry_date, std::mktime(&date_tm));
+    ASSERT_EQ(trader->trades_history[0].entry_price, 1.0);
+    ASSERT_EQ(trader->trades_history[0].side, PositionSide::LONG);
+    ASSERT_GT(trader->trades_history[0].fees, 0.0);
+    ASSERT_GT(trader->trades_history[0].size, 0.0);
+    ASSERT_FALSE(trader->trades_history[0].closed);
 }
 
 TEST_F(TraderTest, TradeEnterShort)
@@ -475,7 +495,7 @@ TEST_F(TraderTest, TradeEnterShort)
     time_t date = std::mktime(&date_tm);
 
     // Set neural network output to enter short
-    trader->decisions = {0.0, 1.0, 0.0, 0.0, 0.0};
+    trader->decisions = {0.0, 1.0, 0.0};
     trader->current_date = date;
 
     // Call the trade method
@@ -485,14 +505,24 @@ TEST_F(TraderTest, TradeEnterShort)
     ASSERT_TRUE(trader->current_position != nullptr);
     ASSERT_EQ(trader->current_position->side, PositionSide::SHORT);
     ASSERT_GE(trader->current_position->size, 0);
+    ASSERT_EQ(trader->current_position->entry_date, std::mktime(&date_tm));
+    ASSERT_EQ(trader->duration_in_position, 0);
     ASSERT_EQ(trader->open_orders.size(), 2);
     ASSERT_LE(trader->balance, 1000.0);
+    ASSERT_EQ(trader->trades_history.size(), 1);
+    ASSERT_EQ(trader->trades_history[0].duration, 0);
+    ASSERT_EQ(trader->trades_history[0].entry_date, std::mktime(&date_tm));
+    ASSERT_EQ(trader->trades_history[0].entry_price, 1.0);
+    ASSERT_EQ(trader->trades_history[0].side, PositionSide::SHORT);
+    ASSERT_GT(trader->trades_history[0].fees, 0.0);
+    ASSERT_GT(trader->trades_history[0].size, 0.0);
+    ASSERT_FALSE(trader->trades_history[0].closed);
 }
 
 TEST_F(TraderTest, TradeNoAction)
 {
     // Set neural network output to no action
-    trader->decisions = {0.0, 0.0, 0.0, 0.0, 1.0};
+    trader->decisions = {0.0, 0.0, 1.0};
 
     // Call the trade method
     trader->trade();
@@ -501,6 +531,7 @@ TEST_F(TraderTest, TradeNoAction)
     ASSERT_EQ(trader->current_position, nullptr);
     ASSERT_EQ(trader->open_orders.size(), 0);
     ASSERT_EQ(trader->balance, 1000.0);
+    ASSERT_EQ(trader->trades_history.size(), 0);
 }
 
 TEST_F(TraderTest, ClosePositionForDurationExceeded)
@@ -515,25 +546,27 @@ TEST_F(TraderTest, ClosePositionForDurationExceeded)
         .tm_sec = 0};
 
     trader->open_position_by_market(1.01, 1.0, OrderSide::LONG);
-    trader->current_position->entry_date = entry_date;
+    trader->current_position->entry_date = std::mktime(&entry_date);
     trader->update_position_pnl();
 
-    // Set trader's date after the maximum trade duration has passed
-    trader->current_date = std::mktime(&entry_date) + (config.strategy.maximum_trade_duration.value() + 1) * 60 * get_time_frame_value(config.strategy.timeframe);
+    // Call the update method for the maximum trade duration
+    for (int i = 0; i < config.strategy.maximum_trade_duration.value(); i++)
+    {
+        trader->update();
+    }
 
-    // Call the update method
-    trader->trade();
-
-    // Check if the position is closed
+    // Assertions
     ASSERT_EQ(trader->current_position, nullptr);
     ASSERT_LT(trader->balance, 1000.0); // Balance decreased due to fees
     ASSERT_EQ(trader->trades_history.size(), 1);
-    ASSERT_EQ(std::mktime(&trader->trades_history[0].entry_date), std::mktime(&date_tm));
-    ASSERT_EQ(std::mktime(&trader->trades_history[0].exit_date), trader->current_date);
+    ASSERT_EQ(trader->trades_history[0].entry_date, std::mktime(&date_tm));
+    ASSERT_EQ(trader->trades_history[0].entry_price, 1.01);
     ASSERT_EQ(trader->trades_history[0].side, PositionSide::LONG);
     ASSERT_NE(trader->trades_history[0].pnl, 0.0);
     ASSERT_GT(trader->trades_history[0].fees, 0.0);
     ASSERT_EQ(trader->trades_history[0].size, 1.0);
+    ASSERT_LE(trader->trades_history[0].duration, config.strategy.maximum_trade_duration.value());
+    ASSERT_TRUE(trader->trades_history[0].closed);
 }
 
 TEST_F(TraderTest, WaitForDurationBeforeClosePosition)
@@ -548,18 +581,26 @@ TEST_F(TraderTest, WaitForDurationBeforeClosePosition)
         .tm_sec = 0};
 
     trader->open_position_by_market(1.00, 1.0, OrderSide::LONG);
-    trader->current_position->entry_date = entry_date;
+    trader->current_position->entry_date = std::mktime(&entry_date);
 
-    trader->decisions = {0.0, 0.0, 0.0, 1.0, 0.0};
+    trader->decisions = {0.0, 1.0, 0.0};
 
-    // Set trader's date before the minimum trade duration has passed
-    trader->current_date = std::mktime(&entry_date) + (config.strategy.maximum_trade_duration.value() - 1) * 60 * get_time_frame_value(config.strategy.timeframe);
+    // Call the update method for the maximum trade duration - 1
+    for (int i = 0; i < config.strategy.minimum_trade_duration.value() - 1; ++i)
+    {
+        trader->update();
+    }
 
-    // Call the trade method
-    trader->trade();
-
-    // Check if the position is not closed
+    // Assertions
     ASSERT_TRUE(trader->current_position != nullptr);
+    ASSERT_EQ(trader->duration_in_position, config.strategy.minimum_trade_duration.value() - 1);
+    ASSERT_EQ(trader->trades_history.size(), 1);
+    ASSERT_EQ(trader->trades_history[0].entry_date, std::mktime(&date_tm));
+    ASSERT_EQ(trader->trades_history[0].entry_price, 1.00);
+    ASSERT_EQ(trader->trades_history[0].side, PositionSide::LONG);
+    ASSERT_GT(trader->trades_history[0].fees, 0.0);
+    ASSERT_EQ(trader->trades_history[0].size, 1.0);
+    ASSERT_FALSE(trader->trades_history[0].closed);
 }
 
 TEST_F(TraderTest, WaitForNextTrade)
@@ -573,8 +614,9 @@ TEST_F(TraderTest, WaitForNextTrade)
         .tm_sec = 0};
     time_t date = std::mktime(&date_tm);
 
-    trader->last_position_date = date;
-    trader->decisions = {1.0, 0.0, 0.0, 0.0, 0.0};
+    trader->decisions = {1.0, 0.0, 0.0};
+    trader->duration_without_trade = 0;
+    trader->current_date = date;
 
     // Call the trade method
     trader->trade();
@@ -583,19 +625,26 @@ TEST_F(TraderTest, WaitForNextTrade)
     ASSERT_EQ(trader->current_position, nullptr);
 
     // Set trader's date after the minimum duration before next trade has passed
-    trader->current_date = std::mktime(&date_tm) + (config.strategy.minimum_duration_before_next_trade.value() + 1) * 60 * get_time_frame_value(config.strategy.timeframe);
+    trader->duration_without_trade = config.strategy.minimum_duration_before_next_trade.value();
 
     // Call the trade method
     trader->trade();
 
     // Check if a new position is opened
     ASSERT_TRUE(trader->current_position != nullptr);
+    ASSERT_EQ(trader->trades_history.size(), 1);
+    ASSERT_EQ(trader->trades_history[0].entry_date, trader->current_date);
+    ASSERT_EQ(trader->trades_history[0].entry_price, 1.0);
+    ASSERT_EQ(trader->trades_history[0].side, PositionSide::LONG);
+    ASSERT_GT(trader->trades_history[0].fees, 0.0);
+    ASSERT_EQ(trader->trades_history[0].duration, 0);
+    ASSERT_FALSE(trader->trades_history[0].closed);
 }
 
 TEST_F(TraderTest, CreateTpSlForLongPosition)
 {
     // Set neural network output to no action
-    trader->decisions = {1.0, 0.0, 0.0, 0.0, 0.0};
+    trader->decisions = {1.0, 0.0, 0.0};
     std::tm date_tm = {
         .tm_year = 2023 - 1900,
         .tm_mon = 0,
@@ -622,7 +671,7 @@ TEST_F(TraderTest, CreateTpSlForLongPosition)
 TEST_F(TraderTest, CreateTpSlForShortPosition)
 {
     // Set neural network output to no action
-    trader->decisions = {0.0, 1.0, 0.0, 0.0, 0.0};
+    trader->decisions = {0.0, 1.0, 0.0};
     std::tm date_tm = {
         .tm_year = 2023 - 1900,
         .tm_mon = 0,
@@ -649,7 +698,7 @@ TEST_F(TraderTest, CreateTpSlForShortPosition)
 TEST_F(TraderTest, TradeNotOutOfTradingSchedule)
 {
     // Set neural network output to enter long
-    trader->decisions = {1.0, 0.0, 0.0, 0.0, 0.0};
+    trader->decisions = {1.0, 0.0, 0.0};
 
     // try to trade sunday
     std::tm date_tm_1 = {
@@ -669,6 +718,7 @@ TEST_F(TraderTest, TradeNotOutOfTradingSchedule)
     ASSERT_EQ(trader->current_position, nullptr);
     ASSERT_EQ(trader->open_orders.size(), 0);
     ASSERT_EQ(trader->balance, 1000.0);
+    ASSERT_EQ(trader->trades_history.size(), 0);
 
     // try to trade just before the opening of trading schedule
     std::tm date_tm_2 = {
@@ -688,6 +738,7 @@ TEST_F(TraderTest, TradeNotOutOfTradingSchedule)
     ASSERT_EQ(trader->current_position, nullptr);
     ASSERT_EQ(trader->open_orders.size(), 0);
     ASSERT_EQ(trader->balance, 1000.0);
+    ASSERT_EQ(trader->trades_history.size(), 0);
 
     // try to trade just after the closing of trading schedule
     std::tm date_tm_3 = {
@@ -707,12 +758,13 @@ TEST_F(TraderTest, TradeNotOutOfTradingSchedule)
     ASSERT_EQ(trader->current_position, nullptr);
     ASSERT_EQ(trader->open_orders.size(), 0);
     ASSERT_EQ(trader->balance, 1000.0);
+    ASSERT_EQ(trader->trades_history.size(), 0);
 }
 
 TEST_F(TraderTest, TradeOnTradingSchedule)
 {
     // Set neural network output to enter long
-    trader->decisions = {1.0, 0.0, 0.0, 0.0, 0.0};
+    trader->decisions = {1.0, 0.0, 0.0};
 
     std::tm date_tm = {
         .tm_year = 2023 - 1900,
@@ -731,12 +783,13 @@ TEST_F(TraderTest, TradeOnTradingSchedule)
     ASSERT_TRUE(trader->current_position != nullptr);
     ASSERT_EQ(trader->open_orders.size(), 2);
     ASSERT_LT(trader->balance, 1000.0);
+    ASSERT_EQ(trader->trades_history.size(), 1);
 }
 
 TEST_F(TraderTest, TradeNotWhenSpreadHigh)
 {
     // Set neural network output to enter long
-    trader->decisions = {1.0, 0.0, 0.0, 0.0, 0.0};
+    trader->decisions = {1.0, 0.0, 0.0};
     std::tm date_tm = {
         .tm_year = 2023 - 1900,
         .tm_mon = 0,
@@ -756,6 +809,7 @@ TEST_F(TraderTest, TradeNotWhenSpreadHigh)
     ASSERT_EQ(trader->current_position, nullptr);
     ASSERT_EQ(trader->open_orders.size(), 0);
     ASSERT_EQ(trader->balance, 1000.0);
+    ASSERT_EQ(trader->trades_history.size(), 0);
 }
 
 TEST_F(TraderTest, UpdateLongPositionPnl)
@@ -772,7 +826,7 @@ TEST_F(TraderTest, UpdateLongPositionPnl)
     trader->candles = {{TimeFrame::H1, {
                                            Candle{.date = date, .close = 1.00100},
                                        }}};
-    trader->current_position = new Position{.entry_date = date_tm, .entry_price = 1.00000, .size = 1.0, .side = PositionSide::LONG, .pnl = 0.0};
+    trader->current_position = new Position{.entry_date = std::mktime(&date_tm), .entry_price = 1.00000, .size = 1.0, .side = PositionSide::LONG, .pnl = 0.0};
 
     // Call the update_position_pnl method
     trader->update_position_pnl();
@@ -795,7 +849,7 @@ TEST_F(TraderTest, UpdateShortPositionPnl)
     trader->candles = {{TimeFrame::H1, {
                                            Candle{.date = date, .close = 0.99900},
                                        }}};
-    trader->current_position = new Position{.entry_date = date_tm, .entry_price = 1.00000, .size = 1.0, .side = PositionSide::SHORT, .pnl = 0.0};
+    trader->current_position = new Position{.entry_date = std::mktime(&date_tm), .entry_price = 1.00000, .size = 1.0, .side = PositionSide::SHORT, .pnl = 0.0};
 
     // Call the update_position_pnl method
     trader->update_position_pnl();
@@ -820,14 +874,14 @@ TEST_F(TraderTest, CalculateStatsWinrate)
 {
     // Mock data for testing
     trader->trades_history = {
-        {.side = PositionSide::LONG, .pnl = 100},
-        {.side = PositionSide::LONG, .pnl = -50},
-        {.side = PositionSide::LONG, .pnl = -50},
-        {.side = PositionSide::LONG, .pnl = 100},
-        {.side = PositionSide::SHORT, .pnl = -50},
-        {.side = PositionSide::SHORT, .pnl = -50},
-        {.side = PositionSide::SHORT, .pnl = 50},
-        {.side = PositionSide::SHORT, .pnl = 50}};
+        {.side = PositionSide::LONG, .pnl = 100, .closed = true},
+        {.side = PositionSide::LONG, .pnl = -50, .closed = true},
+        {.side = PositionSide::LONG, .pnl = -50, .closed = true},
+        {.side = PositionSide::LONG, .pnl = 100, .closed = true},
+        {.side = PositionSide::SHORT, .pnl = -50, .closed = true},
+        {.side = PositionSide::SHORT, .pnl = -50, .closed = true},
+        {.side = PositionSide::SHORT, .pnl = 50, .closed = true},
+        {.side = PositionSide::SHORT, .pnl = 50, .closed = true}};
 
     // Call calculate method
     trader->calculate_stats();
@@ -842,9 +896,9 @@ TEST_F(TraderTest, CalculateStatsTotalNetProfit)
 {
     // Mock data for testing
     trader->trades_history = {
-        {.pnl = 1000},
-        {.pnl = -500},
-        {.pnl = -50}};
+        {.pnl = 1000, .closed = true},
+        {.pnl = -500, .closed = true},
+        {.pnl = -50, .closed = true}};
 
     // Call calculate method
     trader->calculate_stats();
@@ -857,12 +911,12 @@ TEST_F(TraderTest, CalculateStatsAverageProfitLoss)
 {
     // Mock data for testing
     trader->trades_history = {
-        {.pnl = 100},
-        {.pnl = 50},
-        {.pnl = -100},
-        {.pnl = -50},
-        {.pnl = 100},
-        {.pnl = 50}};
+        {.pnl = 100, .closed = true},
+        {.pnl = 50, .closed = true},
+        {.pnl = -100, .closed = true},
+        {.pnl = -50, .closed = true},
+        {.pnl = 100, .closed = true},
+        {.pnl = 50, .closed = true}};
 
     // Call calculate method
     trader->calculate_stats();
@@ -878,8 +932,8 @@ TEST_F(TraderTest, CalculateStatsProfitFactor)
     trader->stats.average_profit = 100;
     trader->stats.average_loss = 50;
     trader->trades_history = {
-        {.pnl = 100},
-        {.pnl = -50},
+        {.pnl = 100, .closed = true},
+        {.pnl = -50, .closed = true},
     };
 
     // Call calculate method
@@ -893,14 +947,14 @@ TEST_F(TraderTest, CalculateStatsTotalTrades)
 {
     // Mock data for testing
     trader->trades_history = {
-        {.pnl = 100},
-        {.pnl = -50},
-        {.pnl = -50},
-        {.pnl = 100},
-        {.pnl = -50},
-        {.pnl = -50},
-        {.pnl = 50},
-        {.pnl = 50}};
+        {.pnl = 100, .closed = true},
+        {.pnl = -50, .closed = true},
+        {.pnl = -50, .closed = true},
+        {.pnl = 100, .closed = true},
+        {.pnl = -50, .closed = true},
+        {.pnl = -50, .closed = true},
+        {.pnl = 50, .closed = true},
+        {.pnl = 50, .closed = true}};
 
     // Call calculate method
     trader->calculate_stats();
@@ -915,14 +969,14 @@ TEST_F(TraderTest, CalculateStatsMaximumProfitLossTrades)
 {
     // Mock data for testing
     trader->trades_history = {
-        {.pnl = 100},
-        {.pnl = -50},
-        {.pnl = -50},
-        {.pnl = 100},
-        {.pnl = -50},
-        {.pnl = -50},
-        {.pnl = 50},
-        {.pnl = 50}};
+        {.pnl = 100, .closed = true},
+        {.pnl = -50, .closed = true},
+        {.pnl = -50, .closed = true},
+        {.pnl = 100, .closed = true},
+        {.pnl = -50, .closed = true},
+        {.pnl = -50, .closed = true},
+        {.pnl = 50, .closed = true},
+        {.pnl = 50, .closed = true}};
 
     // Call calculate method
     trader->calculate_stats();
@@ -936,13 +990,13 @@ TEST_F(TraderTest, CalculateStatsMaxProfitLoss)
 {
     // Mock data for testing
     trader->trades_history = {
-        {.pnl = -50},
-        {.pnl = -50},
-        {.pnl = 200},
-        {.pnl = -50},
-        {.pnl = -150},
-        {.pnl = 50},
-        {.pnl = 50}};
+        {.pnl = -50, .closed = true},
+        {.pnl = -50, .closed = true},
+        {.pnl = 200, .closed = true},
+        {.pnl = -50, .closed = true},
+        {.pnl = -150, .closed = true},
+        {.pnl = 50, .closed = true},
+        {.pnl = 50, .closed = true}};
 
     // Call calculate method
     trader->calculate_stats();
@@ -956,15 +1010,15 @@ TEST_F(TraderTest, CalculateStatsMaxConsecutiveProfitLoss)
 {
     // Mock data for testing
     trader->trades_history = {
-        {.pnl = 100},
-        {.pnl = 100},
-        {.pnl = -50},
-        {.pnl = -50},
-        {.pnl = 100},
-        {.pnl = -50},
-        {.pnl = -50},
-        {.pnl = 50},
-        {.pnl = 50}};
+        {.pnl = 100, .closed = true},
+        {.pnl = 100, .closed = true},
+        {.pnl = -50, .closed = true},
+        {.pnl = -50, .closed = true},
+        {.pnl = 100, .closed = true},
+        {.pnl = -50, .closed = true},
+        {.pnl = -50, .closed = true},
+        {.pnl = 50, .closed = true},
+        {.pnl = 50, .closed = true}};
 
     // Call calculate method
     trader->calculate_stats();
@@ -972,6 +1026,26 @@ TEST_F(TraderTest, CalculateStatsMaxConsecutiveProfitLoss)
     // Check the new stats
     ASSERT_EQ(trader->stats.max_consecutive_profit, 200);
     ASSERT_EQ(trader->stats.max_consecutive_loss, -100);
+}
+
+TEST_F(TraderTest, CalculateStatsAverageTradeDuration)
+{
+    // Mock data for testing
+    trader->trades_history = {
+        {.duration = 4, .closed = true},
+        {.duration = 3, .closed = true},
+        {.duration = 2, .closed = true},
+        {.duration = 1, .closed = true},
+        {.duration = 4, .closed = true},
+        {.duration = 3, .closed = true},
+        {.duration = 2, .closed = true},
+        {.duration = 1, .closed = true}};
+
+    // Call calculate method
+    trader->calculate_stats();
+
+    // Check the new stats
+    ASSERT_EQ(trader->stats.average_trade_duration, 20.0 / 8.0);
 }
 
 TEST_F(TraderTest, CalculateStatsSharpeRatio)
@@ -993,14 +1067,14 @@ TEST_F(TraderTest, CalculateFitness)
     trader->stats.average_loss = 0.015;
     trader->stats.sharpe_ratio = 1.5;
     trader->trades_history = {
-        {.pnl_percent = 0.1},
-        {.pnl_percent = -0.05},
-        {.pnl_percent = -0.1},
-        {.pnl_percent = 0.1},
-        {.pnl_percent = -0.05},
-        {.pnl_percent = -0.05},
-        {.pnl_percent = 0.05},
-        {.pnl_percent = 0.05}};
+        {.pnl_percent = 0.1, .closed = true},
+        {.pnl_percent = -0.05, .closed = true},
+        {.pnl_percent = -0.1, .closed = true},
+        {.pnl_percent = 0.1, .closed = true},
+        {.pnl_percent = -0.05, .closed = true},
+        {.pnl_percent = -0.05, .closed = true},
+        {.pnl_percent = 0.05, .closed = true},
+        {.pnl_percent = 0.05, .closed = true}};
 
     // Call the calculate_fitness method
     trader->calculate_fitness();
@@ -1025,18 +1099,18 @@ TEST_F(TraderTest, GenerateBalanceHistoryGraph)
     std::filesystem::remove_all(file.parent_path());
 }
 
-// TEST_F(TraderTest, GenerateReport)
-// {
-//     // Mock data for testing
-//     trader->calculate_stats();
+TEST_F(TraderTest, GenerateReport)
+{
+    // Mock data for testing
+    trader->calculate_stats();
 
-//     // Call the generate_report method
-//     std::filesystem::path file = "cache/tests/trader_report.png";
-//     trader->generate_report(file);
+    // Call the generate_report method
+    std::filesystem::path file = "cache/tests/trader_report.png";
+    trader->generate_report(file);
 
-//     // Check if the graphic is created
-//     ASSERT_TRUE(std::filesystem::exists(file));
+    // Check if the graphic is created
+    ASSERT_TRUE(std::filesystem::exists(file));
 
-//     // Remove the file
-//     std::filesystem::remove_all(file.parent_path());
-// }
+    // Remove the file
+    std::filesystem::remove_all(file.parent_path());
+}

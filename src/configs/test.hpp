@@ -40,15 +40,15 @@ std::tm start_training_date = {
 // 2023-01-31 00:00:00
 std::tm end_training_date = {
     .tm_year = 2022 - 1900,
-    .tm_mon = 2,
-    .tm_mday = 31,
+    .tm_mon = 1,
+    .tm_mday = 1,
     .tm_hour = 0,
     .tm_min = 0,
     .tm_sec = 0};
 
 // 2023-01-01 00:00:00
 std::tm start_test_date = {
-    .tm_year = 2023 - 1900,
+    .tm_year = 2022 - 1900,
     .tm_mon = 0,
     .tm_mday = 1,
     .tm_hour = 0,
@@ -57,9 +57,9 @@ std::tm start_test_date = {
 
 // 2023-01-31 00:00:00
 std::tm end_test_date = {
-    .tm_year = 2023 - 1900,
-    .tm_mon = 0,
-    .tm_mday = 31,
+    .tm_year = 2022 - 1900,
+    .tm_mon = 1,
+    .tm_mday = 1,
     .tm_hour = 0,
     .tm_min = 0,
     .tm_sec = 0};
@@ -77,7 +77,7 @@ Config test_config = {
         .maximum_risk = 0.1,
         .maximum_spread = 8,
         .minimum_trade_duration = 0,
-        .maximum_trade_duration = 4,
+        .maximum_trade_duration = 10,
         .minimum_duration_before_next_trade = 4,
         .maximum_trades_per_day = 2,
         .trading_schedule = schedule,

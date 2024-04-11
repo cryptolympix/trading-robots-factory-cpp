@@ -3,6 +3,7 @@
 #include <ctime> // Include for std::mktime
 #include "../../types.hpp"
 #include "../read_data.hpp"
+#include "../time_frame.hpp"
 
 // Test case for reading data with valid inputs
 TEST(ReadDataTest, TestReadValidData)
@@ -50,7 +51,18 @@ TEST(ReadDataTest, TestReadDataWithDateRange)
     // Assert that the vector is not empty
     ASSERT_TRUE(candles.size() > 0);
 
-    // Assert that the candles start from the specified start date and ends before the specified end date
-    ASSERT_GE(candles[0].date, std::mktime(&startDate));
-    ASSERT_LE(candles[candles.size() - 1].date, std::mktime(&endDate));
+    int loop_timeframe_minutes = get_time_frame_value(TimeFrame::H1);
+    int candles_count = 0;
+
+    // Loop through the candles and count the number of candles within the date range
+    for (std::chrono::system_clock::time_point current_date = startTime; current_date <= endTime; current_date += std::chrono::minutes(loop_timeframe_minutes))
+    {
+        if (candles[candles_count].date == std::chrono::system_clock::to_time_t(current_date))
+        {
+            candles_count++;
+        }
+    }
+
+    // Assert that the number of candles is correct
+    ASSERT_EQ(candles_count, candles.size());
 }

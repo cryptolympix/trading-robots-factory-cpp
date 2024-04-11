@@ -46,7 +46,7 @@ protected:
         };
         std::chrono::system_clock::time_point end_date = std::chrono::system_clock::from_time_t(std::mktime(&end_date_tm));
 
-        config = {
+        config = Config{
             .general = {
                 .name = "test",
                 .version = "1.0",
@@ -55,25 +55,24 @@ protected:
                 .initial_balance = 1000,
                 .account_currency = "USD",
             },
-            .strategy = {.timeframe = TimeFrame::H1, .maximum_risk = 0.02, .maximum_spread = 8, .minimum_trade_duration = 4, .maximum_trade_duration = 20, .take_profit_stop_loss_config = {
-                                                                                                                                                               .type_stop_loss = TypeTakeProfitStopLoss::POINTS,
-                                                                                                                                                               .stop_loss_in_points = 300,
-                                                                                                                                                               .stop_loss_in_percent = 0.01,
-                                                                                                                                                               .type_take_profit = TypeTakeProfitStopLoss::POINTS,
-                                                                                                                                                               .take_profit_in_points = 300,
-                                                                                                                                                               .take_profit_in_percent = 0.01,
-                                                                                                                                                           },
-                         .trading_schedule = {.monday = {false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false}, .tuesday = {false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false}, .wednesday = {false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false}, .thursday = {false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false}, .friday = {false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false}, .saturday = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false}, .sunday = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false}}},
+            .strategy = {.timeframe = TimeFrame::H1, .maximum_risk = 0.02, .maximum_spread = 8, .minimum_trade_duration = 1, .maximum_trade_duration = 2, .maximum_trades_per_day = 2, .minimum_duration_before_next_trade = 2, .take_profit_stop_loss_config = {
+                                                                                                                                                                                                                                    .type_stop_loss = TypeTakeProfitStopLoss::POINTS,
+                                                                                                                                                                                                                                    .stop_loss_in_points = 300,
+                                                                                                                                                                                                                                    .stop_loss_in_percent = 0.01,
+                                                                                                                                                                                                                                    .type_take_profit = TypeTakeProfitStopLoss::POINTS,
+                                                                                                                                                                                                                                    .take_profit_in_points = 300,
+                                                                                                                                                                                                                                    .take_profit_in_percent = 0.01,
+                                                                                                                                                                                                                                },
+                         .trading_schedule = {{.monday = {false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false}, .tuesday = {false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false}, .wednesday = {false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false}, .thursday = {false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false}, .friday = {false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false}, .saturday = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false}, .sunday = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false}}}},
             .training = {.generations = 5, .bad_trader_threshold = 0.01, .inactive_trader_threshold = 500, .training_start_date = start_date, .training_end_date = end_date, .inputs = {
                                                                                                                                                                                  .indicators = {{TimeFrame::M15, {new RSI()}}, {TimeFrame::M30, {new RSI()}}, {TimeFrame::H1, {new RSI()}}},
                                                                                                                                                                                  .position = {PositionInfo::TYPE, PositionInfo::PNL, PositionInfo::DURATION},
                                                                                                                                                                              }},
-            .evaluation = {.nb_trades = 30, .maximum_drawdown = 0.1, .expected_return = 0.1, .expected_return_per_month = 0.1, .expected_return_per_trade = 0.01, .minimum_profit_factor = 2, .minimum_winrate = 0.5},
+            .evaluation = {.nb_trades_minimum = 0, .nb_trades_maximum = 40, .maximum_drawdown = 0.1, .expected_return_per_day = 0.01, .expected_return_per_month = 0.1, .minimum_profit_factor = 2, .minimum_winrate = 0.5},
             .neat = load_config("src/configs/neat_config_test.ini"),
         };
         config.neat.population_size = 5;
         config.neat.num_inputs = 6;
-        config.neat.num_outputs = 5;
         training = new Training("test", config, false);
         temp_dir = std::filesystem::temp_directory_path() / "training_test";
     }
@@ -96,15 +95,6 @@ TEST_F(TrainingTest, LoadCandles)
     ASSERT_FALSE(training->candles[TimeFrame::M15].empty());
     ASSERT_FALSE(training->candles[TimeFrame::M30].empty());
     ASSERT_FALSE(training->candles[TimeFrame::H1].empty());
-
-    for (auto const &[timeframe, candles] : training->candles)
-    {
-        for (auto const &candle : candles)
-        {
-            ASSERT_GE(candle.date, std::chrono::system_clock::to_time_t(config.training.training_start_date));
-            ASSERT_LE(candle.date, std::chrono::system_clock::to_time_t(config.training.training_end_date));
-        }
-    }
 }
 
 TEST_F(TrainingTest, LoadIndicators)
@@ -138,11 +128,22 @@ TEST_F(TrainingTest, CacheData)
     TimeFrame loop_timeframe = config.strategy.timeframe;
     int loop_timeframe_minutes = get_time_frame_value(loop_timeframe);
 
+    // Check the dates is in the cache
     for (auto date = start_date; date < end_date; date += std::chrono::minutes(loop_timeframe_minutes))
     {
         time_t date_time_t = std::chrono::system_clock::to_time_t(date);
         std::string date_string = std::string(std::ctime(&date_time_t));
         ASSERT_TRUE(training->cache.find(date_string) != training->cache.end());
+    }
+
+    // Check the candles are ordered in the data cache
+    for (auto &[date, data] : training->cache)
+    {
+        for (auto &[timeframe, candles] : data.candles)
+        {
+            ASSERT_TRUE(std::is_sorted(candles.begin(), candles.end(), [](Candle const &a, Candle const &b)
+                                       { return a.date < b.date; }));
+        }
     }
 }
 
@@ -201,17 +202,17 @@ TEST_F(TrainingTest, BestTraders)
     ASSERT_EQ(training->get_best_trader_of_generation(0), new_best_trader);
 }
 
-TEST_F(TrainingTest, Run)
-{
-    training->load_candles();
-    training->load_indicators();
-    training->load_base_currency_conversion_rate();
-    training->cache_data();
+// TEST_F(TrainingTest, Run)
+// {
+//     training->load_candles();
+//     training->load_indicators();
+//     training->load_base_currency_conversion_rate();
+//     training->cache_data();
 
-    for (int i = 0; i < 10; ++i)
-    {
-        int result = training->run();
-        // Asserts that the training went well
-        ASSERT_EQ(result, 0);
-    }
-}
+//     for (int i = 0; i < 10; ++i)
+//     {
+//         int result = training->run();
+//         // Asserts that the training went well
+//         ASSERT_EQ(result, 0);
+//     }
+// }

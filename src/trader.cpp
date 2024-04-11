@@ -9,6 +9,7 @@
 #include "utils/logger.hpp"
 #include "utils/time_frame.hpp"
 #include "utils/math.hpp"
+#include "utils/vectors.hpp"
 #include "includes/gnuplot-iostream.hpp"
 #include "trading/trading_schedule.hpp"
 #include "trading/trading_tools.hpp"
@@ -49,8 +50,9 @@ Trader::Trader(Genome *genome, Config config, Logger *logger)
     this->balance_history = {};
     this->trades_history = {};
     this->open_orders = {};
-    this->last_position_date = NULL;
     this->current_position = nullptr;
+    this->duration_in_position = 0;
+    this->duration_without_trade = this->config.strategy.minimum_duration_before_next_trade.value_or(0);
 
     // Statistics of the trader
     this->stats = {
@@ -155,10 +157,7 @@ void Trader::look(CandlesData &candles, IndicatorsData &indicators, double base_
         }
         else if (info == PositionInfo::DURATION)
         {
-            // check the difference between the current date and the entry date in minutes
-            time_t entry_date = std::mktime(&this->current_position->entry_date);
-            double position_duration = std::difftime(this->current_date, entry_date) / (get_time_frame_value(config.strategy.timeframe) * 60);
-            position_info.push_back(position_duration);
+            position_info.push_back(this->duration_in_position);
         }
     }
 
@@ -186,25 +185,38 @@ void Trader::update()
     // Increment the lifespan of the trader
     this->lifespan++;
 
-    // Kill the traders that loose all the balance
-    if (this->config.training.bad_trader_threshold.has_value() && balance <= this->stats.initial_balance * config.training.bad_trader_threshold.value())
+    // Increment the position duration
+    if (this->current_position != nullptr)
     {
-        this->dead = true;
-        if (this->logger != nullptr)
-        {
-            this->logger->info("[" + time_t_to_string(this->current_date) + "] [$" + std::to_string(this->balance) + "] Killed because of bad performance.");
-        }
-        return;
+        this->duration_in_position++;
+    }
+    else
+    {
+        this->duration_without_trade++;
     }
 
+    // Kill the traders that loose all the balance
+    bool bad_trader = this->config.training.bad_trader_threshold.has_value() && balance <= this->stats.initial_balance * config.training.bad_trader_threshold.value();
+
     // Kill the traders that doesn't trades
-    if (this->config.training.inactive_trader_threshold.has_value() && this->lifespan >= this->config.training.inactive_trader_threshold.value() && this->stats.total_trades == 0)
+    bool inactive_trader = this->config.training.inactive_trader_threshold.has_value() && this->lifespan >= this->config.training.inactive_trader_threshold.value() && this->stats.total_trades == 0;
+
+    if (bad_trader || inactive_trader)
     {
         this->dead = true;
+
         if (this->logger != nullptr)
         {
-            this->logger->info("[" + time_t_to_string(this->current_date) + "] [$" + std::to_string(this->balance) + "] Killed because of inactivity.");
+            if (bad_trader)
+            {
+                this->logger->info("[" + time_t_to_string(this->current_date) + "] [" + std::to_string(this->balance) + "] Killed because of bad performance.");
+            }
+            else if (inactive_trader)
+            {
+                this->logger->info("[" + time_t_to_string(this->current_date) + "] [" + std::to_string(this->balance) + "] Killed because of inactivity.");
+            }
         }
+
         return;
     }
 
@@ -282,10 +294,10 @@ void Trader::calculate_fitness()
         std::map<std::string, double> daily_returns = {};
         for (const auto &trade : this->trades_history)
         {
-            std::tm exit_date = trade.exit_date;
+            std::tm *exit_date = std::localtime(&trade.exit_date);
             double trade_return = trade.pnl_percent;
             std::stringstream date_key;
-            date_key << std::put_time(&exit_date, "%Y-%m-%d");
+            date_key << std::put_time(exit_date, "%Y-%m-%d");
             daily_returns[date_key.str()] = trade_return;
         }
 
@@ -302,10 +314,10 @@ void Trader::calculate_fitness()
         std::map<std::string, double> monthly_returns = {};
         for (const auto &trade : this->trades_history)
         {
-            std::tm exit_date = trade.exit_date;
+            std::tm *exit_date = std::localtime(&trade.exit_date);
             double trade_return = trade.pnl_percent;
             std::stringstream date_key;
-            date_key << std::put_time(&exit_date, "%Y-%m");
+            date_key << std::put_time(exit_date, "%Y-%m");
             monthly_returns[date_key.str()] += trade_return;
         }
 
@@ -357,8 +369,18 @@ void Trader::calculate_fitness()
  */
 void Trader::calculate_stats()
 {
+    // Get the trades closed in the trade history
+    std::vector<Trade> closed_trades = {};
+    for (const auto &trade : this->trades_history)
+    {
+        if (trade.closed)
+        {
+            closed_trades.push_back(trade);
+        }
+    }
+
     // Update the total trades
-    this->stats.total_trades = this->trades_history.size();
+    this->stats.total_trades = closed_trades.size();
 
     // Calcualte the number of long/short trades
     this->stats.total_long_trades = std::count_if(this->trades_history.begin(), this->trades_history.end(), [](Trade trade)
@@ -366,7 +388,7 @@ void Trader::calculate_stats()
     this->stats.total_short_trades = this->stats.total_trades - this->stats.total_long_trades;
 
     // Update the stats of the trades
-    for (const auto &trade : this->trades_history)
+    for (const auto &trade : closed_trades)
     {
         if (trade.pnl >= 0)
         {
@@ -445,9 +467,9 @@ void Trader::calculate_stats()
     this->stats.max_drawdown = calculate_drawdown(this->balance_history);
 
     // Calculate the winrate
-    if (this->stats.total_trades > 0)
+    if (closed_trades.size() > 0)
     {
-        this->stats.win_rate = static_cast<double>(this->stats.total_winning_trades) / static_cast<double>(this->stats.total_trades);
+        this->stats.win_rate = static_cast<double>(this->stats.total_winning_trades) / static_cast<double>(closed_trades.size());
     }
 
     // Calculate the winrate for longs
@@ -483,7 +505,7 @@ void Trader::calculate_stats()
     // Calculate the maximum profit
     if (this->stats.total_winning_trades > 0)
     {
-        this->stats.max_profit = (*std::max_element(this->trades_history.begin(), this->trades_history.end(), [](Trade a, Trade b)
+        this->stats.max_profit = (*std::max_element(closed_trades.begin(), closed_trades.end(), [](Trade a, Trade b)
                                                     { return a.pnl < b.pnl; }))
                                      .pnl;
     }
@@ -491,7 +513,7 @@ void Trader::calculate_stats()
     // Calculate the maximum loss
     if (this->stats.total_lost_trades > 0)
     {
-        this->stats.max_loss = (*std::min_element(this->trades_history.begin(), this->trades_history.end(), [](Trade a, Trade b)
+        this->stats.max_loss = (*std::min_element(closed_trades.begin(), closed_trades.end(), [](Trade a, Trade b)
                                                   { return a.pnl < b.pnl; }))
                                    .pnl;
     }
@@ -499,7 +521,7 @@ void Trader::calculate_stats()
     // Calculate the maximum consecutive winning trades
     this->stats.max_consecutive_winning_trades = 0;
     int current_consecutive_winning_trades = 0;
-    for (const auto &trade : this->trades_history)
+    for (const auto &trade : closed_trades)
     {
         if (trade.pnl >= 0)
         {
@@ -515,7 +537,7 @@ void Trader::calculate_stats()
     // Calculate the maximum consecutive lost trades
     this->stats.max_consecutive_lost_trades = 0;
     int current_consecutive_lost_trades = 0;
-    for (const auto &trade : this->trades_history)
+    for (const auto &trade : closed_trades)
     {
         if (trade.pnl < 0)
         {
@@ -528,26 +550,10 @@ void Trader::calculate_stats()
         }
     }
 
-    // Calculate the average trade duration
-    if (this->stats.total_trades > 0)
-    {
-        double total_duration = 0;
-        for (auto &trade : this->trades_history)
-        {
-            if (trade.exit_date.tm_year != 0)
-            {
-                time_t entry_date = std::mktime(&trade.entry_date);
-                time_t exit_date = std::mktime(&trade.exit_date);
-                total_duration += std::difftime(exit_date, entry_date) / 60;
-            }
-        }
-        this->stats.average_trade_duration = total_duration / static_cast<double>(this->stats.total_trades) / static_cast<double>(get_time_frame_value(this->config.strategy.timeframe));
-    }
-
     // Calculate the maximum consecutive profit
     this->stats.max_consecutive_profit = 0;
     double current_consecutive_profit = 0;
-    for (const auto &trade : this->trades_history)
+    for (const auto &trade : closed_trades)
     {
         if (trade.pnl >= 0)
         {
@@ -563,7 +569,7 @@ void Trader::calculate_stats()
     // Calculate the maximum consecutive loss
     this->stats.max_consecutive_loss = 0;
     double current_consecutive_loss = 0;
-    for (const auto &trade : this->trades_history)
+    for (const auto &trade : closed_trades)
     {
         if (trade.pnl < 0)
         {
@@ -574,6 +580,20 @@ void Trader::calculate_stats()
         {
             current_consecutive_loss = 0;
         }
+    }
+
+    // Calculate the average trade duration
+    if (this->stats.total_trades > 0)
+    {
+        double total_duration = 0;
+        for (auto &trade : closed_trades)
+        {
+            if (trade.closed)
+            {
+                total_duration += trade.duration;
+            }
+        }
+        this->stats.average_trade_duration = total_duration / static_cast<double>(this->stats.total_trades);
     }
 
     // Calculate the sharpe ratio
@@ -600,29 +620,29 @@ void Trader::trade()
     bool has_short_position = has_position && this->current_position->side == PositionSide::SHORT;
 
     // Check the duration of the current trade
-    if (has_position && config.strategy.maximum_trade_duration)
+    if (has_position && config.strategy.maximum_trade_duration.has_value())
     {
-        std::tm entry_date = this->current_position->entry_date;
-        TimeFrame loop_interval = config.strategy.timeframe;
-        int max_trade_duration_minutes = config.strategy.maximum_trade_duration.value() * get_time_frame_value(loop_interval);
-
         // Check if the position has reached the maximum trade duration
-        if (this->current_date >= std::mktime(&entry_date) + 60 * max_trade_duration_minutes)
+        if (this->duration_in_position >= config.strategy.maximum_trade_duration.value())
         {
             this->close_position_by_market(last_candle.close);
+            return;
         }
     }
 
     // Decision taken
     double maximum = *std::max_element(this->decisions.begin(), this->decisions.end());
-    bool enter_long = maximum == this->decisions[0];
-    bool enter_short = maximum == this->decisions[1];
-    bool close_long = maximum == this->decisions[2];
-    bool close_short = maximum == this->decisions[3];
-    bool wait = maximum == this->decisions[4];
+    bool long_decision = maximum == this->decisions[0];
+    bool short_decision = maximum == this->decisions[1];
+    bool wait_decision = maximum == this->decisions[2];
 
-    // Don't trade
-    if (wait)
+    // Wait
+    if (wait_decision)
+    {
+        return;
+    }
+
+    if (maximum < 0.5)
     {
         return;
     }
@@ -636,7 +656,7 @@ void Trader::trade()
         schedule_is_ok = is_on_trading_schedule(current_time, trading_schedule);
     }
 
-    // Check the number trades made today
+    // Check the number of trades made today
     bool number_of_trades_per_day_is_ok = true;
     if (this->config.strategy.maximum_trades_per_day.has_value())
     {
@@ -646,8 +666,9 @@ void Trader::trade()
             int current_year = std::localtime(&this->current_date)->tm_year;
             int current_month = std::localtime(&this->current_date)->tm_mon;
             int current_day = std::localtime(&this->current_date)->tm_mday;
+            std::tm *trade_entry_date = std::localtime(&trade.entry_date);
 
-            if (trade.entry_date.tm_year == current_year && trade.entry_date.tm_mon == current_month && trade.entry_date.tm_mday == current_day)
+            if (trade_entry_date->tm_year == current_year && trade_entry_date->tm_mon == current_month && trade_entry_date->tm_mday == current_day)
             {
                 number_of_trades_today++;
             }
@@ -657,17 +678,16 @@ void Trader::trade()
 
     // Check if the spread is ok
     bool spread_is_ok = true;
-    if (this->config.strategy.maximum_spread && last_candle.spread > this->config.strategy.maximum_spread)
+    if (this->config.strategy.maximum_spread.has_value())
     {
-        spread_is_ok = false;
+        spread_is_ok = last_candle.spread <= this->config.strategy.maximum_spread.value();
     }
 
     // Check if the time after the previous trade is ok
     bool time_after_previous_trade_is_ok = true;
-    if (this->last_position_date || this->trades_history.empty())
+    if (this->config.strategy.minimum_duration_before_next_trade.has_value())
     {
-        int minutes_after_previous_trade = std::difftime(this->current_date, this->last_position_date) / (60 * loop_interval_minutes);
-        time_after_previous_trade_is_ok = minutes_after_previous_trade >= this->config.strategy.minimum_duration_before_next_trade;
+        time_after_previous_trade_is_ok = this->duration_without_trade >= this->config.strategy.minimum_duration_before_next_trade.value();
     }
 
     // Check if the trader can trade now
@@ -679,33 +699,27 @@ void Trader::trade()
     {
         can_close_position = false;
     }
-    else if (!this->config.strategy.minimum_trade_duration.has_value())
+    else if (this->config.strategy.minimum_trade_duration.has_value())
     {
-        can_close_position = true;
-    }
-    else
-    {
-        time_t current_date = this->current_date;
-        time_t entry_date = std::mktime(&this->current_position->entry_date);
-        can_close_position = current_date > entry_date + loop_interval_minutes * 60 * this->config.strategy.minimum_trade_duration.value();
+        can_close_position = this->duration_in_position >= this->config.strategy.minimum_trade_duration.value();
     }
 
     if (can_trade_now)
     {
         if (has_position)
         {
-            if (has_long_position && close_long && can_close_position)
+            if (has_long_position && short_decision && can_close_position)
             {
                 this->close_position_by_market(last_candle.close);
             }
-            else if (has_short_position && close_short && can_close_position)
+            else if (has_short_position && long_decision && can_close_position)
             {
                 this->close_position_by_market(last_candle.close);
             }
         }
         else
         {
-            if (enter_long)
+            if (long_decision)
             {
                 // Calculate order parameters
                 auto order_prices = calculate_tp_sl_price(last_candle.close, PositionSide::LONG, this->config.strategy.take_profit_stop_loss_config, this->symbol_info);
@@ -719,7 +733,7 @@ void Trader::trade()
                 this->create_open_order(OrderType::TAKE_PROFIT, OrderSide::SHORT, tp_price);
                 this->create_open_order(OrderType::STOP_LOSS, OrderSide::SHORT, sl_price);
             }
-            else if (enter_short)
+            else if (short_decision)
             {
                 // Calculate order parameters
                 auto order_prices = calculate_tp_sl_price(last_candle.close, PositionSide::SHORT, this->config.strategy.take_profit_stop_loss_config, this->symbol_info);
@@ -737,11 +751,11 @@ void Trader::trade()
     }
     else if (has_position)
     {
-        if (has_long_position && close_long && can_close_position)
+        if (has_long_position && short_decision && can_close_position)
         {
             this->close_position_by_market(last_candle.close);
         }
-        else if (has_short_position && close_short && can_close_position)
+        else if (has_short_position && long_decision && can_close_position)
         {
             this->close_position_by_market(last_candle.close);
         }
@@ -756,28 +770,30 @@ void Trader::trade()
  */
 void Trader::open_position_by_market(double price, double size, OrderSide side)
 {
-    double fees = calculate_commission(this->symbol_info.commission_per_lot, size, this->current_base_currency_conversion_rate);
-
     if (this->current_position != nullptr)
     {
         return;
     };
 
+    double fees = calculate_commission(this->symbol_info.commission_per_lot, size, this->current_base_currency_conversion_rate);
+
     if (side == OrderSide::LONG)
     {
-        std::tm date_tm = *std::localtime(&this->current_date);
         this->stats.total_trades++;
         this->stats.total_long_trades++;
         balance -= fees;
 
-        this->trades_history.push_back(Trade{.entry_date = date_tm,
+        this->trades_history.push_back(Trade{.entry_date = this->current_date,
                                              .entry_price = price,
                                              .side = PositionSide::LONG,
                                              .size = size,
-                                             .fees = fees});
+                                             .duration = 0,
+                                             .fees = fees,
+                                             .closed = false});
 
+        this->duration_in_position = 0;
         this->current_position = new Position{
-            .entry_date = date_tm,
+            .entry_date = this->current_date,
             .entry_price = price,
             .size = size,
             .side = PositionSide::LONG,
@@ -785,24 +801,26 @@ void Trader::open_position_by_market(double price, double size, OrderSide side)
 
         if (this->logger != nullptr)
         {
-            this->logger->info("[" + time_t_to_string(this->current_date) + "] [$" + std::to_string(balance) + "] : Open long position by market at $" + std::to_string(price) + " with " + std::to_string(size) + " lots and $" + std::to_string(fees) + " of fees.");
+            this->logger->info("[" + time_t_to_string(this->current_date) + "] [" + std::to_string(balance) + "] : Open long position by market at " + std::to_string(price) + " with " + std::to_string(size) + " lots and " + std::to_string(fees) + " of fees.");
         }
     }
-    if (side == OrderSide::SHORT)
+    else if (side == OrderSide::SHORT)
     {
-        std::tm date_tm = *std::localtime(&this->current_date);
         this->stats.total_trades++;
         this->stats.total_short_trades++;
         balance -= fees;
 
-        this->trades_history.push_back(Trade{.entry_date = date_tm,
+        this->trades_history.push_back(Trade{.entry_date = this->current_date,
                                              .entry_price = price,
                                              .side = PositionSide::SHORT,
                                              .size = size,
-                                             .fees = fees});
+                                             .duration = 0,
+                                             .fees = fees,
+                                             .closed = false});
 
+        this->duration_in_position = 0;
         this->current_position = new Position{
-            .entry_date = date_tm,
+            .entry_date = this->current_date,
             .entry_price = price,
             .size = size,
             .side = PositionSide::SHORT,
@@ -810,7 +828,7 @@ void Trader::open_position_by_market(double price, double size, OrderSide side)
 
         if (this->logger != nullptr)
         {
-            this->logger->info("[" + time_t_to_string(this->current_date) + "] [$" + std::to_string(balance) + "] : Open short position by market at $" + std::to_string(price) + " with " + std::to_string(size) + " lots and $" + std::to_string(fees) + " of fees.");
+            this->logger->info("[" + time_t_to_string(this->current_date) + "] [" + std::to_string(balance) + "] : Open short position by market at " + std::to_string(price) + " with " + std::to_string(size) + " lots and " + std::to_string(fees) + " of fees.");
         }
     }
 }
@@ -839,19 +857,21 @@ void Trader::close_position_by_market(double price)
         this->balance = std::max(0.0, this->balance + this->current_position->pnl - fees);
 
         // Update the trade history
-        this->trades_history.back().exit_date = *std::localtime(&this->current_date);
+        this->trades_history.back().exit_date = this->current_date;
         this->trades_history.back().exit_price = price;
         this->trades_history.back().pnl = this->current_position->pnl;
         this->trades_history.back().pnl_percent = this->current_position->pnl / this->balance;
         this->trades_history.back().fees += fees;
+        this->trades_history.back().duration = this->duration_in_position;
+        this->trades_history.back().closed = true;
 
         if (this->logger != nullptr)
         {
-            this->logger->info("[" + time_t_to_string(this->current_date) + "] [$" + std::to_string(this->balance) + "] : Close position by market at $" + std::to_string(price) + " with $" + std::to_string(this->current_position->pnl) + " of profit and $" + std::to_string(fees) + " of fees.");
+            this->logger->info("[" + time_t_to_string(this->current_date) + "] [" + std::to_string(this->balance) + "] : Close position by market at " + std::to_string(price) + " with " + std::to_string(this->current_position->pnl) + " of profit and " + std::to_string(fees) + " of fees.");
         }
 
         this->current_position = nullptr;
-        this->last_position_date = this->current_date;
+        this->duration_without_trade = 0;
         this->close_open_orders();
     }
 }
@@ -878,19 +898,21 @@ void Trader::close_position_by_limit(double price)
         this->balance = std::max(0.0, this->balance + this->current_position->pnl - fees);
 
         // Update the trade history
-        this->trades_history.back().exit_date = *std::localtime(&this->current_date);
+        this->trades_history.back().exit_date = this->current_date;
         this->trades_history.back().exit_price = price;
         this->trades_history.back().pnl = this->current_position->pnl;
         this->trades_history.back().pnl_percent = this->current_position->pnl / this->balance;
         this->trades_history.back().fees += fees;
+        this->trades_history.back().duration = this->duration_in_position;
+        this->trades_history.back().closed = true;
 
         if (this->logger != nullptr)
         {
-            this->logger->info("[" + time_t_to_string(this->current_date) + "] [$" + std::to_string(this->balance) + "] : Close position by limit at $" + std::to_string(price) + " with $" + std::to_string(this->current_position->pnl) + " of profit and $" + std::to_string(fees) + " of fees.");
+            this->logger->info("[" + time_t_to_string(this->current_date) + "] [" + std::to_string(this->balance) + "] : Close position by limit at " + std::to_string(price) + " with " + std::to_string(this->current_position->pnl) + " of profit and " + std::to_string(fees) + " of fees.");
         }
 
         this->current_position = nullptr;
-        this->last_position_date = this->current_date;
+        this->duration_without_trade = 0;
         this->close_open_orders();
     }
 }
@@ -913,7 +935,7 @@ void Trader::create_open_order(OrderType type, OrderSide side, double price)
     {
         std::string order_type = type == OrderType::TAKE_PROFIT ? "take profit" : "stop loss";
         std::string order_side = side == OrderSide::LONG ? "long" : "short";
-        this->logger->info("[" + time_t_to_string(this->current_date) + "] [$" + std::to_string(this->balance) + "] : Create " + order_type + " order at $" + std::to_string(price) + " for " + order_side + " position.");
+        this->logger->info("[" + time_t_to_string(this->current_date) + "] [" + std::to_string(this->balance) + "] : Create " + order_type + " order at " + std::to_string(price) + " for " + order_side + " position.");
     }
 }
 
@@ -1380,9 +1402,9 @@ void Trader::generate_report(const std::string &filename)
             <td>)"
              << i << R"(</td>
             <td>)"
-             << time_t_to_string(std::mktime(&trade.entry_date)) << R"(</td>
+             << time_t_to_string(trade.entry_date) << R"(</td>
             <td>)"
-             << time_t_to_string(std::mktime(&trade.exit_date)) << R"(</td>
+             << time_t_to_string(trade.exit_date) << R"(</td>
             <td>)"
              << this->config.general.symbol << R"(</td>
             <td style=)"
@@ -1416,7 +1438,7 @@ void Trader::generate_report(const std::string &filename)
     {
         Trade trade = this->trades_history[i];
         balance += trade.pnl - trade.fees;
-        labels += "\"" + time_t_to_string(std::mktime(&trade.exit_date)) + "\",";
+        labels += "\"" + time_t_to_string(trade.exit_date) + "\",";
         lineData += std::to_string(balance) + ",";
     }
 

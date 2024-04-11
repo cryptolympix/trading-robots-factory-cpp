@@ -92,7 +92,7 @@ struct Position
     PositionSide side;  // Side of the position
     double size;        // Size of the position
     double entry_price; // Entry price of the position
-    std::tm entry_date; // Entry date of the position
+    time_t entry_date;  // Entry date of the position
     double pnl;         // Profit and Loss of the position
 };
 
@@ -130,14 +130,16 @@ struct Order
 struct Trade
 {
     PositionSide side;  // Side of the trade
-    std::tm entry_date; // Entry date of the trade
-    std::tm exit_date;  // Exit date of the trade
+    time_t entry_date;  // Entry date of the trade
+    time_t exit_date;   // Exit date of the trade
     double entry_price; // Entry price of the trade
     double exit_price;  // Exit price of the trade
     double size;        // Size of the trade
     double pnl;         // Profit and Loss of the trade
     double pnl_percent; // Profit and Loss as a percentage of the balance
     double fees;        // Fees of the trade
+    int duration;       // Duration of the trade
+    bool closed;        // Whether the trade is closed
 };
 
 /**
