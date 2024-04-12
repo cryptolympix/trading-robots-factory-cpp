@@ -18,7 +18,7 @@ protected:
     Trader *trader;
     SymbolInfo symbol_info;
     Config config;
-    std::tm date_tm;
+    time_t date;
 
     void SetUp() override
     {
@@ -54,15 +54,15 @@ protected:
         symbol_info = symbol_infos.at(config.general.symbol);
         temp_dir = std::filesystem::temp_directory_path() / "trader_test";
 
-        // 2023-01-01 00:00:00
-        date_tm = {
+        // 2023-01-05 12:00:00
+        std::tm date_tm = {
             .tm_year = 2023 - 1900,
             .tm_mon = 0,
-            .tm_mday = 1,
-            .tm_hour = 0,
+            .tm_mday = 5,
+            .tm_hour = 12,
             .tm_min = 0,
             .tm_sec = 0};
-        time_t date = std::mktime(&date_tm);
+        date = std::mktime(&date_tm);
 
         // Trader configurations
         trader = new Trader(new Genome(config.neat), config, nullptr);
@@ -125,7 +125,7 @@ protected:
 TEST_F(TraderTest, UpdateWithNoPositionAndNoOrders)
 {
     // Call the update method
-    trader->update();
+    trader->update(date);
 
     // Check if balance and stats are updated correctly
     ASSERT_EQ(trader->balance, 1000.0);
@@ -151,7 +151,7 @@ TEST_F(TraderTest, UpdateWithPosition)
     trader->balance = config.general.initial_balance; // Reset balance to initial value to cancel the fees at the market order
 
     // Call the update method
-    trader->update();
+    trader->update(date);
 
     // Check if balance and stats are updated correctly
     ASSERT_EQ(trader->balance, 1000.0);
@@ -168,7 +168,7 @@ TEST_F(TraderTest, UpdateWithOpenOrders)
         {.type = OrderType::TAKE_PROFIT, .side = OrderSide::SHORT, .price = 105.0}};
 
     // Call the update method
-    trader->update();
+    trader->update(date);
 
     // Check if balance and stats are updated correctly
     ASSERT_EQ(trader->balance, 1000.0);
@@ -187,15 +187,15 @@ TEST_F(TraderTest, UpdateWithPositionLiquidation)
     trader->candles[TimeFrame::H1][0].close = 99.0;
 
     // Call the update method
-    trader->update();
+    trader->update(date);
 
     // Check if the position is closed and open orders are cleared
     ASSERT_EQ(trader->current_position, nullptr);
     ASSERT_EQ(trader->open_orders.size(), 0);
     ASSERT_EQ(trader->balance, 0.0);
     ASSERT_EQ(trader->trades_history.size(), 1);
-    ASSERT_EQ(trader->trades_history[0].entry_date, std::mktime(&date_tm));
-    ASSERT_EQ(trader->trades_history[0].exit_date, std::mktime(&date_tm));
+    ASSERT_EQ(trader->trades_history[0].entry_date, date);
+    ASSERT_EQ(trader->trades_history[0].exit_date, date);
     ASSERT_EQ(trader->trades_history[0].side, PositionSide::LONG);
     ASSERT_LT(trader->trades_history[0].pnl, 0.0);
     ASSERT_GT(trader->trades_history[0].fees, 0.0);
@@ -208,7 +208,7 @@ TEST_F(TraderTest, UpdateWithInactiveTrader)
     trader->lifespan = config.training.inactive_trader_threshold.value();
 
     // Call the update method
-    trader->update();
+    trader->update(date);
 
     // Check if the position is closed and open orders are cleared
     ASSERT_EQ(trader->current_position, nullptr);
@@ -224,7 +224,7 @@ TEST_F(TraderTest, UpdateWithBadTrader)
     trader->balance = config.training.bad_trader_threshold.value() * config.general.initial_balance;
 
     // Call the update method
-    trader->update();
+    trader->update(date);
 
     // Check if the trader is marked as dead
     ASSERT_TRUE(trader->dead);
@@ -262,8 +262,8 @@ TEST_F(TraderTest, CheckTpOrderHit)
     ASSERT_EQ(trader->balance, new_balance);
     ASSERT_EQ(trader->open_orders.size(), 0);
     ASSERT_EQ(trader->trades_history.size(), 1);
-    ASSERT_EQ(trader->trades_history[0].entry_date, std::mktime(&date_tm));
-    ASSERT_EQ(trader->trades_history[0].exit_date, std::mktime(&date_tm));
+    ASSERT_EQ(trader->trades_history[0].entry_date, date);
+    ASSERT_EQ(trader->trades_history[0].exit_date, date);
     ASSERT_EQ(trader->trades_history[0].entry_price, 1.0);
     ASSERT_EQ(trader->trades_history[0].exit_price, 1.00500);
     ASSERT_EQ(trader->trades_history[0].side, PositionSide::LONG);
@@ -304,8 +304,8 @@ TEST_F(TraderTest, CheckSlOrderHit)
     ASSERT_EQ(trader->balance, new_balance);
     ASSERT_EQ(trader->open_orders.size(), 0);
     ASSERT_EQ(trader->trades_history.size(), 1);
-    ASSERT_EQ(trader->trades_history[0].entry_date, std::mktime(&date_tm));
-    ASSERT_EQ(trader->trades_history[0].exit_date, std::mktime(&date_tm));
+    ASSERT_EQ(trader->trades_history[0].entry_date, date);
+    ASSERT_EQ(trader->trades_history[0].exit_date, date);
     ASSERT_EQ(trader->trades_history[0].entry_price, 1.0);
     ASSERT_EQ(trader->trades_history[0].exit_price, 0.99500);
     ASSERT_EQ(trader->trades_history[0].side, PositionSide::LONG);
@@ -335,8 +335,8 @@ TEST_F(TraderTest, TradeCloseLongWithProfit)
     ASSERT_EQ(trader->balance, new_balance);
     ASSERT_EQ(trader->open_orders.size(), 0);
     ASSERT_EQ(trader->trades_history.size(), 1);
-    ASSERT_EQ(trader->trades_history[0].entry_date, std::mktime(&date_tm));
-    ASSERT_EQ(trader->trades_history[0].exit_date, std::mktime(&date_tm));
+    ASSERT_EQ(trader->trades_history[0].entry_date, date);
+    ASSERT_EQ(trader->trades_history[0].exit_date, date);
     ASSERT_EQ(trader->trades_history[0].entry_price, 1.0);
     ASSERT_EQ(trader->trades_history[0].exit_price, 1.0);
     ASSERT_EQ(trader->trades_history[0].side, PositionSide::LONG);
@@ -366,8 +366,8 @@ TEST_F(TraderTest, TradeCloseLongWithLoss)
     ASSERT_EQ(trader->balance, new_balance);
     ASSERT_EQ(trader->open_orders.size(), 0);
     ASSERT_EQ(trader->trades_history.size(), 1);
-    ASSERT_EQ(trader->trades_history[0].entry_date, std::mktime(&date_tm));
-    ASSERT_EQ(trader->trades_history[0].exit_date, std::mktime(&date_tm));
+    ASSERT_EQ(trader->trades_history[0].entry_date, date);
+    ASSERT_EQ(trader->trades_history[0].exit_date, date);
     ASSERT_EQ(trader->trades_history[0].entry_price, 1.0);
     ASSERT_EQ(trader->trades_history[0].exit_price, 1.0);
     ASSERT_EQ(trader->trades_history[0].side, PositionSide::LONG);
@@ -397,8 +397,8 @@ TEST_F(TraderTest, TradeCloseShortWithProfit)
     ASSERT_EQ(trader->balance, new_balance);
     ASSERT_EQ(trader->open_orders.size(), 0);
     ASSERT_EQ(trader->trades_history.size(), 1);
-    ASSERT_EQ(trader->trades_history[0].entry_date, std::mktime(&date_tm));
-    ASSERT_EQ(trader->trades_history[0].exit_date, std::mktime(&date_tm));
+    ASSERT_EQ(trader->trades_history[0].entry_date, date);
+    ASSERT_EQ(trader->trades_history[0].exit_date, date);
     ASSERT_EQ(trader->trades_history[0].entry_price, 1.0);
     ASSERT_EQ(trader->trades_history[0].exit_price, 1.0);
     ASSERT_EQ(trader->trades_history[0].side, PositionSide::SHORT);
@@ -428,8 +428,8 @@ TEST_F(TraderTest, TradeCloseShortWithLoss)
     ASSERT_EQ(trader->balance, new_balance);
     ASSERT_EQ(trader->open_orders.size(), 0);
     ASSERT_EQ(trader->trades_history.size(), 1);
-    ASSERT_EQ(trader->trades_history[0].entry_date, std::mktime(&date_tm));
-    ASSERT_EQ(trader->trades_history[0].exit_date, std::mktime(&date_tm));
+    ASSERT_EQ(trader->trades_history[0].entry_date, date);
+    ASSERT_EQ(trader->trades_history[0].exit_date, date);
     ASSERT_EQ(trader->trades_history[0].entry_price, 1.0);
     ASSERT_EQ(trader->trades_history[0].exit_price, 1.0);
     ASSERT_EQ(trader->trades_history[0].side, PositionSide::SHORT);
@@ -440,15 +440,6 @@ TEST_F(TraderTest, TradeCloseShortWithLoss)
 
 TEST_F(TraderTest, TradeEnterLong)
 {
-    std::tm date_tm = {
-        .tm_year = 2023 - 1900,
-        .tm_mon = 0,
-        .tm_mday = 5,
-        .tm_hour = 12,
-        .tm_min = 0,
-        .tm_sec = 0};
-    time_t date = std::mktime(&date_tm);
-
     // Set neural network output to enter long
     trader->decisions = {1.0, 0.0, 0.0, 0.0, 0.0};
     trader->current_date = date;
@@ -457,10 +448,10 @@ TEST_F(TraderTest, TradeEnterLong)
     trader->trade();
 
     // Check if a new long position is opened
-    ASSERT_TRUE(trader->current_position != nullptr);
+    ASSERT_NE(trader->current_position, nullptr);
     ASSERT_EQ(trader->current_position->side, PositionSide::LONG);
     ASSERT_GE(trader->current_position->size, 0);
-    ASSERT_EQ(trader->current_position->entry_date, std::mktime(&date_tm));
+    ASSERT_EQ(trader->current_position->entry_date, date);
     ASSERT_EQ(trader->duration_in_position, 0);
     ASSERT_EQ(trader->open_orders.size(), 2);
     ASSERT_LE(trader->balance, 1000.0);
@@ -468,27 +459,17 @@ TEST_F(TraderTest, TradeEnterLong)
 
 TEST_F(TraderTest, TradeEnterShort)
 {
-    std::tm date_tm = {
-        .tm_year = 2023 - 1900,
-        .tm_mon = 0,
-        .tm_mday = 5,
-        .tm_hour = 12,
-        .tm_min = 0,
-        .tm_sec = 0};
-    time_t date = std::mktime(&date_tm);
-
     // Set neural network output to enter short
     trader->decisions = {0.0, 1.0, 0.0, 0.0, 0.0};
-    trader->current_date = date;
 
     // Call the trade method
     trader->trade();
 
     // Check if a new short position is opened
-    ASSERT_TRUE(trader->current_position != nullptr);
+    ASSERT_NE(trader->current_position, nullptr);
     ASSERT_EQ(trader->current_position->side, PositionSide::SHORT);
     ASSERT_GE(trader->current_position->size, 0);
-    ASSERT_EQ(trader->current_position->entry_date, std::mktime(&date_tm));
+    ASSERT_EQ(trader->current_position->entry_date, date);
     ASSERT_EQ(trader->duration_in_position, 0);
     ASSERT_EQ(trader->open_orders.size(), 2);
     ASSERT_LE(trader->balance, 1000.0);
@@ -511,31 +492,24 @@ TEST_F(TraderTest, TradeNoAction)
 
 TEST_F(TraderTest, ClosePositionForDurationExceeded)
 {
-    // Mock data for testing
-    std::tm entry_date = {
-        .tm_year = 2023 - 1900,
-        .tm_mon = 0,
-        .tm_mday = 1,
-        .tm_hour = 0,
-        .tm_min = 0,
-        .tm_sec = 0};
-
+    // Simulate a long position
     trader->open_position_by_market(1.01, 1.0, OrderSide::LONG);
-    trader->current_position->entry_date = std::mktime(&entry_date);
     trader->update_position_pnl();
 
-    // Call the update method for the maximum trade duration
-    for (int i = 0; i < config.strategy.maximum_trade_duration.value(); i++)
-    {
-        trader->update();
-    }
+    // Set the duration in position to the maximum trade duration
+    trader->duration_in_position = config.strategy.maximum_trade_duration.value() - 1;
+
+    // Call the update method
+    trader->update(date + get_time_frame_value(config.strategy.timeframe) * 60);
 
     // Assertions
     ASSERT_EQ(trader->current_position, nullptr);
     ASSERT_LT(trader->balance, 1000.0); // Balance decreased due to fees
     ASSERT_EQ(trader->trades_history.size(), 1);
-    ASSERT_EQ(trader->trades_history[0].entry_date, std::mktime(&date_tm));
+    ASSERT_EQ(trader->trades_history[0].entry_date, date);
+    ASSERT_EQ(trader->trades_history[0].exit_date, date + get_time_frame_value(config.strategy.timeframe) * 60);
     ASSERT_EQ(trader->trades_history[0].entry_price, 1.01);
+    ASSERT_EQ(trader->trades_history[0].exit_price, 1.00);
     ASSERT_EQ(trader->trades_history[0].side, PositionSide::LONG);
     ASSERT_NE(trader->trades_history[0].pnl, 0.0);
     ASSERT_GT(trader->trades_history[0].fees, 0.0);
@@ -545,39 +519,32 @@ TEST_F(TraderTest, ClosePositionForDurationExceeded)
 
 TEST_F(TraderTest, WaitForDurationBeforeClosePosition)
 {
-    // Mock data for testing
-    std::tm entry_date = {
-        .tm_year = 2023 - 1900,
-        .tm_mon = 0,
-        .tm_mday = 1,
-        .tm_hour = 0,
-        .tm_min = 0,
-        .tm_sec = 0};
-
     trader->open_position_by_market(1.00, 1.0, OrderSide::LONG);
-    trader->current_position->entry_date = std::mktime(&entry_date);
-
     trader->decisions = {0.0, 0.0, 1.0, 0.0, 0.0};
 
     // Call the update method for the maximum trade duration - 1
     for (int i = 0; i < config.strategy.minimum_trade_duration.value() - 1; ++i)
     {
-        trader->update();
+        time_t new_date = date + i * get_time_frame_value(config.strategy.timeframe) * 60;
+        trader->update(new_date);
     }
 
     // Assertions
-    ASSERT_TRUE(trader->current_position != nullptr);
+    ASSERT_NE(trader->current_position, nullptr);
     ASSERT_EQ(trader->duration_in_position, config.strategy.minimum_trade_duration.value() - 1);
 
     // Call the update method for the last trade duration
-    trader->update();
+    time_t last_date = date + config.strategy.minimum_trade_duration.value() * get_time_frame_value(config.strategy.timeframe) * 60;
+    trader->update(last_date);
 
     // Assertions
     ASSERT_EQ(trader->current_position, nullptr);
     ASSERT_LT(trader->balance, 1000.0); // Balance decreased due to fees
     ASSERT_EQ(trader->trades_history.size(), 1);
-    ASSERT_EQ(trader->trades_history[0].entry_date, std::mktime(&date_tm));
+    ASSERT_EQ(trader->trades_history[0].entry_date, date);
+    ASSERT_EQ(trader->trades_history[0].exit_date, last_date);
     ASSERT_EQ(trader->trades_history[0].entry_price, 1.00);
+    ASSERT_EQ(trader->trades_history[0].exit_price, 1.00);
     ASSERT_EQ(trader->trades_history[0].side, PositionSide::LONG);
     ASSERT_GT(trader->trades_history[0].fees, 0.0);
     ASSERT_EQ(trader->trades_history[0].size, 1.0);
@@ -586,48 +553,29 @@ TEST_F(TraderTest, WaitForDurationBeforeClosePosition)
 
 TEST_F(TraderTest, WaitForNextTrade)
 {
-    std::tm date_tm = {
-        .tm_year = 2023 - 1900,
-        .tm_mon = 0,
-        .tm_mday = 5,
-        .tm_hour = 10,
-        .tm_min = 0,
-        .tm_sec = 0};
-    time_t date = std::mktime(&date_tm);
-
     trader->decisions = {1.0, 0.0, 0.0, 0.0, 0.0};
     trader->duration_without_trade = 0;
-    trader->current_date = date;
 
-    // Call the trade method
+    // Cann the trade method
     trader->trade();
 
-    // Check if the position is still in progress
+    ASSERT_FALSE(trader->can_trade());
     ASSERT_EQ(trader->current_position, nullptr);
 
     // Set trader's date after the minimum duration before next trade has passed
     trader->duration_without_trade = config.strategy.minimum_duration_before_next_trade.value();
 
-    // Call the trade method
+    // Cann the trade method
     trader->trade();
 
-    // Check if a new position is opened
-    ASSERT_TRUE(trader->current_position != nullptr);
+    ASSERT_TRUE(trader->can_trade());
+    ASSERT_NE(trader->current_position, nullptr);
 }
 
 TEST_F(TraderTest, CreateTpSlForLongPosition)
 {
     // Set neural network output to no action
     trader->decisions = {1.0, 0.0, 0.0, 0.0, 0.0};
-    std::tm date_tm = {
-        .tm_year = 2023 - 1900,
-        .tm_mon = 0,
-        .tm_mday = 5,
-        .tm_hour = 12,
-        .tm_min = 0,
-        .tm_sec = 0};
-    time_t date = std::mktime(&date_tm);
-    trader->current_date = date;
 
     // Call the trade method
     trader->trade();
@@ -646,15 +594,6 @@ TEST_F(TraderTest, CreateTpSlForShortPosition)
 {
     // Set neural network output to no action
     trader->decisions = {0.0, 1.0, 0.0, 0.0, 0.0};
-    std::tm date_tm = {
-        .tm_year = 2023 - 1900,
-        .tm_mon = 0,
-        .tm_mday = 5,
-        .tm_hour = 12,
-        .tm_min = 0,
-        .tm_sec = 0};
-    time_t date = std::mktime(&date_tm);
-    trader->current_date = date;
 
     // Call the trade method
     trader->trade();
@@ -674,7 +613,7 @@ TEST_F(TraderTest, TradeNotOutOfTradingSchedule)
     // Set neural network output to enter long
     trader->decisions = {1.0, 0.0, 0.0, 0.0, 0.0};
 
-    // try to trade sunday
+    // Try to trade sunday
     std::tm date_tm_1 = {
         .tm_year = 2023 - 1900,
         .tm_mon = 0,
@@ -688,13 +627,11 @@ TEST_F(TraderTest, TradeNotOutOfTradingSchedule)
     // Call the trade method
     trader->trade();
 
-    // Check if no new position is opened
+    // Check if trader can trade
+    ASSERT_FALSE(trader->can_trade());
     ASSERT_EQ(trader->current_position, nullptr);
-    ASSERT_EQ(trader->open_orders.size(), 0);
-    ASSERT_EQ(trader->balance, 1000.0);
-    ASSERT_EQ(trader->trades_history.size(), 0);
 
-    // try to trade just before the opening of trading schedule
+    // Try to trade just before the opening of trading schedule
     std::tm date_tm_2 = {
         .tm_year = 2023 - 1900,
         .tm_mon = 0,
@@ -708,13 +645,11 @@ TEST_F(TraderTest, TradeNotOutOfTradingSchedule)
     // Call the trade method
     trader->trade();
 
-    // Check if no new position is opened
+    // Check if trader can trade
+    ASSERT_FALSE(trader->can_trade());
     ASSERT_EQ(trader->current_position, nullptr);
-    ASSERT_EQ(trader->open_orders.size(), 0);
-    ASSERT_EQ(trader->balance, 1000.0);
-    ASSERT_EQ(trader->trades_history.size(), 0);
 
-    // try to trade just after the closing of trading schedule
+    // Try to trade just after the closing of trading schedule
     std::tm date_tm_3 = {
         .tm_year = 2023 - 1900,
         .tm_mon = 0,
@@ -728,11 +663,9 @@ TEST_F(TraderTest, TradeNotOutOfTradingSchedule)
     // Call the trade method
     trader->trade();
 
-    // Check if no new position is opened
+    // Check if trader can trade
+    ASSERT_FALSE(trader->can_trade());
     ASSERT_EQ(trader->current_position, nullptr);
-    ASSERT_EQ(trader->open_orders.size(), 0);
-    ASSERT_EQ(trader->balance, 1000.0);
-    ASSERT_EQ(trader->trades_history.size(), 0);
 }
 
 TEST_F(TraderTest, TradeOnTradingSchedule)
@@ -754,7 +687,7 @@ TEST_F(TraderTest, TradeOnTradingSchedule)
     trader->trade();
 
     // Check if no new position is opened
-    ASSERT_TRUE(trader->current_position != nullptr);
+    ASSERT_NE(trader->current_position, nullptr);
     ASSERT_EQ(trader->open_orders.size(), 2);
     ASSERT_LT(trader->balance, 1000.0);
 }
@@ -763,14 +696,8 @@ TEST_F(TraderTest, TradeNotWhenSpreadHigh)
 {
     // Set neural network output to enter long
     trader->decisions = {1.0, 0.0, 0.0, 0.0, 0.0};
-    std::tm date_tm = {
-        .tm_year = 2023 - 1900,
-        .tm_mon = 0,
-        .tm_mday = 1,
-        .tm_hour = 0,
-        .tm_min = 0,
-        .tm_sec = 0};
-    time_t date = std::mktime(&date_tm);
+
+    // Mock data for testing
     trader->candles = {{TimeFrame::H1, {
                                            Candle{.date = date, .close = 1.0, .spread = config.strategy.maximum_spread.value() + 1},
                                        }}};
@@ -779,27 +706,17 @@ TEST_F(TraderTest, TradeNotWhenSpreadHigh)
     trader->trade();
 
     // Check if no new position is opened
+    ASSERT_FALSE(trader->can_trade());
     ASSERT_EQ(trader->current_position, nullptr);
-    ASSERT_EQ(trader->open_orders.size(), 0);
-    ASSERT_EQ(trader->balance, 1000.0);
-    ASSERT_EQ(trader->trades_history.size(), 0);
 }
 
 TEST_F(TraderTest, UpdateLongPositionPnl)
 {
     // Mock data for testing
-    std::tm date_tm = {
-        .tm_year = 2023 - 1900,
-        .tm_mon = 0,
-        .tm_mday = 1,
-        .tm_hour = 0,
-        .tm_min = 0,
-        .tm_sec = 0};
-    time_t date = std::mktime(&date_tm);
     trader->candles = {{TimeFrame::H1, {
                                            Candle{.date = date, .close = 1.00100},
                                        }}};
-    trader->current_position = new Position{.entry_date = std::mktime(&date_tm), .entry_price = 1.00000, .size = 1.0, .side = PositionSide::LONG, .pnl = 0.0};
+    trader->current_position = new Position{.entry_date = date, .entry_price = 1.00000, .size = 1.0, .side = PositionSide::LONG, .pnl = 0.0};
 
     // Call the update_position_pnl method
     trader->update_position_pnl();
@@ -811,18 +728,10 @@ TEST_F(TraderTest, UpdateLongPositionPnl)
 TEST_F(TraderTest, UpdateShortPositionPnl)
 {
     // Mock data for testing
-    std::tm date_tm = {
-        .tm_year = 2023 - 1900,
-        .tm_mon = 0,
-        .tm_mday = 1,
-        .tm_hour = 0,
-        .tm_min = 0,
-        .tm_sec = 0};
-    time_t date = std::mktime(&date_tm);
     trader->candles = {{TimeFrame::H1, {
                                            Candle{.date = date, .close = 0.99900},
                                        }}};
-    trader->current_position = new Position{.entry_date = std::mktime(&date_tm), .entry_price = 1.00000, .size = 1.0, .side = PositionSide::SHORT, .pnl = 0.0};
+    trader->current_position = new Position{.entry_date = date, .entry_price = 1.00000, .size = 1.0, .side = PositionSide::SHORT, .pnl = 0.0};
 
     // Call the update_position_pnl method
     trader->update_position_pnl();

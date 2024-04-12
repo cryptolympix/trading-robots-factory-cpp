@@ -221,6 +221,7 @@ void Training::cache_data(ProgressBar *progress_bar)
     for (const auto &date : dates)
     {
         std::string date_string = std::string(std::ctime(&date));
+        date_string.replace(date_string.find("\n"), 1, "");
 
         indexer->update_indexes(date);
 
@@ -414,6 +415,9 @@ void Training::evaluate_genome(Genome *genome, int generation)
     {
         // Convert the date to a string
         std::string date_string = std::string(std::ctime(&date));
+        date_string.replace(date_string.find("\n"), 1, "");
+
+        // Convert the date to a struct tm
         struct tm tm = {};
         strptime(date_string.c_str(), "%a %b %d %H:%M:%S %Y", &tm);
 
@@ -430,7 +434,7 @@ void Training::evaluate_genome(Genome *genome, int generation)
             {
                 trader->look(current_candles, current_indicators, current_base_currency_conversion_rate, position);
                 trader->think();
-                trader->update();
+                trader->update(date);
             }
             else
             {

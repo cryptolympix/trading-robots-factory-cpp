@@ -25,6 +25,7 @@
 std::string time_t_to_string(time_t time)
 {
     std::string time_string = std::string(std::ctime(&time));
+    time_string.replace(time_string.find("\n"), 1, "");
     return time_string;
 }
 
@@ -113,16 +114,6 @@ void Trader::look(CandlesData &candles, IndicatorsData &indicators, double base_
     std::unordered_map<TimeFrame, std::vector<Indicator *>> indicators_inputs = config.training.inputs.indicators;
 
     this->candles = candles;
-    Candle last_candle = candles[config.strategy.timeframe].back();
-
-    // if (last_candle.date < this->current_date)
-    // {
-    //     std::cerr << "The date of the last candle is less than the current date of the trader." << std::endl;
-    //     std::exit(1);
-    //     return;
-    // }
-    this->current_date = last_candle.date;
-
     this->current_base_currency_conversion_rate = base_currency_conversion_rate;
 
     // Get the values of the indicators
@@ -186,9 +177,13 @@ void Trader::think()
 
 /**
  * @brief Update the trader according to the outputs from the neural network.
+ * @param current_date Current date.
  */
-void Trader::update()
+void Trader::update(time_t current_date)
 {
+    // Update the current date
+    this->current_date = current_date;
+
     // Increment the lifespan of the trader
     this->lifespan++;
 
@@ -601,41 +596,11 @@ void Trader::calculate_stats()
 }
 
 /**
- * @brief Trade according to the decision.
+ * @brief Check if the trader can trade.
  */
-void Trader::trade()
+bool Trader::can_trade()
 {
-    int loop_interval_minutes = get_time_frame_value(this->config.strategy.timeframe);
     Candle last_candle = this->candles[this->config.strategy.timeframe].back();
-
-    // Position information
-    bool has_position = this->current_position != nullptr;
-    bool has_long_position = has_position && this->current_position->side == PositionSide::LONG;
-    bool has_short_position = has_position && this->current_position->side == PositionSide::SHORT;
-
-    // Check the duration of the current trade
-    if (has_position && config.strategy.maximum_trade_duration.has_value())
-    {
-        // Check if the position has reached the maximum trade duration
-        if (this->duration_in_position >= config.strategy.maximum_trade_duration.value())
-        {
-            this->close_position_by_market(last_candle.close);
-            return;
-        }
-    }
-
-    // Decision taken
-    double maximum = *std::max_element(this->decisions.begin(), this->decisions.end());
-    bool enter_long = maximum == this->decisions[0];
-    bool enter_short = maximum == this->decisions[1];
-    bool close_long = maximum == this->decisions[2];
-    bool close_short = maximum == this->decisions[3];
-    bool wait = maximum == this->decisions[4];
-
-    if (wait)
-    {
-        return;
-    }
 
     // Check if the trader can trade at the moment
     bool schedule_is_ok = true;
@@ -653,6 +618,7 @@ void Trader::trade()
         for (const auto &trade : this->trades_history)
         {
             std::string current_date_string = std::string(std::ctime(&this->current_date));
+            current_date_string.pop_back(); // remove the backslash
             struct tm current_date_tm = {};
             strptime(current_date_string.c_str(), "%a %b %d %H:%M:%S %Y", &current_date_tm);
             int current_year = current_date_tm.tm_year;
@@ -660,6 +626,7 @@ void Trader::trade()
             int current_day = current_date_tm.tm_mday;
 
             std::string trade_entry_date_string = std::string(std::ctime(&trade.entry_date));
+            trade_entry_date_string.pop_back(); // remove the backslash
             struct tm trade_entry_date_tm = {};
             strptime(trade_entry_date_string.c_str(), "%a %b %d %H:%M:%S %Y", &trade_entry_date_tm);
             int trade_entry_year = trade_entry_date_tm.tm_year;
@@ -691,20 +658,91 @@ void Trader::trade()
     // Check if the trader can trade now
     bool can_trade_now = schedule_is_ok && number_of_trades_per_day_is_ok && spread_is_ok && time_after_previous_trade_is_ok;
 
-    // Check if the trader can close a trade
-    bool can_close_position = true;
-    if (this->current_position == nullptr)
-    {
-        can_close_position = false;
-    }
-    else if (this->config.strategy.minimum_trade_duration.has_value())
-    {
-        can_close_position = this->duration_in_position >= this->config.strategy.minimum_trade_duration.value();
-    }
+    return can_trade_now;
+}
 
-    if (can_trade_now)
+/**
+ * @brief Trade according to the decision.
+ */
+void Trader::trade()
+{
+    int loop_interval_minutes = get_time_frame_value(this->config.strategy.timeframe);
+    Candle last_candle = this->candles[this->config.strategy.timeframe].back();
+
+    // Position information
+    bool has_position = this->current_position != nullptr;
+    bool has_long_position = has_position && this->current_position->side == PositionSide::LONG;
+    bool has_short_position = has_position && this->current_position->side == PositionSide::SHORT;
+
+    // Decision taken
+    double maximum = *std::max_element(this->decisions.begin(), this->decisions.end());
+    bool enter_long = maximum == this->decisions[0];
+    bool enter_short = maximum == this->decisions[1];
+    bool close_long = maximum == this->decisions[2];
+    bool close_short = maximum == this->decisions[3];
+    bool wait = maximum == this->decisions[4];
+
+    if (!wait)
     {
-        if (has_position)
+        bool can_trade_now = this->can_trade();
+
+        // Check if the trader can close a trade
+        bool can_close_position = true;
+        if (this->current_position == nullptr)
+        {
+            can_close_position = false;
+        }
+        else if (this->config.strategy.minimum_trade_duration.has_value())
+        {
+            can_close_position = this->duration_in_position >= this->config.strategy.minimum_trade_duration.value();
+        }
+
+        if (can_trade_now)
+        {
+            if (has_position)
+            {
+                if (has_long_position && close_long && can_close_position)
+                {
+                    this->close_position_by_market(last_candle.close);
+                }
+                else if (has_short_position && close_short && can_close_position)
+                {
+                    this->close_position_by_market(last_candle.close);
+                }
+            }
+            else
+            {
+                if (enter_long)
+                {
+                    // Calculate order parameters
+                    auto order_prices = calculate_tp_sl_price(last_candle.close, PositionSide::LONG, this->config.strategy.take_profit_stop_loss_config, this->symbol_info);
+                    double tp_price = std::get<0>(order_prices);
+                    double sl_price = std::get<1>(order_prices);
+                    double sl_pips = calculate_pips(last_candle.close, sl_price, this->symbol_info);
+                    double size = calculate_position_size(this->balance, this->config.strategy.maximum_risk, last_candle.close, sl_pips, this->symbol_info, this->current_base_currency_conversion_rate);
+
+                    // Post orders
+                    this->open_position_by_market(last_candle.close, size, OrderSide::LONG);
+                    this->create_open_order(OrderType::TAKE_PROFIT, OrderSide::SHORT, tp_price);
+                    this->create_open_order(OrderType::STOP_LOSS, OrderSide::SHORT, sl_price);
+                }
+                else if (enter_short)
+                {
+                    // Calculate order parameters
+                    auto order_prices = calculate_tp_sl_price(last_candle.close, PositionSide::SHORT, this->config.strategy.take_profit_stop_loss_config, this->symbol_info);
+                    double tp_price = std::get<0>(order_prices);
+                    double sl_price = std::get<1>(order_prices);
+                    double sl_pips = calculate_pips(last_candle.close, sl_price, this->symbol_info);
+                    double size = calculate_position_size(this->balance, this->config.strategy.maximum_risk, last_candle.close, sl_pips, this->symbol_info, this->current_base_currency_conversion_rate);
+
+                    // Post orders
+                    this->open_position_by_market(last_candle.close, size, OrderSide::SHORT);
+                    this->create_open_order(OrderType::TAKE_PROFIT, OrderSide::LONG, tp_price);
+                    this->create_open_order(OrderType::STOP_LOSS, OrderSide::LONG, sl_price);
+                }
+            }
+        }
+        else if (has_position)
         {
             if (has_long_position && close_long && can_close_position)
             {
@@ -715,47 +753,16 @@ void Trader::trade()
                 this->close_position_by_market(last_candle.close);
             }
         }
-        else
-        {
-            if (enter_long)
-            {
-                // Calculate order parameters
-                auto order_prices = calculate_tp_sl_price(last_candle.close, PositionSide::LONG, this->config.strategy.take_profit_stop_loss_config, this->symbol_info);
-                double tp_price = std::get<0>(order_prices);
-                double sl_price = std::get<1>(order_prices);
-                double sl_pips = calculate_pips(last_candle.close, sl_price, this->symbol_info);
-                double size = calculate_position_size(this->balance, this->config.strategy.maximum_risk, last_candle.close, sl_pips, this->symbol_info, this->current_base_currency_conversion_rate);
-
-                // Post orders
-                this->open_position_by_market(last_candle.close, size, OrderSide::LONG);
-                this->create_open_order(OrderType::TAKE_PROFIT, OrderSide::SHORT, tp_price);
-                this->create_open_order(OrderType::STOP_LOSS, OrderSide::SHORT, sl_price);
-            }
-            else if (enter_short)
-            {
-                // Calculate order parameters
-                auto order_prices = calculate_tp_sl_price(last_candle.close, PositionSide::SHORT, this->config.strategy.take_profit_stop_loss_config, this->symbol_info);
-                double tp_price = std::get<0>(order_prices);
-                double sl_price = std::get<1>(order_prices);
-                double sl_pips = calculate_pips(last_candle.close, sl_price, this->symbol_info);
-                double size = calculate_position_size(this->balance, this->config.strategy.maximum_risk, last_candle.close, sl_pips, this->symbol_info, this->current_base_currency_conversion_rate);
-
-                // Post orders
-                this->open_position_by_market(last_candle.close, size, OrderSide::SHORT);
-                this->create_open_order(OrderType::TAKE_PROFIT, OrderSide::LONG, tp_price);
-                this->create_open_order(OrderType::STOP_LOSS, OrderSide::LONG, sl_price);
-            }
-        }
     }
-    else if (has_position)
+
+    // Check the duration of the current trade
+    if (this->current_position != nullptr && config.strategy.maximum_trade_duration.has_value())
     {
-        if (has_long_position && close_long && can_close_position)
+        // Check if the position has reached the maximum trade duration
+        if (this->duration_in_position >= config.strategy.maximum_trade_duration.value())
         {
             this->close_position_by_market(last_candle.close);
-        }
-        else if (has_short_position && close_short && can_close_position)
-        {
-            this->close_position_by_market(last_candle.close);
+            return;
         }
     }
 }

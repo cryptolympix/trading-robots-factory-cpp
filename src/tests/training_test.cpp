@@ -145,12 +145,14 @@ TEST_F(TrainingTest, CacheData)
     for (const auto &date : dates)
     {
         std::string date_string = std::string(std::ctime(&date));
+        date_string.replace(date_string.find("\n"), 1, "");
         ASSERT_TRUE(training->cache.find(date_string) != training->cache.end());
     }
 
     for (const auto &date : dates)
     {
         std::string date_string = std::string(std::ctime(&date));
+        date_string.replace(date_string.find("\n"), 1, "");
 
         // Check the the candle dates are ordered
         for (const auto &[timeframe, candles] : training->cache[date_string].candles)
@@ -241,23 +243,6 @@ TEST_F(TrainingTest, Run)
     for (int i = 0; i < 10; ++i)
     {
         int result = training->run();
-
-        // for (const auto &[generation, traders] : training->traders)
-        // {
-        //     for (const auto &trader : traders)
-        //     {
-        //         for (const auto &trade : trader->trades_history)
-        //         {
-        //             if (trade.exit_date < trade.entry_date)
-        //             {
-        //                 std::cout << "Trader: " << trader->genome->id << std::endl;
-        //                 std::cout << "Entry date: " << trade.entry_date << std::endl;
-        //                 std::cout << "Exit date: " << trade.exit_date << std::endl;
-        //             }
-        //             ASSERT_TRUE(trade.entry_date < trade.exit_date);
-        //         }
-        //     }
-        // }
 
         // Asserts that the training went well
         ASSERT_EQ(result, 0);
