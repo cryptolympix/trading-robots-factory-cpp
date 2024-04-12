@@ -19,7 +19,7 @@
  * @return std::vector<Candle> A vector of Candle objects containing candle data.
  * @throw std::runtime_error If the specified data file does not exist.
  */
-std::vector<Candle> read_data(const std::string &symbol, TimeFrame time_frame, std::chrono::system_clock::time_point start_date, std::chrono::system_clock::time_point end_date)
+std::vector<Candle> read_data(const std::string &symbol, TimeFrame time_frame, time_t start_date, time_t end_date)
 {
     std::vector<Candle> candles;
 
@@ -94,7 +94,7 @@ std::vector<Candle> read_data(const std::string &symbol, TimeFrame time_frame, s
         candle.spread = std::stoi(token);
 
         // Filter candles by date
-        std::chrono::system_clock::time_point candle_date = std::chrono::system_clock::from_time_t(candle.date);
+        time_t candle_date = candle.date;
         if (candle_date >= start_date && candle_date <= end_date)
         {
             candles.push_back(candle);

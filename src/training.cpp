@@ -101,8 +101,8 @@ void Training::load_candles(ProgressBar *progress_bar)
     for (int i = 0; i < all_timeframes.size(); i++)
     {
         TimeFrame tf = all_timeframes[i];
-        std::chrono::system_clock::time_point start_date = std::chrono::system_clock::from_time_t(this->config.training.training_start_date);
-        std::chrono::system_clock::time_point end_date = std::chrono::system_clock::from_time_t(this->config.training.training_end_date);
+        time_t start_date = this->config.training.training_start_date;
+        time_t end_date = this->config.training.training_end_date;
         candles[tf] = read_data(config.general.symbol, tf, start_date, end_date);
         if (progress_bar)
         {
@@ -183,8 +183,8 @@ void Training::load_base_currency_conversion_rate(ProgressBar *progress_bar)
     else
     {
         std::string symbol = account_currency + base_currency_traded;
-        std::chrono::system_clock::time_point start_date = std::chrono::system_clock::from_time_t(this->config.training.training_start_date);
-        std::chrono::system_clock::time_point end_date = std::chrono::system_clock::from_time_t(this->config.training.training_end_date);
+        time_t start_date = this->config.training.training_start_date;
+        time_t end_date = this->config.training.training_end_date;
         std::vector<Candle> data = read_data(symbol, loop_timeframe, start_date, end_date);
 
         for (const auto &candle : data)
@@ -245,9 +245,16 @@ void Training::cache_data(ProgressBar *progress_bar)
             for (const auto &indicator : config.training.inputs.indicators[tf])
             {
                 std::vector<double> indicator_values = {};
-                for (int i = std::max(index.second - INDICATOR_WINDOW, 0); i <= index.second; i++)
+                for (int i = index.second - INDICATOR_WINDOW + 1; i <= index.second; i++)
                 {
-                    indicator_values.push_back(indicators[tf][indicator->id][i]);
+                    if (i < 0)
+                    {
+                        indicator_values.push_back(0.0);
+                    }
+                    else
+                    {
+                        indicator_values.push_back(indicators[tf][indicator->id][i]);
+                    }
                 }
                 current_indicators[tf][indicator->id] = indicator_values;
             }
@@ -395,17 +402,27 @@ void Training::evaluate_genome(Genome *genome, int generation)
     Logger *logger = new Logger(this->directory.generic_string() + "/logs/trader_" + genome->id + ".log");
     Trader *trader = new Trader(genome, this->config, logger);
 
-    while (mock_date < this->config.training.training_end_date)
+    // Get the dates from the candles in the loop timeframe
+    std::vector<time_t> dates = {};
+    for (const auto &candle : this->candles[loop_timeframe])
     {
-        // Convert the date to a string and cache the data
-        std::string mock_date_string = std::string(std::ctime(&mock_date));
+        dates.push_back(candle.date);
+    }
 
-        if (this->cache.find(mock_date_string) != this->cache.end())
+    // Loop through the dates and update the trader
+    for (const auto &date : dates)
+    {
+        // Convert the date to a string
+        std::string date_string = std::string(std::ctime(&date));
+        struct tm tm = {};
+        strptime(date_string.c_str(), "%a %b %d %H:%M:%S %Y", &tm);
+
+        if (this->cache.find(date_string) != this->cache.end())
         {
             // Get the data from cache
-            CandlesData current_candles = this->cache[mock_date_string].candles;
-            IndicatorsData current_indicators = this->cache[mock_date_string].indicators;
-            double current_base_currency_conversion_rate = this->cache[mock_date_string].base_currency_conversion_rate;
+            CandlesData current_candles = this->cache[date_string].candles;
+            IndicatorsData current_indicators = this->cache[date_string].indicators;
+            double current_base_currency_conversion_rate = this->cache[date_string].base_currency_conversion_rate;
             std::vector<PositionInfo> position = this->config.training.inputs.position;
 
             // Update the individual
@@ -420,8 +437,6 @@ void Training::evaluate_genome(Genome *genome, int generation)
                 break;
             }
         }
-
-        mock_date += loop_timeframe_minutes * 60;
     }
 
     // Calculate the stats of the trader

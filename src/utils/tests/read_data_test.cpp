@@ -25,7 +25,7 @@ TEST(ReadDataTest, TestReadInvalidSymbol)
 // Test case for reading data with valid time frame and date range
 TEST(ReadDataTest, TestReadDataWithDateRange)
 {
-    std::tm startDate = {
+    std::tm start_date = {
         .tm_year = 2023 - 1900,
         .tm_mon = 0,
         .tm_mday = 3,
@@ -33,7 +33,7 @@ TEST(ReadDataTest, TestReadDataWithDateRange)
         .tm_min = 0,
         .tm_sec = 0};
 
-    std::tm endDate = {
+    std::tm end_date = {
         .tm_year = 2023 - 1900,
         .tm_mon = 0,
         .tm_mday = 20,
@@ -41,12 +41,12 @@ TEST(ReadDataTest, TestReadDataWithDateRange)
         .tm_min = 0,
         .tm_sec = 0};
 
-    // Convert start and end date to std::chrono::system_clock::time_point
-    std::chrono::system_clock::time_point startTime = std::chrono::system_clock::from_time_t(std::mktime(&startDate));
-    std::chrono::system_clock::time_point endTime = std::chrono::system_clock::from_time_t(std::mktime(&endDate));
+    // Convert start and end date to time_t
+    time_t start_time = std::mktime(&start_date);
+    time_t end_time = std::mktime(&end_date);
 
     // Test reading data for a valid symbol, time frame, and date range
-    std::vector<Candle> candles = read_data("EURUSD", TimeFrame::H1, startTime, endTime);
+    std::vector<Candle> candles = read_data("EURUSD", TimeFrame::H1, start_time, end_time);
 
     // Assert that the vector is not empty
     ASSERT_TRUE(candles.size() > 0);
@@ -55,9 +55,9 @@ TEST(ReadDataTest, TestReadDataWithDateRange)
     int candles_count = 0;
 
     // Loop through the candles and count the number of candles within the date range
-    for (std::chrono::system_clock::time_point current_date = startTime; current_date <= endTime; current_date += std::chrono::minutes(loop_timeframe_minutes))
+    for (time_t current_date = start_time; current_date <= end_time; current_date += loop_timeframe_minutes * 60)
     {
-        if (candles[candles_count].date == std::chrono::system_clock::to_time_t(current_date))
+        if (candles[candles_count].date == current_date)
         {
             candles_count++;
         }

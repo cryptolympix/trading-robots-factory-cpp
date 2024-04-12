@@ -9,38 +9,41 @@
  * @param trading_schedule The trading schedule for each day of the week.
  * @return True if the provided date and time are within the trading schedule; False otherwise.
  */
-bool is_on_trading_schedule(const std::tm &date, const TradingSchedule &trading_schedule)
+bool is_on_trading_schedule(const time_t date, const TradingSchedule &trading_schedule)
 {
-    int day = date.tm_wday;
+    std::string date_string = std::string(std::ctime(&date));
+    struct tm date_tm = {};
+    strptime(date_string.c_str(), "%a %b %d %H:%M:%S %Y", &date_tm);
+    int day = date_tm.tm_wday;
 
     std::vector<bool> day_schedule;
     switch (day)
     {
     case 0:
-        day_schedule = trading_schedule.monday;
-        break;
-    case 1:
-        day_schedule = trading_schedule.tuesday;
-        break;
-    case 2:
-        day_schedule = trading_schedule.wednesday;
-        break;
-    case 3:
-        day_schedule = trading_schedule.thursday;
-        break;
-    case 4:
-        day_schedule = trading_schedule.friday;
-        break;
-    case 5:
-        day_schedule = trading_schedule.saturday;
-        break;
-    case 6:
         day_schedule = trading_schedule.sunday;
         break;
+    case 1:
+        day_schedule = trading_schedule.monday;
+        break;
+    case 2:
+        day_schedule = trading_schedule.tuesday;
+        break;
+    case 3:
+        day_schedule = trading_schedule.wednesday;
+        break;
+    case 4:
+        day_schedule = trading_schedule.thursday;
+        break;
+    case 5:
+        day_schedule = trading_schedule.friday;
+        break;
+    case 6:
+        day_schedule = trading_schedule.saturday;
+        break;
     default:
-        day_schedule = trading_schedule.monday; // Default to Monday if invalid day
+        day_schedule = trading_schedule.sunday; // Default to Monday if invalid day
         break;
     }
 
-    return day_schedule[date.tm_hour];
+    return day_schedule[date_tm.tm_hour];
 }

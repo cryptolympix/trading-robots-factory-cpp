@@ -24,9 +24,8 @@
  */
 std::string time_t_to_string(time_t time)
 {
-    std::stringstream ss;
-    ss << std::put_time(std::localtime(&time), "%Y-%m-%d %H:%M:%S");
-    return ss.str();
+    std::string time_string = std::string(std::ctime(&time));
+    return time_string;
 }
 
 /**
@@ -115,7 +114,15 @@ void Trader::look(CandlesData &candles, IndicatorsData &indicators, double base_
 
     this->candles = candles;
     Candle last_candle = candles[config.strategy.timeframe].back();
+
+    // if (last_candle.date < this->current_date)
+    // {
+    //     std::cerr << "The date of the last candle is less than the current date of the trader." << std::endl;
+    //     std::exit(1);
+    //     return;
+    // }
     this->current_date = last_candle.date;
+
     this->current_base_currency_conversion_rate = base_currency_conversion_rate;
 
     // Get the values of the indicators
@@ -634,9 +641,8 @@ void Trader::trade()
     bool schedule_is_ok = true;
     if (this->config.strategy.trading_schedule.has_value())
     {
-        std::tm current_time = *std::localtime(&this->current_date);
         TradingSchedule trading_schedule = this->config.strategy.trading_schedule.value();
-        schedule_is_ok = is_on_trading_schedule(current_time, trading_schedule);
+        schedule_is_ok = is_on_trading_schedule(this->current_date, trading_schedule);
     }
 
     // Check the number of trades made today
@@ -646,12 +652,21 @@ void Trader::trade()
         int number_of_trades_today = 0;
         for (const auto &trade : this->trades_history)
         {
-            int current_year = std::localtime(&this->current_date)->tm_year;
-            int current_month = std::localtime(&this->current_date)->tm_mon;
-            int current_day = std::localtime(&this->current_date)->tm_mday;
-            std::tm *trade_entry_date = std::localtime(&trade.entry_date);
+            std::string current_date_string = std::string(std::ctime(&this->current_date));
+            struct tm current_date_tm = {};
+            strptime(current_date_string.c_str(), "%a %b %d %H:%M:%S %Y", &current_date_tm);
+            int current_year = current_date_tm.tm_year;
+            int current_month = current_date_tm.tm_mon;
+            int current_day = current_date_tm.tm_mday;
 
-            if (trade_entry_date->tm_year == current_year && trade_entry_date->tm_mon == current_month && trade_entry_date->tm_mday == current_day)
+            std::string trade_entry_date_string = std::string(std::ctime(&trade.entry_date));
+            struct tm trade_entry_date_tm = {};
+            strptime(trade_entry_date_string.c_str(), "%a %b %d %H:%M:%S %Y", &trade_entry_date_tm);
+            int trade_entry_year = trade_entry_date_tm.tm_year;
+            int trade_entry_month = trade_entry_date_tm.tm_mon;
+            int trade_entry_day = trade_entry_date_tm.tm_mday;
+
+            if (trade_entry_year == current_year && trade_entry_month == current_month && trade_entry_day == current_day)
             {
                 number_of_trades_today++;
             }

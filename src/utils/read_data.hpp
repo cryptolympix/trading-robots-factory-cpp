@@ -22,6 +22,6 @@
  * @return std::vector<Candle> A vector of Candle objects containing candle data.
  * @throw std::runtime_error If the specified data file does not exist.
  */
-std::vector<Candle> read_data(const std::string &symbol, TimeFrame time_frame, std::chrono::system_clock::time_point start_date = std::chrono::system_clock::from_time_t(0), std::chrono::system_clock::time_point end_date = std::chrono::system_clock::now());
+std::vector<Candle> read_data(const std::string &symbol, TimeFrame time_frame, time_t start_date = 0, time_t end_date = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()));
 
 #endif /* CANDLE_DATA_READER_H */

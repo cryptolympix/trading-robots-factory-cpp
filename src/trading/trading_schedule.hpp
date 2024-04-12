@@ -12,6 +12,6 @@
  * @param trading_schedule The trading schedule for each day of the week.
  * @return True if the provided date and time are within the trading schedule; False otherwise.
  */
-bool is_on_trading_schedule(const std::tm &date, const TradingSchedule &trading_schedule);
+bool is_on_trading_schedule(const time_t date, const TradingSchedule &trading_schedule);
 
 #endif // TRADING_SCHEDULE_H
