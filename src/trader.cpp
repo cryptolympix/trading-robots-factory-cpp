@@ -618,7 +618,7 @@ bool Trader::can_trade()
         for (const auto &trade : this->trades_history)
         {
             std::string current_date_string = std::string(std::ctime(&this->current_date));
-            current_date_string.pop_back(); // remove the backslash
+            current_date_string.replace(current_date_string.find("\n"), 1, "");
             struct tm current_date_tm = {};
             strptime(current_date_string.c_str(), "%a %b %d %H:%M:%S %Y", &current_date_tm);
             int current_year = current_date_tm.tm_year;
@@ -626,7 +626,7 @@ bool Trader::can_trade()
             int current_day = current_date_tm.tm_mday;
 
             std::string trade_date_string = std::string(std::ctime(&trade.exit_date));
-            trade_date_string.pop_back(); // remove the backslash
+            trade_date_string.replace(trade_date_string.find("\n"), 1, "");
             struct tm trade_date_tm = {};
             strptime(trade_date_string.c_str(), "%a %b %d %H:%M:%S %Y", &trade_date_tm);
             int trade_year = trade_date_tm.tm_year;
@@ -654,6 +654,11 @@ bool Trader::can_trade()
     {
         time_after_previous_trade_is_ok = this->duration_without_trade >= this->config.strategy.minimum_duration_before_next_trade.value();
     }
+
+    // std::cout << "schedule_is_ok: " << schedule_is_ok << std::endl;
+    // std::cout << "number_of_trades_per_day_is_ok: " << number_of_trades_per_day_is_ok << std::endl;
+    // std::cout << "spread_is_ok: " << spread_is_ok << std::endl;
+    // std::cout << "time_after_previous_trade_is_ok: " << time_after_previous_trade_is_ok << std::endl;
 
     // Check if the trader can trade now
     bool can_trade_now = schedule_is_ok && number_of_trades_per_day_is_ok && spread_is_ok && time_after_previous_trade_is_ok;

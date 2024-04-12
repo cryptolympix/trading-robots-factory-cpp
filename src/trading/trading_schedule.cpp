@@ -11,7 +11,11 @@
  */
 bool is_on_trading_schedule(const time_t date, const TradingSchedule &trading_schedule)
 {
+    // Convert the date to a string
     std::string date_string = std::string(std::ctime(&date));
+    date_string.replace(date_string.find("\n"), 1, "");
+
+    // Parse the date string
     struct tm date_tm = {};
     strptime(date_string.c_str(), "%a %b %d %H:%M:%S %Y", &date_tm);
     int day = date_tm.tm_wday;

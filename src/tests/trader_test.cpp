@@ -715,17 +715,33 @@ TEST_F(TraderTest, RespectNumberOfTradesPerDay)
     // Set neural network output to enter long
     trader->decisions = {1.0, 0.0, 0.0, 0.0, 0.0};
 
-    // Create trades history with maximum trades per day
+    // Trade the maximum number of trades per day
     for (int i = 0; i < config.strategy.maximum_trades_per_day.value(); ++i)
     {
-        trader->trades_history.push_back(Trade{.entry_date = date, .exit_date = date, .side = PositionSide::LONG, .pnl = 0.0, .fees = 0.0, .size = 1.0});
+        // Check if the trader can trade
+        ASSERT_TRUE(trader->can_trade());
+
+        trader->open_position_by_market(1.0, 1.0, OrderSide::LONG);
+
+        // Check if a new position is opened
+        ASSERT_NE(trader->current_position, nullptr);
+
+        trader->close_position_by_market();
+
+        // Check if the position is closed
+        ASSERT_EQ(trader->current_position, nullptr);
+
+        // Set the duration without trade to the minimum duration before next trade
+        trader->duration_without_trade = config.strategy.minimum_duration_before_next_trade.value();
     }
+
+    // Check if the trader can trade
+    ASSERT_FALSE(trader->can_trade());
 
     // Try to trade
     trader->trade();
 
     // Check if no new position is opened
-    ASSERT_FALSE(trader->can_trade());
     ASSERT_EQ(trader->current_position, nullptr);
 }
 

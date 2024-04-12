@@ -149,14 +149,6 @@ void Training::load_indicators(ProgressBar *progress_bar)
         }
     }
 
-    for (auto const &position_indicator : this->config.training.inputs.position)
-    {
-        if (progress_bar)
-        {
-            progress_bar->update(1);
-        }
-    }
-
     if (progress_bar)
     {
         progress_bar->complete();
