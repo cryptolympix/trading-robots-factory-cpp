@@ -22,10 +22,10 @@ TradingSchedule schedule = {
 
 TakeProfitStopLossConfig tpsl_config = {
     .type_stop_loss = TypeTakeProfitStopLoss::POINTS,
-    .stop_loss_in_points = 100,
+    .stop_loss_in_points = 150,
     .stop_loss_in_percent = 0.01,
     .type_take_profit = TypeTakeProfitStopLoss::POINTS,
-    .take_profit_in_points = 100,
+    .take_profit_in_points = 150,
     .take_profit_in_percent = 0.01};
 
 // 2023-01-01 00:00:00
@@ -40,7 +40,7 @@ std::tm start_training_date = {
 // 2023-01-31 00:00:00
 std::tm end_training_date = {
     .tm_year = 2022 - 1900,
-    .tm_mon = 1,
+    .tm_mon = 3,
     .tm_mday = 1,
     .tm_hour = 0,
     .tm_min = 0,
@@ -74,7 +74,7 @@ Config test_config = {
         .leverage = 100},
     .strategy{
         .timeframe = TimeFrame::M15,
-        .maximum_risk = 0.1,
+        .maximum_risk = 0.05,
         .maximum_spread = 8,
         .minimum_trade_duration = 0,
         .maximum_trade_duration = 10,
@@ -128,7 +128,32 @@ Config test_config = {
                                      new CMF(),
                                      new OBV(),
                                      new VWAP(),
-                                 }}},
+                                 }},
+                {TimeFrame::H1, {
+                                    new CandlePriceChange(),
+                                    new CandleClose(),
+                                    new PeakDistance(20, 0),
+                                    new PeakCandleDistance(20, 0),
+                                    new NewHighSignal(20, 0),
+                                    new NewLowSignal(20, 0),
+                                    new HighBreakSignal(20, 0),
+                                    new LowBreakSignal(20, 0),
+                                    new MFI(),
+                                    new RSI(),
+                                    new StochasticOscillator(),
+                                    new InstitutionalBias(),
+                                    new EMADifference(),
+                                    new AroonTrend(),
+                                    new IchimokuCloudTrend(),
+                                    new IchimokuKijunTenkanTrend(),
+                                    new EMASlope(21, "close"),
+                                    new ATR(),
+                                    new StandardDeviation(),
+                                    new AveragePriceChange(),
+                                    new CMF(),
+                                    new OBV(),
+                                    new VWAP(),
+                                }}},
             .position = {PositionInfo::TYPE, PositionInfo::PNL, PositionInfo::DURATION}}},
     .evaluation{.maximum_drawdown = 0.05, .minimum_profit_factor = 2, .minimum_winrate = 0.75, .expected_return_per_day = 0.01, .expected_return_per_month = 0.2},
     .neat = load_config("src/configs/neat_config_test.ini")};

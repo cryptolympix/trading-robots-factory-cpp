@@ -32,14 +32,14 @@ protected:
                 .initial_balance = 1000,
                 .account_currency = "USD",
             },
-            .strategy = {.timeframe = TimeFrame::H1, .maximum_risk = 0.02, .maximum_spread = 8, .minimum_trade_duration = 2, .maximum_trade_duration = 4, .minimum_duration_before_next_trade = 4, .take_profit_stop_loss_config = {
-                                                                                                                                                                                                       .type_stop_loss = TypeTakeProfitStopLoss::POINTS,
-                                                                                                                                                                                                       .stop_loss_in_points = 300,
-                                                                                                                                                                                                       .stop_loss_in_percent = 0.01,
-                                                                                                                                                                                                       .type_take_profit = TypeTakeProfitStopLoss::POINTS,
-                                                                                                                                                                                                       .take_profit_in_points = 300,
-                                                                                                                                                                                                       .take_profit_in_percent = 0.01,
-                                                                                                                                                                                                   },
+            .strategy = {.timeframe = TimeFrame::H1, .maximum_risk = 0.02, .maximum_spread = 8, .minimum_trade_duration = 2, .maximum_trade_duration = 4, .minimum_duration_before_next_trade = 4, .maximum_trades_per_day = 2, .take_profit_stop_loss_config = {
+                                                                                                                                                                                                                                    .type_stop_loss = TypeTakeProfitStopLoss::POINTS,
+                                                                                                                                                                                                                                    .stop_loss_in_points = 300,
+                                                                                                                                                                                                                                    .stop_loss_in_percent = 0.01,
+                                                                                                                                                                                                                                    .type_take_profit = TypeTakeProfitStopLoss::POINTS,
+                                                                                                                                                                                                                                    .take_profit_in_points = 300,
+                                                                                                                                                                                                                                    .take_profit_in_percent = 0.01,
+                                                                                                                                                                                                                                },
                          .trading_schedule = {{.monday = {false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false}, .tuesday = {false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false}, .wednesday = {false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false}, .thursday = {false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false}, .friday = {false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false}, .saturday = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false}, .sunday = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false}}}},
             .training = {.generations = 5, .bad_trader_threshold = 0.01, .inactive_trader_threshold = 500, .inputs = {
                                                                                                                .indicators = {{TimeFrame::M15, {new RSI()}}, {TimeFrame::M30, {new RSI()}}, {TimeFrame::H1, {new RSI()}}},
@@ -703,6 +703,25 @@ TEST_F(TraderTest, TradeNotWhenSpreadHigh)
                                        }}};
 
     // Call the trade method
+    trader->trade();
+
+    // Check if no new position is opened
+    ASSERT_FALSE(trader->can_trade());
+    ASSERT_EQ(trader->current_position, nullptr);
+}
+
+TEST_F(TraderTest, RespectNumberOfTradesPerDay)
+{
+    // Set neural network output to enter long
+    trader->decisions = {1.0, 0.0, 0.0, 0.0, 0.0};
+
+    // Create trades history with maximum trades per day
+    for (int i = 0; i < config.strategy.maximum_trades_per_day.value(); ++i)
+    {
+        trader->trades_history.push_back(Trade{.entry_date = date, .exit_date = date, .side = PositionSide::LONG, .pnl = 0.0, .fees = 0.0, .size = 1.0});
+    }
+
+    // Try to trade
     trader->trade();
 
     // Check if no new position is opened

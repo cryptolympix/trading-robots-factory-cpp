@@ -625,15 +625,15 @@ bool Trader::can_trade()
             int current_month = current_date_tm.tm_mon;
             int current_day = current_date_tm.tm_mday;
 
-            std::string trade_entry_date_string = std::string(std::ctime(&trade.entry_date));
-            trade_entry_date_string.pop_back(); // remove the backslash
-            struct tm trade_entry_date_tm = {};
-            strptime(trade_entry_date_string.c_str(), "%a %b %d %H:%M:%S %Y", &trade_entry_date_tm);
-            int trade_entry_year = trade_entry_date_tm.tm_year;
-            int trade_entry_month = trade_entry_date_tm.tm_mon;
-            int trade_entry_day = trade_entry_date_tm.tm_mday;
+            std::string trade_date_string = std::string(std::ctime(&trade.exit_date));
+            trade_date_string.pop_back(); // remove the backslash
+            struct tm trade_date_tm = {};
+            strptime(trade_date_string.c_str(), "%a %b %d %H:%M:%S %Y", &trade_date_tm);
+            int trade_year = trade_date_tm.tm_year;
+            int trade_month = trade_date_tm.tm_mon;
+            int trade_day = trade_date_tm.tm_mday;
 
-            if (trade_entry_year == current_year && trade_entry_month == current_month && trade_entry_day == current_day)
+            if (trade_year == current_year && trade_month == current_month && trade_day == current_day)
             {
                 number_of_trades_today++;
             }
@@ -1315,17 +1315,17 @@ void Trader::generate_report(const std::string &filename)
                 <tr>
                     <td><b>Total win rate:</b></td>
                     <td>)"
-         << decimal_floor(this->stats.win_rate * 100, 2) << "%" << R"(</td>
+         << decimal_floor(this->stats.win_rate * 100, 2) << "%" << " (" << this->stats.total_winning_trades << "/" << this->stats.total_long_trades << ")" << R"(</td>
                 </tr>
                 <tr>
                     <td><b>Long win rate:</b></td>
                     <td>)"
-         << decimal_floor(this->stats.long_win_rate * 100, 2) << "%" << R"(</td>
+         << decimal_floor(this->stats.long_win_rate * 100, 2) << "%" << " (" << this->stats.total_winning_long_trades << "/" << this->stats.total_long_trades << ")" << R"(</td>
                 </tr>
                 <tr>
                     <td><b>Short win rate:</b></td>
                     <td>)"
-         << decimal_floor(this->stats.short_win_rate * 100, 2) << "%" << R"(</td>
+         << decimal_floor(this->stats.short_win_rate * 100, 2) << "%" << " (" << this->stats.total_winning_short_trades << "/" << this->stats.total_lost_short_trades << ")" << R"(</td>
                 </tr>
                 <tr>
                     <td><b>Max profit:</b></td>
