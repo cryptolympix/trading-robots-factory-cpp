@@ -71,7 +71,7 @@ protected:
         trader->open_orders = {};
         trader->balance_history = {};
         trader->trades_history = {};
-        trader->decisions = {0, 0, 0, 0, 1};
+        trader->decisions = {0, 0, 1};
         trader->current_date = date;
         trader->candles = {{TimeFrame::H1, {
                                                Candle{.date = date, .close = 1.0},
@@ -441,7 +441,7 @@ TEST_F(TraderTest, TradeCloseShortWithLoss)
 TEST_F(TraderTest, TradeEnterLong)
 {
     // Set neural network output to enter long
-    trader->decisions = {1.0, 0.0, 0.0, 0.0, 0.0};
+    trader->decisions = {1.0, 0.0, 0.0};
     trader->current_date = date;
 
     // Call the trade method
@@ -460,7 +460,7 @@ TEST_F(TraderTest, TradeEnterLong)
 TEST_F(TraderTest, TradeEnterShort)
 {
     // Set neural network output to enter short
-    trader->decisions = {0.0, 1.0, 0.0, 0.0, 0.0};
+    trader->decisions = {0.0, 1.0, 0.0};
 
     // Call the trade method
     trader->trade();
@@ -478,7 +478,7 @@ TEST_F(TraderTest, TradeEnterShort)
 TEST_F(TraderTest, TradeNoAction)
 {
     // Set neural network output to no action
-    trader->decisions = {0.0, 0.0, 0.0, 0.0, 1.0};
+    trader->decisions = {0.0, 0.0, 1.0};
 
     // Call the trade method
     trader->trade();
@@ -520,7 +520,7 @@ TEST_F(TraderTest, ClosePositionForDurationExceeded)
 TEST_F(TraderTest, WaitForDurationBeforeClosePosition)
 {
     trader->open_position_by_market(1.00, 1.0, OrderSide::LONG);
-    trader->decisions = {0.0, 0.0, 1.0, 0.0, 0.0};
+    trader->decisions = {0.0, 1.0, 0.0};
 
     // Call the update method for the maximum trade duration - 1
     for (int i = 0; i < config.strategy.minimum_trade_duration.value() - 1; ++i)
@@ -553,7 +553,7 @@ TEST_F(TraderTest, WaitForDurationBeforeClosePosition)
 
 TEST_F(TraderTest, WaitForNextTrade)
 {
-    trader->decisions = {1.0, 0.0, 0.0, 0.0, 0.0};
+    trader->decisions = {1.0, 0.0, 0.0};
     trader->duration_without_trade = 0;
 
     // Cann the trade method
@@ -575,7 +575,7 @@ TEST_F(TraderTest, WaitForNextTrade)
 TEST_F(TraderTest, CreateTpSlForLongPosition)
 {
     // Set neural network output to no action
-    trader->decisions = {1.0, 0.0, 0.0, 0.0, 0.0};
+    trader->decisions = {1.0, 0.0, 0.0};
 
     // Call the trade method
     trader->trade();
@@ -593,7 +593,7 @@ TEST_F(TraderTest, CreateTpSlForLongPosition)
 TEST_F(TraderTest, CreateTpSlForShortPosition)
 {
     // Set neural network output to no action
-    trader->decisions = {0.0, 1.0, 0.0, 0.0, 0.0};
+    trader->decisions = {0.0, 1.0, 0.0};
 
     // Call the trade method
     trader->trade();
@@ -611,7 +611,7 @@ TEST_F(TraderTest, CreateTpSlForShortPosition)
 TEST_F(TraderTest, TradeNotOutOfTradingSchedule)
 {
     // Set neural network output to enter long
-    trader->decisions = {1.0, 0.0, 0.0, 0.0, 0.0};
+    trader->decisions = {1.0, 0.0, 0.0};
 
     // Try to trade sunday
     std::tm date_tm_1 = {
@@ -671,7 +671,7 @@ TEST_F(TraderTest, TradeNotOutOfTradingSchedule)
 TEST_F(TraderTest, TradeOnTradingSchedule)
 {
     // Set neural network output to enter long
-    trader->decisions = {1.0, 0.0, 0.0, 0.0, 0.0};
+    trader->decisions = {1.0, 0.0, 0.0};
 
     std::tm date_tm = {
         .tm_year = 2023 - 1900,
@@ -695,7 +695,7 @@ TEST_F(TraderTest, TradeOnTradingSchedule)
 TEST_F(TraderTest, TradeNotWhenSpreadHigh)
 {
     // Set neural network output to enter long
-    trader->decisions = {1.0, 0.0, 0.0, 0.0, 0.0};
+    trader->decisions = {1.0, 0.0, 0.0};
 
     // Mock data for testing
     trader->candles = {{TimeFrame::H1, {
@@ -713,7 +713,7 @@ TEST_F(TraderTest, TradeNotWhenSpreadHigh)
 TEST_F(TraderTest, RespectNumberOfTradesPerDay)
 {
     // Set neural network output to enter long
-    trader->decisions = {1.0, 0.0, 0.0, 0.0, 0.0};
+    trader->decisions = {1.0, 0.0, 0.0};
 
     // Trade the maximum number of trades per day
     for (int i = 0; i < config.strategy.maximum_trades_per_day.value(); ++i)

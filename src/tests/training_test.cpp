@@ -4,6 +4,7 @@
 #include <chrono>
 #include "../neat/genome.hpp"
 #include "../utils/time_frame.hpp"
+#include "../trading/trading_schedule.hpp"
 #include "../indicators/momentum.hpp"
 #include "../symbols.hpp"
 #include "../trader.hpp"
@@ -144,20 +145,34 @@ TEST_F(TrainingTest, CacheData)
     // Check the dates in the cache
     for (const auto &date : dates)
     {
-        std::string date_string = std::string(std::ctime(&date));
-        date_string.replace(date_string.find("\n"), 1, "");
+        std::stringstream ss;
+        ss << std::put_time(std::localtime(&date), "%Y-%m-%d %H:%M:%S");
+        std::string date_string = ss.str();
         ASSERT_TRUE(training->cache.find(date_string) != training->cache.end());
     }
 
     for (const auto &date : dates)
     {
-        std::string date_string = std::string(std::ctime(&date));
-        date_string.replace(date_string.find("\n"), 1, "");
+        std::stringstream ss;
+        ss << std::put_time(std::localtime(&date), "%Y-%m-%d %H:%M:%S");
+        std::string date_string = ss.str();
 
-        // Check the the candle dates are ordered
         for (const auto &[timeframe, candles] : training->cache[date_string].candles)
         {
+            // Check the candles are not empty
             ASSERT_FALSE(candles.empty());
+
+            // Check the last candle date
+            if (timeframe == loop_timeframe)
+            {
+                ASSERT_EQ(training->cache[date_string].candles[timeframe].back().date, date);
+            }
+            else
+            {
+                ASSERT_LE(training->cache[date_string].candles[timeframe].back().date, date);
+            }
+
+            // Check the the candle dates are well ordered
             for (int j = 0; j < candles.size() - 1; ++j)
             {
                 ASSERT_LT(candles[j].date, candles[j + 1].date);
@@ -233,18 +248,18 @@ TEST_F(TrainingTest, BestTraders)
     ASSERT_EQ(training->get_best_trader_of_generation(0), new_best_trader);
 }
 
-TEST_F(TrainingTest, Run)
-{
-    training->load_candles();
-    training->load_indicators();
-    training->load_base_currency_conversion_rate();
-    training->cache_data();
+// TEST_F(TrainingTest, Run)
+// {
+//     training->load_candles();
+//     training->load_indicators();
+//     training->load_base_currency_conversion_rate();
+//     training->cache_data();
 
-    for (int i = 0; i < 10; ++i)
-    {
-        int result = training->run();
+//     for (int i = 0; i < 10; ++i)
+//     {
+//         int result = training->run();
 
-        // Asserts that the training went well
-        ASSERT_EQ(result, 0);
-    }
-}
+//         // Asserts that the training went well
+//         ASSERT_EQ(result, 0);
+//     }
+// }

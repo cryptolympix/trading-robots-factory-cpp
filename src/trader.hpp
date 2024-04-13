@@ -76,6 +76,11 @@ public:
     void calculate_fitness();
 
     /**
+     * @brief Calculate the score of the trader.
+     */
+    void calculate_score();
+
+    /**
      * @brief Calcule the trader statistics.
      */
     void calculate_stats();

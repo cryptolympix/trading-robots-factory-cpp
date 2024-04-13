@@ -4,7 +4,6 @@
 #include <iomanip>
 #include <string>
 #include <sstream>
-#include <chrono>
 #include <cmath>
 #include "utils/logger.hpp"
 #include "utils/time_frame.hpp"
@@ -24,9 +23,9 @@
  */
 std::string time_t_to_string(time_t time)
 {
-    std::string time_string = std::string(std::ctime(&time));
-    time_string.replace(time_string.find("\n"), 1, "");
-    return time_string;
+    std::stringstream ss;
+    ss << std::put_time(std::localtime(&time), "%Y-%m-%d %H:%M:%S");
+    return ss.str();
 }
 
 /**
@@ -367,6 +366,14 @@ void Trader::calculate_fitness()
 }
 
 /**
+ * @brief Calculate the score of the trader.
+ */
+void Trader::calculate_score()
+{
+    this->score = this->stats.total_net_profit;
+}
+
+/**
  * @brief Calcule the trader statistics.
  */
 void Trader::calculate_stats()
@@ -590,9 +597,6 @@ void Trader::calculate_stats()
 
     // Calculate the sortino ratio
     this->stats.sortino_ratio = 0;
-
-    // ******************** Formula to calculate the score of the individual **********************
-    this->score = this->stats.total_net_profit;
 }
 
 /**
@@ -617,18 +621,12 @@ bool Trader::can_trade()
         int number_of_trades_today = 0;
         for (const auto &trade : this->trades_history)
         {
-            std::string current_date_string = std::string(std::ctime(&this->current_date));
-            current_date_string.replace(current_date_string.find("\n"), 1, "");
-            struct tm current_date_tm = {};
-            strptime(current_date_string.c_str(), "%a %b %d %H:%M:%S %Y", &current_date_tm);
+            struct tm current_date_tm = *std::localtime(&this->current_date);
             int current_year = current_date_tm.tm_year;
             int current_month = current_date_tm.tm_mon;
             int current_day = current_date_tm.tm_mday;
 
-            std::string trade_date_string = std::string(std::ctime(&trade.exit_date));
-            trade_date_string.replace(trade_date_string.find("\n"), 1, "");
-            struct tm trade_date_tm = {};
-            strptime(trade_date_string.c_str(), "%a %b %d %H:%M:%S %Y", &trade_date_tm);
+            struct tm trade_date_tm = *std::localtime(&trade.exit_date);
             int trade_year = trade_date_tm.tm_year;
             int trade_month = trade_date_tm.tm_mon;
             int trade_day = trade_date_tm.tm_mday;
@@ -681,11 +679,9 @@ void Trader::trade()
 
     // Decision taken
     double maximum = *std::max_element(this->decisions.begin(), this->decisions.end());
-    bool enter_long = maximum == this->decisions[0];
-    bool enter_short = maximum == this->decisions[1];
-    bool close_long = maximum == this->decisions[2];
-    bool close_short = maximum == this->decisions[3];
-    bool wait = maximum == this->decisions[4];
+    bool want_long = maximum == this->decisions[0];
+    bool want_short = maximum == this->decisions[1];
+    bool wait = maximum == this->decisions[2];
 
     if (!wait)
     {
@@ -706,18 +702,18 @@ void Trader::trade()
         {
             if (has_position)
             {
-                if (has_long_position && close_long && can_close_position)
+                if (has_long_position && want_short && can_close_position)
                 {
                     this->close_position_by_market(last_candle.close);
                 }
-                else if (has_short_position && close_short && can_close_position)
+                else if (has_short_position && want_long && can_close_position)
                 {
                     this->close_position_by_market(last_candle.close);
                 }
             }
             else
             {
-                if (enter_long)
+                if (want_long)
                 {
                     // Calculate order parameters
                     auto order_prices = calculate_tp_sl_price(last_candle.close, PositionSide::LONG, this->config.strategy.take_profit_stop_loss_config, this->symbol_info);
@@ -727,11 +723,14 @@ void Trader::trade()
                     double size = calculate_position_size(this->balance, this->config.strategy.maximum_risk, last_candle.close, sl_pips, this->symbol_info, this->current_base_currency_conversion_rate);
 
                     // Post orders
-                    this->open_position_by_market(last_candle.close, size, OrderSide::LONG);
-                    this->create_open_order(OrderType::TAKE_PROFIT, OrderSide::SHORT, tp_price);
-                    this->create_open_order(OrderType::STOP_LOSS, OrderSide::SHORT, sl_price);
+                    if (size > 0.0)
+                    {
+                        this->open_position_by_market(last_candle.close, size, OrderSide::LONG);
+                        this->create_open_order(OrderType::TAKE_PROFIT, OrderSide::SHORT, tp_price);
+                        this->create_open_order(OrderType::STOP_LOSS, OrderSide::SHORT, sl_price);
+                    }
                 }
-                else if (enter_short)
+                else if (want_short)
                 {
                     // Calculate order parameters
                     auto order_prices = calculate_tp_sl_price(last_candle.close, PositionSide::SHORT, this->config.strategy.take_profit_stop_loss_config, this->symbol_info);
@@ -741,19 +740,22 @@ void Trader::trade()
                     double size = calculate_position_size(this->balance, this->config.strategy.maximum_risk, last_candle.close, sl_pips, this->symbol_info, this->current_base_currency_conversion_rate);
 
                     // Post orders
-                    this->open_position_by_market(last_candle.close, size, OrderSide::SHORT);
-                    this->create_open_order(OrderType::TAKE_PROFIT, OrderSide::LONG, tp_price);
-                    this->create_open_order(OrderType::STOP_LOSS, OrderSide::LONG, sl_price);
+                    if (size > 0.0)
+                    {
+                        this->open_position_by_market(last_candle.close, size, OrderSide::SHORT);
+                        this->create_open_order(OrderType::TAKE_PROFIT, OrderSide::LONG, tp_price);
+                        this->create_open_order(OrderType::STOP_LOSS, OrderSide::LONG, sl_price);
+                    }
                 }
             }
         }
         else if (has_position)
         {
-            if (has_long_position && close_long && can_close_position)
+            if (has_long_position && want_short && can_close_position)
             {
                 this->close_position_by_market(last_candle.close);
             }
-            else if (has_short_position && close_short && can_close_position)
+            else if (has_short_position && want_long && can_close_position)
             {
                 this->close_position_by_market(last_candle.close);
             }
@@ -971,7 +973,7 @@ void Trader::check_open_orders()
             {
                 for (int i = 0; i < short_orders.size(); i++)
                 {
-                    if (last_candle.high >= short_orders[i].price && last_candle.low <= short_orders[i].price)
+                    if (last_candle.high >= short_orders[i].price)
                     {
                         if (short_orders[i].type == OrderType::TAKE_PROFIT)
                         {
@@ -988,7 +990,7 @@ void Trader::check_open_orders()
             {
                 for (int i = 0; i < long_orders.size(); i++)
                 {
-                    if (last_candle.high <= long_orders[i].price && last_candle.low >= long_orders[i].price)
+                    if (last_candle.low >= long_orders[i].price)
                     {
                         if (long_orders[i].type == OrderType::TAKE_PROFIT)
                         {
@@ -1320,7 +1322,7 @@ void Trader::generate_report(const std::string &filename)
                 <tr>
                     <td><b>Total win rate:</b></td>
                     <td>)"
-         << decimal_floor(this->stats.win_rate * 100, 2) << "%" << " (" << this->stats.total_winning_trades << "/" << this->stats.total_long_trades << ")" << R"(</td>
+         << decimal_floor(this->stats.win_rate * 100, 2) << "%" << " (" << this->stats.total_winning_trades << "/" << this->stats.total_trades << ")" << R"(</td>
                 </tr>
                 <tr>
                     <td><b>Long win rate:</b></td>
@@ -1330,7 +1332,7 @@ void Trader::generate_report(const std::string &filename)
                 <tr>
                     <td><b>Short win rate:</b></td>
                     <td>)"
-         << decimal_floor(this->stats.short_win_rate * 100, 2) << "%" << " (" << this->stats.total_winning_short_trades << "/" << this->stats.total_lost_short_trades << ")" << R"(</td>
+         << decimal_floor(this->stats.short_win_rate * 100, 2) << "%" << " (" << this->stats.total_winning_short_trades << "/" << this->stats.total_short_trades << ")" << R"(</td>
                 </tr>
                 <tr>
                     <td><b>Max profit:</b></td>
@@ -1469,6 +1471,15 @@ void Trader::generate_report(const std::string &filename)
             data : data,
             options : {
                 pointRadius : 0,
+                scales: {
+                    x: {
+                        display: true,
+                    },
+                    y: {
+                        display: true,
+                        type: 'logarithmic',
+                    }
+                },
                 plugins : {
                     title : {
                         display : true,
