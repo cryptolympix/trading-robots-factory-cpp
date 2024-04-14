@@ -47,6 +47,8 @@ protected:
         };
         time_t end_date = std::mktime(&end_date_tm);
 
+        std::vector<bool> working_day = {false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false};
+        std::vector<bool> rest_day = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
         config = Config{
             .general = {
                 .name = "test",
@@ -56,20 +58,59 @@ protected:
                 .initial_balance = 1000,
                 .account_currency = "USD",
             },
-            .strategy = {.timeframe = TimeFrame::H1, .maximum_risk = 0.02, .maximum_spread = 8, .minimum_trade_duration = 1, .maximum_trade_duration = 2, .maximum_trades_per_day = 2, .minimum_duration_before_next_trade = 2, .take_profit_stop_loss_config = {
-                                                                                                                                                                                                                                    .type_stop_loss = TypeTakeProfitStopLoss::POINTS,
-                                                                                                                                                                                                                                    .stop_loss_in_points = 300,
-                                                                                                                                                                                                                                    .stop_loss_in_percent = 0.01,
-                                                                                                                                                                                                                                    .type_take_profit = TypeTakeProfitStopLoss::POINTS,
-                                                                                                                                                                                                                                    .take_profit_in_points = 300,
-                                                                                                                                                                                                                                    .take_profit_in_percent = 0.01,
-                                                                                                                                                                                                                                },
-                         .trading_schedule = {{.monday = {false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false}, .tuesday = {false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false}, .wednesday = {false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false}, .thursday = {false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false}, .friday = {false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false}, .saturday = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false}, .sunday = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false}}}},
-            .training = {.generations = 5, .bad_trader_threshold = 0.01, .inactive_trader_threshold = 500, .training_start_date = start_date, .training_end_date = end_date, .inputs = {
-                                                                                                                                                                                 .indicators = {{TimeFrame::M15, {new RSI()}}, {TimeFrame::M30, {new RSI()}}, {TimeFrame::H1, {new RSI()}}},
-                                                                                                                                                                                 .position = {PositionInfo::TYPE, PositionInfo::PNL, PositionInfo::DURATION},
-                                                                                                                                                                             }},
-            .evaluation = {.nb_trades_minimum = 0, .nb_trades_maximum = 40, .maximum_drawdown = 0.1, .expected_return_per_day = 0.01, .expected_return_per_month = 0.1, .minimum_profit_factor = 2, .minimum_winrate = 0.5},
+            .strategy = {
+                .timeframe = TimeFrame::H1,
+                .maximum_risk = 0.02,
+                .maximum_spread = 8,
+                .minimum_trade_duration = 2,
+                .maximum_trade_duration = 4,
+                .minimum_duration_before_next_trade = 4,
+                .maximum_trades_per_day = 2,
+                .take_profit_stop_loss_config = {
+                    .type_stop_loss = TypeTakeProfitStopLoss::POINTS,
+                    .stop_loss_in_points = 300,
+                    .stop_loss_in_percent = 0.01,
+                    .type_take_profit = TypeTakeProfitStopLoss::POINTS,
+                    .take_profit_in_points = 300,
+                    .take_profit_in_percent = 0.01,
+                },
+                .trading_schedule = TradingSchedule{
+                    .monday = working_day,
+                    .tuesday = working_day,
+                    .wednesday = working_day,
+                    .thursday = working_day,
+                    .friday = working_day,
+                    .saturday = rest_day,
+                    .sunday = rest_day,
+                },
+            },
+            .training = {
+                .generations = 5,
+                .bad_trader_threshold = 0.01,
+                .inactive_trader_threshold = 500,
+                .training_start_date = start_date,
+                .training_end_date = end_date,
+                .inputs = {
+                    .indicators = {
+                        {TimeFrame::M15, {new RSI()}},
+                        {TimeFrame::M30, {new RSI()}},
+                        {TimeFrame::H1, {new RSI()}},
+                    },
+                    .position = {
+                        PositionInfo::TYPE,
+                        PositionInfo::PNL,
+                        PositionInfo::DURATION,
+                    },
+                },
+            },
+            .evaluation = {
+                .nb_trades_per_day = 2,
+                .maximum_drawdown = 0.1,
+                .expected_return_per_day = 0.01,
+                .expected_return_per_month = 0.1,
+                .minimum_profit_factor = 2,
+                .minimum_winrate = 0.5,
+            },
             .neat = load_config("src/configs/neat_config_test.ini"),
         };
         config.neat.population_size = 5;

@@ -139,6 +139,7 @@ struct Trade
     double pnl_percent; // Profit and Loss as a percentage of the balance
     double fees;        // Fees of the trade
     int duration;       // Duration of the trade
+    bool closed;        // Whether the trade is closed
 };
 
 /**
@@ -292,10 +293,10 @@ struct TrainingConfig
  */
 struct EvaluationConfig
 {
-    std::optional<int> nb_trades_minimum;            // Minimum number of trades
-    std::optional<int> nb_trades_maximum;            // Maximum number of trades
+    std::optional<int> nb_trades_per_day;
     std::optional<double> expected_return_per_day;   // Expected return per day in % of capital
     std::optional<double> expected_return_per_month; // Expected return per month in % of capital
+    std::optional<double> expected_return;           // Expected return per year in % of capital
     std::optional<double> maximum_drawdown;          // Maximum drawdown
     std::optional<double> minimum_winrate;           // Minimum win rate
     std::optional<double> minimum_profit_factor;     // Minimum profit factor

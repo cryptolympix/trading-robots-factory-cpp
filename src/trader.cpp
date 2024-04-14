@@ -5,6 +5,7 @@
 #include <string>
 #include <sstream>
 #include <cmath>
+#include <random>
 #include "utils/logger.hpp"
 #include "utils/time_frame.hpp"
 #include "utils/math.hpp"
@@ -222,9 +223,9 @@ void Trader::update(time_t current_date)
     }
 
     // Update
+    this->update_position_pnl();
     this->check_open_orders();
     this->check_position_liquidation();
-    this->update_position_pnl();
     this->trade();
 
     // Record the balance to history
@@ -244,6 +245,7 @@ void Trader::calculate_fitness()
     double win_rate_eval = 0;
     double expected_return_per_day_eval = 0;
     double expected_return_per_month_eval = 0;
+    double expected_return_eval = 0;
 
     double nb_trades_weight = 1;
     double max_drawdown_weight = 1;
@@ -251,24 +253,35 @@ void Trader::calculate_fitness()
     double win_rate_weight = 1;
     double expected_return_per_day_weight = 1;
     double expected_return_per_month_weight = 1;
+    double expected_return_weight = 1;
 
-    if (goals.nb_trades_minimum.has_value() || goals.nb_trades_maximum.has_value())
+    // Select only closed trade
+    std::vector<Trade> closed_trades = {};
+    for (const auto &trade : this->trades_history)
     {
-        if (goals.nb_trades_minimum.has_value() && goals.nb_trades_maximum.has_value())
+        if (trade.closed)
         {
-            double diff_min = 10 * std::max(0, goals.nb_trades_minimum.value() - this->stats.total_trades);
-            double diff_max = 10 * std::max(0, this->stats.total_trades - goals.nb_trades_maximum.value());
-            nb_trades_eval = nb_trades_weight / std::exp(diff_min + diff_max);
+            closed_trades.push_back(trade);
         }
-        else if (goals.nb_trades_minimum.has_value())
+    }
+
+    if (goals.nb_trades_per_day.has_value())
+    {
+        // Calculate the number of trades per day
+        std::map<std::string, int> daily_trades = {};
+        for (const auto &trade : closed_trades)
         {
-            double diff = 10 * std::max(0, goals.nb_trades_minimum.value() - this->stats.total_trades);
-            nb_trades_eval = nb_trades_weight / std::exp(diff);
+            std::tm *exit_date = std::localtime(&trade.exit_date);
+            std::stringstream date_key;
+            date_key << std::put_time(exit_date, "%Y-%m-%d");
+            daily_trades[date_key.str()]++;
         }
-        else if (goals.nb_trades_maximum.has_value())
+
+        int nb_days = daily_trades.size();
+        for (const auto &[day, nb_trade] : daily_trades)
         {
-            double diff = 10 * std::max(0, this->stats.total_trades - goals.nb_trades_maximum.value());
-            nb_trades_eval = nb_trades_weight / std::exp(diff);
+            double diff = 10 * std::abs(goals.nb_trades_per_day.value() - nb_trade);
+            nb_trades_eval += nb_trades_weight / (nb_days * std::exp(diff));
         }
     }
 
@@ -293,7 +306,7 @@ void Trader::calculate_fitness()
     if (goals.expected_return_per_day.has_value())
     {
         std::map<std::string, double> daily_returns = {};
-        for (const auto &trade : this->trades_history)
+        for (const auto &trade : closed_trades)
         {
             std::tm *exit_date = std::localtime(&trade.exit_date);
             double trade_return = trade.pnl_percent;
@@ -306,14 +319,14 @@ void Trader::calculate_fitness()
         for (const auto &daily_return : daily_returns)
         {
             double diff = 10 * std::max(0.0, goals.expected_return_per_day.value() - daily_return.second);
-            expected_return_per_day_eval += expected_return_per_day_weight / (nb_days * std::exp(diff));
+            expected_return_per_day_eval += (expected_return_per_day_weight * nb_days) / (nb_days * std::exp(diff));
         }
     }
 
     if (goals.expected_return_per_month.has_value())
     {
         std::map<std::string, double> monthly_returns = {};
-        for (const auto &trade : this->trades_history)
+        for (const auto &trade : closed_trades)
         {
             std::tm *exit_date = std::localtime(&trade.exit_date);
             double trade_return = trade.pnl_percent;
@@ -326,8 +339,14 @@ void Trader::calculate_fitness()
         for (const auto &monthly_return : monthly_returns)
         {
             double diff = 10 * std::max(0.0, goals.expected_return_per_month.value() - monthly_return.second);
-            expected_return_per_month_eval += expected_return_per_month_weight / (nb_months * std::exp(diff));
+            expected_return_per_month_eval += (expected_return_per_month_weight * nb_months) / (nb_months * std::exp(diff));
         }
+    }
+
+    if (goals.expected_return.has_value())
+    {
+        double diff = 10 * std::max(0.0, goals.expected_return.value() - stats.performance);
+        expected_return_eval = expected_return_eval / std::exp(diff);
     }
 
     // ***************** FORMULA TO CALCULATE FITNESS ***************** //
@@ -339,7 +358,7 @@ void Trader::calculate_fitness()
         this->fitness = 0;
         return;
     }
-    if (goals.nb_trades_minimum.has_value() || goals.nb_trades_maximum.has_value())
+    if (goals.nb_trades_per_day.has_value())
     {
         this->fitness *= nb_trades_eval;
     }
@@ -363,6 +382,10 @@ void Trader::calculate_fitness()
     {
         this->fitness *= expected_return_per_month_eval;
     }
+    if (goals.expected_return.has_value())
+    {
+        this->fitness *= expected_return_eval;
+    }
 }
 
 /**
@@ -378,16 +401,26 @@ void Trader::calculate_score()
  */
 void Trader::calculate_stats()
 {
+    // Select only closed trade
+    std::vector<Trade> closed_trades = {};
+    for (const auto &trade : this->trades_history)
+    {
+        if (trade.closed)
+        {
+            closed_trades.push_back(trade);
+        }
+    }
+
     // Update the total trades
-    this->stats.total_trades = this->trades_history.size();
+    this->stats.total_trades = closed_trades.size();
 
     // Calcualte the number of long/short trades
-    this->stats.total_long_trades = std::count_if(this->trades_history.begin(), this->trades_history.end(), [](Trade trade)
+    this->stats.total_long_trades = std::count_if(closed_trades.begin(), closed_trades.end(), [](Trade trade)
                                                   { return trade.side == PositionSide::LONG; });
     this->stats.total_short_trades = this->stats.total_trades - this->stats.total_long_trades;
 
     // Update the stats of the trades
-    for (const auto &trade : this->trades_history)
+    for (const auto &trade : closed_trades)
     {
         if (trade.pnl >= 0)
         {
@@ -466,7 +499,7 @@ void Trader::calculate_stats()
     this->stats.max_drawdown = calculate_drawdown(this->balance_history);
 
     // Calculate the winrate
-    if (this->trades_history.size() > 0)
+    if (closed_trades.size() > 0)
     {
         this->stats.win_rate = static_cast<double>(this->stats.total_winning_trades) / static_cast<double>(this->trades_history.size());
     }
@@ -504,7 +537,7 @@ void Trader::calculate_stats()
     // Calculate the maximum profit
     if (this->stats.total_winning_trades > 0)
     {
-        this->stats.max_profit = (*std::max_element(this->trades_history.begin(), this->trades_history.end(), [](Trade a, Trade b)
+        this->stats.max_profit = (*std::max_element(closed_trades.begin(), closed_trades.end(), [](Trade a, Trade b)
                                                     { return a.pnl < b.pnl; }))
                                      .pnl;
     }
@@ -512,7 +545,7 @@ void Trader::calculate_stats()
     // Calculate the maximum loss
     if (this->stats.total_lost_trades > 0)
     {
-        this->stats.max_loss = (*std::min_element(this->trades_history.begin(), this->trades_history.end(), [](Trade a, Trade b)
+        this->stats.max_loss = (*std::min_element(closed_trades.begin(), closed_trades.end(), [](Trade a, Trade b)
                                                   { return a.pnl < b.pnl; }))
                                    .pnl;
     }
@@ -520,7 +553,7 @@ void Trader::calculate_stats()
     // Calculate the maximum consecutive winning trades
     this->stats.max_consecutive_winning_trades = 0;
     int current_consecutive_winning_trades = 0;
-    for (const auto &trade : this->trades_history)
+    for (const auto &trade : closed_trades)
     {
         if (trade.pnl >= 0)
         {
@@ -536,7 +569,7 @@ void Trader::calculate_stats()
     // Calculate the maximum consecutive lost trades
     this->stats.max_consecutive_lost_trades = 0;
     int current_consecutive_lost_trades = 0;
-    for (const auto &trade : this->trades_history)
+    for (const auto &trade : closed_trades)
     {
         if (trade.pnl < 0)
         {
@@ -552,7 +585,7 @@ void Trader::calculate_stats()
     // Calculate the maximum consecutive profit
     this->stats.max_consecutive_profit = 0;
     double current_consecutive_profit = 0;
-    for (const auto &trade : this->trades_history)
+    for (const auto &trade : closed_trades)
     {
         if (trade.pnl >= 0)
         {
@@ -568,7 +601,7 @@ void Trader::calculate_stats()
     // Calculate the maximum consecutive loss
     this->stats.max_consecutive_loss = 0;
     double current_consecutive_loss = 0;
-    for (const auto &trade : this->trades_history)
+    for (const auto &trade : closed_trades)
     {
         if (trade.pnl < 0)
         {
@@ -585,7 +618,7 @@ void Trader::calculate_stats()
     if (this->stats.total_trades > 0)
     {
         double total_duration = 0;
-        for (auto &trade : this->trades_history)
+        for (auto &trade : closed_trades)
         {
             total_duration += trade.duration;
         }
@@ -793,15 +826,23 @@ void Trader::open_position_by_market(double price, double size, OrderSide side)
     {
         this->stats.total_trades++;
         this->stats.total_long_trades++;
-        balance -= fees;
-
+        this->balance -= fees;
         this->duration_in_position = 0;
         this->current_position = new Position{
             .entry_date = this->current_date,
             .entry_price = price,
             .size = size,
             .side = PositionSide::LONG,
-            .pnl = 0.0};
+            .pnl = 0.0,
+        };
+        this->trades_history.push_back(Trade{
+            .side = PositionSide::LONG,
+            .entry_date = this->current_position->entry_date,
+            .entry_price = this->current_position->entry_price,
+            .size = this->current_position->size,
+            .fees = fees,
+            .closed = false,
+        });
 
         if (this->logger != nullptr)
         {
@@ -812,15 +853,23 @@ void Trader::open_position_by_market(double price, double size, OrderSide side)
     {
         this->stats.total_trades++;
         this->stats.total_short_trades++;
-        balance -= fees;
-
+        this->balance -= fees;
         this->duration_in_position = 0;
         this->current_position = new Position{
             .entry_date = this->current_date,
             .entry_price = price,
             .size = size,
             .side = PositionSide::SHORT,
-            .pnl = 0.0};
+            .pnl = 0.0,
+        };
+        this->trades_history.push_back(Trade{
+            .side = PositionSide::SHORT,
+            .entry_date = this->current_position->entry_date,
+            .entry_price = this->current_position->entry_price,
+            .size = this->current_position->size,
+            .fees = fees,
+            .closed = false,
+        });
 
         if (this->logger != nullptr)
         {
@@ -853,17 +902,13 @@ void Trader::close_position_by_market(double price)
         this->balance = std::max(0.0, this->balance + this->current_position->pnl - fees);
 
         // Create the trade in the history
-        this->trades_history.push_back(Trade{
-            .side = this->current_position->side,
-            .entry_date = this->current_position->entry_date,
-            .exit_date = this->current_date,
-            .entry_price = this->current_position->entry_price,
-            .exit_price = price,
-            .pnl = this->current_position->pnl,
-            .pnl_percent = this->current_position->pnl / this->balance,
-            .size = this->current_position->size,
-            .fees = fees,
-            .duration = this->duration_in_position});
+        this->trades_history.back().exit_date = this->current_date;
+        this->trades_history.back().exit_price = price;
+        this->trades_history.back().duration = duration_in_position;
+        this->trades_history.back().pnl = this->current_position->pnl;
+        this->trades_history.back().pnl_percent = this->current_position->pnl / this->balance;
+        this->trades_history.back().fees += fees;
+        this->trades_history.back().closed = true;
 
         if (this->logger != nullptr)
         {
@@ -897,18 +942,13 @@ void Trader::close_position_by_limit(double price)
         double fees = calculate_commission(this->symbol_info.commission_per_lot, this->current_position->size, this->current_base_currency_conversion_rate);
         this->balance = std::max(0.0, this->balance + this->current_position->pnl - fees);
 
-        // Create the trade in the history
-        this->trades_history.push_back(Trade{
-            .side = this->current_position->side,
-            .entry_date = this->current_position->entry_date,
-            .exit_date = this->current_date,
-            .entry_price = this->current_position->entry_price,
-            .exit_price = price,
-            .pnl = this->current_position->pnl,
-            .pnl_percent = this->current_position->pnl / this->balance,
-            .size = this->current_position->size,
-            .fees = fees,
-            .duration = this->duration_in_position});
+        this->trades_history.back().exit_date = this->current_date;
+        this->trades_history.back().exit_price = price;
+        this->trades_history.back().duration = duration_in_position;
+        this->trades_history.back().pnl = this->current_position->pnl;
+        this->trades_history.back().pnl_percent = this->current_position->pnl / this->balance;
+        this->trades_history.back().fees += fees;
+        this->trades_history.back().closed = true;
 
         if (this->logger != nullptr)
         {
@@ -973,7 +1013,7 @@ void Trader::check_open_orders()
             {
                 for (int i = 0; i < short_orders.size(); i++)
                 {
-                    if (last_candle.high >= short_orders[i].price)
+                    if (last_candle.high >= short_orders[i].price && last_candle.low <= short_orders[i].price)
                     {
                         if (short_orders[i].type == OrderType::TAKE_PROFIT)
                         {
@@ -990,7 +1030,7 @@ void Trader::check_open_orders()
             {
                 for (int i = 0; i < long_orders.size(); i++)
                 {
-                    if (last_candle.low >= long_orders[i].price)
+                    if (last_candle.high >= long_orders[i].price && last_candle.low <= long_orders[i].price)
                     {
                         if (long_orders[i].type == OrderType::TAKE_PROFIT)
                         {
@@ -1438,9 +1478,19 @@ void Trader::generate_report(const std::string &filename)
     labels += "\"" + time_t_to_string(this->config.training.training_start_date) + "\",";
     lineData += std::to_string(balance) + ",";
 
-    for (int i = 0; i < this->trades_history.size(); ++i)
+    // Select only closed trade
+    std::vector<Trade> closed_trades = {};
+    for (const auto &trade : this->trades_history)
     {
-        Trade trade = this->trades_history[i];
+        if (trade.closed)
+        {
+            closed_trades.push_back(trade);
+        }
+    }
+
+    // Create the data for the chart
+    for (const auto &trade : closed_trades)
+    {
         balance += trade.pnl - trade.fees;
         labels += "\"" + time_t_to_string(trade.exit_date) + "\",";
         lineData += std::to_string(balance) + ",";

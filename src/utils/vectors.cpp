@@ -101,10 +101,17 @@ std::vector<double> normalize_vectors(const std::vector<double> &vector, std::pa
         current_range = std::make_pair(*minmax.first, *minmax.second);
     }
 
-    std::vector<double> normalized_vector(vector.size());
+    std::vector<double> normalized_vector(vector.size(), 0.0);
     for (size_t i = 0; i < vector.size(); ++i)
     {
-        normalized_vector[i] = new_range.first + (vector[i] - current_range.first) * (new_range.second - new_range.first) / (current_range.second - current_range.first);
+        if (current_range.first == current_range.second)
+        {
+            normalized_vector[i] = new_range.first;
+        }
+        else
+        {
+            normalized_vector[i] = new_range.first + (vector[i] - current_range.first) * (new_range.second - new_range.first) / (current_range.second - current_range.first);
+        }
     }
     return normalized_vector;
 }

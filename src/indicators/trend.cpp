@@ -113,7 +113,7 @@ std::vector<double> ADX::calculate_directional_index(const std::vector<double> &
     std::vector<double> di_values;
     for (size_t i = 0; i < smoothed_dm.size(); ++i)
     {
-        double di = (smoothed_dm[i] / smoothed_tr[i]) * 100.0;
+        double di = smoothed_tr[i] != 0 ? (smoothed_dm[i] / smoothed_tr[i]) * 100.0 : 0.0;
         di_values.push_back(di);
     }
     return di_values;
@@ -131,7 +131,7 @@ std::vector<double> ADX::calculate_dx(const std::vector<double> &di_plus, const 
     std::vector<double> dx_values;
     for (size_t i = 0; i < di_plus.size(); ++i)
     {
-        double dx = (std::abs(di_plus[i] - di_minus[i]) / (di_plus[i] + di_minus[i])) * 100.0;
+        double dx = di_plus[i] + di_minus[i] != 0 ? (std::abs(di_plus[i] - di_minus[i]) / (di_plus[i] + di_minus[i])) * 100.0 : 0.0;
         dx_values.push_back(dx);
     }
     return dx_values;
@@ -316,7 +316,7 @@ std::vector<double> CCI::calculate(const std::vector<Candle> &candles, bool norm
                 double typical_price = typical_prices[i];
                 double sma = sma_values[i];
                 double mean_deviation = mean_deviation_values[i];
-                double cci = (typical_price - sma) / (0.015 * mean_deviation);
+                double cci = mean_deviation != 0.0 ? (typical_price - sma) / (0.015 * mean_deviation) : 0.0;
                 cci_values[i] = cci;
             } 
             
@@ -614,7 +614,7 @@ std::vector<double> MI::calculate(const std::vector<Candle> &candles, bool norma
             ratio.reserve(candles.size());
 
             for (size_t i = 0; i < candles.size(); ++i) {
-                ratio.push_back(single_ema[i] / double_ema[i]);
+                ratio.push_back(double_ema[i] > 0 ? single_ema[i] / double_ema[i] : 0.0);
             }
 
             std::vector<double> mass_index;
@@ -789,7 +789,7 @@ std::vector<double> STC::calculate(const std::vector<Candle> &candles, bool norm
             // Calculate Schaff Trend Cycle (STC)
             std::vector<double> stc_values(candles.size(), 0.0);
             for (size_t i = 0; i < candles.size(); ++i) {
-                double stc = 100.0 * (macd_values[i] - k_values[i]) / (d_values[i] - k_values[i]);
+                double stc = d_values[i] - k_values[i] != 0 ? 100.0 * (macd_values[i] - k_values[i]) / (d_values[i] - k_values[i]) : 0.0;
                 stc_values[i] = stc;
             }
 
@@ -859,7 +859,7 @@ std::vector<double> TRIX::calculate(const std::vector<Candle> &candles, bool nor
 
                 // Calculate TRIX values
                 for (size_t i = period * 3 - 1; i < closes.size(); ++i) {
-                    trix[i] = (ema3[i] - ema3[i - 1]) / ema3[i - 1] * 100.0;
+                    trix[i] = ema3[i - 1] > 0 ? (ema3[i] - ema3[i - 1]) / ema3[i - 1] * 100.0 : 0.0;
                 }
 
                 return trix; },

@@ -67,6 +67,14 @@ std::vector<double> Indicator::calculate(const std::vector<Candle> &candles, std
         values = normalize_vectors(values);
     }
 
+    // Check that there isn't nan values
+    if (std::any_of(values.begin(), values.end(), [](double value)
+                    { return std::isnan(value); }))
+    {
+        std::cerr << "There are nan values in the indicator: " << id << std::endl;
+        std::exit(1);
+    }
+
     return values;
 }
 

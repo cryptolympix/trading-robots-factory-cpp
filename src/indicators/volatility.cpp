@@ -246,7 +246,7 @@ std::vector<double> BollingerChannelPercentageBand::calculate(const std::vector<
                 double upper_band = (sma_values[i] + (multiplier * std_dev_values[i]));
                 double lower_band = (sma_values[i] - (multiplier * std_dev_values[i]));
 
-                bollinger_channel_percentage_band_values[i] = (closes[i] - lower_band) / (upper_band - lower_band);
+                bollinger_channel_percentage_band_values[i] = (upper_band - lower_band) > 0 ? (closes[i] - lower_band) / (upper_band - lower_band) : 0.0;
             }
 
             return bollinger_channel_percentage_band_values; },
@@ -293,7 +293,7 @@ std::vector<double> BollingerChannelWidthBand::calculate(const std::vector<Candl
                 double upper_band = (sma_values[i] + (multiplier * std_dev_values[i]));
                 double lower_band = (sma_values[i] - (multiplier * std_dev_values[i]));
 
-                bollinger_channel_width_band_values[i] = (upper_band - lower_band) / middle_band;
+                bollinger_channel_width_band_values[i] = middle_band > 0 ? (upper_band - lower_band) / middle_band : 0.0;
             }
 
             return bollinger_channel_width_band_values; },

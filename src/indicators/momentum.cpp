@@ -283,7 +283,7 @@ std::vector<double> PPO::calculate(const std::vector<Candle> &candles, bool norm
 
             for (size_t i = 0; i < candles.size(); ++i)
             {
-                double ppo = (ema_diff[i] / long_ema[i]) * 100.0;
+                double ppo = long_ema[i] != 0 ? (ema_diff[i] / long_ema[i]) * 100.0 : 0.0;
                 ppo_values[i] = ppo; // Assign values to the appropriate index in the result vector
             }
 
@@ -450,6 +450,9 @@ std::vector<double> RSI::calculate(const std::vector<Candle> &candles, bool norm
                 double diff = closes[i] - closes[i - 1];
                 double gain = (diff > 0) ? diff : 0;
                 double loss = (diff < 0) ? std::abs(diff) : 0;
+                if (period == 0) {
+                    continue; // Avoid division by zero
+                }
                 avg_gain = (avg_gain * (period - 1) + gain) / period;
                 avg_loss = (avg_loss * (period - 1) + loss) / period;
                 rs = (avg_loss != 0) ? (avg_gain / avg_loss) : 0;

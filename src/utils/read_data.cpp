@@ -87,11 +87,11 @@ std::vector<Candle> read_data(const std::string &symbol, TimeFrame time_frame, t
         std::getline(ss, token, '\t'); // CLOSE
         candle.close = std::stod(token);
         std::getline(ss, token, '\t'); // TICK_VOLUME
-        candle.tick_volume = std::stoi(token);
+        candle.tick_volume = std::stod(token);
         std::getline(ss, token, '\t'); // VOLUME
-        candle.volume = std::stoi(token);
+        candle.volume = std::stod(token);
         std::getline(ss, token, '\t'); // SPREAD
-        candle.spread = std::stoi(token);
+        candle.spread = std::stod(token);
 
         // Filter candles by date
         time_t candle_date = candle.date;
