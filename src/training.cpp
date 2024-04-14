@@ -56,6 +56,16 @@ Training::Training(std::string id, Config &config, bool debug)
  */
 void Training::prepare()
 {
+    std::vector<TimeFrame> all_timeframes = this->get_all_timeframes();
+    TimeFrame loop_fimeframes = this->config.strategy.timeframe;
+
+    // Check if the loop timeframe is in the list of timeframes
+    if (std::find(all_timeframes.begin(), all_timeframes.end(), loop_fimeframes) == all_timeframes.end())
+    {
+        std::cerr << "Error: the loop timeframe must be in the list of timeframes used for the indicators." << std::endl;
+        std::exit(1);
+    }
+
     if (std::filesystem::exists(this->cache_file))
     {
         std::cout << "⏳ Import the data from the cache..." << std::endl;
@@ -66,7 +76,7 @@ void Training::prepare()
     {
         // Progress bar
         std::cout << "⏳ Load the candles..." << std::endl;
-        int total_iter1 = this->get_all_timeframes().size();
+        int total_iter1 = all_timeframes.size();
         ProgressBar *progress_bar1 = new ProgressBar(100, total_iter1);
         this->load_candles(progress_bar1);
         std::cout << "✅ Candles loaded!" << std::endl;

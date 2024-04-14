@@ -1026,6 +1026,47 @@ TEST_F(TraderTest, CalculateStatsAverageTradeDuration)
     ASSERT_EQ(trader->stats.average_trade_duration, 20.0 / 8.0);
 }
 
+TEST_F(TraderTest, CalculateStatsMonthlyReturns)
+{
+    std::tm first_month = {
+        .tm_year = 2023 - 1900,
+        .tm_mon = 0,
+        .tm_mday = 1,
+        .tm_hour = 0,
+        .tm_min = 0,
+        .tm_sec = 0};
+    std::tm second_month = {
+        .tm_year = 2023 - 1900,
+        .tm_mon = 1,
+        .tm_mday = 1,
+        .tm_hour = 0,
+        .tm_min = 0,
+        .tm_sec = 0};
+    std::tm third_month = {
+        .tm_year = 2023 - 1900,
+        .tm_mon = 2,
+        .tm_mday = 1,
+        .tm_hour = 0,
+        .tm_min = 0,
+        .tm_sec = 0};
+
+    // Mock data for testing
+    trader->trades_history = {
+        {.pnl_percent = 0.1, .closed = true, .exit_date = std::mktime(&first_month)},
+        {.pnl_percent = -0.1, .closed = true, .exit_date = std::mktime(&second_month)},
+        {.pnl_percent = 0.0, .closed = true, .exit_date = std::mktime(&third_month)},
+    };
+
+    // Call the calculate_stats method
+    trader->calculate_stats();
+
+    // Check if stats are updated correctly
+    ASSERT_EQ(trader->stats.monthly_returns.size(), 3);
+    ASSERT_EQ(trader->stats.monthly_returns["2023-01"], 0.1);
+    ASSERT_EQ(trader->stats.monthly_returns["2023-02"], -0.1);
+    ASSERT_EQ(trader->stats.monthly_returns["2023-03"], 0.0);
+}
+
 TEST_F(TraderTest, CalculateStatsSharpeRatio)
 {
 }

@@ -625,6 +625,20 @@ void Trader::calculate_stats()
         this->stats.average_trade_duration = total_duration / static_cast<double>(this->stats.total_trades);
     }
 
+    // Calculate the monthly returns
+    for (const auto &trade : closed_trades)
+    {
+        std::tm *exit_date = std::localtime(&trade.exit_date);
+        double trade_return = trade.pnl_percent;
+        std::stringstream date_key;
+        date_key << std::put_time(exit_date, "%Y-%m");
+        if (this->stats.monthly_returns.find(date_key.str()) == this->stats.monthly_returns.end())
+        {
+            this->stats.monthly_returns[date_key.str()] = 0;
+        }
+        this->stats.monthly_returns[date_key.str()] += trade_return;
+    }
+
     // Calculate the sharpe ratio
     this->stats.sharpe_ratio = 0;
 
@@ -1242,7 +1256,7 @@ void Trader::generate_report(const std::string &filename)
             padding: 0px 10px;
             min-width: 100px;
         }
-        .report {
+        #report {
             display: flex;
             flex-direction: row;
             justify-content: center;
@@ -1251,32 +1265,37 @@ void Trader::generate_report(const std::string &filename)
             width: max-content;
             margin: 50px auto;
         }
-        .report-frame {
+        #report .report-frame {
             display: block;
             margin: 10px;
             padding: 15px;
             max-width: 600px;
         }
-        #chart {
+        #balance_history {
             padding: auto;
-            margin: auto;
+            margin: 30px auto;
             width: 1200px;
         }
-        #historic {
+        #monthly_returns {
+            padding: auto;
+            margin: 30px auto;
+            width: 1200px;
+        }
+        #trade_history {
             text-align: left;
             width: auto;
             margin: auto;
             border-collapse: collapse;
         }
-        #historic th {
+        #trade_history th {
             padding: 10px;
             min-width: 65px;
             border: solid 1px #BBB;
         }
-        #historic tbody th {
+        #trade_history tbody th {
             font-weight: 200;
         }
-        #historic td {
+        #trade_history td {
             padding: 10px;
             border: solid 1px #BBB;
         }
@@ -1287,7 +1306,7 @@ void Trader::generate_report(const std::string &filename)
     <h3>)"
          << this->config.general.name + " " + this->config.general.version << R"(</h3>
 
-    <div class="report">
+    <div id="report">
         <div class="report-frame">
             <table>
                 <tr>
@@ -1413,10 +1432,11 @@ void Trader::generate_report(const std::string &filename)
         </div>
     </div>
 
-    <canvas id="chart"></canvas>
+    <canvas id="balance_history"></canvas>
+    <canvas id="monthly_returns"></canvas>
 
     <h2>Trades</h2>
-        <table id="historic">
+        <table id="trade_history">
           <thead>
             <tr>
               <th>#</th>
@@ -1471,12 +1491,14 @@ void Trader::generate_report(const std::string &filename)
         </tr>)";
     }
 
-    std::string labels = "";
-    std::string lineData = "";
+    std::string balance_history_labels = "";
+    std::string balance_history_data = "";
+    std::string monthly_returns_labels = "";
+    std::string monthly_returns_data = "";
 
     balance = this->stats.initial_balance;
-    labels += "\"" + time_t_to_string(this->config.training.training_start_date) + "\",";
-    lineData += std::to_string(balance) + ",";
+    balance_history_labels += "\"" + time_t_to_string(this->config.training.training_start_date) + "\",";
+    balance_history_data += std::to_string(balance) + ",";
 
     // Select only closed trade
     std::vector<Trade> closed_trades = {};
@@ -1488,69 +1510,111 @@ void Trader::generate_report(const std::string &filename)
         }
     }
 
-    // Create the data for the chart
+    // Create the data for the balance history line chart
     for (const auto &trade : closed_trades)
     {
         balance += trade.pnl - trade.fees;
-        labels += "\"" + time_t_to_string(trade.exit_date) + "\",";
-        lineData += std::to_string(balance) + ",";
+        balance_history_labels += "\"" + time_t_to_string(trade.exit_date) + "\",";
+        balance_history_data += std::to_string(balance) + ",";
+    }
+
+    // Create the data for the monthly returns bar chart
+    for (const auto &[monthly_returns_data_key, monthly_returns_data_value] : this->stats.monthly_returns)
+    {
+        monthly_returns_labels += "\"" + monthly_returns_data_key + "\",";
+        monthly_returns_data += std::to_string(monthly_returns_data_value) + ",";
     }
 
     file << R"(
         <script>
-            var ctx = document.getElementById('chart').getContext('2d');
-            const data = {
-            labels : [)"
-         << labels <<
+            var balance_history_ctx = document.getElementById('balance_history').getContext('2d');
+            var monthly_returns_ctx = document.getElementById('monthly_returns').getContext('2d');
+
+            const balance_history_data = {
+                labels : [)"
+         << balance_history_labels <<
         R"(],
-            datasets : [
-                {
+                datasets : [{
                     label : 'Balance',
                     data : [)"
-         << lineData <<
+         << balance_history_data <<
         R"(],
                     fill : false,
                     borderColor : '#007FFF',
                     tension : 0.1,
-                }
-            ],
-        };
+                }],
+            };
 
-        var config = {
-            type : 'line',
-            data : data,
-            options : {
-                pointRadius : 0,
-                scales: {
-                    x: {
-                        display: true,
-                    },
-                    y: {
-                        display: true,
-                        type: 'logarithmic',
-                    }
-                },
-                plugins : {
-                    title : {
-                        display : true,
-                        text : 'Balance history',
-                        font : {
-                            size : 32
+            const monthly_returns_data = {
+                labels : [)"
+         << monthly_returns_labels <<
+        R"(],
+                datasets: [{
+                    label: 'Monthly returns',
+                    data : [)"
+         << monthly_returns_data <<
+        R"(],
+                    borderWidth: 1,
+                }]
+            };
+
+            var balance_history_config = {
+                type : 'line',
+                data : balance_history_data,
+                options : {
+                    pointRadius : 0,
+                    scales: {
+                        x: {
+                            display: true,
+                        },
+                        y: {
+                            display: true,
+                            type: 'logarithmic',
                         }
                     },
-                    zoom : {
+                    plugins : {
+                        title : {
+                            display : true,
+                            text : 'Balance history',
+                            font : {
+                                size : 32
+                            }
+                        },
                         zoom : {
-                            wheel : {
-                                enabled : true,
-                            },
-                            mode : 'x',
+                            zoom : {
+                                wheel : {
+                                    enabled : true,
+                                },
+                                mode : 'x',
+                            }
                         }
                     }
                 }
-            }
-        };
+            };
 
-        chart = new Chart(ctx, config);
+            var monthly_returns_config = {
+                type : 'bar',
+                data : monthly_returns_data,
+                options : {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    plugins : {
+                        title : {
+                            display : true,
+                            text : 'Monthly returns',
+                            font : {
+                                size : 32
+                            }
+                        }
+                    },
+                },
+            };
+
+            balance_history_data = new Chart(balance_history_ctx, balance_history_config);
+            monthly_returns_data = new Chart(monthly_returns_ctx, monthly_returns_config);
         
         </script>
     </body>

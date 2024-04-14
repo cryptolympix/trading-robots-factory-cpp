@@ -21,32 +21,30 @@ TradingSchedule schedule = {
     .sunday = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false}};
 
 TakeProfitStopLossConfig tpsl_config = {
+    .type_take_profit = TypeTakeProfitStopLoss::PERCENT,
+    .take_profit_in_points = 300,
+    .take_profit_in_percent = 0.002,
     .type_stop_loss = TypeTakeProfitStopLoss::PERCENT,
     .stop_loss_in_points = 300,
     .stop_loss_in_percent = 0.001,
-    .type_take_profit = TypeTakeProfitStopLoss::PERCENT,
-    .take_profit_in_points = 300,
-    .take_profit_in_percent = 0.001};
+};
 
-// 2023-01-01 00:00:00
 std::tm start_training_date = {
-    .tm_year = 2022 - 1900,
+    .tm_year = 2023 - 1900,
     .tm_mon = 0,
     .tm_mday = 1,
     .tm_hour = 0,
     .tm_min = 0,
     .tm_sec = 0};
 
-// 2023-01-31 00:00:00
 std::tm end_training_date = {
-    .tm_year = 2022 - 1900,
-    .tm_mon = 4,
+    .tm_year = 2023 - 1900,
+    .tm_mon = 5,
     .tm_mday = 1,
     .tm_hour = 0,
     .tm_min = 0,
     .tm_sec = 0};
 
-// 2023-01-01 00:00:00
 std::tm start_test_date = {
     .tm_year = 2022 - 1900,
     .tm_mon = 0,
@@ -55,7 +53,6 @@ std::tm start_test_date = {
     .tm_min = 0,
     .tm_sec = 0};
 
-// 2023-01-31 00:00:00
 std::tm end_test_date = {
     .tm_year = 2022 - 1900,
     .tm_mon = 1,
@@ -73,8 +70,8 @@ Config test_config = {
         .account_currency = "USD",
         .leverage = 100},
     .strategy{
-        .timeframe = TimeFrame::M15,
-        .maximum_risk = 0.01,
+        .timeframe = TimeFrame::M5,
+        .maximum_risk = 0.05,
         .maximum_spread = 8,
         // .minimum_trade_duration = 0,
         // .maximum_trade_duration = 10,
@@ -92,44 +89,19 @@ Config test_config = {
         .test_end_date = std::mktime(&end_test_date),
         .inputs = {
             .indicators = {
-                {TimeFrame::M15, {
-                                     new Hour(),
-                                     new NFPWeek(),
-                                     new MarketSession("london"),
-                                     new MarketSession("new-york"),
-                                     new MarketSession("tokyo"),
-                                     new WeekDay("sunday"),
-                                     new WeekDay("monday"),
-                                     new WeekDay("tuesday"),
-                                     new WeekDay("wednesday"),
-                                     new WeekDay("thursday"),
-                                     new WeekDay("friday"),
-                                     new WeekDay("saturday"),
-                                     new CandlePriceChange(),
-                                     new CandleClose(),
-                                     new PeakDistance(20, 0),
-                                     new PeakCandleDistance(20, 0),
-                                     new NewHighSignal(20, 0),
-                                     new NewLowSignal(20, 0),
-                                     new HighBreakSignal(20, 0),
-                                     new LowBreakSignal(20, 0),
-                                     new MFI(),
-                                     new RSI(),
-                                     new StochasticOscillator(),
-                                     new InstitutionalBias(),
-                                     new EMADifference(),
-                                     new AroonTrend(),
-                                     new IchimokuCloudTrend(),
-                                     new IchimokuKijunTenkanTrend(),
-                                     new EMASlope(21, "close"),
-                                     new ATR(),
-                                     new StandardDeviation(),
-                                     new AveragePriceChange(),
-                                     new CMF(),
-                                     new OBV(),
-                                     new VWAP(),
-                                 }},
-                {TimeFrame::H1, {
+                {TimeFrame::M5, {
+                                    new Hour(),
+                                    new NFPWeek(),
+                                    new MarketSession("london"),
+                                    new MarketSession("new-york"),
+                                    new MarketSession("tokyo"),
+                                    new WeekDay("sunday"),
+                                    new WeekDay("monday"),
+                                    new WeekDay("tuesday"),
+                                    new WeekDay("wednesday"),
+                                    new WeekDay("thursday"),
+                                    new WeekDay("friday"),
+                                    new WeekDay("saturday"),
                                     new CandlePriceChange(),
                                     new CandleClose(),
                                     new PeakDistance(20, 0),
@@ -144,6 +116,7 @@ Config test_config = {
                                     new InstitutionalBias(),
                                     new EMADifference(),
                                     new AroonTrend(),
+                                    new MACD(),
                                     new IchimokuCloudTrend(),
                                     new IchimokuKijunTenkanTrend(),
                                     new EMASlope(21, "close"),
@@ -153,7 +126,33 @@ Config test_config = {
                                     new CMF(),
                                     new OBV(),
                                     new VWAP(),
-                                }}},
+                                }},
+                {TimeFrame::M30, {
+                                     new CandlePriceChange(),
+                                     new CandleClose(),
+                                     new PeakDistance(20, 0),
+                                     new PeakCandleDistance(20, 0),
+                                     new NewHighSignal(20, 0),
+                                     new NewLowSignal(20, 0),
+                                     new HighBreakSignal(20, 0),
+                                     new LowBreakSignal(20, 0),
+                                     new MFI(),
+                                     new RSI(),
+                                     new StochasticOscillator(),
+                                     new InstitutionalBias(),
+                                     new EMADifference(),
+                                     new AroonTrend(),
+                                     new MACD(),
+                                     new IchimokuCloudTrend(),
+                                     new IchimokuKijunTenkanTrend(),
+                                     new EMASlope(21, "close"),
+                                     new ATR(),
+                                     new StandardDeviation(),
+                                     new AveragePriceChange(),
+                                     new CMF(),
+                                     new OBV(),
+                                     new VWAP(),
+                                 }}},
             .position = {
                 PositionInfo::TYPE,
                 PositionInfo::PNL,
