@@ -9,7 +9,6 @@
 #include <chrono>
 #include "types.hpp"
 #include "utils/logger.hpp"
-#include "utils/cache.cpp"
 #include "utils/indexer.hpp"
 #include "utils/uid.hpp"
 #include "utils/read_data.hpp"
@@ -30,8 +29,7 @@
 Training::Training(std::string id, Config &config, bool debug)
     : id(id), config(config), debug(debug)
 {
-    this->directory = "cache/" + this->config.general.name + "/" + this->config.general.version + "/" + id;
-    this->cache_file = "cache/" + this->config.general.name + "/" + this->config.general.version + "/data.pkl";
+    this->directory = "reports/" + this->config.general.name + "/" + this->config.general.version + "/" + id;
 
     // Initialize the population.
     this->config.neat.num_inputs = this->count_indicators() + this->config.training.inputs.position.size();
@@ -66,39 +64,30 @@ void Training::prepare()
         std::exit(1);
     }
 
-    if (std::filesystem::exists(this->cache_file))
-    {
-        std::cout << "⏳ Import the data from the cache..." << std::endl;
-        cache = load_cached_dictionary<DatedCache>(this->cache_file);
-        std::cout << "✅ Cache ready!" << std::endl;
-    }
-    else
-    {
-        // Progress bar
-        std::cout << "⏳ Load the candles..." << std::endl;
-        int total_iter1 = all_timeframes.size();
-        ProgressBar *progress_bar1 = new ProgressBar(100, total_iter1);
-        this->load_candles(progress_bar1);
-        std::cout << "✅ Candles loaded!" << std::endl;
+    // Progress bar
+    std::cout << "⏳ Load the candles..." << std::endl;
+    int total_iter1 = all_timeframes.size();
+    ProgressBar *progress_bar1 = new ProgressBar(100, total_iter1);
+    this->load_candles(progress_bar1);
+    std::cout << "✅ Candles loaded!" << std::endl;
 
-        std::cout << "⏳ Load the indicators..." << std::endl;
-        int total_iter2 = this->count_indicators();
-        ProgressBar *progress_bar2 = new ProgressBar(100, total_iter2);
-        this->load_indicators(progress_bar2);
-        std::cout << "✅ Indicators loaded!" << std::endl;
+    std::cout << "⏳ Load the indicators..." << std::endl;
+    int total_iter2 = this->count_indicators();
+    ProgressBar *progress_bar2 = new ProgressBar(100, total_iter2);
+    this->load_indicators(progress_bar2);
+    std::cout << "✅ Indicators loaded!" << std::endl;
 
-        std::cout << "⏳ Load the base currency conversion rate..." << std::endl;
-        int total_iter3 = 1;
-        ProgressBar *progress_bar3 = new ProgressBar(100, total_iter3);
-        this->load_base_currency_conversion_rate(progress_bar3);
-        std::cout << "✅ Base currency conversion rate loaded!" << std::endl;
+    std::cout << "⏳ Load the base currency conversion rate..." << std::endl;
+    int total_iter3 = 1;
+    ProgressBar *progress_bar3 = new ProgressBar(100, total_iter3);
+    this->load_base_currency_conversion_rate(progress_bar3);
+    std::cout << "✅ Base currency conversion rate loaded!" << std::endl;
 
-        std::cout << "⏳ Cache the data..." << std::endl;
-        int total_iter4 = this->candles[this->config.strategy.timeframe].size();
-        ProgressBar *progress_bar4 = new ProgressBar(100, total_iter4);
-        this->cache_data(progress_bar4);
-        std::cout << "✅ Cache ready!" << std::endl;
-    }
+    std::cout << "⏳ Cache the data..." << std::endl;
+    int total_iter4 = this->candles[this->config.strategy.timeframe].size();
+    ProgressBar *progress_bar4 = new ProgressBar(100, total_iter4);
+    this->cache_data(progress_bar4);
+    std::cout << "✅ Cache ready!" << std::endl;
 }
 
 /**
@@ -274,15 +263,13 @@ void Training::cache_data(ProgressBar *progress_bar)
         }
 
         // Cache the data
-        cache[date_string] = DatedCache{.candles = current_candles, .indicators = current_indicators, .base_currency_conversion_rate = current_base_currency_conversion_rate};
+        cache[date_string] = CacheData{.candles = current_candles, .indicators = current_indicators, .base_currency_conversion_rate = current_base_currency_conversion_rate};
 
         if (progress_bar)
         {
             progress_bar->update(1);
         }
     }
-
-    cache_dictionary(cache, cache_file);
 
     if (progress_bar)
     {

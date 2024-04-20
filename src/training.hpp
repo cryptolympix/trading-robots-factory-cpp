@@ -2,7 +2,6 @@
 #define TRAINING_HPP
 
 #include "types.hpp"
-#include "utils/cache.hpp"
 #include "utils/indexer.hpp"
 #include "utils/uid.hpp"
 #include "utils/progress_bar.hpp"

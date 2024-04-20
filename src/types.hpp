@@ -53,7 +53,7 @@ using BaseCurrencyConversionRateData = std::unordered_map<time_t, double>;
 /**
  * @brief Struct representing cached data with date information.
  */
-struct DatedCache
+struct CacheData
 {
     CandlesData candles;                  // Cached candle data
     IndicatorsData indicators;            // Cached indicator data
@@ -63,7 +63,7 @@ struct DatedCache
 /**
  * @brief Alias for a cache of dated data.
  */
-using Cache = std::unordered_map<std::string, DatedCache>;
+using Cache = std::unordered_map<std::string, CacheData>;
 
 /**
  * @brief Enum for position side (LONG or SHORT).

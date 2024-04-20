@@ -1530,7 +1530,7 @@ void Trader::generate_report(const std::string &filename)
             var balance_history_ctx = document.getElementById('balance_history').getContext('2d');
             var monthly_returns_ctx = document.getElementById('monthly_returns').getContext('2d');
 
-            const balance_history_data = {
+            var balance_history_data = {
                 labels : [)"
          << balance_history_labels <<
         R"(],
@@ -1545,7 +1545,7 @@ void Trader::generate_report(const std::string &filename)
                 }],
             };
 
-            const monthly_returns_data = {
+            var monthly_returns_data = {
                 labels : [)"
          << monthly_returns_labels <<
         R"(],
