@@ -1207,11 +1207,25 @@ void Trader::generate_report(const std::string &filename)
         }
     }
 
+    // Select only closed trade
+    std::vector<Trade> closed_trades = {};
+    for (const auto &trade : this->trades_history)
+    {
+        if (trade.closed)
+        {
+            closed_trades.push_back(trade);
+        }
+    }
+
+    time_t start_date = closed_trades[0].entry_date;
+    time_t end_date = closed_trades.back().exit_date;
+
     // Open the file
     std::ofstream file(filename);
 
     // Write the HTML content using the provided template
-    file << R"(
+    file
+        << R"(
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1296,7 +1310,7 @@ void Trader::generate_report(const std::string &filename)
 <body>
     <h1>Strategy Report</h1>
     <h3>)"
-         << this->config.general.name + " " + this->config.general.version << R"(</h3>
+        << this->config.general.name + " " + this->config.general.version << R"(</h3>
 
     <div id="report">
         <div class="report-frame">
@@ -1304,62 +1318,62 @@ void Trader::generate_report(const std::string &filename)
                 <tr>
                     <td><b>Period:</b></td>
                     <td>)"
-         << time_t_to_string(this->config.training.training_start_date) + " to " + time_t_to_string(this->config.training.training_end_date) << R"(</td>
+        << time_t_to_string(start_date) + " to " + time_t_to_string(end_date) << R"(</td>
                 </tr>
                 <tr>
                     <td><b>Initial balance:</b></td>
                     <td>)"
-         << this->stats.initial_balance << R"(</td>
+        << this->stats.initial_balance << R"(</td>
                 </tr>
                 <tr>
                     <td><b>Final balance:</b></td>
                     <td>)"
-         << this->stats.final_balance << R"(</td>
+        << this->stats.final_balance << R"(</td>
                 </tr>
                 <tr>
                     <td><b>Performance:</b></td>
                     <td>)"
-         << decimal_floor(this->stats.performance * 100, 2) << "%" << R"(</td>
+        << decimal_floor(this->stats.performance * 100, 2) << "%" << R"(</td>
                 </tr>
                 <tr>
                     <td><b>Sharpe ratio:</b></td>
                     <td>)"
-         << decimal_floor(this->stats.sharpe_ratio, 2) << R"(</td>
+        << decimal_floor(this->stats.sharpe_ratio, 2) << R"(</td>
                 </tr>
                 <tr>
                     <td><b>Sortino ratio:</b></td>
                     <td>)"
-         << decimal_floor(this->stats.sortino_ratio, 2) << R"(</td>
+        << decimal_floor(this->stats.sortino_ratio, 2) << R"(</td>
                 </tr>
                 <tr>
                     <td><b>Total net profit:</b></td>
                     <td>)"
-         << this->stats.total_net_profit << R"(</td>
+        << this->stats.total_net_profit << R"(</td>
                 </tr>
                 <tr>
                     <td><b>Total profit:</b></td>
                     <td>)"
-         << this->stats.total_profit << R"(</td>
+        << this->stats.total_profit << R"(</td>
                 </tr>
                 <tr>
                     <td><b>Total loss:</b></td>
                     <td>)"
-         << this->stats.total_loss << R"(</td>
+        << this->stats.total_loss << R"(</td>
                 </tr>
                 <tr>
                     <td><b>Total fees:</b></td>
                     <td>)"
-         << this->stats.total_fees << R"(</td>
+        << this->stats.total_fees << R"(</td>
                 </tr>
                 <tr>
                     <td><b>Profit factor:</b></td>
                     <td>)"
-         << decimal_floor(this->stats.profit_factor, 2) << R"(</td>
+        << decimal_floor(this->stats.profit_factor, 2) << R"(</td>
                 </tr>
                 <tr>
                     <td><b>Max drawdown:</b></td>
                     <td>)"
-         << -decimal_floor(this->stats.max_drawdown * 100, 2) << "%" << R"(</td>
+        << -decimal_floor(this->stats.max_drawdown * 100, 2) << "%" << R"(</td>
                 </tr>
             </table>
         </div>
@@ -1368,57 +1382,57 @@ void Trader::generate_report(const std::string &filename)
                 <tr>
                     <td><b>Total trades:</b></td>
                     <td>)"
-         << this->stats.total_trades << R"(</td>
+        << this->stats.total_trades << R"(</td>
                 </tr>
                 <tr>
                     <td><b>Total win rate:</b></td>
                     <td>)"
-         << decimal_floor(this->stats.win_rate * 100, 2) << "%" << " (" << this->stats.total_winning_trades << "/" << this->stats.total_trades << ")" << R"(</td>
+        << decimal_floor(this->stats.win_rate * 100, 2) << "%" << " (" << this->stats.total_winning_trades << "/" << this->stats.total_trades << ")" << R"(</td>
                 </tr>
                 <tr>
                     <td><b>Long win rate:</b></td>
                     <td>)"
-         << decimal_floor(this->stats.long_win_rate * 100, 2) << "%" << " (" << this->stats.total_winning_long_trades << "/" << this->stats.total_long_trades << ")" << R"(</td>
+        << decimal_floor(this->stats.long_win_rate * 100, 2) << "%" << " (" << this->stats.total_winning_long_trades << "/" << this->stats.total_long_trades << ")" << R"(</td>
                 </tr>
                 <tr>
                     <td><b>Short win rate:</b></td>
                     <td>)"
-         << decimal_floor(this->stats.short_win_rate * 100, 2) << "%" << " (" << this->stats.total_winning_short_trades << "/" << this->stats.total_short_trades << ")" << R"(</td>
+        << decimal_floor(this->stats.short_win_rate * 100, 2) << "%" << " (" << this->stats.total_winning_short_trades << "/" << this->stats.total_short_trades << ")" << R"(</td>
                 </tr>
                 <tr>
                     <td><b>Max profit:</b></td>
                     <td>)"
-         << this->stats.max_profit << R"(</td>
+        << this->stats.max_profit << R"(</td>
                 </tr>
                 <tr>
                     <td><b>Max loss:</b></td>
                     <td>)"
-         << this->stats.max_loss << R"(</td>
+        << this->stats.max_loss << R"(</td>
                 </tr>
                 <tr>
                     <td><b>Max consecutive profit:</b></td>
                     <td>)"
-         << this->stats.max_consecutive_profit << R"(</td>
+        << this->stats.max_consecutive_profit << R"(</td>
                 </tr>
                 <tr>
                     <td><b>Max consecutive loss:</b></td>
                     <td>)"
-         << this->stats.max_consecutive_loss << R"(</td>
+        << this->stats.max_consecutive_loss << R"(</td>
                 </tr>
                 <tr>
                     <td><b>Max consecutive winning trades:</b></td>
                     <td>)"
-         << this->stats.max_consecutive_winning_trades << R"(</td>
+        << this->stats.max_consecutive_winning_trades << R"(</td>
                 </tr>
                 <tr>
                     <td><b>Max consecutive lost trades:</b></td>
                     <td>)"
-         << this->stats.max_consecutive_lost_trades << R"(</td>
+        << this->stats.max_consecutive_lost_trades << R"(</td>
                 </tr>
                 <tr>
                     <td><b>Average trade duration:</b></td>
                     <td>)"
-         << decimal_floor(this->stats.average_trade_duration, 2) << " candles" << R"(</td>
+        << decimal_floor(this->stats.average_trade_duration, 2) << " candles" << R"(</td>
                 </tr>
             </table>
         </div>
@@ -1489,18 +1503,8 @@ void Trader::generate_report(const std::string &filename)
     std::string monthly_returns_data = "";
 
     balance = this->stats.initial_balance;
-    balance_history_labels = "";
-    balance_history_data += "";
-
-    // Select only closed trade
-    std::vector<Trade> closed_trades = {};
-    for (const auto &trade : this->trades_history)
-    {
-        if (trade.closed)
-        {
-            closed_trades.push_back(trade);
-        }
-    }
+    balance_history_labels += "\"" + time_t_to_string(start_date) + "\",";
+    balance_history_data += std::to_string(balance) + ",";
 
     // Create the data for the balance history line chart
     for (const auto &trade : closed_trades)
