@@ -515,6 +515,10 @@ int Training::run_training()
 
             // The training of generation is finished
             std::cout << "✅ Training of generation " << generation << " finished!" << std::endl;
+
+            // Test the trader on a the new period
+            this->run_testing(best_trader);
+            std::cout << "🧪 Testing of the best trader of generation " << generation << " finished!" << std::endl;
         };
 
         std::cout << "🚀 Start the training..." << std::endl;
@@ -536,17 +540,11 @@ int Training::run_training()
 
 /**
  * @brief Run the testing process for the best trader.
+ * @param trader The trader to be tested.
  * @return The exit code of the testing process. 0 if successful, 1 otherwise.
  */
-int Training::run_testing()
+int Training::run_testing(Trader *trader)
 {
-    // Test the best trader on the test data
-    std::cout << "🚀 Start the testing for the best trader..." << std::endl;
-
-    // Get the best trader of all the training
-    Genome *best_genome = Genome::load(this->directory.generic_string() + "/training_trader_" + std::to_string(this->config.training.generations - 1) + "_" + this->best_trader->genome->id + "_genome_save.pkl");
-    Trader *best_trader = new Trader(best_genome, this->config, nullptr);
-
     // Get the dates for the test from the candles in the loop timeframe
     std::vector<time_t> dates = {};
     for (const auto &candle : this->candles[this->config.strategy.timeframe])
@@ -556,9 +554,6 @@ int Training::run_testing()
             dates.push_back(candle.date);
         }
     }
-
-    // Init the progress bar
-    ProgressBar *progress_bar = new ProgressBar(100, dates.size());
 
     // Loop through the dates and update the trader
     for (const auto &date : dates)
@@ -576,37 +571,29 @@ int Training::run_testing()
             std::vector<PositionInfo> position = this->config.training.inputs.position;
 
             // Update the individual
-            if (!best_trader->dead)
+            if (!trader->dead)
             {
-                best_trader->look(current_candles, current_indicators, current_base_currency_conversion_rate, position);
-                best_trader->think();
-                best_trader->update();
+                trader->look(current_candles, current_indicators, current_base_currency_conversion_rate, position);
+                trader->think();
+                trader->update();
             }
             else
             {
                 break;
             }
-
-            // Update the progress bar
-            progress_bar->update(1);
         }
     }
 
     // Calculate the stats of the trader
-    best_trader->calculate_stats();
+    trader->calculate_stats();
 
     // Generate the report
-    std::string report_file = this->directory.generic_string() + "/testing_trader_" + best_trader->genome->id + "_report.html";
-    best_trader->generate_report(report_file);
-    std::cout << "📊 Trader report generated!" << std::endl;
+    std::string report_file = this->directory.generic_string() + "/testing_trader_" + trader->genome->id + "_report.html";
+    trader->generate_report(report_file);
 
     // Generate the balance history graph
-    std::string graphic_file = this->directory.generic_string() + "/testing_trader_" + best_trader->genome->id + "_balance_history.png";
-    best_trader->generate_balance_history_graph(graphic_file);
-    std::cout << "📈 Balance history graph generated!" << std::endl;
-
-    progress_bar->complete();
-    std::cout << "🎉 Testing finished!" << std::endl;
+    std::string graphic_file = this->directory.generic_string() + "/testing_trader_" + trader->genome->id + "_balance_history.png";
+    trader->generate_balance_history_graph(graphic_file);
 
     return 0;
 }

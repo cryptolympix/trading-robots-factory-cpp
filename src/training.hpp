@@ -126,9 +126,10 @@ public:
 
     /**
      * @brief Run the testing process for the best trader.
+     * @param trader The trader to be tested.
      * @return The exit code of the testing process. 0 if successful, 1 otherwise.
      */
-    int run_testing();
+    int run_testing(Trader *trader);
 };
 
 #endif // TRAINING_HPP

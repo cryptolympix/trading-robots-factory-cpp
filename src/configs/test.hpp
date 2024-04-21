@@ -80,7 +80,7 @@ Config test_config = {
         .trading_schedule = schedule,
         .take_profit_stop_loss_config = tpsl_config},
     .training{
-        .generations = 1,
+        .generations = 100,
         .bad_trader_threshold = 0.01,
         .inactive_trader_threshold = 500,
         .training_start_date = std::mktime(&start_training_date),
