@@ -287,7 +287,7 @@ TEST_F(TrainingTest, BestTraders)
     ASSERT_EQ(training->get_best_trader_of_generation(0), new_best_trader);
 }
 
-TEST_F(TrainingTest, RunTraining)
+TEST_F(TrainingTest, Run)
 {
     training->load_candles();
     training->load_indicators();
@@ -296,7 +296,7 @@ TEST_F(TrainingTest, RunTraining)
 
     for (int i = 0; i < 10; ++i)
     {
-        int result = training->run_training();
+        int result = training->run();
 
         // Asserts that the training went well
         ASSERT_EQ(result, 0);

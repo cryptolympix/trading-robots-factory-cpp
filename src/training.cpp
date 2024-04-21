@@ -474,7 +474,7 @@ void Training::evaluate_genome(Genome *genome, int generation)
 /**
  * @brief Run the NEAT algorithm for training.
  */
-int Training::run_training()
+int Training::run()
 {
     int nb_generations = this->config.training.generations;
 
@@ -517,7 +517,7 @@ int Training::run_training()
             std::cout << "✅ Training of generation " << generation << " finished!" << std::endl;
 
             // Test the trader on a the new period
-            this->run_testing(best_trader);
+            this->test(best_trader);
             std::cout << "🧪 Testing of the best trader of generation " << generation << " finished!" << std::endl;
         };
 
@@ -543,7 +543,7 @@ int Training::run_training()
  * @param trader The trader to be tested.
  * @return The exit code of the testing process. 0 if successful, 1 otherwise.
  */
-int Training::run_testing(Trader *trader)
+int Training::test(Trader *trader)
 {
     // Get the dates for the test from the candles in the loop timeframe
     std::vector<time_t> dates = {};

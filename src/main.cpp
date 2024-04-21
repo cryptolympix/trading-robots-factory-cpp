@@ -13,7 +13,6 @@ int main()
 
     Training training(id, test_config, true);
     training.prepare();
-    training.run_training();
-    training.run_testing();
+    training.run();
     return 0;
 }

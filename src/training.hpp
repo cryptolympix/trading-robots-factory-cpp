@@ -122,14 +122,14 @@ public:
      * @brief Run the NEAT algorithm for training.
      * @return The exit code of the training process. 0 if successful, 1 otherwise.
      */
-    int run_training();
+    int run();
 
     /**
      * @brief Run the testing process for the best trader.
      * @param trader The trader to be tested.
      * @return The exit code of the testing process. 0 if successful, 1 otherwise.
      */
-    int run_testing(Trader *trader);
+    int test(Trader *trader);
 };
 
 #endif // TRAINING_HPP
