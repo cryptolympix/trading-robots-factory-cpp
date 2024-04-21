@@ -245,11 +245,16 @@ std::vector<double> CandleBody::calculate(const std::vector<Candle> &candles, bo
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
-            std::vector<double> values;
+            // Initialize values vector with size of candles
+            std::vector<double> values(candles.size(), 0);
+
             for (int i = 0; i < candles.size(); ++i)
             {
-                // Calculate the ratio of body to the entire candle
-                values.push_back(std::abs(candles[i].close - candles[i].open) / (candles[i].high - candles[i].low));
+                if (candles[i].high != candles[i].low)
+                {
+                    // Calculate the ratio of body to the entire candle
+                    values[i] = std::abs(candles[i].close - candles[i].open) / (candles[i].high - candles[i].low);
+                }
             }
             return values; },
 
@@ -277,11 +282,16 @@ std::vector<double> CandleShadowUpper::calculate(const std::vector<Candle> &cand
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
-            std::vector<double> values;
+            // Initialize values vector with size of candles
+            std::vector<double> values(candles.size(), 0);
+
             for (int i = 0; i < candles.size(); ++i)
             {
-                // Calculate the ratio of upper shadow to the entire candle
-                values.push_back((candles[i].high - std::max(candles[i].open, candles[i].close)) / (candles[i].high - candles[i].low));
+                if (candles[i].high != candles[i].low)
+                {
+                    // Calculate the ratio of upper shadow to the entire candle
+                    values.push_back((candles[i].high - std::max(candles[i].open, candles[i].close)) / (candles[i].high - candles[i].low)); 
+                }
             }
             return values; },
 
@@ -312,8 +322,11 @@ std::vector<double> CandleShadowLower::calculate(const std::vector<Candle> &cand
             std::vector<double> values;
             for (int i = 0; i < candles.size(); ++i)
             {
-                // Calculate the ratio of lower shadow to the entire candle
-                values.push_back((std::min(candles[i].open, candles[i].close) - candles[i].low) / (candles[i].high - candles[i].low));
+                if (candles[i].high != candles[i].low)
+                {
+                    // Calculate the ratio of lower shadow to the entire candle
+                    values.push_back((std::min(candles[i].open, candles[i].close) - candles[i].low) / (candles[i].high - candles[i].low));
+                }
             }
             return values; },
 

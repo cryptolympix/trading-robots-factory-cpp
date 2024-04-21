@@ -66,9 +66,8 @@ public:
 
     /**
      * @brief Update the trader according to the outputs from the neural network.
-     * @param current_date Current date.
      */
-    void update(time_t current_date);
+    void update();
 
     /**
      * @brief Calculate the fitness of the trader.

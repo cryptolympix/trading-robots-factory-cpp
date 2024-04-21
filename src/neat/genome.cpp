@@ -657,7 +657,6 @@ void Genome::save(const std::string &file_path)
     {
         file.write(reinterpret_cast<const char *>(this), sizeof(*this));
         file.close();
-        std::cout << "Genome saved to '" << file_path << "'" << std::endl;
     }
     else
     {
@@ -674,7 +673,6 @@ Genome *Genome::load(const std::string &file_path)
     {
         file.read(reinterpret_cast<char *>(loadedGenome), sizeof(*loadedGenome));
         file.close();
-        std::cout << "Genome loaded from '" << file_path << "'" << std::endl;
     }
     else
     {

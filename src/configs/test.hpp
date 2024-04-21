@@ -39,23 +39,23 @@ std::tm start_training_date = {
 
 std::tm end_training_date = {
     .tm_year = 2023 - 1900,
-    .tm_mon = 3,
+    .tm_mon = 9,
     .tm_mday = 1,
     .tm_hour = 0,
     .tm_min = 0,
     .tm_sec = 0};
 
 std::tm start_test_date = {
-    .tm_year = 2022 - 1900,
-    .tm_mon = 0,
+    .tm_year = 2023 - 1900,
+    .tm_mon = 9,
     .tm_mday = 1,
     .tm_hour = 0,
     .tm_min = 0,
     .tm_sec = 0};
 
 std::tm end_test_date = {
-    .tm_year = 2022 - 1900,
-    .tm_mon = 1,
+    .tm_year = 2023 - 1900,
+    .tm_mon = 11,
     .tm_mday = 1,
     .tm_hour = 0,
     .tm_min = 0,
@@ -80,7 +80,7 @@ Config test_config = {
         .trading_schedule = schedule,
         .take_profit_stop_loss_config = tpsl_config},
     .training{
-        .generations = 500,
+        .generations = 1,
         .bad_trader_threshold = 0.01,
         .inactive_trader_threshold = 500,
         .training_start_date = std::mktime(&start_training_date),

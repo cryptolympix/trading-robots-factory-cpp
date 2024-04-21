@@ -64,6 +64,27 @@ void Training::prepare()
         std::exit(1);
     }
 
+    // Check that that the training end date is after the training start date
+    if (this->config.training.training_end_date <= this->config.training.training_start_date)
+    {
+        std::cerr << "Error: the training end date must be after the training start date." << std::endl;
+        std::exit(1);
+    }
+
+    // Check that the training start date is before the test start date
+    if (this->config.training.training_start_date >= this->config.training.test_start_date)
+    {
+        std::cerr << "Error: the training period must be before the test period." << std::endl;
+        std::exit(1);
+    }
+
+    // Check that the test end date is after the test start date
+    if (this->config.training.test_end_date <= this->config.training.test_start_date)
+    {
+        std::cerr << "Error: the test end date must be after the test start date." << std::endl;
+        std::exit(1);
+    }
+
     // Progress bar
     std::cout << "⏳ Load the candles..." << std::endl;
     int total_iter1 = all_timeframes.size();
@@ -101,7 +122,7 @@ void Training::load_candles(ProgressBar *progress_bar)
     {
         TimeFrame tf = all_timeframes[i];
         time_t start_date = this->config.training.training_start_date;
-        time_t end_date = this->config.training.training_end_date;
+        time_t end_date = this->config.training.test_end_date;
         candles[tf] = read_data(config.general.symbol, tf, start_date, end_date);
         if (progress_bar)
         {
@@ -393,11 +414,14 @@ void Training::evaluate_genome(Genome *genome, int generation)
     Logger *logger = new Logger(this->directory.generic_string() + "/logs/trader_" + genome->id + ".log");
     Trader *trader = new Trader(genome, this->config, logger);
 
-    // Get the dates from the candles in the loop timeframe
+    // Get the dates for the training from the candles in the loop timeframe
     std::vector<time_t> dates = {};
     for (const auto &candle : this->candles[loop_timeframe])
     {
-        dates.push_back(candle.date);
+        if (candle.date >= this->config.training.training_start_date && candle.date <= this->config.training.training_end_date)
+        {
+            dates.push_back(candle.date);
+        }
     }
 
     // Loop through the dates and update the trader
@@ -420,7 +444,7 @@ void Training::evaluate_genome(Genome *genome, int generation)
             {
                 trader->look(current_candles, current_indicators, current_base_currency_conversion_rate, position);
                 trader->think();
-                trader->update(date);
+                trader->update();
             }
             else
             {
@@ -450,7 +474,7 @@ void Training::evaluate_genome(Genome *genome, int generation)
 /**
  * @brief Run the NEAT algorithm for training.
  */
-int Training::run()
+int Training::run_training()
 {
     int nb_generations = this->config.training.generations;
 
@@ -479,11 +503,13 @@ int Training::run()
             std::cout << "==================================================================" << std::endl;
 
             // Save the best trader info of the generation
-            std::string genome_save_file = this->directory.generic_string() + "/trader_" + std::to_string(generation) + "_" + best_trader->genome->id + "_genome_save.pkl";
-            std::string graphic_file = this->directory.generic_string() + "/trader_" + std::to_string(generation) + "_" + best_trader->genome->id + "_balance_history.png";
-            std::string report_file = this->directory.generic_string() + "/trader_" + std::to_string(generation) + "_" + best_trader->genome->id + "_report.html";
+            std::string genome_save_file = this->directory.generic_string() + "/training_trader_" + std::to_string(generation) + "_" + best_trader->genome->id + "_genome_save.pkl";
+            std::string graphic_file = this->directory.generic_string() + "/training_trader_" + std::to_string(generation) + "_" + best_trader->genome->id + "_balance_history.png";
+            std::string report_file = this->directory.generic_string() + "/training_trader_" + std::to_string(generation) + "_" + best_trader->genome->id + "_report.html";
             best_trader->genome->save(genome_save_file);
+            std::cout << "💾 Genome saved!" << std::endl;
             best_trader->generate_balance_history_graph(graphic_file);
+            std::cout << "📈 Balance history graph generated!" << std::endl;
             best_trader->generate_report(report_file);
             std::cout << "📊 Trader report generated!" << std::endl;
 
@@ -492,6 +518,8 @@ int Training::run()
         };
 
         std::cout << "🚀 Start the training..." << std::endl;
+
+        // Train the population on the training data
         this->population->run(std::bind(&Training::evaluate_genome, this, std::placeholders::_1, std::placeholders::_2), nb_generations, callback_generation);
     }
     catch (const std::exception &e)
@@ -502,6 +530,83 @@ int Training::run()
 
     progress_bar->complete();
     std::cout << "🎉 Training finished!" << std::endl;
+
+    return 0;
+}
+
+/**
+ * @brief Run the testing process for the best trader.
+ * @return The exit code of the testing process. 0 if successful, 1 otherwise.
+ */
+int Training::run_testing()
+{
+    // Test the best trader on the test data
+    std::cout << "🚀 Start the testing for the best trader..." << std::endl;
+
+    // Get the best trader of all the training
+    Genome *best_genome = Genome::load(this->directory.generic_string() + "/training_trader_" + std::to_string(this->config.training.generations - 1) + "_" + this->best_trader->genome->id + "_genome_save.pkl");
+    Trader *best_trader = new Trader(best_genome, this->config, nullptr);
+
+    // Get the dates for the test from the candles in the loop timeframe
+    std::vector<time_t> dates = {};
+    for (const auto &candle : this->candles[this->config.strategy.timeframe])
+    {
+        if (candle.date >= this->config.training.test_start_date && candle.date <= this->config.training.test_end_date)
+        {
+            dates.push_back(candle.date);
+        }
+    }
+
+    // Init the progress bar
+    ProgressBar *progress_bar = new ProgressBar(100, dates.size());
+
+    // Loop through the dates and update the trader
+    for (const auto &date : dates)
+    {
+        std::stringstream ss;
+        ss << std::put_time(std::localtime(&date), "%Y-%m-%d %H:%M:%S");
+        std::string date_string = ss.str();
+
+        if (this->cache.find(date_string) != this->cache.end())
+        {
+            // Get the data from cache
+            CandlesData current_candles = this->cache[date_string].candles;
+            IndicatorsData current_indicators = this->cache[date_string].indicators;
+            double current_base_currency_conversion_rate = this->cache[date_string].base_currency_conversion_rate;
+            std::vector<PositionInfo> position = this->config.training.inputs.position;
+
+            // Update the individual
+            if (!best_trader->dead)
+            {
+                best_trader->look(current_candles, current_indicators, current_base_currency_conversion_rate, position);
+                best_trader->think();
+                best_trader->update();
+            }
+            else
+            {
+                break;
+            }
+
+            // Update the progress bar
+            progress_bar->update(1);
+        }
+    }
+
+    // Calculate the stats of the trader
+    best_trader->calculate_stats();
+
+    // Generate the report
+    std::string report_file = this->directory.generic_string() + "/testing_trader_" + best_trader->genome->id + "_report.html";
+    best_trader->generate_report(report_file);
+    std::cout << "📊 Trader report generated!" << std::endl;
+
+    // Generate the balance history graph
+    std::string graphic_file = this->directory.generic_string() + "/testing_trader_" + best_trader->genome->id + "_balance_history.png";
+    best_trader->generate_balance_history_graph(graphic_file);
+    std::cout << "📈 Balance history graph generated!" << std::endl;
+
+    progress_bar->complete();
+    std::cout << "🎉 Testing finished!" << std::endl;
 
     return 0;
 }

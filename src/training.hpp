@@ -28,10 +28,10 @@ class Trader;
 class Training
 {
 public:
-    std::string id;                   // Unique identifier for the training process.
-    bool debug;                       // Debug mode flag.
-    Config config;                    // Configuration object.
-    std::filesystem::path directory;  // Directory to save the training results.
+    std::string id;                  // Unique identifier for the training process.
+    bool debug;                      // Debug mode flag.
+    Config config;                   // Configuration object.
+    std::filesystem::path directory; // Directory to save the training results.
 
     CandlesData candles;                                          // Candle data for all time frames.
     IndicatorsData indicators;                                    // Indicator data for all time frames.
@@ -122,7 +122,13 @@ public:
      * @brief Run the NEAT algorithm for training.
      * @return The exit code of the training process. 0 if successful, 1 otherwise.
      */
-    int run();
+    int run_training();
+
+    /**
+     * @brief Run the testing process for the best trader.
+     * @return The exit code of the testing process. 0 if successful, 1 otherwise.
+     */
+    int run_testing();
 };
 
 #endif // TRAINING_HPP

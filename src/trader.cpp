@@ -114,6 +114,7 @@ void Trader::look(CandlesData &candles, IndicatorsData &indicators, double base_
     std::unordered_map<TimeFrame, std::vector<Indicator *>> indicators_inputs = config.training.inputs.indicators;
 
     this->candles = candles;
+    this->current_date = candles[config.strategy.timeframe].back().date;
     this->current_base_currency_conversion_rate = base_currency_conversion_rate;
 
     // Get the values of the indicators
@@ -179,11 +180,8 @@ void Trader::think()
  * @brief Update the trader according to the outputs from the neural network.
  * @param current_date Current date.
  */
-void Trader::update(time_t current_date)
+void Trader::update()
 {
-    // Update the current date
-    this->current_date = current_date;
-
     // Increment the lifespan of the trader
     this->lifespan++;
 

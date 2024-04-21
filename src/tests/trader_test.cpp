@@ -164,7 +164,7 @@ protected:
 TEST_F(TraderTest, UpdateWithNoPositionAndNoOrders)
 {
     // Call the update method
-    trader->update(date);
+    trader->update();
 
     // Check if balance and stats are updated correctly
     ASSERT_EQ(trader->balance, 1000.0);
@@ -178,19 +178,11 @@ TEST_F(TraderTest, UpdateWithNoPositionAndNoOrders)
 
 TEST_F(TraderTest, UpdateWithPosition)
 {
-    std::tm date_tm = {
-        .tm_year = 2023 - 1900,
-        .tm_mon = 0,
-        .tm_mday = 5,
-        .tm_hour = 0,
-        .tm_min = 0,
-        .tm_sec = 0};
-
     trader->open_position_by_market(1.00000, 1.0, OrderSide::LONG);
     trader->balance = config.general.initial_balance; // Reset balance to initial value to cancel the fees at the market order
 
     // Call the update method
-    trader->update(date);
+    trader->update();
 
     // Check if balance and stats are updated correctly
     ASSERT_EQ(trader->balance, 1000.0);
@@ -207,7 +199,7 @@ TEST_F(TraderTest, UpdateWithOpenOrders)
         {.type = OrderType::TAKE_PROFIT, .side = OrderSide::SHORT, .price = 105.0}};
 
     // Call the update method
-    trader->update(date);
+    trader->update();
 
     // Check if balance and stats are updated correctly
     ASSERT_EQ(trader->balance, 1000.0);
@@ -226,7 +218,7 @@ TEST_F(TraderTest, UpdateWithPositionLiquidation)
     trader->candles[TimeFrame::H1][0].close = 99.0;
 
     // Call the update method
-    trader->update(date);
+    trader->update();
 
     // Check if the position is closed and open orders are cleared
     ASSERT_EQ(trader->current_position, nullptr);
@@ -248,7 +240,7 @@ TEST_F(TraderTest, UpdateWithInactiveTrader)
     trader->lifespan = config.training.inactive_trader_threshold.value();
 
     // Call the update method
-    trader->update(date);
+    trader->update();
 
     // Check if the position is closed and open orders are cleared
     ASSERT_EQ(trader->current_position, nullptr);
@@ -264,7 +256,7 @@ TEST_F(TraderTest, UpdateWithBadTrader)
     trader->balance = config.training.bad_trader_threshold.value() * config.general.initial_balance;
 
     // Call the update method
-    trader->update(date);
+    trader->update();
 
     // Check if the trader is marked as dead
     ASSERT_TRUE(trader->dead);
@@ -559,14 +551,15 @@ TEST_F(TraderTest, ClosePositionForDurationExceeded)
     trader->duration_in_position = config.strategy.maximum_trade_duration.value() - 1;
 
     // Call the update method
-    trader->update(date + get_time_frame_value(config.strategy.timeframe) * 60);
+    trader->current_date = date + get_time_frame_value(config.strategy.timeframe) * 60;
+    trader->update();
 
     // Assertions
     ASSERT_EQ(trader->current_position, nullptr);
     ASSERT_LT(trader->balance, 1000.0); // Balance decreased due to fees
     ASSERT_EQ(trader->trades_history.size(), 1);
     ASSERT_EQ(trader->trades_history[0].entry_date, date);
-    ASSERT_EQ(trader->trades_history[0].exit_date, date + get_time_frame_value(config.strategy.timeframe) * 60);
+    ASSERT_EQ(trader->trades_history[0].exit_date, date);
     ASSERT_EQ(trader->trades_history[0].entry_price, 1.01);
     ASSERT_EQ(trader->trades_history[0].exit_price, 1.00);
     ASSERT_EQ(trader->trades_history[0].side, PositionSide::LONG);
@@ -586,7 +579,8 @@ TEST_F(TraderTest, WaitForDurationBeforeClosePosition)
     for (int i = 0; i < config.strategy.minimum_trade_duration.value() - 1; ++i)
     {
         time_t new_date = date + i * get_time_frame_value(config.strategy.timeframe) * 60;
-        trader->update(new_date);
+        trader->current_date = new_date;
+        trader->update();
     }
 
     // Assertions
@@ -595,14 +589,15 @@ TEST_F(TraderTest, WaitForDurationBeforeClosePosition)
 
     // Call the update method for the last trade duration
     time_t last_date = date + config.strategy.minimum_trade_duration.value() * get_time_frame_value(config.strategy.timeframe) * 60;
-    trader->update(last_date);
+    trader->current_date = last_date;
+    trader->update();
 
     // Assertions
     ASSERT_EQ(trader->current_position, nullptr);
     ASSERT_LT(trader->balance, 1000.0); // Balance decreased due to fees
     ASSERT_EQ(trader->trades_history.size(), 1);
     ASSERT_EQ(trader->trades_history[0].entry_date, date);
-    ASSERT_EQ(trader->trades_history[0].exit_date, last_date);
+    ASSERT_EQ(trader->trades_history[0].exit_date, date);
     ASSERT_EQ(trader->trades_history[0].entry_price, 1.00);
     ASSERT_EQ(trader->trades_history[0].exit_price, 1.00);
     ASSERT_EQ(trader->trades_history[0].side, PositionSide::LONG);
@@ -1108,7 +1103,7 @@ TEST_F(TraderTest, GenerateBalanceHistoryGraph)
     trader->balance_history = {1000.0, 900.0, 1100.0, 1000.0};
 
     // Call the generate_balance_history_graphic method
-    std::filesystem::path file = "cache/tests/trader_balance_history.png";
+    std::filesystem::path file = "reports/tests/trader_balance_history.png";
     trader->generate_balance_history_graph(file);
 
     // Check if the graphic is created
