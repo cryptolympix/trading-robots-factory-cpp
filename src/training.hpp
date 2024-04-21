@@ -32,7 +32,6 @@ public:
     bool debug;                       // Debug mode flag.
     Config config;                    // Configuration object.
     std::filesystem::path directory;  // Directory to save the training results.
-    std::filesystem::path cache_file; // Optional cache file path.
 
     CandlesData candles;                                          // Candle data for all time frames.
     IndicatorsData indicators;                                    // Indicator data for all time frames.
