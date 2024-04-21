@@ -174,6 +174,75 @@ public:
 };
 
 /**
+ * @brief Class for CandleBody indicator.
+ */
+class CandleBody : public Indicator
+{
+public:
+    /**
+     * @brief Construct a new CandleBody object.
+     *
+     * @param offset Offset value. Default is 0.
+     */
+    CandleBody(int offset = 0);
+
+    /**
+     * @brief Calculate the CandleBody values.
+     *
+     * @param candles Vector of Candle data.
+     * @param normalize_data Boolean flag indicating whether to normalize data.
+     * @return std::vector<double> Vector containing calculated values.
+     */
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+};
+
+/**
+ * @brief Class for CandleShadowUpper indicator.
+ */
+class CandleShadowUpper : public Indicator
+{
+public:
+    /**
+     * @brief Construct a new CandleShadowUpper object.
+     *
+     * @param offset Offset value. Default is 0.
+     */
+    CandleShadowUpper(int offset = 0);
+
+    /**
+     * @brief Calculate the CandleShadowUpper values.
+     *
+     * @param candles Vector of Candle data.
+     * @param normalize_data Boolean flag indicating whether to normalize data.
+     * @return std::vector<double> Vector containing calculated values.
+     */
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+};
+
+/**
+ * @brief Class for CandleShadowLower indicator.
+ */
+class CandleShadowLower : public Indicator
+{
+public:
+    /**
+     * @brief Construct a new CandleShadowLower object.
+     *
+     * @param offset Offset value. Default is 0.
+     */
+    CandleShadowLower(int offset = 0);
+
+    /**
+     * @brief Calculate the CandleShadowLower values.
+     *
+     * @param candles Vector of Candle data.
+     * @param normalize_data Boolean flag indicating whether to normalize data.
+     * @return std::vector<double> Vector containing calculated values.
+     */
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+};
+
+/**
  * @brief Class for CandlePriceChange indicator.
  */
 class CandlePriceChange : public Indicator

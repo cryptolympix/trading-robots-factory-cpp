@@ -227,6 +227,102 @@ std::vector<double> BlackCandle::calculate(const std::vector<Candle> &candles, b
 // *********************************************************************************************
 
 /**
+ * @brief Construct a new CandleBody object.
+ *
+ * @param offset Offset value. Default is 0.
+ */
+CandleBody::CandleBody(int offset) : Indicator("Candle Body", "candle-body-" + std::to_string(offset), offset) {}
+
+/**
+ * @brief Calculate the CandleBody values.
+ *
+ * @param candles Vector of Candle data.
+ * @param normalize_data Boolean flag indicating whether to normalize data.
+ * @return std::vector<double> Vector containing calculated values.
+ */
+std::vector<double> CandleBody::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+{
+    return Indicator::calculate(
+        candles, [this](std::vector<Candle> candles) -> std::vector<double>
+        {
+            std::vector<double> values;
+            for (int i = 0; i < candles.size(); ++i)
+            {
+                // Calculate the ratio of body to the entire candle
+                values.push_back(std::abs(candles[i].close - candles[i].open) / (candles[i].high - candles[i].low));
+            }
+            return values; },
+
+        normalize_data);
+}
+
+// *********************************************************************************************
+
+/**
+ * @brief Construct a new CandleShadowUpper object.
+ *
+ * @param offset Offset value. Default is 0.
+ */
+CandleShadowUpper::CandleShadowUpper(int offset) : Indicator("Candle Shadow Upper", "candle-shadow-upper-" + std::to_string(offset), offset) {}
+
+/**
+ * @brief Calculate the CandleShadowUpper values.
+ *
+ * @param candles Vector of Candle data.
+ * @param normalize_data Boolean flag indicating whether to normalize data.
+ * @return std::vector<double> Vector containing calculated values.
+ */
+std::vector<double> CandleShadowUpper::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+{
+    return Indicator::calculate(
+        candles, [this](std::vector<Candle> candles) -> std::vector<double>
+        {
+            std::vector<double> values;
+            for (int i = 0; i < candles.size(); ++i)
+            {
+                // Calculate the ratio of upper shadow to the entire candle
+                values.push_back((candles[i].high - std::max(candles[i].open, candles[i].close)) / (candles[i].high - candles[i].low));
+            }
+            return values; },
+
+        normalize_data);
+}
+
+// *********************************************************************************************
+
+/**
+ * @brief Construct a new CandleShadowLower object.
+ *
+ * @param offset Offset value. Default is 0.
+ */
+CandleShadowLower::CandleShadowLower(int offset) : Indicator("Candle Shadow Lower", "candle-shadow-lower-" + std::to_string(offset), offset) {}
+
+/**
+ * @brief Calculate the CandleShadowLower values.
+ *
+ * @param candles Vector of Candle data.
+ * @param normalize_data Boolean flag indicating whether to normalize data.
+ * @return std::vector<double> Vector containing calculated values.
+ */
+std::vector<double> CandleShadowLower::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+{
+    return Indicator::calculate(
+        candles, [this](std::vector<Candle> candles) -> std::vector<double>
+        {
+            std::vector<double> values;
+            for (int i = 0; i < candles.size(); ++i)
+            {
+                // Calculate the ratio of lower shadow to the entire candle
+                values.push_back((std::min(candles[i].open, candles[i].close) - candles[i].low) / (candles[i].high - candles[i].low));
+            }
+            return values; },
+
+        normalize_data);
+}
+
+// *********************************************************************************************
+
+/**
  * @brief Construct a new CandlePriceChange object.
  *
  * @param offset Offset value. Default is 0.

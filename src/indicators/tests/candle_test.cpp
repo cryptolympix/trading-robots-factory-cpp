@@ -135,6 +135,30 @@ TEST_F(CandleIndicatorsTest, BlackCandle)
     ASSERT_EQ(result, expected);
 }
 
+TEST_F(CandleIndicatorsTest, CandleBody)
+{
+    CandleBody body_indicator;
+    std::vector<double> result = body_indicator.calculate(mock_candles);
+    std::vector<double> expected = {1.25, 0.75, 0.75, 1.2, 0.5, 0.75, 0.25, 0.42857142857142855, 0.7, 1.2307692307692308, 0.13333333333333333};
+    ASSERT_EQ(result, expected);
+}
+
+TEST_F(CandleIndicatorsTest, CandleShadowUpper)
+{
+    CandleShadowUpper shadow_upper_indicator;
+    std::vector<double> result = shadow_upper_indicator.calculate(mock_candles);
+    std::vector<double> expected = {-0.75, 0.125, -0.5, 0.2, 0.5, 0, 0.083333333333333329, 0.14285714285714285, 0.1, 0.076923076923076927, 0};
+    ASSERT_EQ(result, expected);
+}
+
+TEST_F(CandleIndicatorsTest, CandleShadowLower)
+{
+    CandleShadowLower shadow_lower_indicator;
+    std::vector<double> result = shadow_lower_indicator.calculate(mock_candles);
+    std::vector<double> expected = {0.5, 0.125, 0.75, -0.4, 0, 0.25, 0.66666666666666663, 0.42857142857142855, 0.2, -0.30769230769230771, 0.8666666666666667};
+    ASSERT_EQ(result, expected);
+}
+
 TEST_F(CandleIndicatorsTest, CandlePriceChange)
 {
     CandlePriceChange indicator;
