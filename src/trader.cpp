@@ -1489,8 +1489,8 @@ void Trader::generate_report(const std::string &filename)
     std::string monthly_returns_data = "";
 
     balance = this->stats.initial_balance;
-    balance_history_labels += "\"" + time_t_to_string(this->config.training.training_start_date) + "\",";
-    balance_history_data += std::to_string(balance) + ",";
+    balance_history_labels = "";
+    balance_history_data += "";
 
     // Select only closed trade
     std::vector<Trade> closed_trades = {};

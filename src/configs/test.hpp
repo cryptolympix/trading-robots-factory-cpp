@@ -71,7 +71,7 @@ Config test_config = {
         .leverage = 100},
     .strategy{
         .timeframe = TimeFrame::M5,
-        .maximum_risk = 0.05,
+        .maximum_risk = 0.02,
         .maximum_spread = 8,
         // .minimum_trade_duration = 0,
         // .maximum_trade_duration = 10,

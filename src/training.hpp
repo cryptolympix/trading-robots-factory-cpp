@@ -126,10 +126,11 @@ public:
 
     /**
      * @brief Run the testing process for the best trader.
-     * @param trader The trader to be tested.
+     * @param genome The genome to be tested.
+     * @param generation The generation number of the genome.
      * @return The exit code of the testing process. 0 if successful, 1 otherwise.
      */
-    int test(Trader *trader);
+    int test(Genome *genome, int generation);
 };
 
 #endif // TRAINING_HPP

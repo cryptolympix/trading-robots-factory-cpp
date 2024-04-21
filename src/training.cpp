@@ -517,7 +517,7 @@ int Training::run()
             std::cout << "✅ Training of generation " << generation << " finished!" << std::endl;
 
             // Test the trader on a the new period
-            this->test(best_trader);
+            this->test(best_trader->genome, generation);
             std::cout << "🧪 Testing of the best trader of generation " << generation << " finished!" << std::endl;
         };
 
@@ -540,11 +540,15 @@ int Training::run()
 
 /**
  * @brief Run the testing process for the best trader.
- * @param trader The trader to be tested.
+ * @param genome The genome to be tested.
+ * @param generation The generation number of the genome.
  * @return The exit code of the testing process. 0 if successful, 1 otherwise.
  */
-int Training::test(Trader *trader)
+int Training::test(Genome *genome, int generation)
 {
+    // Create a trader with the genome
+    Trader *trader = new Trader(genome, this->config, nullptr);
+
     // Get the dates for the test from the candles in the loop timeframe
     std::vector<time_t> dates = {};
     for (const auto &candle : this->candles[this->config.strategy.timeframe])
@@ -588,11 +592,11 @@ int Training::test(Trader *trader)
     trader->calculate_stats();
 
     // Generate the report
-    std::string report_file = this->directory.generic_string() + "/testing_trader_" + trader->genome->id + "_report.html";
+    std::string report_file = this->directory.generic_string() + "/testing_trader_" + std::to_string(generation) + "_" + trader->genome->id + "_report.html";
     trader->generate_report(report_file);
 
     // Generate the balance history graph
-    std::string graphic_file = this->directory.generic_string() + "/testing_trader_" + trader->genome->id + "_balance_history.png";
+    std::string graphic_file = this->directory.generic_string() + "/testing_trader_" + std::to_string(generation) + "_" + trader->genome->id + "_balance_history.png";
     trader->generate_balance_history_graph(graphic_file);
 
     return 0;
