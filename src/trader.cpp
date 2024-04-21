@@ -1027,16 +1027,13 @@ void Trader::check_open_orders()
             {
                 for (int i = 0; i < short_orders.size(); i++)
                 {
-                    if (last_candle.high >= short_orders[i].price && last_candle.low <= short_orders[i].price)
+                    if (short_orders[i].type == OrderType::TAKE_PROFIT && last_candle.high >= short_orders[i].price)
                     {
-                        if (short_orders[i].type == OrderType::TAKE_PROFIT)
-                        {
-                            this->close_position_by_limit(short_orders[i].price);
-                        }
-                        if (short_orders[i].type == OrderType::STOP_LOSS)
-                        {
-                            this->close_position_by_market(short_orders[i].price);
-                        }
+                        this->close_position_by_limit(short_orders[i].price);
+                    }
+                    if (short_orders[i].type == OrderType::STOP_LOSS && last_candle.low <= short_orders[i].price)
+                    {
+                        this->close_position_by_market(short_orders[i].price);
                     }
                 }
             }
@@ -1044,16 +1041,13 @@ void Trader::check_open_orders()
             {
                 for (int i = 0; i < long_orders.size(); i++)
                 {
-                    if (last_candle.high >= long_orders[i].price && last_candle.low <= long_orders[i].price)
+                    if (long_orders[i].type == OrderType::TAKE_PROFIT && last_candle.low <= long_orders[i].price)
                     {
-                        if (long_orders[i].type == OrderType::TAKE_PROFIT)
-                        {
-                            this->close_position_by_limit(long_orders[i].price);
-                        }
-                        if (long_orders[i].type == OrderType::STOP_LOSS)
-                        {
-                            this->close_position_by_market(long_orders[i].price);
-                        }
+                        this->close_position_by_limit(long_orders[i].price);
+                    }
+                    if (long_orders[i].type == OrderType::STOP_LOSS && last_candle.high >= long_orders[i].price)
+                    {
+                        this->close_position_by_market(long_orders[i].price);
                     }
                 }
             }
