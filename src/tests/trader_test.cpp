@@ -551,7 +551,8 @@ TEST_F(TraderTest, ClosePositionForDurationExceeded)
     trader->duration_in_position = config.strategy.maximum_trade_duration.value() - 1;
 
     // Call the update method
-    trader->current_date = date + get_time_frame_value(config.strategy.timeframe) * 60;
+    time_t new_date = date + get_time_frame_value(config.strategy.timeframe) * 60;
+    trader->current_date = new_date;
     trader->update();
 
     // Assertions
@@ -559,7 +560,7 @@ TEST_F(TraderTest, ClosePositionForDurationExceeded)
     ASSERT_LT(trader->balance, 1000.0); // Balance decreased due to fees
     ASSERT_EQ(trader->trades_history.size(), 1);
     ASSERT_EQ(trader->trades_history[0].entry_date, date);
-    ASSERT_EQ(trader->trades_history[0].exit_date, date);
+    ASSERT_EQ(trader->trades_history[0].exit_date, new_date);
     ASSERT_EQ(trader->trades_history[0].entry_price, 1.01);
     ASSERT_EQ(trader->trades_history[0].exit_price, 1.00);
     ASSERT_EQ(trader->trades_history[0].side, PositionSide::LONG);
@@ -597,7 +598,7 @@ TEST_F(TraderTest, WaitForDurationBeforeClosePosition)
     ASSERT_LT(trader->balance, 1000.0); // Balance decreased due to fees
     ASSERT_EQ(trader->trades_history.size(), 1);
     ASSERT_EQ(trader->trades_history[0].entry_date, date);
-    ASSERT_EQ(trader->trades_history[0].exit_date, date);
+    ASSERT_EQ(trader->trades_history[0].exit_date, last_date);
     ASSERT_EQ(trader->trades_history[0].entry_price, 1.00);
     ASSERT_EQ(trader->trades_history[0].exit_price, 1.00);
     ASSERT_EQ(trader->trades_history[0].side, PositionSide::LONG);
@@ -1115,11 +1116,14 @@ TEST_F(TraderTest, GenerateBalanceHistoryGraph)
 
 TEST_F(TraderTest, GenerateReport)
 {
+    trader->trades_history = {
+        {.entry_date = date, .exit_date = date, .entry_price = 1.0, .exit_price = 0.99500, .side = PositionSide::LONG, .pnl = -50.0, .fees = 0.5, .size = 1.0, .closed = true}};
+
     // Mock data for testing
     trader->calculate_stats();
 
     // Call the generate_report method
-    std::filesystem::path file = "cache/tests/trader_report.png";
+    std::filesystem::path file = "reports/tests/trader_report.png";
     trader->generate_report(file);
 
     // Check if the graphic is created

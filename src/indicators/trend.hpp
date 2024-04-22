@@ -693,6 +693,11 @@ private:
 
 // *********************************************************************************************
 
+/**
+ * @brief Class to calculate the Ichimoku Senkou Span Trend indicator.
+ *
+ * Calculate the slope of the simple moving average.
+ */
 class SMASlope : public Indicator
 {
 public:
@@ -721,6 +726,11 @@ private:
 
 // *********************************************************************************************
 
+/**
+ * @brief Class to calculate the EMA Slope indicator.
+ *
+ * Calculate the slope of the exponential moving average.
+ */
 class EMASlope : public Indicator
 {
 public:
@@ -745,6 +755,37 @@ public:
 private:
     int period;         // The period for the exponential moving average.
     std::string source; // The source of data (e.g., close, high, low).
+};
+
+// *********************************************************************************************
+
+/**
+ * @brief Class to calculate the Zigzag indicator.
+ *
+ * The Zigzag indicator is used to eliminate movements that are less than a specified percentage.
+ */
+class Zigzag : public Indicator
+{
+public:
+    /**
+     * @brief Construct a new Zigzag object.
+     *
+     * @param deviation The deviation value for the Zigzag calculation.
+     * @param offset Offset value. Default is 0.
+     */
+    Zigzag(double deviation = 0.05, int offset = 0);
+
+    /**
+     * @brief Calculate the Zigzag values.
+     *
+     * @param candles Vector of Candle data.
+     * @param normalize_data Boolean flag indicating whether to normalize data.
+     * @return std::vector<double> Vector containing calculated Zigzag values.
+     */
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+
+private:
+    double deviation; // The deviation value for the Zigzag calculation.
 };
 
 #endif // TREND_INDICATORS_HPP

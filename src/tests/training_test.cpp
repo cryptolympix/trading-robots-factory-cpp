@@ -90,6 +90,8 @@ protected:
                 .inactive_trader_threshold = 500,
                 .training_start_date = start_date,
                 .training_end_date = end_date,
+                .test_start_date = start_date,
+                .test_end_date = end_date,
                 .inputs = {
                     .indicators = {
                         {TimeFrame::M15, {new RSI()}},

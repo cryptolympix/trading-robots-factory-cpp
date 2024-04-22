@@ -698,11 +698,6 @@ bool Trader::can_trade()
         time_after_previous_trade_is_ok = this->duration_without_trade >= this->config.strategy.minimum_duration_before_next_trade.value();
     }
 
-    // std::cout << "schedule_is_ok: " << schedule_is_ok << std::endl;
-    // std::cout << "number_of_trades_per_day_is_ok: " << number_of_trades_per_day_is_ok << std::endl;
-    // std::cout << "spread_is_ok: " << spread_is_ok << std::endl;
-    // std::cout << "time_after_previous_trade_is_ok: " << time_after_previous_trade_is_ok << std::endl;
-
     // Check if the trader can trade now
     bool can_trade_now = schedule_is_ok && number_of_trades_per_day_is_ok && spread_is_ok && time_after_previous_trade_is_ok;
 

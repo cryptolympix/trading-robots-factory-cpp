@@ -1391,3 +1391,81 @@ std::vector<double> EMASlope::calculate(const std::vector<Candle> &candles, bool
 
         normalize_data);
 }
+
+// *********************************************************************************************
+
+/**
+ * @brief Construct a new Zigzag object.
+ *
+ * @param deviation The deviation value for the Zigzag calculation.
+ * @param offset Offset value. Default is 0.
+ */
+Zigzag::Zigzag(double deviation, int offset) : Indicator("Zigzag", "zigzag-" + std::to_string(deviation) + "-" + std::to_string(offset), offset), deviation(deviation) {}
+
+/**
+ * @brief Calculate the Zigzag values.
+ *
+ * @param candles Vector of Candle data.
+ * @param normalize_data Boolean flag indicating whether to normalize data.
+ * @return std::vector<double> Vector containing calculated Zigzag values.
+ */
+std::vector<double> Zigzag::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+{
+    return Indicator::calculate(
+        candles, [this](const std::vector<Candle> &candles) -> std::vector<double>
+        {
+            std::vector<double> zigzag_values(candles.size(), 0.0);
+
+            bool uptrend = true;                 // Flag to track the current trend (true for uptrend, false for downtrend)
+            double last_peak = candles[0].high;  // Variable to store the last peak value
+            double last_valley = candles[0].low; // Variable to store the last valley value
+
+            // Loop through the candles
+            for (size_t i = 0; i < candles.size(); ++i)
+            {
+                double current_high = candles[i].high;
+                double current_low = candles[i].low;
+
+                // Calculate percentage change from last peak or valley
+                double high_change = (current_high - last_peak) / last_peak * 100;
+                double low_change = (current_low - last_valley) / last_valley * 100;
+
+                // Determine if the change exceeds the box size
+                bool high_change_exceeds = (high_change >= this->deviation);
+                bool low_change_exceeds = (low_change <= -this->deviation);
+
+                // If in uptrend and current high exceeds last peak by box size
+                if (uptrend && high_change_exceeds)
+                {
+                    // Set zigzag value to the last peak
+                    zigzag_values[i] = last_peak;
+
+                    // Change to downtrend
+                    uptrend = false;
+
+                    // Update last valley
+                    last_valley = current_low;
+                }
+                // If in downtrend and current low exceeds last valley by -box size
+                else if (!uptrend && low_change_exceeds)
+                {
+                    // Set zigzag value to the last valley
+                    zigzag_values[i] = last_valley;
+
+                    // Change to uptrend
+                    uptrend = true;
+
+                    // Update last peak
+                    last_peak = current_high;
+                }
+                // Otherwise, no significant change, set zigzag value to current high/low
+                else
+                {
+                    zigzag_values[i] = uptrend ? current_high : current_low;
+                }
+            }
+
+            return zigzag_values; },
+
+        normalize_data);
+}

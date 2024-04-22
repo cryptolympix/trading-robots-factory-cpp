@@ -129,6 +129,8 @@ public:
 
 /**
  * @brief Class for WhiteCandle indicator.
+ *
+ * This indicator calculates the white candlestick pattern.
  */
 class WhiteCandle : public Indicator
 {
@@ -152,6 +154,8 @@ public:
 
 /**
  * @brief Class for BlackCandle indicator.
+ *
+ * This indicator calculates the black candlestick pattern.
  */
 class BlackCandle : public Indicator
 {
@@ -175,6 +179,8 @@ public:
 
 /**
  * @brief Class for CandleBody indicator.
+ *
+ * This indicator calculates the body ratio of the candlestick.
  */
 class CandleBody : public Indicator
 {
@@ -198,6 +204,8 @@ public:
 
 /**
  * @brief Class for CandleShadowUpper indicator.
+ *
+ * This indicator calculates the upper shadow ratio of the candlestick.
  */
 class CandleShadowUpper : public Indicator
 {
@@ -221,6 +229,8 @@ public:
 
 /**
  * @brief Class for CandleShadowLower indicator.
+ *
+ * This indicator calculates the lower shadow ratio of the candlestick.
  */
 class CandleShadowLower : public Indicator
 {

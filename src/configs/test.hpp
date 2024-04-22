@@ -55,7 +55,7 @@ std::tm start_test_date = {
 
 std::tm end_test_date = {
     .tm_year = 2023 - 1900,
-    .tm_mon = 11,
+    .tm_mon = 12,
     .tm_mday = 1,
     .tm_hour = 0,
     .tm_min = 0,
@@ -71,7 +71,7 @@ Config test_config = {
         .leverage = 100},
     .strategy{
         .timeframe = TimeFrame::M5,
-        .maximum_risk = 0.02,
+        .maximum_risk = 0.05,
         .maximum_spread = 8,
         // .minimum_trade_duration = 0,
         // .maximum_trade_duration = 10,

@@ -282,9 +282,7 @@ std::vector<double> CandleShadowUpper::calculate(const std::vector<Candle> &cand
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
-            // Initialize values vector with size of candles
-            std::vector<double> values(candles.size(), 0);
-
+            std::vector<double> values;
             for (int i = 0; i < candles.size(); ++i)
             {
                 if (candles[i].high != candles[i].low)

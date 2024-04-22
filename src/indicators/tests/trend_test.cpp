@@ -208,3 +208,11 @@ TEST_F(TrendIndicatorsTest, EMASlope)
 
     ASSERT_EQ(result_ema_slope.size(), mock_candles.size());
 }
+
+TEST_F(TrendIndicatorsTest, Zigzag)
+{
+    Zigzag zigzag(0.1);
+    std::vector<double> result_zigzag = zigzag.calculate(mock_candles);
+
+    ASSERT_EQ(result_zigzag.size(), mock_candles.size());
+}
