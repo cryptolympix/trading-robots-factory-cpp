@@ -729,7 +729,7 @@ void Trader::trade()
 
         // Check if the trader can close a trade
         bool can_close_position = true;
-        if (this->current_position == nullptr)
+        if (!has_position)
         {
             can_close_position = false;
         }
@@ -803,13 +803,12 @@ void Trader::trade()
     }
 
     // Check the duration of the current trade
-    if (this->current_position != nullptr && config.strategy.maximum_trade_duration.has_value())
+    if (has_position && config.strategy.maximum_trade_duration.has_value())
     {
         // Check if the position has reached the maximum trade duration
         if (this->duration_in_position >= config.strategy.maximum_trade_duration.value())
         {
             this->close_position_by_market(last_candle.close);
-            return;
         }
     }
 }
