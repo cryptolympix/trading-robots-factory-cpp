@@ -11,6 +11,7 @@
 #include "utils/logger.hpp"
 #include "utils/indexer.hpp"
 #include "utils/uid.hpp"
+#include "utils/cache.hpp"
 #include "utils/read_data.hpp"
 #include "utils/time_frame.hpp"
 #include "utils/progress_bar.hpp"
@@ -30,6 +31,7 @@ Training::Training(std::string id, Config &config, bool debug)
     : id(id), config(config), debug(debug)
 {
     this->directory = "reports/" + this->config.general.name + "/" + this->config.general.version + "/" + id;
+    this->cache_file = "cache/" + this->config.general.name + "/" + this->config.general.version + "/data.json";
 
     // Initialize the population.
     this->config.neat.num_inputs = this->count_indicators() + this->config.training.inputs.position.size();
@@ -40,7 +42,7 @@ Training::Training(std::string id, Config &config, bool debug)
 
     // Conversion rate when the base of asset traded is different of the account currency
     this->base_currency_conversion_rate = {};
-    this->cache = {};
+    this->cache = new Cache(this->cache_file.generic_string());
 
     // History for statistics
     int generations = config.training.generations;
@@ -85,30 +87,39 @@ void Training::prepare()
         std::exit(1);
     }
 
-    // Progress bar
-    std::cout << "⏳ Load the candles..." << std::endl;
-    int total_iter1 = all_timeframes.size();
-    ProgressBar *progress_bar1 = new ProgressBar(100, total_iter1);
-    this->load_candles(progress_bar1);
-    std::cout << "✅ Candles loaded!" << std::endl;
+    if (this->cache->exist())
+    {
+        std::cout << "⏳ Import the data from the cache..." << std::endl;
+        this->cache = Cache::load(this->cache_file.generic_string());
+        std::cout << "✅ Cache loaded!" << std::endl;
+    }
+    else
+    {
+        // Progress bar
+        std::cout << "⏳ Load the candles..." << std::endl;
+        int total_iter1 = all_timeframes.size();
+        ProgressBar *progress_bar1 = new ProgressBar(100, total_iter1);
+        this->load_candles(progress_bar1);
+        std::cout << "✅ Candles loaded!" << std::endl;
 
-    std::cout << "⏳ Load the indicators..." << std::endl;
-    int total_iter2 = this->count_indicators();
-    ProgressBar *progress_bar2 = new ProgressBar(100, total_iter2);
-    this->load_indicators(progress_bar2);
-    std::cout << "✅ Indicators loaded!" << std::endl;
+        std::cout << "⏳ Load the indicators..." << std::endl;
+        int total_iter2 = this->count_indicators();
+        ProgressBar *progress_bar2 = new ProgressBar(100, total_iter2);
+        this->load_indicators(progress_bar2);
+        std::cout << "✅ Indicators loaded!" << std::endl;
 
-    std::cout << "⏳ Load the base currency conversion rate..." << std::endl;
-    int total_iter3 = 1;
-    ProgressBar *progress_bar3 = new ProgressBar(100, total_iter3);
-    this->load_base_currency_conversion_rate(progress_bar3);
-    std::cout << "✅ Base currency conversion rate loaded!" << std::endl;
+        std::cout << "⏳ Load the base currency conversion rate..." << std::endl;
+        int total_iter3 = 1;
+        ProgressBar *progress_bar3 = new ProgressBar(100, total_iter3);
+        this->load_base_currency_conversion_rate(progress_bar3);
+        std::cout << "✅ Base currency conversion rate loaded!" << std::endl;
 
-    std::cout << "⏳ Cache the data..." << std::endl;
-    int total_iter4 = this->candles[this->config.strategy.timeframe].size();
-    ProgressBar *progress_bar4 = new ProgressBar(100, total_iter4);
-    this->cache_data(progress_bar4);
-    std::cout << "✅ Cache ready!" << std::endl;
+        std::cout << "⏳ Cache the data..." << std::endl;
+        int total_iter4 = this->candles[this->config.strategy.timeframe].size();
+        ProgressBar *progress_bar4 = new ProgressBar(100, total_iter4);
+        this->cache_data(progress_bar4);
+        std::cout << "✅ Cache created!" << std::endl;
+    }
 }
 
 /**
@@ -221,21 +232,17 @@ void Training::cache_data(ProgressBar *progress_bar)
     std::vector<TimeFrame> all_timeframes = get_all_timeframes();
     TimeFrame loop_timeframe = config.strategy.timeframe;
     int loop_timeframe_minutes = get_time_frame_value(loop_timeframe);
-    Indexer *indexer = new Indexer(candles, MINIMUM_CANDLES);
+    Indexer *indexer = new Indexer(this->candles, MINIMUM_CANDLES);
 
-    // Get all the dates from teh candles in the loop timeframe
+    // Get all the dates from the candles in the loop timeframe
     std::vector<time_t> dates = {};
-    for (const auto &candle : candles[loop_timeframe])
+    for (const auto &candle : this->candles[loop_timeframe])
     {
         dates.push_back(candle.date);
     }
 
     for (const auto &date : dates)
     {
-        std::stringstream ss;
-        ss << std::put_time(std::localtime(&date), "%Y-%m-%d %H:%M:%S");
-        std::string date_string = ss.str();
-
         indexer->update_indexes(date);
 
         CandlesData current_candles = {};
@@ -284,13 +291,16 @@ void Training::cache_data(ProgressBar *progress_bar)
         }
 
         // Cache the data
-        cache[date_string] = CacheData{.candles = current_candles, .indicators = current_indicators, .base_currency_conversion_rate = current_base_currency_conversion_rate};
+        this->cache->add(std::to_string(date), CacheData{.candles = current_candles, .indicators = current_indicators, .base_currency_conversion_rate = current_base_currency_conversion_rate});
 
         if (progress_bar)
         {
             progress_bar->update(1);
         }
     }
+
+    // Create the file of the cache
+    cache->create();
 
     if (progress_bar)
     {
@@ -328,27 +338,6 @@ std::vector<TimeFrame> Training::get_all_timeframes() const
         timeframes.push_back(indicators.first);
     }
     return timeframes;
-}
-
-/**
- * @brief Adjust the training start date based on available candles.
- * @return Adjusted training start date.
- */
-time_t Training::find_training_start_date() const
-{
-    TimeFrame loop_timeframe = this->config.strategy.timeframe;
-    TimeFrame highest_timeframe = highest_time_frame(this->get_all_timeframes());
-
-    time_t training_start_date = this->config.training.training_start_date;
-    std::vector<Candle> candles_tf = this->candles.at(loop_timeframe);
-
-    int highest_timeframe_value = get_time_frame_value(highest_timeframe);
-    while (training_start_date < candles_tf[0].date + (MINIMUM_CANDLES - 1) * highest_timeframe_value * 60)
-    {
-        training_start_date += highest_timeframe_value * 60;
-    }
-
-    return training_start_date;
 }
 
 /**
@@ -409,34 +398,30 @@ void Training::evaluate_genome(Genome *genome, int generation)
 {
     TimeFrame loop_timeframe = this->config.strategy.timeframe;
     int loop_timeframe_minutes = get_time_frame_value(loop_timeframe);
-    time_t mock_date = this->find_training_start_date();
 
     Logger *logger = new Logger(this->directory.generic_string() + "/logs/trader_" + genome->id + ".log");
     Trader *trader = new Trader(genome, this->config, logger);
 
     // Get the dates for the training from the candles in the loop timeframe
-    std::vector<time_t> dates = {};
-    for (const auto &candle : this->candles[loop_timeframe])
+    std::vector<std::string> dates = {};
+    for (const auto &[date_string, value] : this->cache->data)
     {
-        if (candle.date >= this->config.training.training_start_date && candle.date <= this->config.training.training_end_date)
+        time_t date = std::stoll(date_string); // Convert the string to time_t
+        if (date >= this->config.training.training_start_date && date <= this->config.training.training_end_date)
         {
-            dates.push_back(candle.date);
+            dates.push_back(date_string);
         }
     }
 
     // Loop through the dates and update the trader
     for (const auto &date : dates)
     {
-        std::stringstream ss;
-        ss << std::put_time(std::localtime(&date), "%Y-%m-%d %H:%M:%S");
-        std::string date_string = ss.str();
-
-        if (this->cache.find(date_string) != this->cache.end())
+        if (this->cache->has(date))
         {
             // Get the data from cache
-            CandlesData current_candles = this->cache[date_string].candles;
-            IndicatorsData current_indicators = this->cache[date_string].indicators;
-            double current_base_currency_conversion_rate = this->cache[date_string].base_currency_conversion_rate;
+            CandlesData current_candles = this->cache->get(date).candles;
+            IndicatorsData current_indicators = this->cache->get(date).indicators;
+            double current_base_currency_conversion_rate = this->cache->get(date).base_currency_conversion_rate;
             std::vector<PositionInfo> position = this->config.training.inputs.position;
 
             // Update the individual
@@ -503,11 +488,11 @@ int Training::run()
             std::cout << "==================================================================" << std::endl;
 
             // Save the best trader info of the generation
-            std::string genome_save_file = this->directory.generic_string() + "/training_trader_" + std::to_string(generation) + "_" + best_trader->genome->id + "_genome_save.pkl";
-            std::string graphic_file = this->directory.generic_string() + "/training_trader_" + std::to_string(generation) + "_" + best_trader->genome->id + "_balance_history.png";
-            std::string report_file = this->directory.generic_string() + "/training_trader_" + std::to_string(generation) + "_" + best_trader->genome->id + "_report.html";
+            std::string genome_save_file = this->directory.generic_string() + "/trader_" + std::to_string(generation) + "_" + best_trader->genome->id + "_genome_save.json";
+            std::string graphic_file = this->directory.generic_string() + "/trader_" + std::to_string(generation) + "_" + best_trader->genome->id + "_training_balance_history.png";
+            std::string report_file = this->directory.generic_string() + "/trader_" + std::to_string(generation) + "_" + best_trader->genome->id + "_training_report.html";
             best_trader->genome->save(genome_save_file);
-            std::cout << "💾 Genome saved!" << std::endl;
+            std::cout << "💾 Genome saved to '" << genome_save_file << "'" << std::endl;
             best_trader->generate_balance_history_graph(graphic_file);
             std::cout << "📈 Balance history graph generated!" << std::endl;
             best_trader->generate_report(report_file);
@@ -550,28 +535,25 @@ int Training::test(Genome *genome, int generation)
     Trader *trader = new Trader(genome, this->config, nullptr);
 
     // Get the dates for the test from the candles in the loop timeframe
-    std::vector<time_t> dates = {};
-    for (const auto &candle : this->candles[this->config.strategy.timeframe])
+    std::vector<std::string> dates = {};
+    for (const auto &[date_string, value] : this->cache->data)
     {
-        if (candle.date >= this->config.training.test_start_date && candle.date <= this->config.training.test_end_date)
+        time_t date = std::stoll(date_string); // Convert the string to time_t
+        if (date >= this->config.training.test_start_date && date <= this->config.training.test_end_date)
         {
-            dates.push_back(candle.date);
+            dates.push_back(date_string);
         }
     }
 
     // Loop through the dates and update the trader
     for (const auto &date : dates)
     {
-        std::stringstream ss;
-        ss << std::put_time(std::localtime(&date), "%Y-%m-%d %H:%M:%S");
-        std::string date_string = ss.str();
-
-        if (this->cache.find(date_string) != this->cache.end())
+        if (this->cache->has(date))
         {
             // Get the data from cache
-            CandlesData current_candles = this->cache[date_string].candles;
-            IndicatorsData current_indicators = this->cache[date_string].indicators;
-            double current_base_currency_conversion_rate = this->cache[date_string].base_currency_conversion_rate;
+            CandlesData current_candles = this->cache->get(date).candles;
+            IndicatorsData current_indicators = this->cache->get(date).indicators;
+            double current_base_currency_conversion_rate = this->cache->get(date).base_currency_conversion_rate;
             std::vector<PositionInfo> position = this->config.training.inputs.position;
 
             // Update the individual
@@ -592,11 +574,11 @@ int Training::test(Genome *genome, int generation)
     trader->calculate_stats();
 
     // Generate the report
-    std::string report_file = this->directory.generic_string() + "/testing_trader_" + std::to_string(generation) + "_" + trader->genome->id + "_report.html";
+    std::string report_file = this->directory.generic_string() + "/trader_" + std::to_string(generation) + "_" + trader->genome->id + "_test_report.html";
     trader->generate_report(report_file);
 
     // Generate the balance history graph
-    std::string graphic_file = this->directory.generic_string() + "/testing_trader_" + std::to_string(generation) + "_" + trader->genome->id + "_balance_history.png";
+    std::string graphic_file = this->directory.generic_string() + "/trader_" + std::to_string(generation) + "_" + trader->genome->id + "_test_balance_history.png";
     trader->generate_balance_history_graph(graphic_file);
 
     return 0;

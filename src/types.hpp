@@ -61,11 +61,6 @@ struct CacheData
 };
 
 /**
- * @brief Alias for a cache of dated data.
- */
-using Cache = std::unordered_map<std::string, CacheData>;
-
-/**
  * @brief Enum for position side (LONG or SHORT).
  */
 enum class PositionSide

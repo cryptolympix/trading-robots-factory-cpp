@@ -1,6 +1,7 @@
 # Folders
 build/
 reports/
+cache/
 
 # Prerequisites
 *.d

@@ -1140,6 +1140,12 @@ void Trader::print_stats_to_console()
  */
 void Trader::generate_balance_history_graph(const std::string &filename)
 {
+    if (this->balance_history.empty())
+    {
+        std::cerr << "No balance history to generate a graph." << std::endl;
+        return;
+    }
+
     // Check if the directory exists
     std::filesystem::path dir = std::filesystem::path(filename).parent_path();
     if (!std::filesystem::exists(dir))
@@ -1188,6 +1194,22 @@ void Trader::generate_balance_history_graph(const std::string &filename)
  */
 void Trader::generate_report(const std::string &filename)
 {
+    // Select only closed trade
+    std::vector<Trade> closed_trades = {};
+    for (const auto &trade : this->trades_history)
+    {
+        if (trade.closed)
+        {
+            closed_trades.push_back(trade);
+        }
+    }
+
+    if (closed_trades.empty())
+    {
+        std::cerr << "No closed trades to generate a report." << std::endl;
+        return;
+    }
+
     // Check if the directory exists
     std::filesystem::path dir = std::filesystem::path(filename).parent_path();
     if (!std::filesystem::exists(dir))
@@ -1202,16 +1224,7 @@ void Trader::generate_report(const std::string &filename)
         }
     }
 
-    // Select only closed trade
-    std::vector<Trade> closed_trades = {};
-    for (const auto &trade : this->trades_history)
-    {
-        if (trade.closed)
-        {
-            closed_trades.push_back(trade);
-        }
-    }
-
+    // Get the start and end date of the trades
     time_t start_date = closed_trades[0].entry_date;
     time_t end_date = closed_trades.back().exit_date;
 

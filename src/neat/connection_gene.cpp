@@ -28,7 +28,7 @@ void ConnectionGene::mutate(const NeatConfig &config)
 
 bool ConnectionGene::is_equal(std::shared_ptr<ConnectionGene> other)
 {
-    return from_node == other->from_node && to_node == other->to_node && weight == other->weight && innovation_nb == other->innovation_nb && enabled == other->enabled;
+    return from_node->id == other->from_node->id && to_node->id == other->to_node->id && weight == other->weight && innovation_nb == other->innovation_nb && enabled == other->enabled;
 }
 
 std::shared_ptr<ConnectionGene> ConnectionGene::clone(std::shared_ptr<Node> from, std::shared_ptr<Node> to)

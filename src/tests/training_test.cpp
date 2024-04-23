@@ -125,6 +125,7 @@ protected:
     {
         std::filesystem::remove_all(training->directory);
         std::filesystem::remove_all(temp_dir);
+        std::filesystem::remove(training->cache_file);
         delete training;
     }
 };
@@ -166,14 +167,12 @@ TEST_F(TrainingTest, CacheData)
     training->load_base_currency_conversion_rate();
     training->cache_data();
 
-    time_t start_date = training->find_training_start_date();
-    time_t end_date = config.training.training_end_date;
     TimeFrame loop_timeframe = config.strategy.timeframe;
     int loop_timeframe_minutes = get_time_frame_value(loop_timeframe);
     int nb_dates = training->candles[loop_timeframe].size();
 
     // Check the dates is in the cache
-    ASSERT_EQ(training->cache.size(), nb_dates);
+    ASSERT_EQ(training->cache->data.size(), nb_dates);
 
     // Get the dates from the candles of loop_timeframe
     std::vector<time_t> dates;
@@ -186,19 +185,15 @@ TEST_F(TrainingTest, CacheData)
     // Check the dates in the cache
     for (const auto &date : dates)
     {
-        std::stringstream ss;
-        ss << std::put_time(std::localtime(&date), "%Y-%m-%d %H:%M:%S");
-        std::string date_string = ss.str();
-        ASSERT_TRUE(training->cache.find(date_string) != training->cache.end());
+        std::string date_string = std::to_string(date);
+        ASSERT_TRUE(training->cache->has(date_string));
     }
 
     for (const auto &date : dates)
     {
-        std::stringstream ss;
-        ss << std::put_time(std::localtime(&date), "%Y-%m-%d %H:%M:%S");
-        std::string date_string = ss.str();
+        std::string date_string = std::to_string(date);
 
-        for (const auto &[timeframe, candles] : training->cache[date_string].candles)
+        for (const auto &[timeframe, candles] : training->cache->get(date_string).candles)
         {
             // Check the candles are not empty
             ASSERT_FALSE(candles.empty());
@@ -206,11 +201,11 @@ TEST_F(TrainingTest, CacheData)
             // Check the last candle date
             if (timeframe == loop_timeframe)
             {
-                ASSERT_EQ(training->cache[date_string].candles[timeframe].back().date, date);
+                ASSERT_EQ(training->cache->get(date_string).candles[timeframe].back().date, date);
             }
             else
             {
-                ASSERT_LE(training->cache[date_string].candles[timeframe].back().date, date);
+                ASSERT_LE(training->cache->get(date_string).candles[timeframe].back().date, date);
             }
 
             // Check the the candle dates are well ordered
@@ -221,7 +216,7 @@ TEST_F(TrainingTest, CacheData)
         }
 
         // Check the the indicators are in the cache
-        for (const auto &[timeframe, indicators_data] : training->cache[date_string].indicators)
+        for (const auto &[timeframe, indicators_data] : training->cache->get(date_string).indicators)
         {
             for (const auto &[id, data] : indicators_data)
             {
@@ -230,7 +225,7 @@ TEST_F(TrainingTest, CacheData)
         }
 
         // Check the the base currency conversion rate is in the cache
-        ASSERT_GT(training->cache[date_string].base_currency_conversion_rate, 0);
+        ASSERT_GT(training->cache->get(date_string).base_currency_conversion_rate, 0);
     }
 }
 
@@ -247,13 +242,6 @@ TEST_F(TrainingTest, GetAllTimeframes)
     ASSERT_TRUE(std::find(timeframes.begin(), timeframes.end(), TimeFrame::M15) != timeframes.end());
     ASSERT_TRUE(std::find(timeframes.begin(), timeframes.end(), TimeFrame::M30) != timeframes.end());
     ASSERT_TRUE(std::find(timeframes.begin(), timeframes.end(), TimeFrame::H1) != timeframes.end());
-}
-
-TEST_F(TrainingTest, FindTrainingStartDate)
-{
-    training->load_candles();
-    time_t start_date = training->find_training_start_date();
-    ASSERT_GE(start_date, config.training.training_start_date);
 }
 
 TEST_F(TrainingTest, BestTraders)

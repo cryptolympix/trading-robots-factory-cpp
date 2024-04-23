@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <fstream>
 #include <filesystem>
+#include <nlohmann/json.hpp>
 #include "math_utils.hpp"
 #include "config.hpp"
 #include "node.hpp"
@@ -637,48 +638,128 @@ Genome *Genome::clone()
 
 void Genome::save(const std::string &file_path)
 {
-    // Check if the directory exists, create it if not
-    std::filesystem::path dir = std::filesystem::path(file_path).parent_path();
-    if (!std::filesystem::exists(dir))
+    try
     {
-        std::filesystem::create_directories(dir);
-    }
+        // Check if the directory exists, create it if not
+        std::filesystem::path dir = std::filesystem::path(file_path).parent_path();
+        if (!std::filesystem::exists(dir))
+        {
+            std::filesystem::create_directories(dir);
+        }
 
-    // If the file has no extension, append ".pkl"
-    std::filesystem::path path = file_path;
-    if (path.extension().empty())
-    {
-        path += ".pkl";
-    }
+        // If the file has no extension, append ".json"
+        std::filesystem::path path = file_path;
+        if (path.extension().empty())
+        {
+            path += ".json";
+        }
 
-    // Serialize and save the model to a file
-    std::ofstream file(file_path, std::ios::binary);
-    if (file.is_open())
-    {
-        file.write(reinterpret_cast<const char *>(this), sizeof(*this));
-        file.close();
+        // Create a JSON object to hold the genome data
+        nlohmann::json genome_json;
+
+        // Serialize simple data members
+        genome_json["id"] = id;
+        genome_json["inputs"] = inputs;
+        genome_json["outputs"] = outputs;
+        genome_json["layers"] = layers;
+        genome_json["next_node"] = next_node;
+        genome_json["fitness"] = fitness;
+
+        // Serialize nodes
+        nlohmann::json nodes_json;
+        for (const auto &node : nodes)
+        {
+            nlohmann::json node_json;
+            // Serialize node data
+            node_json["id"] = node->id;
+            node_json["layer"] = node->layer;
+            node_json["activation_function"] = node->activation_function;
+            // Add node to nodes array
+            nodes_json.push_back(node_json);
+        }
+        genome_json["nodes"] = nodes_json;
+
+        // Serialize genes
+        nlohmann::json genes_json;
+        for (const auto &gene : genes)
+        {
+            nlohmann::json gene_json;
+            // Serialize gene data
+            gene_json["innovation_nb"] = gene->innovation_nb;
+            gene_json["from_node_id"] = gene->from_node->id;
+            gene_json["to_node_id"] = gene->to_node->id;
+            gene_json["enabled"] = gene->enabled;
+            gene_json["weight"] = gene->weight;
+            // Add gene to genes array
+            genes_json.push_back(gene_json);
+        }
+        genome_json["genes"] = genes_json;
+
+        // Write JSON to file
+        std::ofstream file(file_path);
+        if (!file.is_open())
+        {
+            throw std::runtime_error("Failed to open file for writing: " + file_path);
+        }
+        file << genome_json.dump(4); // Pretty-print with 4 spaces
+        file.close();                // Close the file after writing
     }
-    else
+    catch (const std::exception &e)
     {
-        std::cerr << "Failed to save genome to '" << file_path << "'" << std::endl;
+        std::cerr << "Failed to save genome: " << e.what() << std::endl;
     }
 }
 
 Genome *Genome::load(const std::string &file_path)
 {
-    // Load the saved genome
-    Genome *loadedGenome = new Genome;
-    std::ifstream file(file_path, std::ios::binary);
-    if (file.is_open())
+    try
     {
-        file.read(reinterpret_cast<char *>(loadedGenome), sizeof(*loadedGenome));
-        file.close();
+        // Read JSON from file
+        std::ifstream file(file_path);
+        nlohmann::json genome_json;
+        file >> genome_json;
+
+        // Create a new Genome object
+        Genome *loaded_genome = new Genome;
+
+        // Deserialize simple data members
+        loaded_genome->id = genome_json["id"];
+        loaded_genome->inputs = genome_json["inputs"];
+        loaded_genome->outputs = genome_json["outputs"];
+        loaded_genome->layers = genome_json["layers"];
+        loaded_genome->next_node = genome_json["next_node"];
+        loaded_genome->fitness = genome_json["fitness"];
+
+        // Deserialize nodes
+        for (const auto &node_json : genome_json["nodes"])
+        {
+            int id = node_json["id"];
+            int layer = node_json["layer"];
+            std::string activation_function = node_json["activation_function"];
+            loaded_genome->nodes.push_back(std::make_shared<Node>(id, activation_function, layer));
+        }
+
+        // Deserialize genes
+        for (const auto &gene_json : genome_json["genes"])
+        {
+            int innovation_nb = gene_json["innovation_nb"];
+            int from_node_id = gene_json["from_node_id"];
+            int to_node_id = gene_json["to_node_id"];
+            bool enabled = gene_json["enabled"];
+            double weight = gene_json["weight"];
+
+            std::shared_ptr<Node> from_node = loaded_genome->get_node(from_node_id);
+            std::shared_ptr<Node> to_node = loaded_genome->get_node(to_node_id);
+
+            loaded_genome->genes.push_back(std::make_shared<ConnectionGene>(from_node, to_node, weight, innovation_nb, enabled));
+        }
+
+        loaded_genome->generate_network();
+        return loaded_genome;
     }
-    else
+    catch (const std::exception &e)
     {
-        std::cerr << "Failed to load genome from '" << file_path << "'" << std::endl;
-        delete loadedGenome; // Cleanup in case of failure
-        loadedGenome = nullptr;
+        std::cerr << "Failed to load genome: " << e.what() << std::endl;
+        return nullptr;
     }
-    return loadedGenome;
 }

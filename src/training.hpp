@@ -4,6 +4,7 @@
 #include "types.hpp"
 #include "utils/indexer.hpp"
 #include "utils/uid.hpp"
+#include "utils/cache.hpp"
 #include "utils/progress_bar.hpp"
 #include "trader.hpp"
 #include "neat/population.hpp"
@@ -28,15 +29,16 @@ class Trader;
 class Training
 {
 public:
-    std::string id;                  // Unique identifier for the training process.
-    bool debug;                      // Debug mode flag.
-    Config config;                   // Configuration object.
-    std::filesystem::path directory; // Directory to save the training results.
+    std::string id;                   // Unique identifier for the training process.
+    bool debug;                       // Debug mode flag.
+    Config config;                    // Configuration object.
+    std::filesystem::path directory;  // Directory to save the training results.
+    std::filesystem::path cache_file; // Optional cache file path.
 
     CandlesData candles;                                          // Candle data for all time frames.
     IndicatorsData indicators;                                    // Indicator data for all time frames.
     BaseCurrencyConversionRateData base_currency_conversion_rate; // Conversion rate when the base asset traded is different from the account currency.
-    Cache cache;                                                  // Cached data for faster access.
+    Cache *cache;                                                 // Cached data for faster access.
 
     Population *population;                       // NEAT population for evolution.
     std::map<int, std::vector<Trader *>> traders; // Map of traders for each generation.
@@ -91,12 +93,6 @@ public:
      * @return Vector of timeframes.
      */
     std::vector<TimeFrame> get_all_timeframes() const;
-
-    /**
-     * @brief Adjust the training start date based on available candles.
-     * @return Adjusted training start date.
-     */
-    time_t find_training_start_date() const;
 
     /**
      * @brief Update the best trader of all the training and the best trader of a generation.
