@@ -1048,9 +1048,10 @@ TEST_F(TraderTest, CalculateStatsMonthlyReturns)
 
     // Mock data for testing
     trader->trades_history = {
-        {.pnl_percent = 0.1, .closed = true, .exit_date = std::mktime(&first_month)},
-        {.pnl_percent = -0.1, .closed = true, .exit_date = std::mktime(&second_month)},
-        {.pnl_percent = 0.0, .closed = true, .exit_date = std::mktime(&third_month)},
+        {.pnl_net_percent = 0.2, .closed = true, .exit_date = std::mktime(&first_month)},
+        {.pnl_net_percent = 0.5, .closed = true, .exit_date = std::mktime(&first_month)},
+        {.pnl_net_percent = -0.1, .closed = true, .exit_date = std::mktime(&second_month)},
+        {.pnl_net_percent = 0.0, .closed = true, .exit_date = std::mktime(&third_month)},
     };
 
     // Call the calculate_stats method
@@ -1058,7 +1059,7 @@ TEST_F(TraderTest, CalculateStatsMonthlyReturns)
 
     // Check if stats are updated correctly
     ASSERT_EQ(trader->stats.monthly_returns.size(), 3);
-    ASSERT_EQ(trader->stats.monthly_returns["2023-01"], 0.1);
+    ASSERT_EQ(trader->stats.monthly_returns["2023-01"], 0.8);
     ASSERT_EQ(trader->stats.monthly_returns["2023-02"], -0.1);
     ASSERT_EQ(trader->stats.monthly_returns["2023-03"], 0.0);
 }

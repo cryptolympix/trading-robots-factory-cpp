@@ -97,36 +97,27 @@ void Training::prepare()
     {
         // Progress bar
         std::cout << "⏳ Load the candles..." << std::endl;
-        int total_iter1 = all_timeframes.size();
-        ProgressBar *progress_bar1 = new ProgressBar(100, total_iter1);
-        this->load_candles(progress_bar1);
+        this->load_candles();
         std::cout << "✅ Candles loaded!" << std::endl;
 
         std::cout << "⏳ Load the indicators..." << std::endl;
-        int total_iter2 = this->count_indicators();
-        ProgressBar *progress_bar2 = new ProgressBar(100, total_iter2);
-        this->load_indicators(progress_bar2);
+        this->load_indicators();
         std::cout << "✅ Indicators loaded!" << std::endl;
 
         std::cout << "⏳ Load the base currency conversion rate..." << std::endl;
-        int total_iter3 = 1;
-        ProgressBar *progress_bar3 = new ProgressBar(100, total_iter3);
-        this->load_base_currency_conversion_rate(progress_bar3);
+        this->load_base_currency_conversion_rate();
         std::cout << "✅ Base currency conversion rate loaded!" << std::endl;
 
         std::cout << "⏳ Cache the data..." << std::endl;
-        int total_iter4 = this->candles[this->config.strategy.timeframe].size();
-        ProgressBar *progress_bar4 = new ProgressBar(100, total_iter4);
-        this->cache_data(progress_bar4);
+        this->cache_data();
         std::cout << "✅ Cache created!" << std::endl;
     }
 }
 
 /**
  * @brief Load candle data for all time frames.
- * @param progress_bar Progress bar for loading candles.
  */
-void Training::load_candles(ProgressBar *progress_bar)
+void Training::load_candles()
 {
     std::vector<TimeFrame> all_timeframes = this->get_all_timeframes();
     for (int i = 0; i < all_timeframes.size(); i++)
@@ -135,23 +126,13 @@ void Training::load_candles(ProgressBar *progress_bar)
         time_t start_date = this->config.training.training_start_date;
         time_t end_date = this->config.training.test_end_date;
         candles[tf] = read_data(config.general.symbol, tf, start_date, end_date);
-        if (progress_bar)
-        {
-            progress_bar->update(1);
-        }
-    }
-
-    if (progress_bar)
-    {
-        progress_bar->complete();
     }
 }
 
 /**
  * @brief Calculate and store all indicator values to the cache.
- * @param progress_bar Progress bar for loading indicators.
  */
-void Training::load_indicators(ProgressBar *progress_bar)
+void Training::load_indicators()
 {
     std::__1::unordered_map<TimeFrame, std::vector<Indicator *>> all_indicators = config.training.inputs.indicators;
 
@@ -172,25 +153,14 @@ void Training::load_indicators(ProgressBar *progress_bar)
             {
                 this->indicators[tf][tf_indicator->id] = tf_indicator->calculate(this->candles[tf], true);
             }
-
-            if (progress_bar)
-            {
-                progress_bar->update(1);
-            }
         }
-    }
-
-    if (progress_bar)
-    {
-        progress_bar->complete();
     }
 }
 
 /**
  * @brief Load the conversion rate when the base asset traded is different from the account currency.
- * @param progress_bar Progress bar for loading the conversion rate.
  */
-void Training::load_base_currency_conversion_rate(ProgressBar *progress_bar)
+void Training::load_base_currency_conversion_rate()
 {
     std::string account_currency = this->config.general.account_currency;
     std::string base_currency_traded = symbol_infos[this->config.general.symbol].base;
@@ -215,19 +185,12 @@ void Training::load_base_currency_conversion_rate(ProgressBar *progress_bar)
             base_currency_conversion_rate[candle.date] = candle.close;
         }
     }
-
-    if (progress_bar)
-    {
-        progress_bar->update(1);
-        progress_bar->complete();
-    }
 }
 
 /**
  * @brief Cache all the data (candles, indicators and base currencyconversion rate values) for every datetime.
- * @param progress_bar Progress bar for caching data.
  */
-void Training::cache_data(ProgressBar *progress_bar)
+void Training::cache_data()
 {
     std::vector<TimeFrame> all_timeframes = get_all_timeframes();
     TimeFrame loop_timeframe = config.strategy.timeframe;
@@ -292,20 +255,10 @@ void Training::cache_data(ProgressBar *progress_bar)
 
         // Cache the data
         this->cache->add(std::to_string(date), CacheData{.candles = current_candles, .indicators = current_indicators, .base_currency_conversion_rate = current_base_currency_conversion_rate});
-
-        if (progress_bar)
-        {
-            progress_bar->update(1);
-        }
     }
 
     // Create the file of the cache
     cache->create();
-
-    if (progress_bar)
-    {
-        progress_bar->complete();
-    };
 }
 
 /**

@@ -31,7 +31,7 @@ TakeProfitStopLossConfig tpsl_config = {
 
 std::tm start_training_date = {
     .tm_year = 2023 - 1900,
-    .tm_mon = 0,
+    .tm_mon = 1,
     .tm_mday = 1,
     .tm_hour = 0,
     .tm_min = 0,
@@ -39,7 +39,7 @@ std::tm start_training_date = {
 
 std::tm end_training_date = {
     .tm_year = 2023 - 1900,
-    .tm_mon = 1,
+    .tm_mon = 2,
     .tm_mday = 1,
     .tm_hour = 0,
     .tm_min = 0,
@@ -47,7 +47,7 @@ std::tm end_training_date = {
 
 std::tm start_test_date = {
     .tm_year = 2023 - 1900,
-    .tm_mon = 1,
+    .tm_mon = 2,
     .tm_mday = 1,
     .tm_hour = 0,
     .tm_min = 0,
@@ -55,8 +55,8 @@ std::tm start_test_date = {
 
 std::tm end_test_date = {
     .tm_year = 2023 - 1900,
-    .tm_mon = 2,
-    .tm_mday = 1,
+    .tm_mon = 3,
+    .tm_mday = 31,
     .tm_hour = 0,
     .tm_min = 0,
     .tm_sec = 0};
@@ -75,7 +75,7 @@ Config test_config = {
         .maximum_spread = 8,
         // .minimum_trade_duration = 0,
         // .maximum_trade_duration = 10,
-        .minimum_duration_before_next_trade = 4,
+        .minimum_duration_before_next_trade = 10,
         .maximum_trades_per_day = 2,
         .trading_schedule = schedule,
         .take_profit_stop_loss_config = tpsl_config},
@@ -170,7 +170,7 @@ Config test_config = {
         .minimum_profit_factor = 3,
         .minimum_winrate = 0.8,
         .maximum_drawdown = 0.05,
-        .expected_return_per_day = 0.01,
-        .expected_return_per_month = 0.2,
+        .expected_return_per_day = 0.02,
+        .expected_return_per_month = 0.5,
     },
     .neat = load_config("src/configs/neat_config_test.ini")};

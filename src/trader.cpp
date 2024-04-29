@@ -627,14 +627,18 @@ void Trader::calculate_stats()
     for (const auto &trade : closed_trades)
     {
         std::tm *exit_date = std::localtime(&trade.exit_date);
-        double trade_return = trade.pnl_percent;
+        double trade_return = trade.pnl_net_percent;
         std::stringstream date_key;
         date_key << std::put_time(exit_date, "%Y-%m");
         if (this->stats.monthly_returns.find(date_key.str()) == this->stats.monthly_returns.end())
         {
-            this->stats.monthly_returns[date_key.str()] = 0;
+            this->stats.monthly_returns[date_key.str()] = 1.0;
         }
-        this->stats.monthly_returns[date_key.str()] += trade_return;
+        this->stats.monthly_returns[date_key.str()] *= (1.0 + trade_return);
+    }
+    for (const auto &[month, monthly_return] : this->stats.monthly_returns)
+    {
+        this->stats.monthly_returns[month] = decimal_round(monthly_return - 1.0, 4);
     }
 
     // Calculate the sharpe ratio
@@ -904,17 +908,20 @@ void Trader::close_position_by_market(double price)
 
     if (this->current_position != nullptr)
     {
+        // Calculate the fees
         double fees = calculate_commission(this->symbol_info.commission_per_lot, this->current_position->size, this->current_base_currency_conversion_rate);
-        this->balance = std::max(0.0, this->balance + this->current_position->pnl - fees);
 
-        // Create the trade in the history
         this->trades_history.back().exit_date = this->current_date;
         this->trades_history.back().exit_price = price;
         this->trades_history.back().duration = duration_in_position;
         this->trades_history.back().pnl = this->current_position->pnl;
-        this->trades_history.back().pnl_percent = this->current_position->pnl / this->balance;
         this->trades_history.back().fees += fees;
+        this->trades_history.back().pnl_percent = this->current_position->pnl / (this->balance + fees);
+        this->trades_history.back().pnl_net_percent = (this->current_position->pnl - this->trades_history.back().fees) / (this->balance + fees);
         this->trades_history.back().closed = true;
+
+        // Update the balance
+        this->balance = std::max(0.0, this->balance + this->current_position->pnl - fees);
 
         if (this->logger != nullptr)
         {
@@ -945,16 +952,20 @@ void Trader::close_position_by_limit(double price)
 
     if (this->current_position != nullptr)
     {
+        // Calculate the fees
         double fees = calculate_commission(this->symbol_info.commission_per_lot, this->current_position->size, this->current_base_currency_conversion_rate);
-        this->balance = std::max(0.0, this->balance + this->current_position->pnl - fees);
 
         this->trades_history.back().exit_date = this->current_date;
         this->trades_history.back().exit_price = price;
         this->trades_history.back().duration = duration_in_position;
         this->trades_history.back().pnl = this->current_position->pnl;
-        this->trades_history.back().pnl_percent = this->current_position->pnl / this->balance;
         this->trades_history.back().fees += fees;
+        this->trades_history.back().pnl_percent = this->current_position->pnl / (this->balance + fees);
+        this->trades_history.back().pnl_net_percent = (this->current_position->pnl - this->trades_history.back().fees) / (this->balance + fees);
         this->trades_history.back().closed = true;
+
+        // Update the balance
+        this->balance = std::max(0.0, this->balance + this->current_position->pnl - fees);
 
         if (this->logger != nullptr)
         {
