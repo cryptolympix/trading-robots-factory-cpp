@@ -35,7 +35,7 @@ public:
     std::filesystem::path directory;  // Directory to save the training results.
     std::filesystem::path cache_file; // Optional cache file path.
 
-    CandlesData candles;                                          // Candle data for all time frames.
+    CandleSticksData candles;                                     // Candle data for all time frames.
     IndicatorsData indicators;                                    // Indicator data for all time frames.
     BaseCurrencyConversionRateData base_currency_conversion_rate; // Conversion rate when the base asset traded is different from the account currency.
     Cache *cache;                                                 // Cached data for faster access.

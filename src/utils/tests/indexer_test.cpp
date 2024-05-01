@@ -26,10 +26,10 @@ protected:
         window = 2;
 
         // Mock data for candles
-        CandlesData candles;
+        CandleSticksData candles;
         for (int i = 0; i < 5; ++i)
         {
-            candles[TimeFrame::H1].push_back(Candle{initial_date + i * 3600, 1.0, 2.0, 0.5, 1.5});
+            candles[TimeFrame::H1].push_back(CandleStick{initial_date + i * 3600, 1.0, 2.0, 0.5, 1.5});
         }
 
         indexer = new Indexer(candles, window);

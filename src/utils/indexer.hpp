@@ -13,7 +13,7 @@
 class Indexer
 {
 private:
-    CandlesData candles;                                        // A dictionary containing candle data for different timeframes. */
+    CandleSticksData candles;                                   // A dictionary containing candle data for different timeframes. */
     int window;                                                 // The size of the window for parsing candles. */
     std::unordered_map<TimeFrame, std::pair<int, int>> indexes; // A dictionary storing start and end indexes for each timeframe. */
 
@@ -24,7 +24,7 @@ public:
      * @param candles_data A dictionary containing candle data for different timeframes.
      * @param window The size of the window for parsing candles.
      */
-    Indexer(const CandlesData &candles, int window);
+    Indexer(const CandleSticksData &candles, int window);
 
     /**
      * @brief Updates the indexes based on the specified date.

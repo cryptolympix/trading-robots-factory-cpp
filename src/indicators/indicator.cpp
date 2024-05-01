@@ -18,7 +18,7 @@ Indicator::Indicator(const std::string &label, const std::string &id, int offset
  * @param normalize_data Normalize the data.
  * @return std::vector<double> The calculated indicator values.
  */
-std::vector<double> Indicator::calculate(const std::vector<Candle> &candles, std::function<std::vector<double>(std::vector<Candle>)> calculator, bool normalize_data) const
+std::vector<double> Indicator::calculate(const std::vector<CandleStick> &candles, std::function<std::vector<double>(std::vector<CandleStick>)> calculator, bool normalize_data) const
 {
     std::vector<double> values;
     values.reserve(candles.size());
@@ -47,7 +47,7 @@ std::vector<double> Indicator::calculate(const std::vector<Candle> &candles, std
     // Adjust candles based on the offset
     if (offset > 0)
     {
-        std::vector<Candle> adjusted_candles(candles.begin(), candles.end() - offset);
+        std::vector<CandleStick> adjusted_candles(candles.begin(), candles.end() - offset);
         // Calculate the indicator
         values = calculator(adjusted_candles);
 
@@ -84,10 +84,10 @@ std::vector<double> Indicator::calculate(const std::vector<Candle> &candles, std
  * @param candles The candles data.
  * @param normalize_data Normalize the data.
  */
-std::vector<double> Indicator::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+std::vector<double> Indicator::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [](std::vector<Candle> candles)
+        candles, [](std::vector<CandleStick> candles)
         { return std::vector<double>(candles.size(), 0.0); },
         normalize_data);
 }

@@ -25,11 +25,11 @@ protected:
         std::time_t date = std::mktime(&timeInfo);
 
         // Mock data initialization
-        mock_candles = {Candle{.date = date, .open = 2, .high = 3, .low = 1, .close = 2, .volume = 100},
-                        Candle{.date = date, .open = 2, .high = 3, .low = 1, .close = 2, .volume = 110}};
+        mock_candles = {CandleStick{.date = date, .open = 2, .high = 3, .low = 1, .close = 2, .volume = 100},
+                        CandleStick{.date = date, .open = 2, .high = 3, .low = 1, .close = 2, .volume = 110}};
     }
 
-    std::vector<Candle> mock_candles;
+    std::vector<CandleStick> mock_candles;
 };
 
 TEST_F(TestCandlesSource, GetCandlesWithUnknownSource)

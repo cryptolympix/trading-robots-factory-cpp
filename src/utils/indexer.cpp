@@ -12,7 +12,7 @@
  * @param candles_data A dictionary containing candle data for different timeframes.
  * @param window The size of the window for parsing candles.
  */
-Indexer::Indexer(const CandlesData &candles, int window) : candles(candles), window(window)
+Indexer::Indexer(const CandleSticksData &candles, int window) : candles(candles), window(window)
 {
     // Initialize indexes with start and end set to 0 for each timeframe
     for (const auto &[tf, c] : candles)

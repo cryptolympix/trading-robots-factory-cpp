@@ -22,14 +22,14 @@ ADX::ADX(int adx_period, int offset) : Indicator("Average Directional Movement I
 /**
  * @brief Calculate the Average Directional Index (ADX).
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing ADX values.
  */
-std::vector<double> ADX::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+std::vector<double> ADX::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<Candle> candles) -> std::vector<double>
+        candles, [this](std::vector<CandleStick> candles) -> std::vector<double>
         {
             std::vector<double> adx_values(candles.size(), 0.0); // Initialize adx_values with the same size as input vectors
 
@@ -176,14 +176,14 @@ AroonUp::AroonUp(int period, int offset) : Indicator("Aroon Up", "aroon-up-" + s
 /**
  * @brief Calculate the Aroon Up values.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> AroonUp::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+std::vector<double> AroonUp::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<Candle> candles) -> std::vector<double>
+        candles, [this](std::vector<CandleStick> candles) -> std::vector<double>
         {
             // Initialize aroon_up_values with the same size as input vectors
             std::vector<double> aroon_up_values(candles.size(), 0.0);
@@ -233,14 +233,14 @@ AroonDown::AroonDown(int period, int offset) : Indicator("Aroon Down", "aroon-do
 /**
  * @brief Calculate the Aroon Down values.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> AroonDown::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+std::vector<double> AroonDown::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<Candle> candles) -> std::vector<double>
+        candles, [this](std::vector<CandleStick> candles) -> std::vector<double>
         {
             std::vector<double> aroon_down_values(candles.size(), 0.0); // Initialize aroon_trend_values with the same size as input vectors
             
@@ -289,14 +289,14 @@ CCI::CCI(int period, int offset) : Indicator("Commodity Channel Index", "cci-" +
 /**
  * @brief Calculate the CCI values.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> CCI::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+std::vector<double> CCI::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<Candle> candles)
+        candles, [this](std::vector<CandleStick> candles)
         {
             // Initialize cci_values with the same size as input vectors
             std::vector<double> cci_values(candles.size(), 0.0); 
@@ -369,14 +369,14 @@ DPO::DPO(int period, int offset) : Indicator("Detrended Price Oscillator", "dpo-
 /**
  * @brief Calculate the DPO values.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> DPO::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+std::vector<double> DPO::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<Candle> candles)
+        candles, [this](std::vector<CandleStick> candles)
         {
             // Initialize dpo_values with the same size as input vectors
             std::vector<double> dpo_values(candles.size(), 0.0);
@@ -417,14 +417,14 @@ EMA::EMA(std::string source, int period, int offset) : Indicator("Exponential Mo
 /**
  * @brief Calculate the EMA values.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> EMA::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+std::vector<double> EMA::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<Candle> candles)
+        candles, [this](std::vector<CandleStick> candles)
         {
             std::vector<double> ema_values(candles.size(), 0.0); // Initialize ema_values with the same size as input vectors
 
@@ -467,14 +467,14 @@ KST::KST(int roc_periods1, int roc_periods2, int roc_periods3, int roc_periods4,
 /**
  * @brief Calculate the KST Oscillator values.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> KST::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+std::vector<double> KST::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<Candle> candles)
+        candles, [this](std::vector<CandleStick> candles)
         {
             ROC roc1(roc_periods1);
             ROC roc2(roc_periods2);
@@ -519,15 +519,15 @@ MACD::MACD(int short_period, int long_period, int signal_period, int offset) : I
 /**
  * @brief Calculate the MACD line and signal line.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing MACD line.
  * @details The MACD line is calculated as the difference between the short EMA and the long EMA.
  */
-std::vector<double> MACD::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+std::vector<double> MACD::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<Candle> candles) -> std::vector<double>
+        candles, [this](std::vector<CandleStick> candles) -> std::vector<double>
         {
             std::vector<double> closes = get_candles_with_source(candles, "close");
 
@@ -591,14 +591,14 @@ MI::MI(int offset) : Indicator("Mass Index", "mass-index-" + std::to_string(offs
 /**
  * @brief Calculate the Mass Index values.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> MI::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+std::vector<double> MI::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<Candle> candles)
+        candles, [this](std::vector<CandleStick> candles)
         {
             std::vector<double> high_low_diff;
             high_low_diff.reserve(candles.size());
@@ -650,14 +650,14 @@ ParabolicSAR::ParabolicSAR(double acceleration_factor_initial, double accelerati
 /**
  * @brief Calculate the Parabolic SAR values.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing the Parabolic SAR values.
  */
-std::vector<double> ParabolicSAR::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+std::vector<double> ParabolicSAR::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<Candle> candles) -> std::vector<double>
+        candles, [this](std::vector<CandleStick> candles) -> std::vector<double>
         {
             std::vector<double> sar_values(candles.size(), 0.0);
 
@@ -743,14 +743,14 @@ SMA::SMA(std::string source, int period, int offset) : Indicator("Simple Moving 
 /**
  * @brief Calculate the Simple Moving Average (SMA).
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing the calculated SMA values.
  */
-std::vector<double> SMA::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+std::vector<double> SMA::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<Candle> candles)
+        candles, [this](std::vector<CandleStick> candles)
         {
             std::vector<double> values = get_candles_with_source(candles, source);
             return calculate_simple_moving_average(values, period); },
@@ -769,14 +769,14 @@ STC::STC(int short_length, int long_length, int cycle_length, int offset)
 /**
  * @brief Calculate the Schaff Trend Cycle (STC) values.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> STC::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+std::vector<double> STC::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](const std::vector<Candle> &candles) -> std::vector<double>
+        candles, [this](const std::vector<CandleStick> &candles) -> std::vector<double>
         {
             // Calculate MACD using MACD class
             MACD macd_calculator(short_length, long_length);
@@ -841,14 +841,14 @@ TRIX::TRIX(int period, int offset) : Indicator("TRIX", "trix-" + std::to_string(
 /**
  * @brief Calculate the TRIX values.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<Candle> Vector containing calculated values.
  */
-std::vector<double> TRIX::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+std::vector<double> TRIX::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](const std::vector<Candle> &candles) -> std::vector<double>
+        candles, [this](const std::vector<CandleStick> &candles) -> std::vector<double>
         {
                 std::vector<double> closes = get_candles_with_source(candles, "close");
                 std::vector<double> ema1 = calculate_exponential_moving_average(closes, period);
@@ -882,11 +882,11 @@ Vortex::Vortex(int period, int offset)
 /**
  * @brief Calculate the Vortex Indicator values.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated Vortex Indicator values.
  */
-std::vector<double> Vortex::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+std::vector<double> Vortex::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
 {
     std::vector<double> positive_trend_movement(candles.size(), 0);
     std::vector<double> negative_trend_movement(candles.size(), 0);
@@ -953,14 +953,14 @@ InstitutionalBias::InstitutionalBias(int short_period, int long_period, int offs
 /**
  * @brief Calculate the Institutional Bias values.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<int> Vector containing calculated values. 1 for short EMA > long EMA, -1 otherwise.
  */
-std::vector<double> InstitutionalBias::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+std::vector<double> InstitutionalBias::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](const std::vector<Candle> &candles) -> std::vector<double>
+        candles, [this](const std::vector<CandleStick> &candles) -> std::vector<double>
         {
             std::vector<double> closes = get_candles_with_source(candles, "close");
             std::vector<double> short_ema = calculate_exponential_moving_average(closes, short_period);
@@ -1003,10 +1003,10 @@ EMADifference::EMADifference(int short_period, int long_period, int offset) : In
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing the calculated difference values.
  */
-std::vector<double> EMADifference::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+std::vector<double> EMADifference::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](const std::vector<Candle> &candles) -> std::vector<double>
+        candles, [this](const std::vector<CandleStick> &candles) -> std::vector<double>
         {
             std::vector<double> closes = get_candles_with_source(candles, "close");
             std::vector<double> short_ema = calculate_exponential_moving_average(closes, short_period);
@@ -1037,14 +1037,14 @@ AroonTrend::AroonTrend(int period, int offset) : Indicator("Aroon Trend", "aroon
 /**
  * @brief Calculate the Aroon Up values.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> AroonTrend::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+std::vector<double> AroonTrend::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<Candle> candles) -> std::vector<double>
+        candles, [this](std::vector<CandleStick> candles) -> std::vector<double>
         {
             std::vector<double> aroon_trend_values(candles.size(), 0.0); // Initialize aroon_trend_values with the same size as input vectors
             
@@ -1125,14 +1125,14 @@ IchimokuCloudTrend::IchimokuCloudTrend(int conversion_period, int base_period, i
 /**
  * @brief Calculate the Ichimoku Cloud Trend values.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated Ichimoku Cloud values.
  */
-std::vector<double> IchimokuCloudTrend::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+std::vector<double> IchimokuCloudTrend::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](const std::vector<Candle> &candles) -> std::vector<double>
+        candles, [this](const std::vector<CandleStick> &candles) -> std::vector<double>
         {
             std::vector<double> conversion_line(candles.size(), 0.0);
             std::vector<double> base_line(candles.size(), 0.0);
@@ -1241,14 +1241,14 @@ IchimokuKijunTenkanTrend::IchimokuKijunTenkanTrend(int conversion_period, int ba
 /**
  * @brief Calculate the Ichimoku Kijun Tenkan Trend values.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated Ichimoku Cloud values.
  */
-std::vector<double> IchimokuKijunTenkanTrend::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+std::vector<double> IchimokuKijunTenkanTrend::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](const std::vector<Candle> &candles) -> std::vector<double>
+        candles, [this](const std::vector<CandleStick> &candles) -> std::vector<double>
         {
             std::vector<double> conversion_line(candles.size(), 0.0);
             std::vector<double> base_line(candles.size(), 0.0);
@@ -1323,14 +1323,14 @@ SMASlope::SMASlope(int period, std::string source, int offset)
 /**
  * @brief Calculate the slope of the simple moving average.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated slope values.
  */
-std::vector<double> SMASlope::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+std::vector<double> SMASlope::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](const std::vector<Candle> &candles) -> std::vector<double>
+        candles, [this](const std::vector<CandleStick> &candles) -> std::vector<double>
         {
             // Calculate the moving average
             std::vector<double> sma_values = calculate_simple_moving_average(get_candles_with_source(candles, source), period);
@@ -1366,14 +1366,14 @@ EMASlope::EMASlope(int period, std::string source, int offset)
 /**
  * @brief Calculate the slope of the exponential moving average.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated slope values.
  */
-std::vector<double> EMASlope::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+std::vector<double> EMASlope::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](const std::vector<Candle> &candles) -> std::vector<double>
+        candles, [this](const std::vector<CandleStick> &candles) -> std::vector<double>
         {
             // Calculate the moving average
             std::vector<double> sma_values = calculate_exponential_moving_average(get_candles_with_source(candles, source), period);
@@ -1405,14 +1405,14 @@ Zigzag::Zigzag(double deviation, int offset) : Indicator("Zigzag", "zigzag-" + s
 /**
  * @brief Calculate the Zigzag values.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated Zigzag values.
  */
-std::vector<double> Zigzag::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+std::vector<double> Zigzag::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](const std::vector<Candle> &candles) -> std::vector<double>
+        candles, [this](const std::vector<CandleStick> &candles) -> std::vector<double>
         {
             std::vector<double> zigzag_values(candles.size(), 0.0);
 

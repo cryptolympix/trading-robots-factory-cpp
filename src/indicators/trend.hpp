@@ -32,11 +32,11 @@ public:
     /**
      * @brief Calculate the Average Directional Movement Index values.
      *
-     * @param candles Vector of Candle data.
+     * @param candles Vector of CandleStick data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
 
 private:
     int adx_period; // Period value
@@ -97,11 +97,11 @@ public:
     /**
      * @brief Calculate the Aroon Up values.
      *
-     * @param candles Vector of Candle data.
+     * @param candles Vector of CandleStick data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
 
 private:
     int period;
@@ -128,11 +128,11 @@ public:
     /**
      * @brief Calculate the Aroon Down values.
      *
-     * @param candles Vector of Candle data.
+     * @param candles Vector of CandleStick data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
 
 private:
     int period;
@@ -157,11 +157,11 @@ public:
     /**
      * @brief Calculate the CCI values.
      *
-     * @param candles Vector of Candle data.
+     * @param candles Vector of CandleStick data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
 
 private:
     int period;
@@ -197,11 +197,11 @@ public:
     /**
      * @brief Calculate the DPO values.
      *
-     * @param candles Vector of Candle data.
+     * @param candles Vector of CandleStick data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
 
 private:
     int period;
@@ -230,11 +230,11 @@ public:
     /**
      * @brief Calculate the EMA values.
      *
-     * @param candles Vector of Candle data.
+     * @param candles Vector of CandleStick data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
 
 private:
     std::string source;
@@ -272,11 +272,11 @@ public:
     /**
      * @brief Calculate the KST Oscillator values.
      *
-     * @param candles Vector of Candle data.
+     * @param candles Vector of CandleStick data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
 
 private:
     int roc_periods1, roc_periods2, roc_periods3, roc_periods4;
@@ -307,11 +307,11 @@ public:
     /**
      * @brief Calculate the MACD line and signal line.
      *
-     * @param candles Vector of Candle data.
+     * @param candles Vector of CandleStick data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing MACD line.
      */
-    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
 
 private:
     int short_period;  // Short EMA period
@@ -355,11 +355,11 @@ public:
     /**
      * @brief Calculate the Mass Index values.
      *
-     * @param candles Vector of Candle data.
+     * @param candles Vector of CandleStick data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
 };
 
 // *********************************************************************************************
@@ -384,10 +384,10 @@ public:
     /**
      * @brief Calculate the Parabolic SAR values.
      *
-     * @param candles Vector of Candle data.
+     * @param candles Vector of CandleStick data.
      * @return std::vector<double> Vector containing calculated Parabolic SAR values.
      */
-    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
 
 private:
     double acceleration_factor_initial; // Initial acceleration factor value.
@@ -418,11 +418,11 @@ public:
     /**
      * @brief Calculate the Simple Moving Average (SMA).
      *
-     * @param candles Vector of Candle data.
+     * @param candles Vector of CandleStick data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing the calculated SMA values.
      */
-    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
 
 private:
     std::string source; // Candle source
@@ -452,11 +452,11 @@ public:
     /**
      * @brief Calculate the Schaff Trend Cycle (STC) values.
      *
-     * @param candles Vector of Candle data.
+     * @param candles Vector of CandleStick data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated STC values.
      */
-    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
 
 private:
     int short_length; // The period for the shorter-term EMA.
@@ -497,11 +497,11 @@ public:
     /**
      * @brief Calculate the TRIX values.
      *
-     * @param candles Vector of Candle data.
+     * @param candles Vector of CandleStick data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
 };
 
 // *********************************************************************************************
@@ -520,11 +520,11 @@ public:
     /**
      * @brief Calculate the Vortex Indicator values.
      *
-     * @param candles Vector of Candle data.
+     * @param candles Vector of CandleStick data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated Vortex Indicator values.
      */
-    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
 
 private:
     int period; // The period for calculating Vortex Indicator.
@@ -551,11 +551,11 @@ public:
     /**
      * @brief Calculate the Institutional Bias values.
      *
-     * @param candles Vector of Candle data.
+     * @param candles Vector of CandleStick data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values. 1 for short EMA > long EMA, -1 otherwise.
      */
-    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
 };
 
 // *********************************************************************************************
@@ -579,11 +579,11 @@ public:
     /**
      * @brief Calculate the difference between two exponential moving averages.
      *
-     * @param candles Vector of Candle data.
+     * @param candles Vector of CandleStick data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing the calculated difference values.
      */
-    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
 };
 
 // *********************************************************************************************
@@ -607,11 +607,11 @@ public:
     /**
      * @brief Calculate the Aroon values.
      *
-     * @param candles Vector of Candle data.
+     * @param candles Vector of CandleStick data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
 
 private:
     int period;
@@ -641,11 +641,11 @@ public:
     /**
      * @brief Calculate the Ichimoku Cloud Trend values.
      *
-     * @param candles Vector of Candle data.
+     * @param candles Vector of CandleStick data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated Ichimoku Cloud Trend values.
      */
-    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
 
 private:
     int conversion_period; // The period for the Conversion Line (Tenkan-sen).
@@ -678,11 +678,11 @@ public:
     /**
      * @brief Calculate the Ichimoku Kijun Tenkan Trend values.
      *
-     * @param candles Vector of Candle data.
+     * @param candles Vector of CandleStick data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated Ichimoku Kijun Tenkan Trend values.
      */
-    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
 
 private:
     int conversion_period; // The period for the Conversion Line (Tenkan-sen).
@@ -713,11 +713,11 @@ public:
     /**
      * @brief Calculate the slope of the simple moving average.
      *
-     * @param candles Vector of Candle data.
+     * @param candles Vector of CandleStick data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated slope values.
      */
-    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
 
 private:
     int period;         // The period for the simple moving average.
@@ -746,11 +746,11 @@ public:
     /**
      * @brief Calculate the slope of the exponential moving average.
      *
-     * @param candles Vector of Candle data.
+     * @param candles Vector of CandleStick data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated slope values.
      */
-    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
 
 private:
     int period;         // The period for the exponential moving average.
@@ -778,11 +778,11 @@ public:
     /**
      * @brief Calculate the Zigzag values.
      *
-     * @param candles Vector of Candle data.
+     * @param candles Vector of CandleStick data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated Zigzag values.
      */
-    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
 
 private:
     double deviation; // The deviation value for the Zigzag calculation.

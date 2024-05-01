@@ -10,6 +10,7 @@
 #include "utils/time_frame.hpp"
 #include "utils/math.hpp"
 #include "utils/vectors.hpp"
+#include "utils/optional.cpp"
 #include "includes/gnuplot-iostream.hpp"
 #include "trading/trading_schedule.hpp"
 #include "trading/trading_tools.hpp"
@@ -108,7 +109,7 @@ Trader::Trader(Genome *genome, Config config, Logger *logger)
  * @param base_currency_conversion_rate Conversion rate when the base asset traded is different from the account currency.
  * @param position_infos Vector of position information.
  */
-void Trader::look(CandlesData &candles, IndicatorsData &indicators, double base_currency_conversion_rate, std::vector<PositionInfo> position_infos)
+void Trader::look(CandleSticksData &candles, IndicatorsData &indicators, double base_currency_conversion_rate, std::vector<PositionInfo> position_infos)
 {
     std::vector<double> indicators_values = {};
     std::unordered_map<TimeFrame, std::vector<Indicator *>> indicators_inputs = config.training.inputs.indicators;
@@ -653,7 +654,7 @@ void Trader::calculate_stats()
  */
 bool Trader::can_trade()
 {
-    Candle last_candle = this->candles[this->config.strategy.timeframe].back();
+    CandleStick last_candle = this->candles[this->config.strategy.timeframe].back();
 
     // Check if the trader can trade at the moment
     bool schedule_is_ok = true;
@@ -714,7 +715,7 @@ bool Trader::can_trade()
 void Trader::trade()
 {
     int loop_interval_minutes = get_time_frame_value(this->config.strategy.timeframe);
-    Candle last_candle = this->candles[this->config.strategy.timeframe].back();
+    CandleStick last_candle = this->candles[this->config.strategy.timeframe].back();
 
     // Position information
     bool has_position = this->current_position != nullptr;
@@ -902,7 +903,7 @@ void Trader::close_position_by_market(double price)
     }
     else
     {
-        Candle last_candle = this->candles[this->config.strategy.timeframe].back();
+        CandleStick last_candle = this->candles[this->config.strategy.timeframe].back();
         price = last_candle.close;
     }
 
@@ -946,7 +947,7 @@ void Trader::close_position_by_limit(double price)
     }
     else
     {
-        Candle last_candle = this->candles[this->config.strategy.timeframe].back();
+        CandleStick last_candle = this->candles[this->config.strategy.timeframe].back();
         price = last_candle.close;
     }
 
@@ -1005,7 +1006,7 @@ void Trader::create_open_order(OrderType type, OrderSide side, double price)
  */
 void Trader::check_open_orders()
 {
-    Candle last_candle = this->candles[this->config.strategy.timeframe].back();
+    CandleStick last_candle = this->candles[this->config.strategy.timeframe].back();
 
     if (this->open_orders.size() > 0)
     {

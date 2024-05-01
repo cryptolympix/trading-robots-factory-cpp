@@ -9,7 +9,7 @@
 class TrendIndicatorsTest : public ::testing::Test
 {
 protected:
-    std::vector<Candle> mock_candles;
+    std::vector<CandleStick> mock_candles;
 
     void SetUp() override
     {

@@ -24,20 +24,20 @@ public:
     /**
      * @brief Calculate the Average True Range values.
      *
-     * @param candles Vector of Candle data.
+     * @param candles Vector of CandleStick data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
 
 private:
     /**
      * @brief Calculate the True Range for a specific candle.
      *
-     * @param candles Vector of Candle data.
+     * @param candles Vector of CandleStick data.
      * @return std::vector<double> The calculated True Range values.
      */
-    std::vector<double> calculateTrueRange(const std::vector<Candle> &candles) const;
+    std::vector<double> calculateTrueRange(const std::vector<CandleStick> &candles) const;
 
     int period;
 };
@@ -59,11 +59,11 @@ public:
     /**
      * @brief Calculate the Bollinger Channel High Band values.
      *
-     * @param candles Vector of Candle data.
+     * @param candles Vector of CandleStick data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
 
 private:
     int period;
@@ -87,11 +87,11 @@ public:
     /**
      * @brief Calculate the Bollinger Channel Low Band values.
      *
-     * @param candles Vector of Candle data.
+     * @param candles Vector of CandleStick data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
 
 private:
     int period;
@@ -114,11 +114,11 @@ public:
     /**
      * @brief Calculate the Bollinger Channel Middle Band values.
      *
-     * @param candles Vector of Candle data.
+     * @param candles Vector of CandleStick data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
 
 private:
     int period;
@@ -152,11 +152,11 @@ public:
     /**
      * @brief Calculate the Bollinger Channel Percentage Band values.
      *
-     * @param candles Vector of Candle data.
+     * @param candles Vector of CandleStick data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
 
 private:
     int period;
@@ -180,11 +180,11 @@ public:
     /**
      * @brief Calculate the Bollinger Channel Width Band values.
      *
-     * @param candles Vector of Candle data.
+     * @param candles Vector of CandleStick data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
 
 private:
     int period;
@@ -207,11 +207,11 @@ public:
     /**
      * @brief Calculate the Donchian Channel High Band values.
      *
-     * @param candles Vector of Candle data.
+     * @param candles Vector of CandleStick data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
 
 private:
     int period;
@@ -233,11 +233,11 @@ public:
     /**
      * @brief Calculate the Donchian Channel Low Band values.
      *
-     * @param candles Vector of Candle data.
+     * @param candles Vector of CandleStick data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
 
 private:
     int period;
@@ -259,11 +259,11 @@ public:
     /**
      * @brief Calculate the Donchian Channel Middle Band values.
      *
-     * @param candles Vector of Candle data.
+     * @param candles Vector of CandleStick data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
 
 private:
     int period;
@@ -287,11 +287,11 @@ public:
     /**
      * @brief Calculate the Keltner Channel High Band values.
      *
-     * @param candles Vector of Candle data.
+     * @param candles Vector of CandleStick data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
 
 private:
     int period;
@@ -317,11 +317,11 @@ public:
     /**
      * @brief Calculate the Keltner Channel Low Band values.
      *
-     * @param candles Vector of Candle data.
+     * @param candles Vector of CandleStick data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
 
 private:
     int period;
@@ -345,11 +345,11 @@ public:
     /**
      * @brief Calculate the Keltner Channel Middle Band values.
      *
-     * @param candles Vector of Candle data.
+     * @param candles Vector of CandleStick data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
 
 private:
     int period;
@@ -374,11 +374,11 @@ public:
     /**
      * @brief Calculate the Ulcer Index values.
      *
-     * @param candles Vector of Candle data.
+     * @param candles Vector of CandleStick data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
 
 private:
     int period;
@@ -400,11 +400,11 @@ public:
     /**
      * @brief Calculate the Standard Deviation values.
      *
-     * @param candles Vector of Candle data.
+     * @param candles Vector of CandleStick data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
 
 private:
     int period;
@@ -426,11 +426,11 @@ public:
     /**
      * @brief Calculate the Average Price Change values.
      *
-     * @param candles Vector of Candle data.
+     * @param candles Vector of CandleStick data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
 
 private:
     int period;

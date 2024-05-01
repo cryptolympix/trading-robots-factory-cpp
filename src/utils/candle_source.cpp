@@ -9,7 +9,7 @@
  * @param source The source of candle data to retrieve.
  * @return std::vector<double> The candles with source.
  */
-std::vector<double> get_candles_with_source(const std::vector<Candle> &candles, std::string source)
+std::vector<double> get_candles_with_source(const std::vector<CandleStick> &candles, std::string source)
 {
     std::vector<double> values;
     values.reserve(candles.size());

@@ -14,14 +14,14 @@ DojiCandlePattern::DojiCandlePattern(int offset) : Indicator("Doji Candle Patter
 /**
  * @brief Calculate the DojiCandlePattern values.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> DojiCandlePattern::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+std::vector<double> DojiCandlePattern::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<Candle> candles) -> std::vector<double>
+        candles, [this](std::vector<CandleStick> candles) -> std::vector<double>
         {
             std::vector<double> values(candles.size(), 0); // Initialize values vector with size of candles
 
@@ -53,18 +53,18 @@ std::vector<double> DojiCandlePattern::calculate(const std::vector<Candle> &cand
 /**
  * @brief Detect the presence of a doji candlestick pattern.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param index Index of the candle to analyze.
  * @return true if doji pattern is detected, false otherwise.
  */
-bool DojiCandlePattern::isClassicDoji(const std::vector<Candle> &candles, size_t index) const
+bool DojiCandlePattern::isClassicDoji(const std::vector<CandleStick> &candles, size_t index) const
 {
     if (index >= candles.size())
     {
         return false;
     }
 
-    const Candle &current = candles[index];
+    const CandleStick &current = candles[index];
 
     // Check if the candle is a classic doji
     double candleRange = current.high - current.low;
@@ -78,18 +78,18 @@ bool DojiCandlePattern::isClassicDoji(const std::vector<Candle> &candles, size_t
 /**
  * @brief Detect the presence of a long legged doji candlestick pattern.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param index Index of the candle to analyze.
  * @return true if long legged doji pattern is detected, false otherwise.
  */
-bool DojiCandlePattern::isLongLeggedDoji(const std::vector<Candle> &candles, size_t index) const
+bool DojiCandlePattern::isLongLeggedDoji(const std::vector<CandleStick> &candles, size_t index) const
 {
     if (index >= candles.size())
     {
         return false;
     }
 
-    const Candle &current = candles[index];
+    const CandleStick &current = candles[index];
 
     // Check if the candle is a Long Legged Doji
     double candleRange = current.high - current.low;
@@ -103,18 +103,18 @@ bool DojiCandlePattern::isLongLeggedDoji(const std::vector<Candle> &candles, siz
 /**
  * @brief Detect the presence of a dragonfly doji candlestick pattern.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param index Index of the candle to analyze.
  * @return true if dragonfly doji pattern is detected, false otherwise.
  */
-bool DojiCandlePattern::isDragonflyDoji(const std::vector<Candle> &candles, size_t index) const
+bool DojiCandlePattern::isDragonflyDoji(const std::vector<CandleStick> &candles, size_t index) const
 {
     if (index >= candles.size())
     {
         return false;
     }
 
-    const Candle &current = candles[index];
+    const CandleStick &current = candles[index];
 
     // Check if the candle is a Dragonfly Doji
     double candleRange = current.high - current.low;
@@ -128,18 +128,18 @@ bool DojiCandlePattern::isDragonflyDoji(const std::vector<Candle> &candles, size
 /**
  * @brief Detect the presence of a gravestone doji candlestick pattern.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param index Index of the candle to analyze.
  * @return true if gravestone doji pattern is detected, false otherwise.
  */
-bool DojiCandlePattern::isGravestoneDoji(const std::vector<Candle> &candles, size_t index) const
+bool DojiCandlePattern::isGravestoneDoji(const std::vector<CandleStick> &candles, size_t index) const
 {
     if (index >= candles.size())
     {
         return false;
     }
 
-    const Candle &current = candles[index];
+    const CandleStick &current = candles[index];
 
     // Check if the candle is a Gravestone Doji
     double candleRange = current.high - current.low;
@@ -162,14 +162,14 @@ SingleCandlePattern::SingleCandlePattern(int offset) : Indicator("Single Candle 
 /**
  * @brief Calculate the SingleCandlePattern values.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> SingleCandlePattern::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+std::vector<double> SingleCandlePattern::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<Candle> candles) -> std::vector<double>
+        candles, [this](std::vector<CandleStick> candles) -> std::vector<double>
         {
             std::vector<double> values(candles.size(), 0); // Initialize values vector with size of candles
 
@@ -217,18 +217,18 @@ std::vector<double> SingleCandlePattern::calculate(const std::vector<Candle> &ca
 /**
  * @brief Detect the presence of a hammer candlestick pattern.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param index Index of the candle to analyze.
  * @return true if hammer pattern is detected, false otherwise.
  */
-bool SingleCandlePattern::isHammer(const std::vector<Candle> &candles, size_t index) const
+bool SingleCandlePattern::isHammer(const std::vector<CandleStick> &candles, size_t index) const
 {
     if (index >= candles.size())
     {
         return false;
     }
 
-    const Candle &current = candles[index];
+    const CandleStick &current = candles[index];
 
     if (current.close <= current.open)
     {
@@ -251,18 +251,18 @@ bool SingleCandlePattern::isHammer(const std::vector<Candle> &candles, size_t in
 /**
  * @brief Detect the presence of an inverted hammer candlestick pattern.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param index Index of the candle to analyze.
  * @return true if inverted hammer pattern is detected, false otherwise.
  */
-bool SingleCandlePattern::isInvertedHammer(const std::vector<Candle> &candles, size_t index) const
+bool SingleCandlePattern::isInvertedHammer(const std::vector<CandleStick> &candles, size_t index) const
 {
     if (index >= candles.size())
     {
         return false;
     }
 
-    const Candle &current = candles[index];
+    const CandleStick &current = candles[index];
 
     if (current.close <= current.open)
     {
@@ -285,18 +285,18 @@ bool SingleCandlePattern::isInvertedHammer(const std::vector<Candle> &candles, s
 /**
  * @brief Detect the presence of a shooting star candlestick pattern.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param index Index of the candle to analyze.
  * @return true if shooting star pattern is detected, false otherwise.
  */
-bool SingleCandlePattern::isShootingStar(const std::vector<Candle> &candles, size_t index) const
+bool SingleCandlePattern::isShootingStar(const std::vector<CandleStick> &candles, size_t index) const
 {
     if (index >= candles.size())
     {
         return false;
     }
 
-    const Candle &current = candles[index];
+    const CandleStick &current = candles[index];
 
     if (current.close > current.open)
     {
@@ -319,18 +319,18 @@ bool SingleCandlePattern::isShootingStar(const std::vector<Candle> &candles, siz
 /**
  * @brief Detect the presence of a hanging man candlestick pattern.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param index Index of the candle to analyze.
  * @return true if hanging man pattern is detected, false otherwise.
  */
-bool SingleCandlePattern::isHangingMan(const std::vector<Candle> &candles, size_t index) const
+bool SingleCandlePattern::isHangingMan(const std::vector<CandleStick> &candles, size_t index) const
 {
     if (index >= candles.size())
     {
         return false;
     }
 
-    const Candle &current = candles[index];
+    const CandleStick &current = candles[index];
 
     if (current.close > current.open)
     {
@@ -353,18 +353,18 @@ bool SingleCandlePattern::isHangingMan(const std::vector<Candle> &candles, size_
 /**
  * @brief Detect the presence of a spinning top candlestick pattern.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param index Index of the candle to analyze.
  * @return true if spinning top pattern is detected, false otherwise.
  */
-bool SingleCandlePattern::isBullishSpinningTop(const std::vector<Candle> &candles, size_t index) const
+bool SingleCandlePattern::isBullishSpinningTop(const std::vector<CandleStick> &candles, size_t index) const
 {
     if (index >= candles.size())
     {
         return false;
     }
 
-    const Candle &current = candles[index];
+    const CandleStick &current = candles[index];
 
     if (current.close <= current.open)
     {
@@ -384,18 +384,18 @@ bool SingleCandlePattern::isBullishSpinningTop(const std::vector<Candle> &candle
 /**
  * @brief Detect the presence of a bearish spinning top candlestick pattern.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param index Index of the candle to analyze.
  * @return true if bearish spinning top pattern is detected, false otherwise.
  */
-bool SingleCandlePattern::isBearishSpinningTop(const std::vector<Candle> &candles, size_t index) const
+bool SingleCandlePattern::isBearishSpinningTop(const std::vector<CandleStick> &candles, size_t index) const
 {
     if (index >= candles.size())
     {
         return false;
     }
 
-    const Candle &current = candles[index];
+    const CandleStick &current = candles[index];
 
     if (current.close >= current.open)
     {
@@ -415,18 +415,18 @@ bool SingleCandlePattern::isBearishSpinningTop(const std::vector<Candle> &candle
 /**
  * @brief Detect the presence of a bullish Marubozu candlestick pattern.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param index Index of the candle to analyze.
  * @return true if bullish Marubozu pattern is detected, false otherwise.
  */
-bool SingleCandlePattern::isBullishMarubozu(const std::vector<Candle> &candles, size_t index) const
+bool SingleCandlePattern::isBullishMarubozu(const std::vector<CandleStick> &candles, size_t index) const
 {
     if (index >= candles.size())
     {
         return false;
     }
 
-    const Candle &current = candles[index];
+    const CandleStick &current = candles[index];
 
     if (current.close <= current.open)
     {
@@ -443,18 +443,18 @@ bool SingleCandlePattern::isBullishMarubozu(const std::vector<Candle> &candles, 
 /**
  * @brief Detect the presence of a bearish Marubozu candlestick pattern.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param index Index of the candle to analyze.
  * @return true if bearish Marubozu pattern is detected, false otherwise.
  */
-bool SingleCandlePattern::isBearishMarubozu(const std::vector<Candle> &candles, size_t index) const
+bool SingleCandlePattern::isBearishMarubozu(const std::vector<CandleStick> &candles, size_t index) const
 {
     if (index >= candles.size())
     {
         return false;
     }
 
-    const Candle &current = candles[index];
+    const CandleStick &current = candles[index];
 
     if (current.close >= current.open)
     {
@@ -480,14 +480,14 @@ DoubleCandlePattern::DoubleCandlePattern(int offset) : Indicator("Double Candle 
 /**
  * @brief Calculate the DoubleCandlePattern values.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> DoubleCandlePattern::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+std::vector<double> DoubleCandlePattern::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<Candle> candles) -> std::vector<double>
+        candles, [this](std::vector<CandleStick> candles) -> std::vector<double>
         {
             std::vector<double> values(candles.size(), 0); // Initialize values vector with size of candles
 
@@ -519,11 +519,11 @@ std::vector<double> DoubleCandlePattern::calculate(const std::vector<Candle> &ca
 /**
  * @brief Detect the presence of a bullish engulfing candlestick pattern.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param index Index of the candle to analyze.
  * @return true if bullish engulfing pattern is detected, false otherwise.
  */
-bool DoubleCandlePattern::isBullishEngulfing(const std::vector<Candle> &candles, size_t index) const
+bool DoubleCandlePattern::isBullishEngulfing(const std::vector<CandleStick> &candles, size_t index) const
 {
     if (index < 1 || index >= candles.size() - 1)
     {
@@ -531,9 +531,9 @@ bool DoubleCandlePattern::isBullishEngulfing(const std::vector<Candle> &candles,
     }
 
     // Current candle
-    const Candle &current = candles[index];
+    const CandleStick &current = candles[index];
     // Previous candle
-    const Candle &previous = candles[index - 1];
+    const CandleStick &previous = candles[index - 1];
 
     // Check if the current candle is bullish (close > open)
     if (current.close <= current.open)
@@ -559,11 +559,11 @@ bool DoubleCandlePattern::isBullishEngulfing(const std::vector<Candle> &candles,
 /**
  * @brief Detect the presence of a bearish engulfing candlestick pattern.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param index Index of the candle to analyze.
  * @return true if bearish engulfing pattern is detected, false otherwise.
  */
-bool DoubleCandlePattern::isBearishEngulfing(const std::vector<Candle> &candles, size_t index) const
+bool DoubleCandlePattern::isBearishEngulfing(const std::vector<CandleStick> &candles, size_t index) const
 {
     if (index < 1 || index >= candles.size() - 1)
     {
@@ -571,9 +571,9 @@ bool DoubleCandlePattern::isBearishEngulfing(const std::vector<Candle> &candles,
     }
 
     // Current candle
-    const Candle &current = candles[index];
+    const CandleStick &current = candles[index];
     // Previous candle
-    const Candle &previous = candles[index - 1];
+    const CandleStick &previous = candles[index - 1];
 
     // Check if the current candle is bearish (close < open)
     if (current.close >= current.open)
@@ -599,19 +599,19 @@ bool DoubleCandlePattern::isBearishEngulfing(const std::vector<Candle> &candles,
 /**
  * @brief Detect the presence of a piercing line candlestick pattern.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param index Index of the candle to analyze.
  * @return true if piercing line pattern is detected, false otherwise.
  */
-bool DoubleCandlePattern::isPiercingLine(const std::vector<Candle> &candles, size_t index) const
+bool DoubleCandlePattern::isPiercingLine(const std::vector<CandleStick> &candles, size_t index) const
 {
     if (index < 1 || index >= candles.size())
     {
         return false;
     }
 
-    const Candle &previous = candles[index - 1];
-    const Candle &current = candles[index];
+    const CandleStick &previous = candles[index - 1];
+    const CandleStick &current = candles[index];
 
     // Check if the previous candle is bearish and the current candle is bullish
     if (previous.close < previous.open && current.close > current.open)
@@ -635,19 +635,19 @@ bool DoubleCandlePattern::isPiercingLine(const std::vector<Candle> &candles, siz
 /**
  * @brief Detect the presence of a dark cloud cover candlestick pattern.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param index Index of the candle to analyze.
  * @return true if dark cloud cover pattern is detected, false otherwise.
  */
-bool DoubleCandlePattern::isDarkCloudCover(const std::vector<Candle> &candles, size_t index) const
+bool DoubleCandlePattern::isDarkCloudCover(const std::vector<CandleStick> &candles, size_t index) const
 {
     if (index < 1 || index >= candles.size())
     {
         return false;
     }
 
-    const Candle &previous = candles[index - 1];
-    const Candle &current = candles[index];
+    const CandleStick &previous = candles[index - 1];
+    const CandleStick &current = candles[index];
 
     // Check if the previous candle is bullish and the current candle is bearish
     if (previous.close > previous.open && current.close < current.open)
@@ -680,14 +680,14 @@ TripleCandlePattern::TripleCandlePattern(int offset) : Indicator("Triple Candle 
 /**
  * @brief Calculate the TripleCandlePattern values.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> TripleCandlePattern::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+std::vector<double> TripleCandlePattern::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<Candle> candles) -> std::vector<double>
+        candles, [this](std::vector<CandleStick> candles) -> std::vector<double>
         {
             std::vector<double> values(candles.size(), 0); // Initialize values vector with size of candles
 
@@ -751,20 +751,20 @@ std::vector<double> TripleCandlePattern::calculate(const std::vector<Candle> &ca
 /**
  * @brief Detect the presence of a three white soldiers candlestick pattern.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param index Index of the candle to analyze.
  * @return true if three white soldiers pattern is detected, false otherwise.
  */
-bool TripleCandlePattern::isThreeWhiteSoldiers(const std::vector<Candle> &candles, size_t index) const
+bool TripleCandlePattern::isThreeWhiteSoldiers(const std::vector<CandleStick> &candles, size_t index) const
 {
     if (index >= candles.size() || index < 2)
     {
         return false;
     }
 
-    const Candle &candle1 = candles[index - 2];
-    const Candle &candle2 = candles[index - 1];
-    const Candle &candle3 = candles[index];
+    const CandleStick &candle1 = candles[index - 2];
+    const CandleStick &candle2 = candles[index - 1];
+    const CandleStick &candle3 = candles[index];
 
     // Check if the candles are bullish
     bool bullish1 = candle1.close > candle1.open;
@@ -781,20 +781,20 @@ bool TripleCandlePattern::isThreeWhiteSoldiers(const std::vector<Candle> &candle
 /**
  * @brief Detect the presence of a three black crows candlestick pattern.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param index Index of the candle to analyze.
  * @return true if three black crows pattern is detected, false otherwise.
  */
-bool TripleCandlePattern::isThreeBlackCrows(const std::vector<Candle> &candles, size_t index) const
+bool TripleCandlePattern::isThreeBlackCrows(const std::vector<CandleStick> &candles, size_t index) const
 {
     if (index >= candles.size() || index < 2)
     {
         return false;
     }
 
-    const Candle &candle1 = candles[index - 2];
-    const Candle &candle2 = candles[index - 1];
-    const Candle &candle3 = candles[index];
+    const CandleStick &candle1 = candles[index - 2];
+    const CandleStick &candle2 = candles[index - 1];
+    const CandleStick &candle3 = candles[index];
 
     // Check if the candles are bearish
     bool bearish1 = candle1.close < candle1.open;
@@ -811,20 +811,20 @@ bool TripleCandlePattern::isThreeBlackCrows(const std::vector<Candle> &candles, 
 /**
  * @brief Detect the presence of a morning star candlestick pattern.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param index Index of the candle to analyze.
  * @return true if morning star pattern is detected, false otherwise.
  */
-bool TripleCandlePattern::isMorningStar(const std::vector<Candle> &candles, size_t index) const
+bool TripleCandlePattern::isMorningStar(const std::vector<CandleStick> &candles, size_t index) const
 {
     if (index < 2 || index >= candles.size())
     {
         return false;
     }
 
-    const Candle &first = candles[index - 2];
-    const Candle &second = candles[index - 1];
-    const Candle &third = candles[index];
+    const CandleStick &first = candles[index - 2];
+    const CandleStick &second = candles[index - 1];
+    const CandleStick &third = candles[index];
 
     // Check conditions for the morning star pattern
     bool firstRed = first.close < first.open;                               // First candle is bearish
@@ -839,20 +839,20 @@ bool TripleCandlePattern::isMorningStar(const std::vector<Candle> &candles, size
 /**
  * @brief Detect the presence of an evening star candlestick pattern.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param index Index of the candle to analyze.
  * @return true if evening star pattern is detected, false otherwise.
  */
-bool TripleCandlePattern::isEveningStar(const std::vector<Candle> &candles, size_t index) const
+bool TripleCandlePattern::isEveningStar(const std::vector<CandleStick> &candles, size_t index) const
 {
     if (index < 2 || index >= candles.size())
     {
         return false;
     }
 
-    const Candle &first = candles[index - 2];
-    const Candle &second = candles[index - 1];
-    const Candle &third = candles[index];
+    const CandleStick &first = candles[index - 2];
+    const CandleStick &second = candles[index - 1];
+    const CandleStick &third = candles[index];
 
     // Check conditions for the evening star pattern
     bool firstGreen = first.close > first.open;                             // First candle is bullish
@@ -867,20 +867,20 @@ bool TripleCandlePattern::isEveningStar(const std::vector<Candle> &candles, size
 /**
  * @brief Detect the presence of a morning doji star candlestick pattern.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param index Index of the candle to analyze.
  * @return true if morning doji star pattern is detected, false otherwise.
  */
-bool TripleCandlePattern::isMorningDojiStar(const std::vector<Candle> &candles, size_t index) const
+bool TripleCandlePattern::isMorningDojiStar(const std::vector<CandleStick> &candles, size_t index) const
 {
     if (index < 2 || index >= candles.size())
     {
         return false;
     }
 
-    const Candle &candle1 = candles[index - 2];
-    const Candle &candle2 = candles[index - 1];
-    const Candle &candle3 = candles[index];
+    const CandleStick &candle1 = candles[index - 2];
+    const CandleStick &candle2 = candles[index - 1];
+    const CandleStick &candle3 = candles[index];
 
     // Check if the first candlestick is bearish and the third candlestick is bullish
     bool bearishFirst = candle1.close < candle1.open;
@@ -901,20 +901,20 @@ bool TripleCandlePattern::isMorningDojiStar(const std::vector<Candle> &candles, 
 /**
  * @brief Detect the presence of a evening doji star candlestick pattern.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param index Index of the candle to analyze.
  * @return true if evening doji star pattern is detected, false otherwise.
  */
-bool TripleCandlePattern::isEveningDojiStar(const std::vector<Candle> &candles, size_t index) const
+bool TripleCandlePattern::isEveningDojiStar(const std::vector<CandleStick> &candles, size_t index) const
 {
     if (index < 2 || index >= candles.size())
     {
         return false;
     }
 
-    const Candle &candle1 = candles[index - 2];
-    const Candle &candle2 = candles[index - 1];
-    const Candle &candle3 = candles[index];
+    const CandleStick &candle1 = candles[index - 2];
+    const CandleStick &candle2 = candles[index - 1];
+    const CandleStick &candle3 = candles[index];
 
     // Check if the first candlestick is bullish and the third candlestick is bearish
     bool bullishFirst = candle1.close > candle1.open;
@@ -935,20 +935,20 @@ bool TripleCandlePattern::isEveningDojiStar(const std::vector<Candle> &candles, 
 /**
  * @brief Detect the presence of a three inside up candlestick pattern.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param index Index of the candle to analyze.
  * @return true if three inside up pattern is detected, false otherwise.
  */
-bool TripleCandlePattern::isThreeInsideUp(const std::vector<Candle> &candles, size_t index) const
+bool TripleCandlePattern::isThreeInsideUp(const std::vector<CandleStick> &candles, size_t index) const
 {
     if (index >= candles.size() || index < 2)
     {
         return false;
     }
 
-    const Candle &first = candles[index - 2];
-    const Candle &second = candles[index - 1];
-    const Candle &third = candles[index];
+    const CandleStick &first = candles[index - 2];
+    const CandleStick &second = candles[index - 1];
+    const CandleStick &third = candles[index];
 
     // Check if the first candle is black (down) with a large real body
     bool blackCandle = first.close < first.open;
@@ -970,20 +970,20 @@ bool TripleCandlePattern::isThreeInsideUp(const std::vector<Candle> &candles, si
 /**
  * @brief Detect the presence of a three inside down candlestick pattern.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param index Index of the candle to analyze.
  * @return true if three inside down pattern is detected, false otherwise.
  */
-bool TripleCandlePattern::isThreeInsideDown(const std::vector<Candle> &candles, size_t index) const
+bool TripleCandlePattern::isThreeInsideDown(const std::vector<CandleStick> &candles, size_t index) const
 {
     if (index >= candles.size() || index < 2)
     {
         return false;
     }
 
-    const Candle &first = candles[index - 2];
-    const Candle &second = candles[index - 1];
-    const Candle &third = candles[index];
+    const CandleStick &first = candles[index - 2];
+    const CandleStick &second = candles[index - 1];
+    const CandleStick &third = candles[index];
 
     // Check if the first candle is white (up) with a large real body
     bool whiteCandle = first.close > first.open;
@@ -1005,20 +1005,20 @@ bool TripleCandlePattern::isThreeInsideDown(const std::vector<Candle> &candles, 
 /**
  * @brief Detect the presence of a three outside up candlestick pattern.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param index Index of the candle to analyze.
  * @return true if three outside up pattern is detected, false otherwise.
  */
-bool TripleCandlePattern::isThreeOutsideUp(const std::vector<Candle> &candles, size_t index) const
+bool TripleCandlePattern::isThreeOutsideUp(const std::vector<CandleStick> &candles, size_t index) const
 {
     if (index >= candles.size() || index < 2)
     {
         return false;
     }
 
-    const Candle &first = candles[index - 2];
-    const Candle &second = candles[index - 1];
-    const Candle &third = candles[index];
+    const CandleStick &first = candles[index - 2];
+    const CandleStick &second = candles[index - 1];
+    const CandleStick &third = candles[index];
 
     // Check if the first candle is black (down) with a large real body
     bool blackCandle = first.close < first.open;
@@ -1040,20 +1040,20 @@ bool TripleCandlePattern::isThreeOutsideUp(const std::vector<Candle> &candles, s
 /**
  * @brief Detect the presence of a three outside down candlestick pattern.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param index Index of the candle to analyze.
  * @return true if three outside down pattern is detected, false otherwise.
  */
-bool TripleCandlePattern::isThreeOutsideDown(const std::vector<Candle> &candles, size_t index) const
+bool TripleCandlePattern::isThreeOutsideDown(const std::vector<CandleStick> &candles, size_t index) const
 {
     if (index >= candles.size() || index < 2)
     {
         return false;
     }
 
-    const Candle &first = candles[index - 2];
-    const Candle &second = candles[index - 1];
-    const Candle &third = candles[index];
+    const CandleStick &first = candles[index - 2];
+    const CandleStick &second = candles[index - 1];
+    const CandleStick &third = candles[index];
 
     // Check if the first candle is white (up) with a large real body
     bool whiteCandle = first.close > first.open;
@@ -1075,20 +1075,20 @@ bool TripleCandlePattern::isThreeOutsideDown(const std::vector<Candle> &candles,
 /**
  * @brief Detect the presence of a Three Stars in the South candlestick pattern.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param index Index of the candle to analyze.
  * @return true if Three Stars in the South pattern is detected, false otherwise.
  */
-bool TripleCandlePattern::isThreeStarsInTheSouth(const std::vector<Candle> &candles, size_t index) const
+bool TripleCandlePattern::isThreeStarsInTheSouth(const std::vector<CandleStick> &candles, size_t index) const
 {
     if (index < 2 || index >= candles.size())
     {
         return false;
     }
 
-    const Candle &first = candles[index - 2];
-    const Candle &second = candles[index - 1];
-    const Candle &third = candles[index];
+    const CandleStick &first = candles[index - 2];
+    const CandleStick &second = candles[index - 1];
+    const CandleStick &third = candles[index];
 
     // Check if the pattern occurs during a downtrend
     if (first.close > first.open || second.close > second.open || third.close > third.open)
@@ -1121,11 +1121,11 @@ bool TripleCandlePattern::isThreeStarsInTheSouth(const std::vector<Candle> &cand
 /**
  * @brief Detect the presence of a Three Stars in the North candlestick pattern.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param index Index of the candle to analyze.
  * @return true if Three Stars in the North pattern is detected, false otherwise.
  */
-bool TripleCandlePattern::isThreeStarsInTheNorth(const std::vector<Candle> &candles, size_t index) const
+bool TripleCandlePattern::isThreeStarsInTheNorth(const std::vector<CandleStick> &candles, size_t index) const
 {
 
     if (index < 2 || index >= candles.size())
@@ -1133,9 +1133,9 @@ bool TripleCandlePattern::isThreeStarsInTheNorth(const std::vector<Candle> &cand
         return false;
     }
 
-    const Candle &first = candles[index - 2];
-    const Candle &second = candles[index - 1];
-    const Candle &third = candles[index];
+    const CandleStick &first = candles[index - 2];
+    const CandleStick &second = candles[index - 1];
+    const CandleStick &third = candles[index];
 
     // Check if the pattern occurs during an uptrend
     if (first.close < first.open || second.close < second.open || third.close < third.open)

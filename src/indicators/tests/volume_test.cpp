@@ -11,7 +11,7 @@ class VolumeIndicatorsTest : public ::testing::Test
 {
 protected:
     // Variables
-    std::vector<Candle> mock_candles;
+    std::vector<CandleStick> mock_candles;
 
     void SetUp() override
     {

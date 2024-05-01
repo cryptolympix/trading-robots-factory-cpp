@@ -20,11 +20,11 @@ public:
     /**
      * @brief Calculate the Hour values.
      *
-     * @param candles Vector of Candle data.
+     * @param candles Vector of CandleStick data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
 };
 
 // *********************************************************************************************
@@ -42,10 +42,10 @@ public:
     /**
      * @brief Check if the candle is on NFP week.
      *
-     * @param candles Vector of Candle data.
+     * @param candles Vector of CandleStick data.
      * @return std::vector<double> Vector containing 1 if the candle is on NFP week, 0 otherwise.
      */
-    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
 };
 
 // *********************************************************************************************
@@ -64,11 +64,11 @@ public:
     /**
      * @brief Check if the candle is on a market session.
      *
-     * @param candles Vector of Candle data.
+     * @param candles Vector of CandleStick data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing 1 if the candle is on the market session, 0 otherwise.
      */
-    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
 
 private:
     std::string zone; // Market session zone
@@ -90,10 +90,10 @@ public:
     /**
      * @brief Get the days of the candle.
      *
-     * @param candles Vector of Candle data.
+     * @param candles Vector of CandleStick data.
      * @return std::vector<double> Vector containing the number of each candle day (0-6).
      */
-    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
 
 private:
     std::string day; // Day of the week (monday, tuesday, wednesday, thursday, friday, saturday, sunday)

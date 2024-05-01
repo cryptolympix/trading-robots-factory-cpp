@@ -18,14 +18,14 @@ AwesomeOscillator::AwesomeOscillator(int offset) : Indicator("Awesome Oscillator
 /**
  * @brief Calculate the CandleOpen values.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> AwesomeOscillator::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+std::vector<double> AwesomeOscillator::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<Candle> candles)
+        candles, [this](std::vector<CandleStick> candles)
         {
             if (candles.size() < 34) {
                 return std::vector<double>(candles.size(), 0.0); // Not enough data
@@ -55,14 +55,14 @@ KAMA::KAMA(int er_period, int fastest_sc_period, int slowest_sc_period, int offs
 /**
  * @brief Calculate Kaufman's Adaptive Moving Average (KAMA).
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing the calculated KAMA values.
  */
-std::vector<double> KAMA::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+std::vector<double> KAMA::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<Candle> candles)
+        candles, [this](std::vector<CandleStick> candles)
         {
             std::vector<double> kama_values(candles.size(), 0.0);
 
@@ -166,11 +166,11 @@ MFI::MFI(int period, int offset) : Indicator("Money Flow Index", "mfi-" + std::t
 /**
  * @brief Calculate the Money Flow Index (MFI) values.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated MFI values.
  */
-std::vector<double> MFI::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+std::vector<double> MFI::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
 {
     // Initialize result vector with the same size as input
     std::vector<double> mfi_values(candles.size(), 0.0);
@@ -260,14 +260,14 @@ PPO::PPO(int short_period, int long_period, int offset) : Indicator("Percentage 
 /**
  * @brief Calculate the Price Oscillator (PPO) for a given set of candles.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated PPO values.
  */
-std::vector<double> PPO::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+std::vector<double> PPO::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](const std::vector<Candle> &candles) -> std::vector<double>
+        candles, [this](const std::vector<CandleStick> &candles) -> std::vector<double>
         {
             if (candles.size() < static_cast<size_t>(long_period)) {
                 return std::vector<double>(candles.size(), 0.0); // Not enough data
@@ -310,14 +310,14 @@ PVO::PVO(int fast_period, int slow_period, int signal_period, int offset)
 /**
  * @brief Calculate the Percentage Volume Oscillator (PVO) values.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated PVO values.
  */
-std::vector<double> PVO::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+std::vector<double> PVO::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<Candle> candles) -> std::vector<double>
+        candles, [this](std::vector<CandleStick> candles) -> std::vector<double>
         {
             std::vector<double> volume_values = get_candles_with_source(candles, "volume");
             std::vector<double> pvo_values(candles.size(), 0.0); // Initialize result vector with the same size as input
@@ -363,14 +363,14 @@ ROC::ROC(int period, int offset) : Indicator("Rate of Change", "roc-" + std::to_
 /**
  * @brief Calculate the Rate of Change (ROC) values.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> ROC::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+std::vector<double> ROC::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<Candle> candles)
+        candles, [this](std::vector<CandleStick> candles)
         {
             std::vector<double> result(candles.size(), 0.0); // Initialize result vector with the same size as input
             result.reserve(candles.size());
@@ -407,14 +407,14 @@ RSI::RSI(int period, int offset) : Indicator("Relative Strength Index (RSI)", "r
 /**
  * @brief Calculate the Relative Strength Index (RSI) values.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> RSI::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+std::vector<double> RSI::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](const std::vector<Candle> &candles) -> std::vector<double>
+        candles, [this](const std::vector<CandleStick> &candles) -> std::vector<double>
         {
             if (candles.size() < static_cast<size_t>(period)) {
                 return std::vector<double>(candles.size(), 0.0); // Not enough data
@@ -481,14 +481,14 @@ StochasticRSI::StochasticRSI(int period, int sma_period, int offset)
 /**
  * @brief Calculate the Stochastic Relative Strength Index (Stoch RSI) values.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> StochasticRSI::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+std::vector<double> StochasticRSI::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](const std::vector<Candle> &candles) -> std::vector<double>
+        candles, [this](const std::vector<CandleStick> &candles) -> std::vector<double>
         {
             if (candles.size() < static_cast<size_t>(period)) {
                 return std::vector<double>(candles.size(), 0.0); // Not enough data
@@ -535,14 +535,14 @@ StochasticOscillator::StochasticOscillator(int k_period, int d_period, int offse
 /**
  * @brief Calculate the Stochastic Oscillator values.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> StochasticOscillator::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+std::vector<double> StochasticOscillator::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](const std::vector<Candle> &candles) -> std::vector<double>
+        candles, [this](const std::vector<CandleStick> &candles) -> std::vector<double>
         {
             if (candles.size() < static_cast<size_t>(k_period)) {
                 return std::vector<double>(candles.size(), 0.0); // Not enough data
@@ -598,14 +598,14 @@ TSI::TSI(int short_period, int long_period, int offset)
 /**
  * @brief Calculate the True Strength Index values.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> TSI::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+std::vector<double> TSI::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](const std::vector<Candle> &candles) -> std::vector<double>
+        candles, [this](const std::vector<CandleStick> &candles) -> std::vector<double>
         {
             std::vector<double> result(candles.size(), 0.0);
 
@@ -662,14 +662,14 @@ UO::UO(int period1, int period2, int period3, int offset) : Indicator("Ultimate 
 /**
  * @brief Calculate the Ultimate Oscillator values.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> UO::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+std::vector<double> UO::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](const std::vector<Candle> &candles) -> std::vector<double>
+        candles, [this](const std::vector<CandleStick> &candles) -> std::vector<double>
         {
             std::vector<double> result(candles.size(), 0.0);
 
@@ -718,14 +718,14 @@ WilliamsPercentR::WilliamsPercentR(int period, int offset) : Indicator("Williams
 /**
  * @brief Calculate the Williams Percent R values.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> WilliamsPercentR::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+std::vector<double> WilliamsPercentR::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](const std::vector<Candle> &candles) -> std::vector<double>
+        candles, [this](const std::vector<CandleStick> &candles) -> std::vector<double>
         {
             std::vector<double> result(candles.size(), 0.0); // Initialize result vector with the same size as input
             

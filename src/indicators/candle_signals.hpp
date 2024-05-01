@@ -19,11 +19,11 @@ public:
     /**
      * @brief Calculate the New High Signal values.
      *
-     * @param candles Vector of Candle data.
+     * @param candles Vector of CandleStick data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
 
 private:
     int left_bars;
@@ -47,11 +47,11 @@ public:
     /**
      * @brief Calculate the New Low Signal values.
      *
-     * @param candles Vector of Candle data.
+     * @param candles Vector of CandleStick data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
 
 private:
     int left_bars;
@@ -75,11 +75,11 @@ public:
     /**
      * @brief Calculate the High Break Signal values.
      *
-     * @param candles Vector of Candle data.
+     * @param candles Vector of CandleStick data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
 
 private:
     int left_bars;
@@ -103,11 +103,11 @@ public:
     /**
      * @brief Calculate the Low Break Signal values.
      *
-     * @param candles Vector of Candle data.
+     * @param candles Vector of CandleStick data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
 
 private:
     int left_bars;

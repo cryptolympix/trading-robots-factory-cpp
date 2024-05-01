@@ -15,14 +15,14 @@ ADL::ADL(int offset) : Indicator("Accumulation Distribution Line", "adl-" + std:
 /**
  * @brief Calculate the ADL values.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> ADL::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+std::vector<double> ADL::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<Candle> candles)
+        candles, [this](std::vector<CandleStick> candles)
         {
             std::vector<double> adi_values(candles.size(), 0);
             double previous_adi = 0.0;
@@ -45,7 +45,7 @@ std::vector<double> ADL::calculate(const std::vector<Candle> &candles, bool norm
  * @param candle The Candle data.
  * @return double The calculated Money Flow Multiplier.
  */
-double ADL::calculate_money_flow_multiplier(const Candle &candle) const
+double ADL::calculate_money_flow_multiplier(const CandleStick &candle) const
 {
     double money_flow_multiplier = 0.0;
     if (candle.high != candle.low)
@@ -68,14 +68,14 @@ CMF::CMF(int period, int offset) : Indicator("Chaikin Money Flow", "cmf-" + std:
 /**
  * @brief Calculate the Chaikin Money Flow (CMF) values.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated CMF values.
  */
-std::vector<double> CMF::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+std::vector<double> CMF::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](const std::vector<Candle> &candles) -> std::vector<double>
+        candles, [this](const std::vector<CandleStick> &candles) -> std::vector<double>
         {
             // Initialize the CMF values vector with zeros.
             std::vector<double> cmf_values(candles.size(), 0.0);
@@ -118,14 +118,14 @@ FI::FI(int period, int offset) : Indicator("Force Index", "fi-" + std::to_string
 /**
  * @brief Calculate the Force Index (FI) values.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated FI values.
  */
-std::vector<double> FI::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+std::vector<double> FI::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](const std::vector<Candle> &candles) -> std::vector<double>
+        candles, [this](const std::vector<CandleStick> &candles) -> std::vector<double>
         {
             // Initialize the Force Index values vector with zeros.
             std::vector<double> fi_values(candles.size(), 0.0);
@@ -157,15 +157,15 @@ NVI::NVI(int offset) : Indicator("Negative Volume Index", "nvi-" + std::to_strin
 /**
  * @brief Calculate the Negative Volume Index (NVI) values.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated NVI values.
  */
-std::vector<double> NVI::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+std::vector<double> NVI::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
         candles,
-        [this](const std::vector<Candle> &candles) -> std::vector<double>
+        [this](const std::vector<CandleStick> &candles) -> std::vector<double>
         {
             std::vector<double> nvi_values(candles.size(), 0.0);
             double cumulative_nvi = 1000.0; // Cumulative NVI starts at 1000
@@ -200,15 +200,15 @@ OBV::OBV(int offset) : Indicator("On-balance Volume", "obv-" + std::to_string(of
 /**
  * @brief Calculate the On-balance Volume (OBV) values.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated OBV values.
  */
-std::vector<double> OBV::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+std::vector<double> OBV::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
         candles,
-        [this](const std::vector<Candle> &candles) -> std::vector<double>
+        [this](const std::vector<CandleStick> &candles) -> std::vector<double>
         {
             std::vector<double> obv_values(candles.size(), 0.0);
             double obv = 0.0;
@@ -249,22 +249,22 @@ POC::POC(int period, int range_nb, int offset) : Indicator("Point of Control", "
 /**
  * @brief Calculate the Point of Control (POC) values.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated POC values.
  */
-std::vector<double> POC::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+std::vector<double> POC::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
         candles,
-        [this](const std::vector<Candle> &candles) -> std::vector<double>
+        [this](const std::vector<CandleStick> &candles) -> std::vector<double>
         {
             std::vector<double> poc_values(candles.size(), 0.0);
 
             for (int i = 0; i < candles.size(); ++i)
             {
                 // Get the candles for the current period
-                std::vector<Candle> period_candles(candles.begin() + std::max(0, i - period + 1), candles.begin() + i + 1);
+                std::vector<CandleStick> period_candles(candles.begin() + std::max(0, i - period + 1), candles.begin() + i + 1);
                 std::map<double, double> volume_profile = calculate_volume_profile(period_candles);
 
                 // Find the tick with the highest volume
@@ -284,10 +284,10 @@ std::vector<double> POC::calculate(const std::vector<Candle> &candles, bool norm
 /**
  * @brief Calculate the volume profile for the given candles.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @return std::map<double, double> Map containing the volume profile.
  */
-std::map<double, double> POC::calculate_volume_profile(const std::vector<Candle> &candles) const
+std::map<double, double> POC::calculate_volume_profile(const std::vector<CandleStick> &candles) const
 {
     std::map<double, double> volume_profile;
 
@@ -336,15 +336,15 @@ PVI::PVI(int offset) : Indicator("Positive Volume Index", "pvi-" + std::to_strin
 /**
  * @brief Calculate the Positive Volume Index (PVI) values.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated PVI values.
  */
-std::vector<double> PVI::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+std::vector<double> PVI::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
         candles,
-        [this](const std::vector<Candle> &candles) -> std::vector<double>
+        [this](const std::vector<CandleStick> &candles) -> std::vector<double>
         {
             std::vector<double> pvi_values(candles.size(), 0.0);
             double cumulative_pvi = 1000.0; // PVI starts at 1000
@@ -379,15 +379,15 @@ VWAP::VWAP(int offset) : Indicator("Volume Weighted Average Price", "vwap-" + st
 /**
  * @brief Calculate the Volume Weighted Average Price (VWAP) values.
  *
- * @param candles Vector of Candle data.
+ * @param candles Vector of CandleStick data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated VWAP values.
  */
-std::vector<double> VWAP::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+std::vector<double> VWAP::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
         candles,
-        [this](const std::vector<Candle> &candles) -> std::vector<double>
+        [this](const std::vector<CandleStick> &candles) -> std::vector<double>
         {
             std::vector<double> vwap_values(candles.size(), 0.0);
             double cumulative_price_volume = 0.0;

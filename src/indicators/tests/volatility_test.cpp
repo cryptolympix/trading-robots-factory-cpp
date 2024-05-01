@@ -11,7 +11,7 @@ class VolatilityIndicatorsTest : public ::testing::Test
 {
 protected:
     // Variables
-    std::vector<Candle> mock_candles;
+    std::vector<CandleStick> mock_candles;
 
     void SetUp() override
     {
@@ -160,7 +160,7 @@ TEST_F(VolatilityIndicatorsTest, UI)
 
 TEST_F(VolatilityIndicatorsTest, StandardDeviation)
 {
-    std::vector<Candle> candles = {
+    std::vector<CandleStick> candles = {
         {.close = 2},
         {.close = 4},
         {.close = 6},

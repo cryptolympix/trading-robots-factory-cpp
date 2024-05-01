@@ -1,5 +1,6 @@
 #include <ctime>
 #include <chrono>
+#include "utils/optional.cpp"
 #include "configs/test.hpp"
 #include "training.hpp"
 #include "neat/genome.hpp"

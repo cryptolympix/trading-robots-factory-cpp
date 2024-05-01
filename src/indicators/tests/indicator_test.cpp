@@ -25,21 +25,21 @@ protected:
 
         // Mock data initialization
         mock_candles = {
-            Candle{.date = date, .open = 10, .high = 12, .low = 8, .close = 15},
-            Candle{.date = date, .open = 15, .high = 16, .low = 8, .close = 9},
-            Candle{.date = date, .open = 9, .high = 10, .low = 6, .close = 12},
-            Candle{.date = date, .open = 12, .high = 13, .low = 8, .close = 6},
-            Candle{.date = date, .open = 6, .high = 7, .low = 5, .close = 5},
-            Candle{.date = date, .open = 8, .high = 17, .low = 5, .close = 17},
-            Candle{.date = date, .open = 17, .high = 18, .low = 6, .close = 14},
-            Candle{.date = date, .open = 14, .high = 15, .low = 8, .close = 11},
-            Candle{.date = date, .open = 11, .high = 12, .low = 2, .close = 4},
-            Candle{.date = date, .open = 4, .high = 21, .low = 8, .close = 20},
-            Candle{.date = date, .open = 20, .high = 20, .low = 5, .close = 18}};
+            CandleStick{.date = date, .open = 10, .high = 12, .low = 8, .close = 15},
+            CandleStick{.date = date, .open = 15, .high = 16, .low = 8, .close = 9},
+            CandleStick{.date = date, .open = 9, .high = 10, .low = 6, .close = 12},
+            CandleStick{.date = date, .open = 12, .high = 13, .low = 8, .close = 6},
+            CandleStick{.date = date, .open = 6, .high = 7, .low = 5, .close = 5},
+            CandleStick{.date = date, .open = 8, .high = 17, .low = 5, .close = 17},
+            CandleStick{.date = date, .open = 17, .high = 18, .low = 6, .close = 14},
+            CandleStick{.date = date, .open = 14, .high = 15, .low = 8, .close = 11},
+            CandleStick{.date = date, .open = 11, .high = 12, .low = 2, .close = 4},
+            CandleStick{.date = date, .open = 4, .high = 21, .low = 8, .close = 20},
+            CandleStick{.date = date, .open = 20, .high = 20, .low = 5, .close = 18}};
     }
 
     // Common member variables
-    std::vector<Candle> mock_candles;
+    std::vector<CandleStick> mock_candles;
 };
 
 // Test case for Indicator::calculate method
@@ -49,7 +49,7 @@ TEST_F(IndicatorTest, Calculate)
     Indicator indicator("Test Indicator", "test-indicator", 0);
 
     // Define a calculator function (dummy function for testing)
-    auto calculator = [](std::vector<Candle> candles) -> std::vector<double>
+    auto calculator = [](std::vector<CandleStick> candles) -> std::vector<double>
     {
         std::vector<double> values;
         for (const auto &candle : candles)
@@ -79,7 +79,7 @@ TEST_F(IndicatorTest, CalculateWithOffset)
     Indicator indicator("Test Indicator", "test-indicator", 1);
 
     // Define a calculator function (dummy function for testing)
-    auto calculator = [](std::vector<Candle> candles) -> std::vector<double>
+    auto calculator = [](std::vector<CandleStick> candles) -> std::vector<double>
     {
         std::vector<double> values;
         for (const auto &candle : candles)
@@ -103,7 +103,7 @@ TEST_F(IndicatorTest, NormalizeData)
     Indicator indicator("Test Indicator", "test-indicator", 0);
 
     // Define a calculator function (dummy function for testing)
-    auto calculator = [](std::vector<Candle> candles) -> std::vector<double>
+    auto calculator = [](std::vector<CandleStick> candles) -> std::vector<double>
     {
         std::vector<double> values;
         for (const auto &candle : candles)

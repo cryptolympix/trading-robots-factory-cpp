@@ -6,10 +6,10 @@
 #include <map>
 #include <vector>
 #include <ctime>
-#include <optional>
 #include <chrono>
 #include "neat/config.hpp"
 #include "indicators/indicator.hpp"
+#include "utils/optional.hpp"
 
 class Indicator; // Forward declaration
 
@@ -31,7 +31,7 @@ enum class TimeFrame
 /**
  * @brief Struct representing a candle.
  */
-struct Candle
+struct CandleStick
 {
     time_t date;
     double open;
@@ -46,7 +46,7 @@ struct Candle
 /**
  * @brief Type definitions for different data structures.
  */
-using CandlesData = std::unordered_map<TimeFrame, std::vector<Candle>>;
+using CandleSticksData = std::unordered_map<TimeFrame, std::vector<CandleStick>>;
 using IndicatorsData = std::unordered_map<TimeFrame, std::unordered_map<std::string, std::vector<double>>>;
 using BaseCurrencyConversionRateData = std::unordered_map<time_t, double>;
 
@@ -55,7 +55,7 @@ using BaseCurrencyConversionRateData = std::unordered_map<time_t, double>;
  */
 struct CacheData
 {
-    CandlesData candles;                  // Cached candle data
+    CandleSticksData candles;             // Cached candle data
     IndicatorsData indicators;            // Cached indicator data
     double base_currency_conversion_rate; // Cached base currency conversion rates
 };
@@ -252,13 +252,13 @@ struct StrategyConfig
 {
     TimeFrame timeframe;                                   // Time frame
     double maximum_risk;                                   // Maximum risk
-    std::optional<int> maximum_trades_per_day;             // Maximum trades per day
-    std::optional<double> maximum_spread;                  // Maximum spread
-    std::optional<int> minimum_trade_duration;             // Minimum trade duration
-    std::optional<int> maximum_trade_duration;             // Maximum trade duration
-    std::optional<int> minimum_duration_before_next_trade; // Minimum duration before the next trade
+    Optional<int> maximum_trades_per_day;                  // Maximum trades per day
+    Optional<double> maximum_spread;                       // Maximum spread
+    Optional<int> minimum_trade_duration;                  // Minimum trade duration
+    Optional<int> maximum_trade_duration;                  // Maximum trade duration
+    Optional<int> minimum_duration_before_next_trade;      // Minimum duration before the next trade
     TakeProfitStopLossConfig take_profit_stop_loss_config; // Take profit and stop loss configuration
-    std::optional<TradingSchedule> trading_schedule;       // Trading schedule
+    Optional<TradingSchedule> trading_schedule;            // Trading schedule
 };
 
 /**
@@ -275,14 +275,14 @@ struct NeuralNetworkInputs
  */
 struct TrainingConfig
 {
-    int generations;                                 // Number of generations
-    std::optional<double> bad_trader_threshold;      // Threshold for identifying bad traders
-    std::optional<double> inactive_trader_threshold; // Threshold for identifying inactive traders
-    time_t training_start_date;                      // Start date for training
-    time_t training_end_date;                        // End date for training
-    time_t test_start_date;                          // Start date for testing
-    time_t test_end_date;                            // End date for testing
-    NeuralNetworkInputs inputs;                      // Inputs for neural network
+    int generations;                            // Number of generations
+    Optional<double> bad_trader_threshold;      // Threshold for identifying bad traders
+    Optional<double> inactive_trader_threshold; // Threshold for identifying inactive traders
+    time_t training_start_date;                 // Start date for training
+    time_t training_end_date;                   // End date for training
+    time_t test_start_date;                     // Start date for testing
+    time_t test_end_date;                       // End date for testing
+    NeuralNetworkInputs inputs;                 // Inputs for neural network
 };
 
 /**
@@ -290,13 +290,13 @@ struct TrainingConfig
  */
 struct EvaluationConfig
 {
-    std::optional<int> nb_trades_per_day;
-    std::optional<double> expected_return_per_day;   // Expected return per day in % of capital
-    std::optional<double> expected_return_per_month; // Expected return per month in % of capital
-    std::optional<double> expected_return;           // Expected return per year in % of capital
-    std::optional<double> maximum_drawdown;          // Maximum drawdown
-    std::optional<double> minimum_winrate;           // Minimum win rate
-    std::optional<double> minimum_profit_factor;     // Minimum profit factor
+    Optional<int> nb_trades_per_day;
+    Optional<double> expected_return_per_day;   // Expected return per day in % of capital
+    Optional<double> expected_return_per_month; // Expected return per month in % of capital
+    Optional<double> expected_return;           // Expected return per year in % of capital
+    Optional<double> maximum_drawdown;          // Maximum drawdown
+    Optional<double> minimum_winrate;           // Minimum win rate
+    Optional<double> minimum_profit_factor;     // Minimum profit factor
 };
 
 /**
