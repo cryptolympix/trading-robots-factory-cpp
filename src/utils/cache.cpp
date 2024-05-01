@@ -4,7 +4,7 @@
 #include <unordered_map>
 #include <string>
 #include <filesystem>
-#include <nlohmann/json.hpp>
+#include "../libs/json.hpp"
 #include "cache.hpp"
 #include "time_frame.hpp"
 #include "../types.hpp"
