@@ -1,3 +1,4 @@
+#include <iostream>
 #include "../utils/vectors.hpp"
 #include "indicator.hpp"
 #include "../types.hpp"

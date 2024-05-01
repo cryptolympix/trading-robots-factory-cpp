@@ -1,7 +1,6 @@
 #ifndef INDICATOR_H
 #define INDICATOR_H
 
-#include <gtest/gtest.h>
 #include <string>
 #include <vector>
 #include <functional>

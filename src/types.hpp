@@ -1,5 +1,5 @@
-#ifndef TYPES_H
-#define TYPES_H
+#ifndef TYPES_HPP
+#define TYPES_HPP
 
 #include <string>
 #include <unordered_map>
@@ -7,9 +7,9 @@
 #include <vector>
 #include <ctime>
 #include <chrono>
+#include <optional>
 #include "neat/config.hpp"
 #include "indicators/indicator.hpp"
-#include "utils/optional.hpp"
 
 class Indicator; // Forward declaration
 
@@ -252,13 +252,13 @@ struct StrategyConfig
 {
     TimeFrame timeframe;                                   // Time frame
     double maximum_risk;                                   // Maximum risk
-    Optional<int> maximum_trades_per_day;                  // Maximum trades per day
-    Optional<double> maximum_spread;                       // Maximum spread
-    Optional<int> minimum_trade_duration;                  // Minimum trade duration
-    Optional<int> maximum_trade_duration;                  // Maximum trade duration
-    Optional<int> minimum_duration_before_next_trade;      // Minimum duration before the next trade
+    std::optional<int> maximum_trades_per_day;             // Maximum trades per day
+    std::optional<double> maximum_spread;                  // Maximum spread
+    std::optional<int> minimum_trade_duration;             // Minimum trade duration
+    std::optional<int> maximum_trade_duration;             // Maximum trade duration
+    std::optional<int> minimum_duration_before_next_trade; // Minimum duration before the next trade
     TakeProfitStopLossConfig take_profit_stop_loss_config; // Take profit and stop loss configuration
-    Optional<TradingSchedule> trading_schedule;            // Trading schedule
+    std::optional<TradingSchedule> trading_schedule;       // Trading schedule
 };
 
 /**
@@ -275,14 +275,14 @@ struct NeuralNetworkInputs
  */
 struct TrainingConfig
 {
-    int generations;                            // Number of generations
-    Optional<double> bad_trader_threshold;      // Threshold for identifying bad traders
-    Optional<double> inactive_trader_threshold; // Threshold for identifying inactive traders
-    time_t training_start_date;                 // Start date for training
-    time_t training_end_date;                   // End date for training
-    time_t test_start_date;                     // Start date for testing
-    time_t test_end_date;                       // End date for testing
-    NeuralNetworkInputs inputs;                 // Inputs for neural network
+    int generations;                                 // Number of generations
+    std::optional<double> bad_trader_threshold;      // Threshold for identifying bad traders
+    std::optional<double> inactive_trader_threshold; // Threshold for identifying inactive traders
+    time_t training_start_date;                      // Start date for training
+    time_t training_end_date;                        // End date for training
+    time_t test_start_date;                          // Start date for testing
+    time_t test_end_date;                            // End date for testing
+    NeuralNetworkInputs inputs;                      // Inputs for neural network
 };
 
 /**
@@ -290,13 +290,13 @@ struct TrainingConfig
  */
 struct EvaluationConfig
 {
-    Optional<int> nb_trades_per_day;
-    Optional<double> expected_return_per_day;   // Expected return per day in % of capital
-    Optional<double> expected_return_per_month; // Expected return per month in % of capital
-    Optional<double> expected_return;           // Expected return per year in % of capital
-    Optional<double> maximum_drawdown;          // Maximum drawdown
-    Optional<double> minimum_winrate;           // Minimum win rate
-    Optional<double> minimum_profit_factor;     // Minimum profit factor
+    std::optional<int> nb_trades_per_day;
+    std::optional<double> expected_return_per_day;   // Expected return per day in % of capital
+    std::optional<double> expected_return_per_month; // Expected return per month in % of capital
+    std::optional<double> expected_return;           // Expected return per year in % of capital
+    std::optional<double> maximum_drawdown;          // Maximum drawdown
+    std::optional<double> minimum_winrate;           // Minimum win rate
+    std::optional<double> minimum_profit_factor;     // Minimum profit factor
 };
 
 /**
@@ -311,4 +311,4 @@ struct Config
     NeatConfig neat;             // NEAT configuration
 };
 
-#endif /* TYPES_H */
+#endif /* TYPES_HPP */

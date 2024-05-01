@@ -10,7 +10,6 @@
 #include "utils/time_frame.hpp"
 #include "utils/math.hpp"
 #include "utils/vectors.hpp"
-#include "utils/optional.cpp"
 #include "includes/gnuplot-iostream.hpp"
 #include "trading/trading_schedule.hpp"
 #include "trading/trading_tools.hpp"
