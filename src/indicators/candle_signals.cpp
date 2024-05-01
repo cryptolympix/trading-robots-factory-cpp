@@ -16,14 +16,14 @@ NewHighSignal::NewHighSignal(int left_bars, int right_bars, int offset) : Indica
 /**
  * @brief Calculate the New High Signal values.
  *
- * @param candles Vector of CandleStick data.
+ * @param candles Vector of Candle data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> NewHighSignal::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
+std::vector<double> NewHighSignal::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<CandleStick> candles)
+        candles, [this](std::vector<Candle> candles)
         {
             std::vector<double> values(candles.size(), 0);
             std::vector<double> highest_highs = PivotHighValue("high", left_bars, right_bars).calculate(candles, false);
@@ -57,14 +57,14 @@ NewLowSignal::NewLowSignal(int left_bars, int right_bars, int offset) : Indicato
 /**
  * @brief Calculate the New Low Signal values.
  *
- * @param candles Vector of CandleStick data.
+ * @param candles Vector of Candle data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> NewLowSignal::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
+std::vector<double> NewLowSignal::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<CandleStick> candles)
+        candles, [this](std::vector<Candle> candles)
         {
             std::vector<double> values(candles.size(), 0);
             std::vector<double> lowest_lows = PivotLowValue("low", left_bars, right_bars).calculate(candles, false);
@@ -98,14 +98,14 @@ HighBreakSignal::HighBreakSignal(int left_bars, int right_bars, int offset) : In
 /**
  * @brief Calculate the High Break Signal values.
  *
- * @param candles Vector of CandleStick data.
+ * @param candles Vector of Candle data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> HighBreakSignal::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
+std::vector<double> HighBreakSignal::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<CandleStick> candles)
+        candles, [this](std::vector<Candle> candles)
         {
             std::vector<double> values(candles.size(), 0);
             std::vector<double> highest_highs = PivotHighValue("high", left_bars, right_bars).calculate(candles, false);
@@ -138,14 +138,14 @@ LowBreakSignal::LowBreakSignal(int left_bars, int right_bars, int offset) : Indi
 /**
  * @brief Calculate the Low Break Signal values.
  *
- * @param candles Vector of CandleStick data.
+ * @param candles Vector of Candle data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> LowBreakSignal::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
+std::vector<double> LowBreakSignal::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<CandleStick> candles)
+        candles, [this](std::vector<Candle> candles)
         {
             std::vector<double> values(candles.size(), 0);
             std::vector<double> lowest_lows = PivotLowValue("low", left_bars, right_bars).calculate(candles, false);

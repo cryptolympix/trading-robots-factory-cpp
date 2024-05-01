@@ -9,7 +9,7 @@
 TEST(ReadDataTest, TestReadValidData)
 {
     // Test reading data for a valid symbol and time frame
-    std::vector<CandleStick> candles = read_data("EURUSD", TimeFrame::H1);
+    std::vector<Candle> candles = read_data("EURUSD", TimeFrame::H1);
 
     // Assert that the vector is not empty
     ASSERT_FALSE(candles.empty());
@@ -46,7 +46,7 @@ TEST(ReadDataTest, TestReadDataWithDateRange)
     time_t end_time = std::mktime(&end_date);
 
     // Test reading data for a valid symbol, time frame, and date range
-    std::vector<CandleStick> candles = read_data("EURUSD", TimeFrame::H1, start_time, end_time);
+    std::vector<Candle> candles = read_data("EURUSD", TimeFrame::H1, start_time, end_time);
 
     // Assert that the vector is not empty
     ASSERT_TRUE(candles.size() > 0);

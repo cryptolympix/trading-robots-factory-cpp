@@ -6,7 +6,7 @@ TEST(SignalsIndicatorsTest, NewHighSignal)
 {
     // left_bars = 2, right_bars = 0
     NewHighSignal newHighSignal(2, 0);
-    std::vector<CandleStick> candles = {
+    std::vector<Candle> candles = {
         {.open = 10, .high = 12, .low = 8, .close = 15},
         {.open = 15, .high = 16, .low = 8, .close = 9},
         {.open = 9, .high = 10, .low = 6, .close = 12},
@@ -34,7 +34,7 @@ TEST(SignalsIndicatorsTest, NewLowSignal)
 {
     // left_bars = 2, right_bars = 0
     NewLowSignal newLowSignal(2, 0);
-    std::vector<CandleStick> candles = {
+    std::vector<Candle> candles = {
         {.open = 10, .high = 12, .low = 8, .close = 15},
         {.open = 15, .high = 16, .low = 8, .close = 9},
         {.open = 9, .high = 10, .low = 6, .close = 12},
@@ -62,7 +62,7 @@ TEST(SignalsIndicatorsTest, HighBreakSignal)
 {
     // left_bars = 2, right_bars = 0
     HighBreakSignal highBreakSignal1(2, 0);
-    std::vector<CandleStick> candles = {
+    std::vector<Candle> candles = {
         {.open = 10, .high = 12, .low = 8, .close = 15},
         {.open = 15, .high = 16, .low = 8, .close = 9},
         {.open = 9, .high = 10, .low = 6, .close = 12},
@@ -90,7 +90,7 @@ TEST(SignalsIndicatorsTest, LowBreakSignal)
 {
     // left_bars = 2, right_bars = 0
     LowBreakSignal lowBreakSignal1(2, 0);
-    std::vector<CandleStick> candles = {
+    std::vector<Candle> candles = {
         {.open = 10, .high = 12, .low = 8, .close = 15},
         {.open = 15, .high = 16, .low = 8, .close = 9},
         {.open = 9, .high = 10, .low = 6, .close = 12},

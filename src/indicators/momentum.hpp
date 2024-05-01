@@ -36,11 +36,11 @@ public:
     /**
      * @brief Calculate the CandleOpen values.
      *
-     * @param candles Vector of CandleStick data.
+     * @param candles Vector of Candle data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 };
 
 // *********************************************************************************************
@@ -69,11 +69,11 @@ public:
     /**
      * @brief Calculate Kaufman's Adaptive Moving Average (KAMA).
      *
-     * @param candles Vector of CandleStick data.
+     * @param candles Vector of Candle data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing the calculated KAMA values.
      */
-    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 
 private:
     /**
@@ -122,11 +122,11 @@ public:
     /**
      * @brief Calculate the Money Flow Index (MFI) values.
      *
-     * @param candles Vector of CandleStick data.
+     * @param candles Vector of Candle data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated MFI values.
      */
-    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 
 private:
     int period; // The period for calculating Money Flow Index (MFI).
@@ -154,11 +154,11 @@ public:
     /**
      * @brief Calculate the Price Oscillator (PPO) for a given set of candles.
      *
-     * @param candles Vector of CandleStick data.
+     * @param candles Vector of Candle data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated PPO values.
      */
-    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 
 private:
     int short_period; // The short period for calculating PPO.
@@ -188,11 +188,11 @@ public:
     /**
      * @brief Calculate the Percentage Volume Oscillator (PVO) values.
      *
-     * @param candles Vector of CandleStick data.
+     * @param candles Vector of Candle data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated PVO values.
      */
-    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 
 private:
     int fast_period;   // Fast period for calculating the PVO
@@ -222,11 +222,11 @@ public:
     /**
      * @brief Calculate the Rate of Change (ROC) values.
      *
-     * @param candles Vector of CandleStick data.
+     * @param candles Vector of Candle data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 
 private:
     int period; // The period for calculating the ROC.
@@ -255,11 +255,11 @@ public:
     /**
      * @brief Calculate the Relative Strength Index (RSI) values.
      *
-     * @param candles Vector of CandleStick data.
+     * @param candles Vector of Candle data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 
 private:
     int period; // RSI period
@@ -289,11 +289,11 @@ public:
     /**
      * @brief Calculate the Stochastic Relative Strength Index (Stoch RSI) values.
      *
-     * @param candles Vector of CandleStick data.
+     * @param candles Vector of Candle data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 
 private:
     int period;     // Period for calculating the RSI values
@@ -324,11 +324,11 @@ public:
     /**
      * @brief Calculate the Stochastic Oscillator values.
      *
-     * @param candles Vector of CandleStick data.
+     * @param candles Vector of Candle data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 
 private:
     int k_period; // K Period value
@@ -359,11 +359,11 @@ public:
     /**
      * @brief Calculate the TSI values.
      *
-     * @param candles Vector of CandleStick data.
+     * @param candles Vector of Candle data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 
 private:
     int short_period;
@@ -395,11 +395,11 @@ public:
     /**
      * @brief Calculate the Ultimate Oscillator values.
      *
-     * @param candles Vector of CandleStick data.
+     * @param candles Vector of Candle data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 
 private:
     int period1;
@@ -440,11 +440,11 @@ public:
     /**
      * @brief Calculate the Williams Percent R values.
      *
-     * @param candles Vector of CandleStick data.
+     * @param candles Vector of Candle data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 
 private:
     int period; // The period for calculating Williams %R.

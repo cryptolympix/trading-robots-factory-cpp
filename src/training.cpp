@@ -178,7 +178,7 @@ void Training::load_base_currency_conversion_rate()
         std::string symbol = account_currency + base_currency_traded;
         time_t start_date = this->config.training.training_start_date;
         time_t end_date = this->config.training.training_end_date;
-        std::vector<CandleStick> data = read_data(symbol, loop_timeframe, start_date, end_date);
+        std::vector<Candle> data = read_data(symbol, loop_timeframe, start_date, end_date);
 
         for (const auto &candle : data)
         {
@@ -208,7 +208,7 @@ void Training::cache_data()
     {
         indexer->update_indexes(date);
 
-        CandleSticksData current_candles = {};
+        CandlesData current_candles = {};
         IndicatorsData current_indicators = {};
         double current_base_currency_conversion_rate = {};
 
@@ -372,7 +372,7 @@ void Training::evaluate_genome(Genome *genome, int generation)
         if (this->cache->has(date))
         {
             // Get the data from cache
-            CandleSticksData current_candles = this->cache->get(date).candles;
+            CandlesData current_candles = this->cache->get(date).candles;
             IndicatorsData current_indicators = this->cache->get(date).indicators;
             double current_base_currency_conversion_rate = this->cache->get(date).base_currency_conversion_rate;
             std::vector<PositionInfo> position = this->config.training.inputs.position;
@@ -504,7 +504,7 @@ int Training::test(Genome *genome, int generation)
         if (this->cache->has(date))
         {
             // Get the data from cache
-            CandleSticksData current_candles = this->cache->get(date).candles;
+            CandlesData current_candles = this->cache->get(date).candles;
             IndicatorsData current_indicators = this->cache->get(date).indicators;
             double current_base_currency_conversion_rate = this->cache->get(date).base_currency_conversion_rate;
             std::vector<PositionInfo> position = this->config.training.inputs.position;

@@ -13,6 +13,6 @@
  * @return std::vector<double> The candles with source.
  * @throws std::runtime_error If an unknown candle source is passed.
  */
-std::vector<double> get_candles_with_source(const std::vector<CandleStick> &candles, std::string source);
+std::vector<double> get_candles_with_source(const std::vector<Candle> &candles, std::string source);
 
 #endif /* CANDLES_SOURCE_H */

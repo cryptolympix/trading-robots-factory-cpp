@@ -14,14 +14,14 @@ Hour::Hour(int offset) : Indicator("Hour", "hour-" + std::to_string(offset), off
 /**
  * @brief Calculate the Hour values.
  *
- * @param candles Vector of CandleStick data.
+ * @param candles Vector of Candle data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> Hour::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
+std::vector<double> Hour::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<CandleStick> candles) -> std::vector<double>
+        candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
             std::vector<double> values(candles.size(), 0);
 
@@ -48,13 +48,13 @@ NFPWeek::NFPWeek(int offset) : Indicator("NFP Week", "nfp-week-" + std::to_strin
 /**
  * @brief Check if the candle is on NFP week.
  *
- * @param candles Vector of CandleStick data.
+ * @param candles Vector of Candle data.
  * @return std::vector<double> Vector containing 1 if the candle is on NFP week, 0 otherwise.
  */
-std::vector<double> NFPWeek::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
+std::vector<double> NFPWeek::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<CandleStick> candles) -> std::vector<double>
+        candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
             std::vector<double> result(candles.size(), 0);
 
@@ -87,13 +87,13 @@ MarketSession::MarketSession(std::string zone, int offset) : Indicator(zone == "
 /**
  * @brief Check if the candle is on a market session.
  *
- * @param candles Vector of CandleStick data.
+ * @param candles Vector of Candle data.
  * @return std::vector<double> Vector containing 1 if the candle is on the market session, 0 otherwise.
  */
-std::vector<double> MarketSession::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
+std::vector<double> MarketSession::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<CandleStick> candles) -> std::vector<double>
+        candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
             std::vector<double> result(candles.size(), 0);
 
@@ -137,13 +137,13 @@ WeekDay::WeekDay(std::string day, int offset) : Indicator("Week Day (" + day + "
 /**
  * @brief Get the days of the candle.
  *
- * @param candles Vector of CandleStick data.
+ * @param candles Vector of Candle data.
  * @return std::vector<double> Vector containing the number of each candle day (0-6).
  */
-std::vector<double> WeekDay::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
+std::vector<double> WeekDay::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<CandleStick> candles) -> std::vector<double>
+        candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
             std::vector<double> result(candles.size(), 0);
 

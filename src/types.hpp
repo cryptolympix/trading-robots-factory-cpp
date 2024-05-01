@@ -31,7 +31,7 @@ enum class TimeFrame
 /**
  * @brief Struct representing a candle.
  */
-struct CandleStick
+struct Candle
 {
     time_t date;
     double open;
@@ -46,7 +46,7 @@ struct CandleStick
 /**
  * @brief Type definitions for different data structures.
  */
-using CandleSticksData = std::unordered_map<TimeFrame, std::vector<CandleStick>>;
+using CandlesData = std::unordered_map<TimeFrame, std::vector<Candle>>;
 using IndicatorsData = std::unordered_map<TimeFrame, std::unordered_map<std::string, std::vector<double>>>;
 using BaseCurrencyConversionRateData = std::unordered_map<time_t, double>;
 
@@ -55,7 +55,7 @@ using BaseCurrencyConversionRateData = std::unordered_map<time_t, double>;
  */
 struct CacheData
 {
-    CandleSticksData candles;             // Cached candle data
+    CandlesData candles;                  // Cached candle data
     IndicatorsData indicators;            // Cached indicator data
     double base_currency_conversion_rate; // Cached base currency conversion rates
 };

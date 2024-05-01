@@ -26,21 +26,21 @@ protected:
 
         // Mock data initialization
         mock_candles = {
-            CandleStick{.date = date, .open = 10, .high = 12, .low = 8, .close = 15, .volume = 10},
-            CandleStick{.date = date, .open = 15, .high = 16, .low = 8, .close = 9, .volume = 10},
-            CandleStick{.date = date, .open = 9, .high = 10, .low = 6, .close = 12, .volume = 15},
-            CandleStick{.date = date, .open = 12, .high = 13, .low = 8, .close = 6, .volume = 20},
-            CandleStick{.date = date, .open = 6, .high = 7, .low = 5, .close = 5, .volume = 10},
-            CandleStick{.date = date, .open = 8, .high = 17, .low = 5, .close = 17, .volume = 5},
-            CandleStick{.date = date, .open = 17, .high = 18, .low = 6, .close = 14, .volume = 10},
-            CandleStick{.date = date, .open = 14, .high = 15, .low = 8, .close = 11, .volume = 13},
-            CandleStick{.date = date, .open = 11, .high = 12, .low = 2, .close = 4, .volume = 11},
-            CandleStick{.date = date, .open = 4, .high = 21, .low = 8, .close = 20, .volume = 10},
-            CandleStick{.date = date, .open = 20, .high = 20, .low = 5, .close = 18, .volume = 12}};
+            Candle{.date = date, .open = 10, .high = 12, .low = 8, .close = 15, .volume = 10},
+            Candle{.date = date, .open = 15, .high = 16, .low = 8, .close = 9, .volume = 10},
+            Candle{.date = date, .open = 9, .high = 10, .low = 6, .close = 12, .volume = 15},
+            Candle{.date = date, .open = 12, .high = 13, .low = 8, .close = 6, .volume = 20},
+            Candle{.date = date, .open = 6, .high = 7, .low = 5, .close = 5, .volume = 10},
+            Candle{.date = date, .open = 8, .high = 17, .low = 5, .close = 17, .volume = 5},
+            Candle{.date = date, .open = 17, .high = 18, .low = 6, .close = 14, .volume = 10},
+            Candle{.date = date, .open = 14, .high = 15, .low = 8, .close = 11, .volume = 13},
+            Candle{.date = date, .open = 11, .high = 12, .low = 2, .close = 4, .volume = 11},
+            Candle{.date = date, .open = 4, .high = 21, .low = 8, .close = 20, .volume = 10},
+            Candle{.date = date, .open = 20, .high = 20, .low = 5, .close = 18, .volume = 12}};
     };
 
     // Variables
-    std::vector<CandleStick> mock_candles;
+    std::vector<Candle> mock_candles;
 };
 
 TEST_F(CandleIndicatorsTest, Price)

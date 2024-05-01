@@ -20,14 +20,14 @@ CandleOpen::CandleOpen(int offset) : Indicator("Candle Open", "candle-open-" + s
 /**
  * @brief Calculate the CandleOpen values.
  *
- * @param candles Vector of CandleStick data.
+ * @param candles Vector of Candle data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> CandleOpen::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
+std::vector<double> CandleOpen::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<CandleStick> candles) -> std::vector<double>
+        candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
                 std::vector<double> values;
                 for (int i = 0; i < candles.size(); ++i)
@@ -50,14 +50,14 @@ CandleHigh::CandleHigh(int offset) : Indicator("Candle High", "candle-high-" + s
 /**
  * @brief Calculate the CandleHigh values.
  *
- * @param candles Vector of CandleStick data.
+ * @param candles Vector of Candle data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> CandleHigh::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
+std::vector<double> CandleHigh::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<CandleStick> candles) -> std::vector<double>
+        candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
             std::vector<double> values;
             for (int i = 0; i < candles.size(); ++i)
@@ -81,14 +81,14 @@ CandleLow::CandleLow(int offset) : Indicator("Candle Low", "candle-low-" + std::
 /**
  * @brief Calculate the CandleLow values.
  *
- * @param candles Vector of CandleStick data.
+ * @param candles Vector of Candle data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> CandleLow::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
+std::vector<double> CandleLow::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<CandleStick> candles) -> std::vector<double>
+        candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
             std::vector<double> values;
             for (int i = 0; i < candles.size(); ++i)
@@ -112,14 +112,14 @@ CandleClose::CandleClose(int offset) : Indicator("Candle Close", "candle-close-"
 /**
  * @brief Calculate the CandleClose values.
  *
- * @param candles Vector of CandleStick data.
+ * @param candles Vector of Candle data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> CandleClose::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
+std::vector<double> CandleClose::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<CandleStick> candles) -> std::vector<double>
+        candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
             std::vector<double> values;
             for (int i = 0; i < candles.size(); ++i)
@@ -143,14 +143,14 @@ CandleVolume::CandleVolume(int offset) : Indicator("Candle Volume", "candle-volu
 /**
  * @brief Calculate the CandleVolume values.
  *
- * @param candles Vector of CandleStick data.
+ * @param candles Vector of Candle data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> CandleVolume::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
+std::vector<double> CandleVolume::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<CandleStick> candles) -> std::vector<double>
+        candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
             std::vector<double> values;
             for (int i = 0; i < candles.size(); ++i)
@@ -174,14 +174,14 @@ WhiteCandle::WhiteCandle(int offset) : Indicator("White Candle", "white-candle-"
 /**
  * @brief Calculate the WhiteCandle values.
  *
- * @param candles Vector of CandleStick data.
+ * @param candles Vector of Candle data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> WhiteCandle::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
+std::vector<double> WhiteCandle::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<CandleStick> candles) -> std::vector<double>
+        candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
             std::vector<double> values;
             for (int i = 0; i < candles.size(); ++i)
@@ -205,14 +205,14 @@ BlackCandle::BlackCandle(int offset) : Indicator("Black Candle", "black-candle-"
 /**
  * @brief Calculate the BlackCandle values.
  *
- * @param candles Vector of CandleStick data.
+ * @param candles Vector of Candle data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> BlackCandle::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
+std::vector<double> BlackCandle::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<CandleStick> candles) -> std::vector<double>
+        candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
             std::vector<double> values;
             for (int i = 0; i < candles.size(); ++i)
@@ -236,14 +236,14 @@ CandleBody::CandleBody(int offset) : Indicator("Candle Body", "candle-body-" + s
 /**
  * @brief Calculate the CandleBody values.
  *
- * @param candles Vector of CandleStick data.
+ * @param candles Vector of Candle data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> CandleBody::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
+std::vector<double> CandleBody::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<CandleStick> candles) -> std::vector<double>
+        candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
             // Initialize values vector with size of candles
             std::vector<double> values(candles.size(), 0);
@@ -273,14 +273,14 @@ CandleShadowUpper::CandleShadowUpper(int offset) : Indicator("Candle Shadow Uppe
 /**
  * @brief Calculate the CandleShadowUpper values.
  *
- * @param candles Vector of CandleStick data.
+ * @param candles Vector of Candle data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> CandleShadowUpper::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
+std::vector<double> CandleShadowUpper::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<CandleStick> candles) -> std::vector<double>
+        candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
             std::vector<double> values;
             for (int i = 0; i < candles.size(); ++i)
@@ -308,14 +308,14 @@ CandleShadowLower::CandleShadowLower(int offset) : Indicator("Candle Shadow Lowe
 /**
  * @brief Calculate the CandleShadowLower values.
  *
- * @param candles Vector of CandleStick data.
+ * @param candles Vector of Candle data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> CandleShadowLower::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
+std::vector<double> CandleShadowLower::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<CandleStick> candles) -> std::vector<double>
+        candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
             std::vector<double> values;
             for (int i = 0; i < candles.size(); ++i)
@@ -343,14 +343,14 @@ CandlePriceChange::CandlePriceChange(int offset) : Indicator("Candle Price Chang
 /**
  * @brief Calculate the CandlePriceChange values.
  *
- * @param candles Vector of CandleStick data.
+ * @param candles Vector of Candle data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> CandlePriceChange::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
+std::vector<double> CandlePriceChange::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<CandleStick> candles) -> std::vector<double>
+        candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
             std::vector<double> values;
             for (size_t i = 0; i < candles.size(); ++i)
@@ -378,14 +378,14 @@ PivotHigh::PivotHigh(std::string source, int left_bars, int right_bars, int offs
 /**
  * @brief Calculate the PivotHigh values.
  *
- * @param candles Vector of CandleStick data.
+ * @param candles Vector of Candle data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> PivotHigh::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
+std::vector<double> PivotHigh::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<CandleStick> candles) -> std::vector<double>
+        candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
             std::vector<double> values(candles.size(), 0); // Initialize values vector with size of candles
             std::vector<double> source_candles = get_candles_with_source(candles, source);
@@ -442,14 +442,14 @@ PivotLow::PivotLow(std::string source, int left_bars, int right_bars, int offset
 /**
  * @brief Calculate the PivotLow values.
  *
- * @param candles Vector of CandleStick data.
+ * @param candles Vector of Candle data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> PivotLow::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
+std::vector<double> PivotLow::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<CandleStick> candles) -> std::vector<double>
+        candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
             std::vector<double> values(candles.size(), 0); // Initialize values vector with size of candles
             std::vector<double> source_candles = get_candles_with_source(candles, source);
@@ -513,14 +513,14 @@ PivotHighValue::PivotHighValue(std::string source, int left_bars, int right_bars
 /**
  * @brief Calculate the PivotHighValue values.
  *
- * @param candles Vector of CandleStick data.
+ * @param candles Vector of Candle data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> PivotHighValue::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
+std::vector<double> PivotHighValue::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<CandleStick> candles) -> std::vector<double>
+        candles, [this](std::vector<Candle> candles) -> std::vector<double>
         { 
             std::vector<double> values(candles.size(), 0); // Initialize values vector with size of candles
             std::vector<double> pivots = PivotHigh("high", left_bars, right_bars, offset).calculate(candles, false);
@@ -567,14 +567,14 @@ PivotLowValue::PivotLowValue(std::string source, int left_bars, int right_bars, 
 /**
  * @brief Calculate the PivotLowValue values.
  *
- * @param candles Vector of CandleStick data.
+ * @param candles Vector of Candle data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> PivotLowValue::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
+std::vector<double> PivotLowValue::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<CandleStick> candles) -> std::vector<double>
+        candles, [this](std::vector<Candle> candles) -> std::vector<double>
         { 
             std::vector<double> values(candles.size(), 0); // Initialize values vector with size of candles
             std::vector<double> pivots = PivotLow("low", left_bars, right_bars, offset).calculate(candles, false);
@@ -619,14 +619,14 @@ HighestHigh::HighestHigh(int left_bars, int right_bars, int offset) : Indicator(
 /**
  * @brief Calculate the HighestHigh values.
  *
- * @param candles Vector of CandleStick data.
+ * @param candles Vector of Candle data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> HighestHigh::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
+std::vector<double> HighestHigh::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<CandleStick> candles) -> std::vector<double>
+        candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
             std::vector<double> values(candles.size(), 0); // Initialize values vector with size of candles
 
@@ -670,14 +670,14 @@ LowestLow::LowestLow(int left_bars, int right_bars, int offset) : Indicator("Low
 /**
  * @brief Calculate the LowestLow values.
  *
- * @param candles Vector of CandleStick data.
+ * @param candles Vector of Candle data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> LowestLow::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
+std::vector<double> LowestLow::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<CandleStick> candles) -> std::vector<double>
+        candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
             std::vector<double> values(candles.size(), 0); // Initialize values vector with size of candles
 
@@ -721,14 +721,14 @@ PeakDistance::PeakDistance(int left_bars, int right_bars, int offset) : Indicato
 /**
  * @brief Calculate the PeakDistance values.
  *
- * @param candles Vector of CandleStick data.
+ * @param candles Vector of Candle data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> PeakDistance::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
+std::vector<double> PeakDistance::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<CandleStick> candles) -> std::vector<double>
+        candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
             std::vector<double> values(candles.size(), 0); // Initialize values vector with size of candles
 
@@ -760,14 +760,14 @@ PeakCandleDistance::PeakCandleDistance(int left_bars, int right_bars, int offset
 /**
  * @brief Calculate the PeakCandleDistance values.
  *
- * @param candles Vector of CandleStick data.
+ * @param candles Vector of Candle data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> PeakCandleDistance::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
+std::vector<double> PeakCandleDistance::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<CandleStick> candles) -> std::vector<double>
+        candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
             std::vector<double> values(candles.size(), 0); // Initialize values vector with size of candles
 

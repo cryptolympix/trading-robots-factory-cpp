@@ -33,43 +33,43 @@ extern "C"
         Genome *genome = Genome::load(genome_save_file);
 
         std::vector<TimeFrame> candles_timeframes = {};
-        CandleSticksData candles = {};
+        CandlesData candles = {};
         IndicatorsData indicators = {};
 
         if (candles_data->m1_size > 0)
         {
             candles_timeframes.push_back(TimeFrame::M1);
-            candles[TimeFrame::M1] = std::vector<CandleStick>(candles_data->m1, candles_data->m1 + candles_data->m1_size);
+            candles[TimeFrame::M1] = std::vector<Candle>(candles_data->m1, candles_data->m1 + candles_data->m1_size);
         }
         if (candles_data->m5_size > 0)
         {
             candles_timeframes.push_back(TimeFrame::M5);
-            candles[TimeFrame::M5] = std::vector<CandleStick>(candles_data->m5, candles_data->m5 + candles_data->m5_size);
+            candles[TimeFrame::M5] = std::vector<Candle>(candles_data->m5, candles_data->m5 + candles_data->m5_size);
         }
         if (candles_data->m15_size > 0)
         {
             candles_timeframes.push_back(TimeFrame::M15);
-            candles[TimeFrame::M15] = std::vector<CandleStick>(candles_data->m15, candles_data->m15 + candles_data->m15_size);
+            candles[TimeFrame::M15] = std::vector<Candle>(candles_data->m15, candles_data->m15 + candles_data->m15_size);
         }
         if (candles_data->m30_size > 0)
         {
             candles_timeframes.push_back(TimeFrame::M30);
-            candles[TimeFrame::M30] = std::vector<CandleStick>(candles_data->m30, candles_data->m30 + candles_data->m30_size);
+            candles[TimeFrame::M30] = std::vector<Candle>(candles_data->m30, candles_data->m30 + candles_data->m30_size);
         }
         if (candles_data->h1_size > 0)
         {
             candles_timeframes.push_back(TimeFrame::H1);
-            candles[TimeFrame::H1] = std::vector<CandleStick>(candles_data->h1, candles_data->h1 + candles_data->h1_size);
+            candles[TimeFrame::H1] = std::vector<Candle>(candles_data->h1, candles_data->h1 + candles_data->h1_size);
         }
         if (candles_data->h4_size > 0)
         {
             candles_timeframes.push_back(TimeFrame::H4);
-            candles[TimeFrame::H4] = std::vector<CandleStick>(candles_data->h4, candles_data->h4 + candles_data->h4_size);
+            candles[TimeFrame::H4] = std::vector<Candle>(candles_data->h4, candles_data->h4 + candles_data->h4_size);
         }
         if (candles_data->d1_size > 0)
         {
             candles_timeframes.push_back(TimeFrame::D1);
-            candles[TimeFrame::D1] = std::vector<CandleStick>(candles_data->d1, candles_data->d1 + candles_data->d1_size);
+            candles[TimeFrame::D1] = std::vector<Candle>(candles_data->d1, candles_data->d1 + candles_data->d1_size);
         }
 
         // Prepare the inputs of the genome
@@ -120,7 +120,7 @@ extern "C"
         trader->think();
 
         int loop_interval_minutes = get_time_frame_value(config.strategy.timeframe);
-        CandleStick last_candle = trader->candles[config.strategy.timeframe].back();
+        Candle last_candle = trader->candles[config.strategy.timeframe].back();
 
         // Position information
         bool has_position = position_infos_data.type != 0;

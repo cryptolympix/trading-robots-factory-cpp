@@ -13,7 +13,7 @@ public:
     SymbolInfo symbol_info;
 
     // Vision
-    CandleSticksData candles;
+    CandlesData candles;
     double current_base_currency_conversion_rate;
     time_t current_date;
 
@@ -57,7 +57,7 @@ public:
      * @param base_currency_conversion_rate Conversion rate when the base asset traded is different from the account currency.
      * @param position_infos Vector of position information.
      */
-    void look(CandleSticksData &candles, IndicatorsData &indicators, double base_currency_conversion_rate, std::vector<PositionInfo> position_infos);
+    void look(CandlesData &candles, IndicatorsData &indicators, double base_currency_conversion_rate, std::vector<PositionInfo> position_infos);
 
     /**
      * @brief Get the outputs from the neural network.

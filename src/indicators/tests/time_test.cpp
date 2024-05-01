@@ -21,7 +21,7 @@ TEST(TimeIndicatorsTest, Hour)
     datetime.tm_hour = expected_hour;
     time_t date = mktime(&datetime);
 
-    std::vector<CandleStick> test_candles = {
+    std::vector<Candle> test_candles = {
         {date, 1, 1, 1, 1, 0, 0, 0}};
 
     // Call the calculate method
@@ -43,7 +43,7 @@ TEST(TimeIndicatorsTest, NFPWeek)
     datetime_nfp.tm_mday = 6;
     time_t date_nfp = mktime(&datetime_nfp);
 
-    std::vector<CandleStick> test_candles_nfp = {
+    std::vector<Candle> test_candles_nfp = {
         {date_nfp, 1, 1, 1, 1, 0, 0, 0}};
 
     // Call the calculate method
@@ -59,7 +59,7 @@ TEST(TimeIndicatorsTest, NFPWeek)
     datetime_not_nfp.tm_mday = 13;
     time_t date_not_nfp = mktime(&datetime_not_nfp);
 
-    std::vector<CandleStick> test_candles_not_nfp = {
+    std::vector<Candle> test_candles_not_nfp = {
         {date_not_nfp, 1, 1, 1, 1, 0, 0, 0}};
 
     // Call the calculate method
@@ -73,7 +73,7 @@ TEST(TimeIndicatorsTest, MarketSession)
 {
     // London
     MarketSession london("london");
-    std::vector<CandleStick> test_candles_london;
+    std::vector<Candle> test_candles_london;
     for (int h = 7; h < 14; ++h)
     {
         tm datetime = {0};
@@ -92,7 +92,7 @@ TEST(TimeIndicatorsTest, MarketSession)
 
     // New York
     MarketSession newYork("new-york");
-    std::vector<CandleStick> test_candles_newyork;
+    std::vector<Candle> test_candles_newyork;
     for (int h = 13; h < 22; ++h)
     {
         tm datetime = {0};
@@ -111,7 +111,7 @@ TEST(TimeIndicatorsTest, MarketSession)
 
     // Tokyo
     MarketSession tokyo("tokyo");
-    std::vector<CandleStick> test_candles_tokyo;
+    std::vector<Candle> test_candles_tokyo;
     for (int h = 1; h < 10; ++h)
     {
         tm datetime = {0};
@@ -141,7 +141,7 @@ TEST(TimeIndicatorsTest, WeekDay)
     WeekDay weekDay_saturday("saturday");
 
     // Create test data for the days of the week
-    std::vector<CandleStick> test_candles_weekday;
+    std::vector<Candle> test_candles_weekday;
     for (int d = 1; d <= 7; ++d)
     {
         tm datetime = {0};

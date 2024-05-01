@@ -28,11 +28,11 @@ public:
     /**
      * @brief Calculate the CandleOpen values.
      *
-     * @param candles Vector of CandleStick data.
+     * @param candles Vector of Candle data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 };
 
 /**
@@ -51,11 +51,11 @@ public:
     /**
      * @brief Calculate the CandleHigh values.
      *
-     * @param candles Vector of CandleStick data.
+     * @param candles Vector of Candle data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 };
 
 /**
@@ -74,11 +74,11 @@ public:
     /**
      * @brief Calculate the CandleLow values.
      *
-     * @param candles Vector of CandleStick data.
+     * @param candles Vector of Candle data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 };
 
 /**
@@ -97,11 +97,11 @@ public:
     /**
      * @brief Calculate the CandleClose values.
      *
-     * @param candles Vector of CandleStick data.
+     * @param candles Vector of Candle data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 };
 
 /**
@@ -120,11 +120,11 @@ public:
     /**
      * @brief Calculate the CandleVolume values.
      *
-     * @param candles Vector of CandleStick data.
+     * @param candles Vector of Candle data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 };
 
 /**
@@ -145,11 +145,11 @@ public:
     /**
      * @brief Calculate the WhiteCandle values.
      *
-     * @param candles Vector of CandleStick data.
+     * @param candles Vector of Candle data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 };
 
 /**
@@ -170,11 +170,11 @@ public:
     /**
      * @brief Calculate the BlackCandle values.
      *
-     * @param candles Vector of CandleStick data.
+     * @param candles Vector of Candle data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 };
 
 /**
@@ -195,11 +195,11 @@ public:
     /**
      * @brief Calculate the CandleBody values.
      *
-     * @param candles Vector of CandleStick data.
+     * @param candles Vector of Candle data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 };
 
 /**
@@ -220,11 +220,11 @@ public:
     /**
      * @brief Calculate the CandleShadowUpper values.
      *
-     * @param candles Vector of CandleStick data.
+     * @param candles Vector of Candle data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 };
 
 /**
@@ -245,11 +245,11 @@ public:
     /**
      * @brief Calculate the CandleShadowLower values.
      *
-     * @param candles Vector of CandleStick data.
+     * @param candles Vector of Candle data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 };
 
 /**
@@ -268,11 +268,11 @@ public:
     /**
      * @brief Calculate the CandlePriceChange values.
      *
-     * @param candles Vector of CandleStick data.
+     * @param candles Vector of Candle data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 };
 
 /**
@@ -294,11 +294,11 @@ public:
     /**
      * @brief Calculate the PivotHigh values.
      *
-     * @param candles Vector of CandleStick data.
+     * @param candles Vector of Candle data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 
 private:
     std::string source;
@@ -325,11 +325,11 @@ public:
     /**
      * @brief Calculate the PivotLow values.
      *
-     * @param candles Vector of CandleStick data.
+     * @param candles Vector of Candle data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 
 private:
     std::string source;
@@ -356,11 +356,11 @@ public:
     /**
      * @brief Calculate the PivotHighValue values.
      *
-     * @param candles Vector of CandleStick data.
+     * @param candles Vector of Candle data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 
 private:
     std::string source;
@@ -387,11 +387,11 @@ public:
     /**
      * @brief Calculate the PivotLowValue values.
      *
-     * @param candles Vector of CandleStick data.
+     * @param candles Vector of Candle data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 
 private:
     std::string source;
@@ -417,11 +417,11 @@ public:
     /**
      * @brief Calculate the HighestHigh values.
      *
-     * @param candles Vector of CandleStick data.
+     * @param candles Vector of Candle data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 
 private:
     int left_bars;
@@ -446,11 +446,11 @@ public:
     /**
      * @brief Calculate the LowestLow values.
      *
-     * @param candles Vector of CandleStick data.
+     * @param candles Vector of Candle data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 
 private:
     int left_bars;
@@ -477,11 +477,11 @@ public:
     /**
      * @brief Calculate the PeakDistance values.
      *
-     * @param candles Vector of CandleStick data.
+     * @param candles Vector of Candle data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 
 private:
     int left_bars;
@@ -508,11 +508,11 @@ public:
     /**
      * @brief Calculate the PeakCandleDistance values.
      *
-     * @param candles Vector of CandleStick data.
+     * @param candles Vector of Candle data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 
 private:
     int left_bars;

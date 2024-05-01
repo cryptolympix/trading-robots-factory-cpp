@@ -25,11 +25,11 @@ public:
     /**
      * @brief Calculate the ADL values.
      *
-     * @param candles Vector of CandleStick data.
+     * @param candles Vector of Candle data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated values.
      */
-    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 
 private:
     /**
@@ -38,7 +38,7 @@ private:
      * @param candle The Candle data.
      * @return double The calculated Money Flow Multiplier.
      */
-    double calculate_money_flow_multiplier(const CandleStick &candle) const;
+    double calculate_money_flow_multiplier(const Candle &candle) const;
 };
 
 // *********************************************************************************************************************
@@ -62,11 +62,11 @@ public:
     /**
      * @brief Calculate the Chaikin Money Flow (CMF) values.
      *
-     * @param candles Vector of CandleStick data.
+     * @param candles Vector of Candle data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated CMF values.
      */
-    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 
 private:
     int period; // Period for the CMF.
@@ -93,11 +93,11 @@ public:
     /**
      * @brief Calculate the Force Index (FI) values.
      *
-     * @param candles Vector of CandleStick data.
+     * @param candles Vector of Candle data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated FI values.
      */
-    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 
 private:
     int period; // Period for the Force Index.
@@ -125,11 +125,11 @@ public:
     /**
      * @brief Calculate the Negative Volume Index (NVI) values.
      *
-     * @param candles Vector of CandleStick data.
+     * @param candles Vector of Candle data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated NVI values.
      */
-    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const;
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const;
 };
 
 // *********************************************************************************************************************
@@ -154,11 +154,11 @@ public:
     /**
      * @brief Calculate the On-balance Volume (OBV) values.
      *
-     * @param candles Vector of CandleStick data.
+     * @param candles Vector of Candle data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated OBV values.
      */
-    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 };
 
 // *********************************************************************************************************************
@@ -183,11 +183,11 @@ public:
     /**
      * @brief Calculate the Point of Control (POC) values.
      *
-     * @param candles Vector of CandleStick data.
+     * @param candles Vector of Candle data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated POC values.
      */
-    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 
 private:
     int period;   // Period for the POC.
@@ -196,10 +196,10 @@ private:
     /**
      * @brief Calculate the volume profile for the given candles.
      *
-     * @param candles Vector of CandleStick data.
+     * @param candles Vector of Candle data.
      * @return std::map<double, double> Map containing the volume profile.
      */
-    std::map<double, double> calculate_volume_profile(const std::vector<CandleStick> &candles) const;
+    std::map<double, double> calculate_volume_profile(const std::vector<Candle> &candles) const;
 };
 
 // *********************************************************************************************************************
@@ -222,11 +222,11 @@ public:
     /**
      * @brief Calculate the Positive Volume Index (PVI) values.
      *
-     * @param candles Vector of CandleStick data.
+     * @param candles Vector of Candle data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated PVI values.
      */
-    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 };
 
 // *********************************************************************************************************************
@@ -250,11 +250,11 @@ public:
     /**
      * @brief Calculate the Volume Weighted Average Price (VWAP) values.
      *
-     * @param candles Vector of CandleStick data.
+     * @param candles Vector of Candle data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
      * @return std::vector<double> Vector containing calculated VWAP values.
      */
-    std::vector<double> calculate(const std::vector<CandleStick> &candles, bool normalize_data = false) const override;
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 };
 
 // *********************************************************************************************************************

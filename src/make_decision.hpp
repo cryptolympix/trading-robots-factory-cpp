@@ -5,19 +5,19 @@
 
 struct MultiTimeFrameCandles
 {
-    CandleStick *m1;
+    Candle *m1;
     int m1_size;
-    CandleStick *m5;
+    Candle *m5;
     int m5_size;
-    CandleStick *m15;
+    Candle *m15;
     int m15_size;
-    CandleStick *m30;
+    Candle *m30;
     int m30_size;
-    CandleStick *h1;
+    Candle *h1;
     int h1_size;
-    CandleStick *h4;
+    Candle *h4;
     int h4_size;
-    CandleStick *d1;
+    Candle *d1;
     int d1_size;
 };
 

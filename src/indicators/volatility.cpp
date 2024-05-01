@@ -16,14 +16,14 @@ ATR::ATR(int period, int offset) : Indicator("Average True Range", "atr-" + std:
 /**
  * @brief Calculate the Average True Range values.
  *
- * @param candles Vector of CandleStick data.
+ * @param candles Vector of Candle data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> ATR::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
+std::vector<double> ATR::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<CandleStick> candles) -> std::vector<double>
+        candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
             std::vector<double> atr_values(candles.size(), 0.0);
 
@@ -55,10 +55,10 @@ std::vector<double> ATR::calculate(const std::vector<CandleStick> &candles, bool
 /**
  * @brief Calculate the True Range for a specific candle.
  *
- * @param candles Vector of CandleStick data.
+ * @param candles Vector of Candle data.
  * @return std::vector<double> The calculated True Range values.
  */
-std::vector<double> ATR::calculateTrueRange(const std::vector<CandleStick> &candles) const
+std::vector<double> ATR::calculateTrueRange(const std::vector<Candle> &candles) const
 {
     std::vector<double> tr_values(candles.size(), 0.0);
 
@@ -94,14 +94,14 @@ BollingerChannelHighBand::BollingerChannelHighBand(int period, double multiplier
 /**
  * @brief Calculate the Bollinger Channel High Band values.
  *
- * @param candles Vector of CandleStick data.
+ * @param candles Vector of Candle data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> BollingerChannelHighBand::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
+std::vector<double> BollingerChannelHighBand::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<CandleStick> candles) -> std::vector<double>
+        candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
             std::vector<double> bollinger_channel_high_band_values(candles.size(), 0.0);
 
@@ -137,14 +137,14 @@ BollingerChannelLowBand::BollingerChannelLowBand(int period, double multiplier, 
 /**
  * @brief Calculate the Bollinger Channel Low Band values.
  *
- * @param candles Vector of CandleStick data.
+ * @param candles Vector of Candle data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> BollingerChannelLowBand::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
+std::vector<double> BollingerChannelLowBand::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<CandleStick> candles) -> std::vector<double>
+        candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
             std::vector<double> bollinger_channel_low_band_values(candles.size(), 0.0);
 
@@ -179,14 +179,14 @@ BollingerChannelMiddleBand::BollingerChannelMiddleBand(int period, int offset) :
 /**
  * @brief Calculate the Bollinger Channel Middle Band values.
  *
- * @param candles Vector of CandleStick data.
+ * @param candles Vector of Candle data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> BollingerChannelMiddleBand::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
+std::vector<double> BollingerChannelMiddleBand::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<CandleStick> candles) -> std::vector<double>
+        candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
             std::vector<double> bollinger_channel_middle_band_values(candles.size(), 0.0);
 
@@ -221,14 +221,14 @@ BollingerChannelPercentageBand::BollingerChannelPercentageBand(int period, doubl
 /**
  * @brief Calculate the Bollinger Channel Percentage Band values.
  *
- * @param candles Vector of CandleStick data.
+ * @param candles Vector of Candle data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> BollingerChannelPercentageBand::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
+std::vector<double> BollingerChannelPercentageBand::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<CandleStick> candles) -> std::vector<double>
+        candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
             std::vector<double> bollinger_channel_percentage_band_values(candles.size(), 0.0);
 
@@ -268,14 +268,14 @@ BollingerChannelWidthBand::BollingerChannelWidthBand(int period, double multipli
 /**
  * @brief Calculate the Bollinger Channel Width Band values.
  *
- * @param candles Vector of CandleStick data.
+ * @param candles Vector of Candle data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> BollingerChannelWidthBand::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
+std::vector<double> BollingerChannelWidthBand::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<CandleStick> candles) -> std::vector<double>
+        candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
             std::vector<double> bollinger_channel_width_band_values(candles.size(), 0.0);
 
@@ -314,14 +314,14 @@ DonchianChannelHighBand::DonchianChannelHighBand(int period, int offset) : Indic
 /**
  * @brief Calculate the Donchian Channel High Band values.
  *
- * @param candles Vector of CandleStick data.
+ * @param candles Vector of Candle data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> DonchianChannelHighBand::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
+std::vector<double> DonchianChannelHighBand::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<CandleStick> candles) -> std::vector<double>
+        candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
             std::vector<double> donchian_channel_high_band_values(candles.size(), 0.0);
 
@@ -361,14 +361,14 @@ DonchianChannelLowBand::DonchianChannelLowBand(int period, int offset) : Indicat
 /**
  * @brief Calculate the Donchian Channel Low Band values.
  *
- * @param candles Vector of CandleStick data.
+ * @param candles Vector of Candle data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> DonchianChannelLowBand::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
+std::vector<double> DonchianChannelLowBand::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<CandleStick> candles) -> std::vector<double>
+        candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
             std::vector<double> donchian_channel_low_band_values(candles.size(), 0.0);
 
@@ -408,14 +408,14 @@ DonchianChannelMiddleBand::DonchianChannelMiddleBand(int period, int offset) : I
 /**
  * @brief Calculate the Donchian Channel Middle Band values.
  *
- * @param candles Vector of CandleStick data.
+ * @param candles Vector of Candle data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> DonchianChannelMiddleBand::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
+std::vector<double> DonchianChannelMiddleBand::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<CandleStick> candles) -> std::vector<double>
+        candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
             std::vector<double> donchian_channel_middle_band_values(candles.size(), 0.0);
 
@@ -459,14 +459,14 @@ KeltnerChannelHighBand::KeltnerChannelHighBand(int period, int atr_period, doubl
 /**
  * @brief Calculate the Keltner Channel High Band values.
  *
- * @param candles Vector of CandleStick data.
+ * @param candles Vector of Candle data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> KeltnerChannelHighBand::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
+std::vector<double> KeltnerChannelHighBand::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<CandleStick> candles) -> std::vector<double>
+        candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
             std::vector<double> keltner_channel_high_band_values(candles.size(), 0.0);
 
@@ -503,14 +503,14 @@ KeltnerChannelLowBand::KeltnerChannelLowBand(int period, int atr_period, double 
 /**
  * @brief Calculate the Keltner Channel Low Band values.
  *
- * @param candles Vector of CandleStick data.
+ * @param candles Vector of Candle data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> KeltnerChannelLowBand::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
+std::vector<double> KeltnerChannelLowBand::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<CandleStick> candles) -> std::vector<double>
+        candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
             std::vector<double> keltner_channel_low_band_values(candles.size(), 0.0);
 
@@ -545,14 +545,14 @@ KeltnerChannelMiddleBand::KeltnerChannelMiddleBand(int period, int offset) : Ind
 /**
  * @brief Calculate the Keltner Channel Middle Band values.
  *
- * @param candles Vector of CandleStick data.
+ * @param candles Vector of Candle data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> KeltnerChannelMiddleBand::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
+std::vector<double> KeltnerChannelMiddleBand::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<CandleStick> candles) -> std::vector<double>
+        candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
             std::vector<double> keltner_channel_middle_band_values(candles.size(), 0.0);
 
@@ -586,14 +586,14 @@ UI::UI(int period, int offset) : Indicator("Ulcer Index", "ui-" + std::to_string
 /**
  * @brief Calculate the Ulcer Index values.
  *
- * @param candles Vector of CandleStick data.
+ * @param candles Vector of Candle data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> UI::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
+std::vector<double> UI::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<CandleStick> candles) -> std::vector<double>
+        candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
             std::vector<double> ui_values(candles.size(), 0.0);
 
@@ -650,14 +650,14 @@ StandardDeviation::StandardDeviation(int period, int offset) : Indicator("Standa
 /**
  * @brief Calculate the Standard Deviation values.
  *
- * @param candles Vector of CandleStick data.
+ * @param candles Vector of Candle data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> StandardDeviation::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
+std::vector<double> StandardDeviation::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<CandleStick> candles) -> std::vector<double>
+        candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
             std::vector<double> stddev_values(candles.size(), 0.0);
 
@@ -686,14 +686,14 @@ AveragePriceChange::AveragePriceChange(int period, int offset) : Indicator("Aver
 /**
  * @brief Calculate the Average Price Change values.
  *
- * @param candles Vector of CandleStick data.
+ * @param candles Vector of Candle data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> AveragePriceChange::calculate(const std::vector<CandleStick> &candles, bool normalize_data) const
+std::vector<double> AveragePriceChange::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
-        candles, [this](std::vector<CandleStick> candles) -> std::vector<double>
+        candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
             std::vector<double> average_price_change_values(candles.size(), 0.0);
 

@@ -16,12 +16,12 @@
  * @param time_frame The time frame of the data (M1, M5, H1, etc.).
  * @param start_date The start date for filtering data (optional, default is the Unix epoch).
  * @param end_date The end date for filtering data (optional, default is the current date and time).
- * @return std::vector<CandleStick> A vector of CandleStick objects containing candle data.
+ * @return std::vector<Candle> A vector of Candle objects containing candle data.
  * @throw std::runtime_error If the specified data file does not exist.
  */
-std::vector<CandleStick> read_data(const std::string &symbol, TimeFrame time_frame, time_t start_date, time_t end_date)
+std::vector<Candle> read_data(const std::string &symbol, TimeFrame time_frame, time_t start_date, time_t end_date)
 {
-    std::vector<CandleStick> candles;
+    std::vector<Candle> candles;
 
     // Convert TimeFrame enum to string
     std::string time_frame_str;
@@ -68,7 +68,7 @@ std::vector<CandleStick> read_data(const std::string &symbol, TimeFrame time_fra
     {
         std::istringstream ss(line);
         std::string token;
-        CandleStick candle;
+        Candle candle;
 
         // Read candle data from CSV line
         std::getline(ss, token, '\t'); // DATE

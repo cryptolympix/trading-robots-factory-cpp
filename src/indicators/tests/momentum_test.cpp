@@ -8,7 +8,7 @@
 class MomentumIndicatorsTest : public ::testing::Test
 {
 protected:
-    std::vector<CandleStick> mock_candles;
+    std::vector<Candle> mock_candles;
 
     void SetUp() override
     {

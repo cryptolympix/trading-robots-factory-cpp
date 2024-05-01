@@ -114,7 +114,7 @@ protected:
         trader->decisions = {0, 0, 1};
         trader->current_date = date;
         trader->candles = {{TimeFrame::H1, {
-                                               CandleStick{.date = date, .close = 1.0},
+                                               Candle{.date = date, .close = 1.0},
                                            }}};
         trader->current_base_currency_conversion_rate = 1;
         trader->stats = {
@@ -267,7 +267,7 @@ TEST_F(TraderTest, CheckTpOrderHit)
 {
     // Mock data
     trader->candles = {{TimeFrame::H1, {
-                                           CandleStick{.close = 1.00500, .high = 1.00600, .low = 0.99900, .spread = 2},
+                                           Candle{.close = 1.00500, .high = 1.00600, .low = 0.99900, .spread = 2},
                                        }}};
 
     // Simulate a long position
@@ -310,7 +310,7 @@ TEST_F(TraderTest, CheckSlOrderHit)
 {
     // Mock data
     trader->candles = {{TimeFrame::H1, {
-                                           CandleStick{.close = 0.99400, .high = 1.00500, .low = 0.99300, .spread = 2},
+                                           Candle{.close = 0.99400, .high = 1.00500, .low = 0.99300, .spread = 2},
                                        }}};
 
     // Simulate a long position
@@ -757,7 +757,7 @@ TEST_F(TraderTest, TradeNotWhenSpreadHigh)
 
     // Mock data for testing
     trader->candles = {{TimeFrame::H1, {
-                                           CandleStick{.date = date, .close = 1.0, .spread = config.strategy.maximum_spread.value() + 1},
+                                           Candle{.date = date, .close = 1.0, .spread = config.strategy.maximum_spread.value() + 1},
                                        }}};
 
     // Call the trade method
@@ -807,7 +807,7 @@ TEST_F(TraderTest, UpdateLongPositionPnl)
 {
     // Mock data for testing
     trader->candles = {{TimeFrame::H1, {
-                                           CandleStick{.date = date, .close = 1.00100},
+                                           Candle{.date = date, .close = 1.00100},
                                        }}};
     trader->current_position = new Position{.entry_date = date, .entry_price = 1.00000, .size = 1.0, .side = PositionSide::LONG, .pnl = 0.0};
 
@@ -822,7 +822,7 @@ TEST_F(TraderTest, UpdateShortPositionPnl)
 {
     // Mock data for testing
     trader->candles = {{TimeFrame::H1, {
-                                           CandleStick{.date = date, .close = 0.99900},
+                                           Candle{.date = date, .close = 0.99900},
                                        }}};
     trader->current_position = new Position{.entry_date = date, .entry_price = 1.00000, .size = 1.0, .side = PositionSide::SHORT, .pnl = 0.0};
 
