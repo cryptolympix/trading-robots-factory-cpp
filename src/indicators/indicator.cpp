@@ -1,4 +1,8 @@
 #include <iostream>
+#include <cmath>
+#include <algorithm>
+#include <functional>
+#include <stdexcept>
 #include "../utils/vectors.hpp"
 #include "indicator.hpp"
 #include "../types.hpp"
