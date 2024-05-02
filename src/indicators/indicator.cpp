@@ -1,7 +1,6 @@
 #include <iostream>
 #include <cmath>
-#include <algorithm>
-#include <functional>
+#include <regex>
 #include <stdexcept>
 #include "../utils/vectors.hpp"
 #include "indicator.hpp"
