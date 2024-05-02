@@ -21,64 +21,70 @@ TradingSchedule schedule = {
     .sunday = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false}};
 
 TakeProfitStopLossConfig tpsl_config = {
-    .type_take_profit = TypeTakeProfitStopLoss::PERCENT,
-    .take_profit_in_points = 300,
-    .take_profit_in_percent = 0.002,
     .type_stop_loss = TypeTakeProfitStopLoss::PERCENT,
     .stop_loss_in_points = 300,
     .stop_loss_in_percent = 0.001,
+    .type_take_profit = TypeTakeProfitStopLoss::PERCENT,
+    .take_profit_in_points = 300,
+    .take_profit_in_percent = 0.002,
 };
 
 std::tm start_training_date = {
-    .tm_year = 2023 - 1900,
-    .tm_mon = 1,
-    .tm_mday = 1,
-    .tm_hour = 0,
+    .tm_sec = 0,
     .tm_min = 0,
-    .tm_sec = 0};
+    .tm_hour = 0,
+    .tm_mday = 1,
+    .tm_mon = 1,
+    .tm_year = 2023 - 1900,
+};
 
 std::tm end_training_date = {
-    .tm_year = 2023 - 1900,
-    .tm_mon = 9,
-    .tm_mday = 1,
-    .tm_hour = 0,
+    .tm_sec = 0,
     .tm_min = 0,
-    .tm_sec = 0};
+    .tm_hour = 0,
+    .tm_mday = 1,
+    .tm_mon = 9,
+    .tm_year = 2023 - 1900,
+};
 
 std::tm start_test_date = {
-    .tm_year = 2023 - 1900,
-    .tm_mon = 9,
-    .tm_mday = 1,
-    .tm_hour = 0,
+    .tm_sec = 0,
     .tm_min = 0,
-    .tm_sec = 0};
+    .tm_hour = 0,
+    .tm_mday = 1,
+    .tm_mon = 9,
+    .tm_year = 2023 - 1900,
+};
 
 std::tm end_test_date = {
-    .tm_year = 2023 - 1900,
-    .tm_mon = 11,
-    .tm_mday = 31,
-    .tm_hour = 0,
+    .tm_sec = 0,
     .tm_min = 0,
-    .tm_sec = 0};
+    .tm_hour = 0,
+    .tm_mday = 31,
+    .tm_mon = 11,
+    .tm_year = 2023 - 1900,
+};
 
-Config test_config = {
+Config __config__ = {
     .general{
         .name = "test",
         .version = "1.0",
         .symbol = "EURUSD",
         .initial_balance = 1000.0,
         .account_currency = "USD",
-        .leverage = 100},
+        .leverage = 100,
+    },
     .strategy{
         .timeframe = TimeFrame::M5,
         .maximum_risk = 0.05,
+        .maximum_trades_per_day = 2,
         .maximum_spread = 8,
         // .minimum_trade_duration = 0,
         // .maximum_trade_duration = 10,
         .minimum_duration_before_next_trade = 10,
-        .maximum_trades_per_day = 2,
+        .take_profit_stop_loss_config = tpsl_config,
         .trading_schedule = schedule,
-        .take_profit_stop_loss_config = tpsl_config},
+    },
     .training{
         .generations = 100,
         .bad_trader_threshold = 0.01,
@@ -167,10 +173,10 @@ Config test_config = {
                 PositionInfo::DURATION,
             }}},
     .evaluation{
-        .minimum_profit_factor = 3,
-        .minimum_winrate = 0.8,
-        .maximum_drawdown = 0.05,
         .expected_return_per_day = 0.02,
         .expected_return_per_month = 0.5,
+        .maximum_drawdown = 0.05,
+        .minimum_winrate = 0.8,
+        .minimum_profit_factor = 3,
     },
     .neat = load_config("src/configs/neat_config_test.ini")};

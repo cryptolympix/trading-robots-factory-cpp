@@ -72,9 +72,9 @@ Trader::Trader(Genome *genome, Config config, Logger *logger)
         .total_lost_trades = 0,
         .total_lost_long_trades = 0,
         .total_lost_short_trades = 0,
-        .profit_factor = 0,
         .max_consecutive_winning_trades = 0,
         .max_consecutive_lost_trades = 0,
+        .profit_factor = 0,
         .max_drawdown = 0,
         .win_rate = 0,
         .long_win_rate = 0,
@@ -839,10 +839,10 @@ void Trader::open_position_by_market(double price, double size, OrderSide side)
         this->balance -= fees;
         this->duration_in_position = 0;
         this->current_position = new Position{
-            .entry_date = this->current_date,
-            .entry_price = price,
-            .size = size,
             .side = PositionSide::LONG,
+            .size = size,
+            .entry_price = price,
+            .entry_date = this->current_date,
             .pnl = 0.0,
         };
         this->trades_history.push_back(Trade{
@@ -866,10 +866,10 @@ void Trader::open_position_by_market(double price, double size, OrderSide side)
         this->balance -= fees;
         this->duration_in_position = 0;
         this->current_position = new Position{
-            .entry_date = this->current_date,
-            .entry_price = price,
-            .size = size,
             .side = PositionSide::SHORT,
+            .size = size,
+            .entry_price = price,
+            .entry_date = this->current_date,
             .pnl = 0.0,
         };
         this->trades_history.push_back(Trade{

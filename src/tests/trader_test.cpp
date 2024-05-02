@@ -79,11 +79,12 @@ protected:
             },
             .evaluation = {
                 .nb_trades_per_day = 2,
-                .maximum_drawdown = 0.1,
                 .expected_return_per_day = 0.01,
                 .expected_return_per_month = 0.1,
-                .minimum_profit_factor = 2,
+                .maximum_drawdown = 0.1,
                 .minimum_winrate = 0.5,
+                .minimum_profit_factor = 2,
+
             },
             .neat = load_config("src/configs/neat_config_test.ini"),
         };
@@ -95,12 +96,13 @@ protected:
 
         // 2023-01-05 12:00:00
         std::tm date_tm = {
-            .tm_year = 2023 - 1900,
-            .tm_mon = 0,
-            .tm_mday = 5,
-            .tm_hour = 12,
+            .tm_sec = 0,
             .tm_min = 0,
-            .tm_sec = 0};
+            .tm_hour = 12,
+            .tm_mday = 5,
+            .tm_mon = 0,
+            .tm_year = 2023 - 1900,
+        };
         date = std::mktime(&date_tm);
 
         // Trader configurations
@@ -672,12 +674,13 @@ TEST_F(TraderTest, TradeNotOutOfTradingSchedule)
 
     // Try to trade sunday
     std::tm date_tm_1 = {
-        .tm_year = 2023 - 1900,
-        .tm_mon = 0,
-        .tm_mday = 1,
-        .tm_hour = 0,
+        .tm_sec = 0,
         .tm_min = 0,
-        .tm_sec = 0};
+        .tm_hour = 0,
+        .tm_mday = 1,
+        .tm_mon = 0,
+        .tm_year = 2023 - 1900,
+    };
     time_t date1 = std::mktime(&date_tm_1);
     trader->current_date = date1;
 
@@ -690,12 +693,13 @@ TEST_F(TraderTest, TradeNotOutOfTradingSchedule)
 
     // Try to trade just before the opening of trading schedule
     std::tm date_tm_2 = {
-        .tm_year = 2023 - 1900,
-        .tm_mon = 0,
-        .tm_mday = 2,
-        .tm_hour = 6,
+        .tm_sec = 0,
         .tm_min = 0,
-        .tm_sec = 0};
+        .tm_hour = 6,
+        .tm_mday = 2,
+        .tm_mon = 0,
+        .tm_year = 2023 - 1900,
+    };
     time_t date2 = std::mktime(&date_tm_2);
     trader->current_date = date2;
 
@@ -708,12 +712,13 @@ TEST_F(TraderTest, TradeNotOutOfTradingSchedule)
 
     // Try to trade just after the closing of trading schedule
     std::tm date_tm_3 = {
-        .tm_year = 2023 - 1900,
-        .tm_mon = 0,
-        .tm_mday = 2,
-        .tm_hour = 21,
+        .tm_sec = 0,
         .tm_min = 0,
-        .tm_sec = 0};
+        .tm_hour = 21,
+        .tm_mday = 2,
+        .tm_mon = 0,
+        .tm_year = 2023 - 1900,
+    };
     time_t date3 = std::mktime(&date_tm_3);
     trader->current_date = date3;
 
@@ -731,12 +736,13 @@ TEST_F(TraderTest, TradeOnTradingSchedule)
     trader->decisions = {1.0, 0.0, 0.0};
 
     std::tm date_tm = {
-        .tm_year = 2023 - 1900,
-        .tm_mon = 0,
-        .tm_mday = 2,
-        .tm_hour = 7,
+        .tm_sec = 0,
         .tm_min = 0,
-        .tm_sec = 0};
+        .tm_hour = 7,
+        .tm_mday = 2,
+        .tm_mon = 0,
+        .tm_year = 2023 - 1900,
+    };
     time_t date = std::mktime(&date_tm);
     trader->current_date = date;
 
@@ -1025,26 +1031,29 @@ TEST_F(TraderTest, CalculateStatsAverageTradeDuration)
 TEST_F(TraderTest, CalculateStatsMonthlyReturns)
 {
     std::tm first_month = {
-        .tm_year = 2023 - 1900,
+        .tm_sec = 0,
+        .tm_min = 0,
+        .tm_hour = 0,
+        .tm_mday = 1,
         .tm_mon = 0,
-        .tm_mday = 1,
-        .tm_hour = 0,
-        .tm_min = 0,
-        .tm_sec = 0};
+        .tm_year = 2023 - 1900,
+    };
     std::tm second_month = {
-        .tm_year = 2023 - 1900,
+        .tm_sec = 0,
+        .tm_min = 0,
+        .tm_hour = 0,
+        .tm_mday = 1,
         .tm_mon = 1,
-        .tm_mday = 1,
-        .tm_hour = 0,
-        .tm_min = 0,
-        .tm_sec = 0};
-    std::tm third_month = {
         .tm_year = 2023 - 1900,
-        .tm_mon = 2,
-        .tm_mday = 1,
-        .tm_hour = 0,
+    };
+    std::tm third_month = {
+        .tm_sec = 0,
         .tm_min = 0,
-        .tm_sec = 0};
+        .tm_hour = 0,
+        .tm_mday = 1,
+        .tm_mon = 2,
+        .tm_year = 2023 - 1900,
+    };
 
     // Mock data for testing
     trader->trades_history = {

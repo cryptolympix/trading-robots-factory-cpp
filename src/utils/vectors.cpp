@@ -1,4 +1,6 @@
 #include <vector>
+#include <algorithm>
+#include <utility>
 #include "vectors.hpp"
 
 /**

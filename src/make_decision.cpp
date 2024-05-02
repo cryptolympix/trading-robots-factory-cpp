@@ -1,7 +1,6 @@
 #include <iostream>
 #include "neat/genome.hpp"
 #include "utils/time_frame.hpp"
-#include "utils/optional.cpp"
 #include "trader.hpp"
 #include "make_decision.hpp"
 #include "types.hpp"
@@ -27,7 +26,7 @@ extern "C"
     int DLL_EXPORT make_decision(MultiTimeFrameCandles *candles_data, PositionInfos &position_infos_data, double base_currency_conversion_rate, std::string &genome_save_file)
     {
         // Get the config
-        Config config = test_config;
+        Config config = __config__;
 
         // Load the genome from the file
         Genome *genome = Genome::load(genome_save_file);

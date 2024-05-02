@@ -14,7 +14,7 @@ int main()
     date_string << std::put_time(std::localtime(&date), "%Y%m%d%H%M%S");
     std::string id = date_string.str();
 
-    Training training(id, test_config, true);
+    Training training(id, __config__, true);
     training.prepare();
     training.run();
 

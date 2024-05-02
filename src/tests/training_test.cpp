@@ -61,11 +61,11 @@ protected:
             .strategy = {
                 .timeframe = TimeFrame::H1,
                 .maximum_risk = 0.02,
+                .maximum_trades_per_day = 2,
                 .maximum_spread = 8,
                 .minimum_trade_duration = 2,
                 .maximum_trade_duration = 4,
                 .minimum_duration_before_next_trade = 4,
-                .maximum_trades_per_day = 2,
                 .take_profit_stop_loss_config = {
                     .type_stop_loss = TypeTakeProfitStopLoss::POINTS,
                     .stop_loss_in_points = 300,

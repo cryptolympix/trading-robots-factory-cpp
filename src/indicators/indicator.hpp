@@ -7,7 +7,7 @@
 #include "../types.hpp"
 
 // Forward declaration
-class Candle;
+struct Candle;
 
 /**
  * @brief Class for Indicator.

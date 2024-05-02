@@ -26,20 +26,22 @@ TEST(ReadDataTest, TestReadInvalidSymbol)
 TEST(ReadDataTest, TestReadDataWithDateRange)
 {
     std::tm start_date = {
-        .tm_year = 2023 - 1900,
-        .tm_mon = 0,
-        .tm_mday = 3,
-        .tm_hour = 0,
+        .tm_sec = 0,
         .tm_min = 0,
-        .tm_sec = 0};
+        .tm_hour = 0,
+        .tm_mday = 3,
+        .tm_mon = 0,
+        .tm_year = 2023 - 1900,
+    };
 
     std::tm end_date = {
-        .tm_year = 2023 - 1900,
-        .tm_mon = 0,
-        .tm_mday = 20,
-        .tm_hour = 0,
+        .tm_sec = 0,
         .tm_min = 0,
-        .tm_sec = 0};
+        .tm_hour = 0,
+        .tm_mday = 20,
+        .tm_mon = 0,
+        .tm_year = 2023 - 1900,
+    };
 
     // Convert start and end date to time_t
     time_t start_time = std::mktime(&start_date);

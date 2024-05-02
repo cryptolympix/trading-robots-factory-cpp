@@ -1,4 +1,5 @@
 #include <vector>
+#include <stdexcept>
 #include "../types.hpp"
 #include "candles_source.hpp"
 
