@@ -50,7 +50,7 @@ std::vector<double> ADX::calculate(const std::vector<Candle> &candles, bool norm
                 dm_plus.push_back(dm_plus_value);
                 dm_minus.push_back(dm_minus_value);
 
-                double tr = std::max({candles[i].high - candles[i].low, std::abs(candles[i].high - candles[i - 1].close), std::abs(candles[i].low - candles[i - 1].close)});
+                double tr = std::max({ candles[i].high - candles[i].low, std::abs(candles[i].high - candles[i - 1].close), std::abs(candles[i].low - candles[i - 1].close) });
                 tr_values.push_back(tr);
             }
 
@@ -243,7 +243,7 @@ std::vector<double> AroonDown::calculate(const std::vector<Candle> &candles, boo
         candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
             std::vector<double> aroon_down_values(candles.size(), 0.0); // Initialize aroon_trend_values with the same size as input vectors
-            
+
             if (candles.size() < static_cast<size_t>(period))
             {
                 std::cerr << "Insufficient data to calculate Aroon Down." << std::endl;
@@ -299,7 +299,7 @@ std::vector<double> CCI::calculate(const std::vector<Candle> &candles, bool norm
         candles, [this](std::vector<Candle> candles)
         {
             // Initialize cci_values with the same size as input vectors
-            std::vector<double> cci_values(candles.size(), 0.0); 
+            std::vector<double> cci_values(candles.size(), 0.0);
 
             if (candles.size() < static_cast<size_t>(period))
             {
@@ -318,8 +318,8 @@ std::vector<double> CCI::calculate(const std::vector<Candle> &candles, bool norm
                 double mean_deviation = mean_deviation_values[i];
                 double cci = mean_deviation != 0.0 ? (typical_price - sma) / (0.015 * mean_deviation) : 0.0;
                 cci_values[i] = cci;
-            } 
-            
+            }
+
             return cci_values; },
 
         normalize_data);
@@ -850,19 +850,19 @@ std::vector<double> TRIX::calculate(const std::vector<Candle> &candles, bool nor
     return Indicator::calculate(
         candles, [this](const std::vector<Candle> &candles) -> std::vector<double>
         {
-                std::vector<double> closes = get_candles_with_source(candles, "close");
-                std::vector<double> ema1 = calculate_exponential_moving_average(closes, period);
-                std::vector<double> ema2 = calculate_exponential_moving_average(ema1, period);
-                std::vector<double> ema3 = calculate_exponential_moving_average(ema2, period);
+            std::vector<double> closes = get_candles_with_source(candles, "close");
+            std::vector<double> ema1 = calculate_exponential_moving_average(closes, period);
+            std::vector<double> ema2 = calculate_exponential_moving_average(ema1, period);
+            std::vector<double> ema3 = calculate_exponential_moving_average(ema2, period);
 
-                std::vector<double> trix(closes.size(), 0.0);
+            std::vector<double> trix(closes.size(), 0.0);
 
-                // Calculate TRIX values
-                for (size_t i = period * 3 - 1; i < closes.size(); ++i) {
-                    trix[i] = ema3[i - 1] > 0 ? (ema3[i] - ema3[i - 1]) / ema3[i - 1] * 100.0 : 0.0;
-                }
+            // Calculate TRIX values
+            for (size_t i = period * 3 - 1; i < closes.size(); ++i) {
+                trix[i] = ema3[i - 1] > 0 ? (ema3[i] - ema3[i - 1]) / ema3[i - 1] * 100.0 : 0.0;
+            }
 
-                return trix; },
+            return trix; },
 
         normalize_data);
 }
@@ -972,9 +972,11 @@ std::vector<double> InstitutionalBias::calculate(const std::vector<Candle> &cand
             for (size_t i = 0; i < candles.size(); ++i) {
                 if (short_ema[i] > long_ema[i]) {
                     institutional_bias[i] = 1.0;
-                } else if (short_ema[i] < long_ema[i]){
+                }
+                else if (short_ema[i] < long_ema[i]) {
                     institutional_bias[i] = -1.0;
-                } else {
+                }
+                else {
                     institutional_bias[i] = 0.0;
                 }
             }
@@ -1047,7 +1049,7 @@ std::vector<double> AroonTrend::calculate(const std::vector<Candle> &candles, bo
         candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
             std::vector<double> aroon_trend_values(candles.size(), 0.0); // Initialize aroon_trend_values with the same size as input vectors
-            
+
             if (candles.size() < static_cast<size_t>(period))
             {
                 std::cerr << "Insufficient data to calculate Aroon Trend." << std::endl;

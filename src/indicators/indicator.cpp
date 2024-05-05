@@ -1,6 +1,6 @@
 #include <iostream>
-#include <cmath>
 #include <regex>
+#include <cmath>
 #include <stdexcept>
 #include "../utils/vectors.hpp"
 #include "indicator.hpp"
@@ -24,8 +24,7 @@ Indicator::Indicator(const std::string &label, const std::string &id, int offset
  */
 std::vector<double> Indicator::calculate(const std::vector<Candle> &candles, std::function<std::vector<double>(std::vector<Candle>)> calculator, bool normalize_data) const
 {
-    std::vector<double> values;
-    values.reserve(candles.size());
+    std::vector<double> values(candles.size(), 0.0);
 
     if (offset < 0)
     {

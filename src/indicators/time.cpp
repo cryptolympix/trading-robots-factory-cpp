@@ -1,3 +1,5 @@
+#define _CRT_SECURE_NO_WARNINGS
+
 #include <ctime>
 #include <string>
 #include <cctype> // for std::toupper
@@ -27,7 +29,7 @@ std::vector<double> Hour::calculate(const std::vector<Candle> &candles, bool nor
 
             for (int i = 0; i < candles.size(); ++i)
             {
-                tm *time = localtime(&candles[i].date);
+                tm* time = localtime(&candles[i].date);
                 values[i] = time->tm_hour;
             }
 
@@ -61,7 +63,7 @@ std::vector<double> NFPWeek::calculate(const std::vector<Candle> &candles, bool 
             for (int i = 0; i < candles.size(); i++)
             {
                 // Check if the candle's date falls within the NFP week (assuming NFP week is the first week of each month)
-                tm *time = localtime(&candles[i].date);
+                tm* time = localtime(&candles[i].date);
                 bool is_nfp_week = time->tm_mday >= 1 && time->tm_mday <= 7;
                 result[i] = is_nfp_week ? 1.0 : 0.0;
             }
@@ -97,10 +99,10 @@ std::vector<double> MarketSession::calculate(const std::vector<Candle> &candles,
         {
             std::vector<double> result(candles.size(), 0);
 
-            for (int i = 0; i < candles.size(); i++) 
+            for (int i = 0; i < candles.size(); i++)
             {
                 // Check if the candle's date falls within the market session
-                tm *time = localtime(&candles[i].date);
+                tm* time = localtime(&candles[i].date);
                 bool is_market_session = false;
 
                 if (zone == "london")
@@ -150,24 +152,30 @@ std::vector<double> WeekDay::calculate(const std::vector<Candle> &candles, bool 
             int attempt_day = 0;
             if (day == "sunday") {
                 attempt_day = 0;
-            } else if (day == "monday") {
+            }
+            else if (day == "monday") {
                 attempt_day = 1;
-            } else if (day == "tuesday") {
+            }
+            else if (day == "tuesday") {
                 attempt_day = 2;
-            } else if (day == "wednesday") {
+            }
+            else if (day == "wednesday") {
                 attempt_day = 3;
-            } else if (day == "thursday") {
+            }
+            else if (day == "thursday") {
                 attempt_day = 4;
-            } else if (day == "friday") {
+            }
+            else if (day == "friday") {
                 attempt_day = 5;
-            } else if (day == "saturday") {
+            }
+            else if (day == "saturday") {
                 attempt_day = 6;
             }
 
             for (int i = 0; i < candles.size(); i++)
             {
                 // Convert time_t to std::tm
-                tm *time = localtime(&candles[i].date);
+                tm* time = localtime(&candles[i].date);
 
                 // Extract the weekday (Sunday is 0, Monday is 1, etc.)
                 int candle_day = time->tm_wday;

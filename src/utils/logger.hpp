@@ -3,6 +3,7 @@
 
 #include <string>
 #include <fstream>
+#include <filesystem>
 
 /**
  * @brief The Logger class provides a simple interface for logging messages to a file.
@@ -10,13 +11,8 @@
 class Logger
 {
 public:
-    std::string file_path;      // The absolute path to the log file.
-    std::ofstream file_handler; // The file handler for logging.
-
-    /**
-     * @brief Default constructor for the Logger class.
-     */
-    Logger();
+    std::filesystem::path file_path; // The absolute path to the log file.
+    std::ofstream file_handler;      // The file handler for logging.
 
     /**
      * @brief Initializes the Logger.

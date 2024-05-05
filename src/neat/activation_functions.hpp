@@ -1,6 +1,8 @@
 #ifndef NEAT_ACTIVATION_FUNCTIONS_H
 #define NEAT_ACTIVATION_FUNCTIONS_H
 
+#include <string>
+
 using ActivationFunction = std::string;
 
 double step(double x);

@@ -1,7 +1,7 @@
 #include <ctime>
 #include <chrono>
 #include <sstream>
-#include "configs/test.hpp"
+#include "configs/default.hpp"
 #include "training.hpp"
 #include "neat/genome.hpp"
 

@@ -1,4 +1,5 @@
 #include <numeric>
+#include <algorithm>
 #include "../types.hpp"
 #include "../utils/candles_source.hpp"
 #include "indicator.hpp"
@@ -27,27 +28,27 @@ std::vector<double> ATR::calculate(const std::vector<Candle> &candles, bool norm
         {
             std::vector<double> atr_values(candles.size(), 0.0);
 
-        if (candles.size() < period) {
-            return atr_values;
-        }
-        
-        std::vector<double> tr_values = calculateTrueRange(candles);
+            if (candles.size() < period) {
+                return atr_values;
+            }
 
-        // Calculate the initial SMA as the average of the first period values
-        double sum = 0.0;
-        for (int i = 0; i < period; ++i)
-        {
-            sum += tr_values[i];
-        }
-        atr_values[period - 1] = sum / period;
+            std::vector<double> tr_values = calculateTrueRange(candles);
 
-        // Calculate SMA for subsequent periods
-        for (size_t i = period; i < tr_values.size(); ++i)
-        {
-            atr_values[i] = (atr_values[i - 1] * (period - 1) + tr_values[i]) / period;
-        }
+            // Calculate the initial SMA as the average of the first period values
+            double sum = 0.0;
+            for (int i = 0; i < period; ++i)
+            {
+                sum += tr_values[i];
+            }
+            atr_values[period - 1] = sum / period;
 
-        return atr_values; },
+            // Calculate SMA for subsequent periods
+            for (size_t i = period; i < tr_values.size(); ++i)
+            {
+                atr_values[i] = (atr_values[i - 1] * (period - 1) + tr_values[i]) / period;
+            }
+
+            return atr_values; },
 
         normalize_data);
 }
@@ -108,7 +109,7 @@ std::vector<double> BollingerChannelHighBand::calculate(const std::vector<Candle
             if (candles.size() < period) {
                 return bollinger_channel_high_band_values;
             }
-            
+
             std::vector<double> closes = get_candles_with_source(candles, "close");
             std::vector<double> sma_values = calculate_simple_moving_average(closes, period);
             std::vector<double> std_dev_values = calculate_standard_deviation(closes, period);
@@ -151,7 +152,7 @@ std::vector<double> BollingerChannelLowBand::calculate(const std::vector<Candle>
             if (candles.size() < period) {
                 return bollinger_channel_low_band_values;
             }
-            
+
             std::vector<double> closes = get_candles_with_source(candles, "close");
             std::vector<double> sma_values = calculate_simple_moving_average(closes, period);
             std::vector<double> std_dev_values = calculate_standard_deviation(closes, period);
@@ -193,7 +194,7 @@ std::vector<double> BollingerChannelMiddleBand::calculate(const std::vector<Cand
             if (candles.size() < period) {
                 return bollinger_channel_middle_band_values;
             }
-            
+
             std::vector<double> closes = get_candles_with_source(candles, "close");
             std::vector<double> sma_values = calculate_simple_moving_average(closes, period);
 
@@ -235,7 +236,7 @@ std::vector<double> BollingerChannelPercentageBand::calculate(const std::vector<
             if (candles.size() < period) {
                 return bollinger_channel_percentage_band_values;
             }
-            
+
             std::vector<double> closes = get_candles_with_source(candles, "close");
             std::vector<double> sma_values = calculate_simple_moving_average(closes, period);
             std::vector<double> std_dev_values = calculate_standard_deviation(closes, period);
@@ -282,7 +283,7 @@ std::vector<double> BollingerChannelWidthBand::calculate(const std::vector<Candl
             if (candles.size() < period) {
                 return bollinger_channel_width_band_values;
             }
-            
+
             std::vector<double> closes = get_candles_with_source(candles, "close");
             std::vector<double> sma_values = calculate_simple_moving_average(closes, period);
             std::vector<double> std_dev_values = calculate_standard_deviation(closes, period);
@@ -328,7 +329,7 @@ std::vector<double> DonchianChannelHighBand::calculate(const std::vector<Candle>
             if (candles.size() < period) {
                 return donchian_channel_high_band_values;
             }
-            
+
             for (size_t i = period - 1; i < candles.size(); ++i)
             {
                 double high = candles[i - period + 1].high;
@@ -375,7 +376,7 @@ std::vector<double> DonchianChannelLowBand::calculate(const std::vector<Candle> 
             if (candles.size() < period) {
                 return donchian_channel_low_band_values;
             }
-            
+
             for (size_t i = period - 1; i < candles.size(); ++i)
             {
                 double low = candles[i - period + 1].low;
@@ -422,7 +423,7 @@ std::vector<double> DonchianChannelMiddleBand::calculate(const std::vector<Candl
             if (candles.size() < period) {
                 return donchian_channel_middle_band_values;
             }
-            
+
             for (size_t i = period - 1; i < candles.size(); ++i)
             {
                 double high = candles[i - period + 1].high;
@@ -473,7 +474,7 @@ std::vector<double> KeltnerChannelHighBand::calculate(const std::vector<Candle> 
             if (candles.size() < period) {
                 return keltner_channel_high_band_values;
             }
-            
+
             std::vector<double> closes = get_candles_with_source(candles, "close");
             std::vector<double> ema_values = calculate_exponential_moving_average(closes, period);
             std::vector<double> atr_values = ATR(atr_period).calculate(candles);
@@ -517,7 +518,7 @@ std::vector<double> KeltnerChannelLowBand::calculate(const std::vector<Candle> &
             if (candles.size() < period) {
                 return keltner_channel_low_band_values;
             }
-            
+
             std::vector<double> closes = get_candles_with_source(candles, "close");
             std::vector<double> ema_values = calculate_exponential_moving_average(closes, period);
             std::vector<double> atr_values = ATR(atr_period).calculate(candles);
@@ -559,7 +560,7 @@ std::vector<double> KeltnerChannelMiddleBand::calculate(const std::vector<Candle
             if (candles.size() < period) {
                 return keltner_channel_middle_band_values;
             }
-            
+
             std::vector<double> closes = get_candles_with_source(candles, "close");
             std::vector<double> ema_values = calculate_exponential_moving_average(closes, period);
 
@@ -600,7 +601,7 @@ std::vector<double> UI::calculate(const std::vector<Candle> &candles, bool norma
             if (candles.size() < period) {
                 return ui_values;
             }
-            
+
             std::vector<double> closes = get_candles_with_source(candles, "close");
             std::vector<double> max_values(candles.size(), 0.0);
 
@@ -701,10 +702,10 @@ std::vector<double> AveragePriceChange::calculate(const std::vector<Candle> &can
                 return average_price_change_values;
             }
 
-            for (size_t i = period - 1; i < candles.size(); ++i)
+            for (int i = period; i < candles.size(); ++i)
             {
                 double sum = 0.0;
-                for (size_t j = i - period + 1; j <= i; ++j)
+                for (int j = std::max(i - period + 1, 0); j <= i; ++j)
                 {
                     sum += candles[j].close - candles[j - 1].close;
                 }

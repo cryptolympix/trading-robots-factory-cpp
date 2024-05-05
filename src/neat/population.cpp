@@ -191,14 +191,14 @@ void Population::kill_stagnant_species()
     // Use remove_if along with a lambda function to filter out stagnant species
     auto it = std::remove_if(config.species_elitism < species.size() ? species.begin() + config.species_elitism : species.begin(), species.end(), [this](const Species *s)
                              { if (s->stagnation >= config.max_stagnation)
-                                 {
-                                     // Remove genomes of the stagnant species
-                                     genomes.erase(std::remove_if(genomes.begin(), genomes.end(), [s](const Genome *g)
-                                                                  { return std::find(s->genomes.begin(), s->genomes.end(), g) != s->genomes.end(); }),
-                                                   genomes.end());
-                                     return true; // Remove the stagnant species
-                                 }
-                                 return false; });
+    {
+        // Remove genomes of the stagnant species
+        genomes.erase(std::remove_if(genomes.begin(), genomes.end(), [s](const Genome* g)
+            { return std::find(s->genomes.begin(), s->genomes.end(), g) != s->genomes.end(); }),
+            genomes.end());
+        return true; // Remove the stagnant species
+    }
+    return false; });
 
     // Erase the removed elements from the vector
     species.erase(it, species.end());
@@ -210,16 +210,16 @@ void Population::kill_bad_species()
 
     // Use remove_if along with a lambda function to filter out bad species
     auto it = std::remove_if(species.size() > 1 ? species.begin() + 1 : species.begin(), species.end(), [this, species_average_fitness](const Species *s)
-                             { 
-                                 if (s->average_fitness < species_average_fitness * config.bad_species_threshold)
-                                 {
-                                     // Remove genomes of the bad species from the genomes vector
-                                     genomes.erase(std::remove_if(genomes.begin(), genomes.end(), [s](const Genome *g)
-                                                                 { return std::find(s->genomes.begin(), s->genomes.end(), g) != s->genomes.end(); }), genomes.end());
+                             {
+            if (s->average_fitness < species_average_fitness * config.bad_species_threshold)
+            {
+                // Remove genomes of the bad species from the genomes vector
+                genomes.erase(std::remove_if(genomes.begin(), genomes.end(), [s](const Genome* g)
+                    { return std::find(s->genomes.begin(), s->genomes.end(), g) != s->genomes.end(); }), genomes.end());
 
-                                     return true; // Remove the bad species
-                                 }
-                                 return false; });
+                return true; // Remove the bad species
+            }
+            return false; });
 
     // Erase the removed elements from the vector
     species.erase(it, species.end());

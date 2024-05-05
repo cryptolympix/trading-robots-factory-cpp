@@ -1,6 +1,17 @@
 #ifndef TYPES_HPP
 #define TYPES_HPP
 
+#ifdef _WIN32
+// Windows-specific code
+#define OS_NAME "Windows"
+#elif __APPLE__
+// macOS-specific code
+#define OS_NAME "macOS"
+#else
+// Code for other platforms (if needed)
+#define OS_NAME "Unknown"
+#endif
+
 #include <string>
 #include <unordered_map>
 #include <map>

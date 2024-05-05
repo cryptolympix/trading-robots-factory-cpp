@@ -113,7 +113,7 @@ std::vector<double> HighBreakSignal::calculate(const std::vector<Candle> &candle
 
             for (size_t i = 1; i < candles.size(); ++i)
             {
-                if (closes[i] > highest_highs[i - 1]) 
+                if (closes[i] > highest_highs[i - 1])
                 {
                     values[i] = 1;
                 }

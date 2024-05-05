@@ -113,7 +113,7 @@ protected:
                 .minimum_profit_factor = 2,
                 .minimum_winrate = 0.5,
             },
-            .neat = load_config("src/configs/neat_config_test.ini"),
+            .neat = load_config("src/configs/neat_config.txt"),
         };
         config.neat.population_size = 5;
         config.neat.num_inputs = 6;

@@ -52,12 +52,11 @@ public:
 
     /**
      * @brief Get inputs for genome.
-     * @param candles Candle data for all time frames.
      * @param indicators Indicator data for all time frames.
      * @param base_currency_conversion_rate Conversion rate when the base asset traded is different from the account currency.
      * @param position_infos Vector of position information.
      */
-    void look(CandlesData &candles, IndicatorsData &indicators, double base_currency_conversion_rate, std::vector<PositionInfo> position_infos);
+    void look(IndicatorsData &indicators, double base_currency_conversion_rate, std::vector<PositionInfo> position_infos);
 
     /**
      * @brief Get the outputs from the neural network.
@@ -66,8 +65,9 @@ public:
 
     /**
      * @brief Update the trader according to the outputs from the neural network.
+     * @param candles Candle data for all time frames.
      */
-    void update();
+    void update(CandlesData &candles);
 
     /**
      * @brief Calculate the fitness of the trader.
@@ -91,8 +91,9 @@ public:
 
     /**
      * @brief Trade according to the decision.
+     * @return 1 if the trader opened a long position, 2 if the trader opened a short position, 3 if the trader closed a the position, 0 if the trader wait.
      */
-    void trade();
+    int trade();
 
     /**
      * @brief Open a position by market.

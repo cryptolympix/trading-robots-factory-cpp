@@ -97,7 +97,7 @@ std::vector<double> CMF::calculate(const std::vector<Candle> &candles, bool norm
 
                 if (ad_volume != 0) {
                     cmf_values[i] = mf_volume / ad_volume;
-                }  
+                }
             }
 
             return cmf_values; },

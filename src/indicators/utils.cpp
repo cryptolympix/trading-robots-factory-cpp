@@ -13,12 +13,18 @@ std::vector<double> calculate_simple_moving_average(const std::vector<double> &v
 {
     std::vector<double> sma(values.size(), 0.0); // Initialize sma vector with the same size as values
 
+    if (period > values.size())
+    {
+        return sma;
+    }
+
     // Calculate the initial SMA as the average of the first period values
     double sum = 0.0;
     for (int i = 0; i < period; ++i)
     {
         sum += values[i];
     }
+
     sma[period - 1] = sum / period;
 
     // Calculate SMA for subsequent periods
@@ -43,6 +49,11 @@ std::vector<double> calculate_exponential_moving_average(const std::vector<doubl
     std::vector<double> ema(values.size(), 0.0); // Initialize ema with zeros and same size as data
     double multiplier = 2.0 / (1 + period);
     double ema_prev = 0;
+
+    if (period > values.size())
+    {
+        return ema;
+    }
 
     // Calculate SMA for the first n days
     for (int i = 0; i < period; ++i)

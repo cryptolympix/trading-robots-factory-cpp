@@ -1,3 +1,5 @@
+#define _CRT_SECURE_NO_WARNINGS
+
 #include <iostream>
 #include <chrono>
 #include <ctime>
@@ -103,18 +105,14 @@ Trader::Trader(Genome *genome, Config config, Logger *logger)
 
 /**
  * @brief Get inputs for genome.
- * @param candles Candle data for all time frames.
  * @param indicators Indicator data for all time frames.
  * @param base_currency_conversion_rate Conversion rate when the base asset traded is different from the account currency.
  * @param position_infos Vector of position information.
  */
-void Trader::look(CandlesData &candles, IndicatorsData &indicators, double base_currency_conversion_rate, std::vector<PositionInfo> position_infos)
+void Trader::look(IndicatorsData &indicators, double base_currency_conversion_rate, std::vector<PositionInfo> position_infos)
 {
     std::vector<double> indicators_values = {};
     std::unordered_map<TimeFrame, std::vector<Indicator *>> indicators_inputs = config.training.inputs.indicators;
-
-    this->candles = candles;
-    this->current_date = candles[config.strategy.timeframe].back().date;
     this->current_base_currency_conversion_rate = base_currency_conversion_rate;
 
     // Get the values of the indicators
@@ -156,7 +154,14 @@ void Trader::look(CandlesData &candles, IndicatorsData &indicators, double base_
         }
         else if (info == PositionInfo::DURATION)
         {
-            position_info.push_back(this->duration_in_position);
+            if (this->config.strategy.maximum_trade_duration.has_value())
+            {
+                position_info.push_back(this->duration_in_position / this->config.strategy.maximum_trade_duration.value_or(1));
+            }
+            else
+            {
+                position_info.push_back(this->duration_in_position);
+            }
         }
     }
 
@@ -178,10 +183,13 @@ void Trader::think()
 
 /**
  * @brief Update the trader according to the outputs from the neural network.
- * @param current_date Current date.
+ * @param candles Candle data for all time frames.
  */
-void Trader::update()
+void Trader::update(CandlesData &candles)
 {
+    this->candles = candles;
+    this->current_date = candles[this->config.strategy.timeframe].back().date;
+
     // Increment the lifespan of the trader
     this->lifespan++;
 
@@ -224,7 +232,6 @@ void Trader::update()
     this->update_position_pnl();
     this->check_open_orders();
     this->check_position_liquidation();
-    this->trade();
 
     // Record the balance to history
     this->balance_history.push_back(this->balance);
@@ -710,8 +717,9 @@ bool Trader::can_trade()
 
 /**
  * @brief Trade according to the decision.
+ * @return 1 if the trader opened a long position, 2 if the trader opened a short position, 3 if the trader closed a the position, 0 if the trader wait.
  */
-void Trader::trade()
+int Trader::trade()
 {
     int loop_interval_minutes = get_time_frame_value(this->config.strategy.timeframe);
     Candle last_candle = this->candles[this->config.strategy.timeframe].back();
@@ -749,10 +757,12 @@ void Trader::trade()
                 if (has_long_position && want_short && can_close_position)
                 {
                     this->close_position_by_market(last_candle.close);
+                    return 3; // Close
                 }
                 else if (has_short_position && want_long && can_close_position)
                 {
                     this->close_position_by_market(last_candle.close);
+                    return 3; // Close
                 }
             }
             else
@@ -772,6 +782,7 @@ void Trader::trade()
                         this->open_position_by_market(last_candle.close, size, OrderSide::LONG);
                         this->create_open_order(OrderType::TAKE_PROFIT, OrderSide::SHORT, tp_price);
                         this->create_open_order(OrderType::STOP_LOSS, OrderSide::SHORT, sl_price);
+                        return 1; // Long
                     }
                 }
                 else if (want_short)
@@ -789,6 +800,7 @@ void Trader::trade()
                         this->open_position_by_market(last_candle.close, size, OrderSide::SHORT);
                         this->create_open_order(OrderType::TAKE_PROFIT, OrderSide::LONG, tp_price);
                         this->create_open_order(OrderType::STOP_LOSS, OrderSide::LONG, sl_price);
+                        return 2; // Short
                     }
                 }
             }
@@ -798,10 +810,12 @@ void Trader::trade()
             if (has_long_position && want_short && can_close_position)
             {
                 this->close_position_by_market(last_candle.close);
+                return 3; // Close
             }
             else if (has_short_position && want_long && can_close_position)
             {
                 this->close_position_by_market(last_candle.close);
+                return 3; // Close
             }
         }
     }
@@ -813,8 +827,11 @@ void Trader::trade()
         if (this->duration_in_position >= config.strategy.maximum_trade_duration.value())
         {
             this->close_position_by_market(last_candle.close);
+            return 3; // Close
         }
     }
+
+    return 0; // Wait
 }
 
 /**

@@ -141,7 +141,7 @@ private:
 /**
  * Commodity Channel Index (CCI)
  *
- * CCI measures the difference between a security’s price change and its average price change. High positive readings indicate that prices are well above their average, which is a show of strength. Low negative readings indicate that prices are well below their average, which is a show of weakness.
+ * CCI measures the difference between a security�s price change and its average price change. High positive readings indicate that prices are well above their average, which is a show of strength. Low negative readings indicate that prices are well below their average, which is a show of weakness.
  */
 class CCI : public Indicator
 {
@@ -289,7 +289,7 @@ private:
 /**
  * MACD (Moving Average Convergence Divergence)
  *
- * Is a trend-following momentum indicator that shows the relationship between two moving averages of a security’s price.
+ * Is a trend-following momentum indicator that shows the relationship between two moving averages of a security�s price.
  */
 class MACD : public Indicator
 {

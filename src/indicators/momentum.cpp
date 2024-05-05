@@ -434,7 +434,8 @@ std::vector<double> RSI::calculate(const std::vector<Candle> &candles, bool norm
                 double diff = closes[i] - closes[i - 1];
                 if (diff > 0) {
                     gain_sum += diff;
-                } else {
+                }
+                else {
                     loss_sum += std::abs(diff);
                 }
             }
@@ -728,11 +729,11 @@ std::vector<double> WilliamsPercentR::calculate(const std::vector<Candle> &candl
         candles, [this](const std::vector<Candle> &candles) -> std::vector<double>
         {
             std::vector<double> result(candles.size(), 0.0); // Initialize result vector with the same size as input
-            
+
             if (candles.size() < static_cast<size_t>(period)) {
                 return result; // Not enough data
             }
-            
+
             HighestHigh highest_source(period, 0);
             LowestLow lowest_source(period, 0);
 

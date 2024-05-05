@@ -3,7 +3,6 @@
 
 #include <vector>
 #include "node.hpp"
-#include "genome.hpp"
 
 /**
  * @brief Represents the history of a connection innovation in the NEAT (NeuroEvolution of Augmenting Topologies) algorithm.

@@ -1,3 +1,4 @@
+#pragma once
 #ifndef TRADING_SCHEDULE_H
 #define TRADING_SCHEDULE_H
 

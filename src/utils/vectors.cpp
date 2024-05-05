@@ -1,6 +1,6 @@
 #include <vector>
+#include <stdexcept>
 #include <algorithm>
-#include <utility>
 #include "vectors.hpp"
 
 /**

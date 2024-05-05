@@ -86,7 +86,7 @@ protected:
                 .minimum_profit_factor = 2,
 
             },
-            .neat = load_config("src/configs/neat_config_test.ini"),
+            .neat = load_config("src/configs/neat_config.txt"),
         };
         config.neat.population_size = 5;
         config.neat.num_inputs = 4;
@@ -166,7 +166,7 @@ protected:
 TEST_F(TraderTest, UpdateWithNoPositionAndNoOrders)
 {
     // Call the update method
-    trader->update();
+    trader->update(trader->candles);
 
     // Check if balance and stats are updated correctly
     ASSERT_EQ(trader->balance, 1000.0);
@@ -184,7 +184,7 @@ TEST_F(TraderTest, UpdateWithPosition)
     trader->balance = config.general.initial_balance; // Reset balance to initial value to cancel the fees at the market order
 
     // Call the update method
-    trader->update();
+    trader->update(trader->candles);
 
     // Check if balance and stats are updated correctly
     ASSERT_EQ(trader->balance, 1000.0);
@@ -201,7 +201,7 @@ TEST_F(TraderTest, UpdateWithOpenOrders)
         {.type = OrderType::TAKE_PROFIT, .side = OrderSide::SHORT, .price = 105.0}};
 
     // Call the update method
-    trader->update();
+    trader->update(trader->candles);
 
     // Check if balance and stats are updated correctly
     ASSERT_EQ(trader->balance, 1000.0);
@@ -220,7 +220,7 @@ TEST_F(TraderTest, UpdateWithPositionLiquidation)
     trader->candles[TimeFrame::H1][0].close = 99.0;
 
     // Call the update method
-    trader->update();
+    trader->update(trader->candles);
 
     // Check if the position is closed and open orders are cleared
     ASSERT_EQ(trader->current_position, nullptr);
@@ -242,7 +242,7 @@ TEST_F(TraderTest, UpdateWithInactiveTrader)
     trader->lifespan = config.training.inactive_trader_threshold.value();
 
     // Call the update method
-    trader->update();
+    trader->update(trader->candles);
 
     // Check if the position is closed and open orders are cleared
     ASSERT_EQ(trader->current_position, nullptr);
@@ -258,7 +258,7 @@ TEST_F(TraderTest, UpdateWithBadTrader)
     trader->balance = config.training.bad_trader_threshold.value() * config.general.initial_balance;
 
     // Call the update method
-    trader->update();
+    trader->update(trader->candles);
 
     // Check if the trader is marked as dead
     ASSERT_TRUE(trader->dead);
@@ -554,8 +554,9 @@ TEST_F(TraderTest, ClosePositionForDurationExceeded)
 
     // Call the update method
     time_t new_date = date + get_time_frame_value(config.strategy.timeframe) * 60;
+    trader->update(trader->candles);
     trader->current_date = new_date;
-    trader->update();
+    trader->trade();
 
     // Assertions
     ASSERT_EQ(trader->current_position, nullptr);
@@ -582,8 +583,9 @@ TEST_F(TraderTest, WaitForDurationBeforeClosePosition)
     for (int i = 0; i < config.strategy.minimum_trade_duration.value() - 1; ++i)
     {
         time_t new_date = date + i * get_time_frame_value(config.strategy.timeframe) * 60;
+        trader->update(trader->candles);
         trader->current_date = new_date;
-        trader->update();
+        trader->trade();
     }
 
     // Assertions
@@ -592,8 +594,9 @@ TEST_F(TraderTest, WaitForDurationBeforeClosePosition)
 
     // Call the update method for the last trade duration
     time_t last_date = date + config.strategy.minimum_trade_duration.value() * get_time_frame_value(config.strategy.timeframe) * 60;
+    trader->update(trader->candles);
     trader->current_date = last_date;
-    trader->update();
+    trader->trade();
 
     // Assertions
     ASSERT_EQ(trader->current_position, nullptr);
@@ -615,7 +618,7 @@ TEST_F(TraderTest, WaitForNextTrade)
     trader->decisions = {1.0, 0.0, 0.0};
     trader->duration_without_trade = 0;
 
-    // Cann the trade method
+    // Call the trade method
     trader->trade();
 
     ASSERT_FALSE(trader->can_trade());
@@ -624,7 +627,7 @@ TEST_F(TraderTest, WaitForNextTrade)
     // Set trader's date after the minimum duration before next trade has passed
     trader->duration_without_trade = config.strategy.minimum_duration_before_next_trade.value();
 
-    // Cann the trade method
+    // Call the trade method
     trader->trade();
 
     ASSERT_TRUE(trader->can_trade());

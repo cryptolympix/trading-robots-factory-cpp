@@ -29,12 +29,12 @@ std::vector<double> CandleOpen::calculate(const std::vector<Candle> &candles, bo
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
-                std::vector<double> values;
-                for (int i = 0; i < candles.size(); ++i)
-                {
-                    values.push_back(candles[i].open);
-                }
-                return values; },
+            std::vector<double> values;
+            for (int i = 0; i < candles.size(); ++i)
+            {
+                values.push_back(candles[i].open);
+            }
+            return values; },
         normalize_data);
 }
 
@@ -120,7 +120,7 @@ std::vector<double> CandleClose::calculate(const std::vector<Candle> &candles, b
 {
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles) -> std::vector<double>
-        {
+        { 
             std::vector<double> values;
             for (int i = 0; i < candles.size(); ++i)
             {
@@ -288,7 +288,7 @@ std::vector<double> CandleShadowUpper::calculate(const std::vector<Candle> &cand
                 if (candles[i].high != candles[i].low)
                 {
                     // Calculate the ratio of upper shadow to the entire candle
-                    values.push_back((candles[i].high - std::max(candles[i].open, candles[i].close)) / (candles[i].high - candles[i].low)); 
+                    values.push_back((candles[i].high - std::max(candles[i].open, candles[i].close)) / (candles[i].high - candles[i].low));
                 }
             }
             return values; },
@@ -355,7 +355,7 @@ std::vector<double> CandlePriceChange::calculate(const std::vector<Candle> &cand
             std::vector<double> values;
             for (size_t i = 0; i < candles.size(); ++i)
             {
-                values.push_back((candles[i].close - candles[i].open)/candles[i].open);
+                values.push_back((candles[i].close - candles[i].open) / candles[i].open);
             }
             return values; },
 
@@ -461,7 +461,7 @@ std::vector<double> PivotLow::calculate(const std::vector<Candle> &candles, bool
                 return values;
             }
 
-            
+
 
             for (size_t i = 0; i < candles.size() - right_bars; ++i)
             {
@@ -521,7 +521,7 @@ std::vector<double> PivotHighValue::calculate(const std::vector<Candle> &candles
 {
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles) -> std::vector<double>
-        { 
+        {
             std::vector<double> values(candles.size(), 0); // Initialize values vector with size of candles
             std::vector<double> pivots = PivotHigh("high", left_bars, right_bars, offset).calculate(candles, false);
             std::vector<double> source_candles = get_candles_with_source(candles, source);
@@ -575,7 +575,7 @@ std::vector<double> PivotLowValue::calculate(const std::vector<Candle> &candles,
 {
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles) -> std::vector<double>
-        { 
+        {
             std::vector<double> values(candles.size(), 0); // Initialize values vector with size of candles
             std::vector<double> pivots = PivotLow("low", left_bars, right_bars, offset).calculate(candles, false);
             std::vector<double> source_candles = get_candles_with_source(candles, source);
@@ -686,7 +686,7 @@ std::vector<double> LowestLow::calculate(const std::vector<Candle> &candles, boo
             for (size_t i = 0; i < candles.size(); ++i)
             {
                 // Initialize lowest low to highest possible value
-                double lowest_low = std::numeric_limits<double>::max(); 
+                double lowest_low = std::numeric_limits<double>::max();
 
                 // Determine the range to check for lowest low
                 size_t start_index = (i < left_bars) ? 0 : i - left_bars;
@@ -738,7 +738,7 @@ std::vector<double> PeakDistance::calculate(const std::vector<Candle> &candles, 
             for (size_t i = 0; i < candles.size(); ++i)
             {
                 // Calculate the distance between the highest high and lowest low
-                values[i] = highest_highs[i]/lowest_lows[i];
+                values[i] = highest_highs[i] / lowest_lows[i];
             }
 
             return values; },

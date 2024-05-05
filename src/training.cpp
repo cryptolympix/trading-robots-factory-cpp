@@ -380,9 +380,10 @@ void Training::evaluate_genome(Genome *genome, int generation)
             // Update the individual
             if (!trader->dead)
             {
-                trader->look(current_candles, current_indicators, current_base_currency_conversion_rate, position);
+                trader->update(current_candles);
+                trader->look(current_indicators, current_base_currency_conversion_rate, position);
                 trader->think();
-                trader->update();
+                trader->trade();
             }
             else
             {
@@ -512,9 +513,10 @@ int Training::test(Genome *genome, int generation)
             // Update the individual
             if (!trader->dead)
             {
-                trader->look(current_candles, current_indicators, current_base_currency_conversion_rate, position);
+                trader->update(current_candles);
+                trader->look(current_indicators, current_base_currency_conversion_rate, position);
                 trader->think();
-                trader->update();
+                trader->trade();
             }
             else
             {

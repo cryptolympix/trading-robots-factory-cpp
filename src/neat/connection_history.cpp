@@ -1,7 +1,6 @@
 #include <iostream>
 #include <vector>
 #include "node.hpp"
-#include "genome.hpp"
 #include "connection_history.hpp"
 
 ConnectionHistory::ConnectionHistory(std::shared_ptr<Node> from_node, std::shared_ptr<Node> to_node, int innovation_nb) : from_node(from_node), to_node(to_node), innovation_nb(innovation_nb) {}
