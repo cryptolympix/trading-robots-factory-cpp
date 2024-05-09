@@ -51,7 +51,7 @@ int make_decision(
 //+------------------------------------------------------------------+
 //| Inputs for expert                                                |
 //+------------------------------------------------------------------+
-input double risk_balance = 0.5; // The risk for each trade
+input double risk_balance = 0.05; // The risk for each trade
 input double stop_loss_percent = 0.001; // The stop loss in percentage
 input double take_profit_percent = 0.002; // The take profit in percentage
 input bool use_auto_lots = true; // Calculate position size automatically
@@ -137,9 +137,7 @@ void OnTick()
 
 // Call the DLL function
    int decision = make_decision(candles_tf_1, nb_fetch_candles_timeframe_1, candles_tf_2, nb_fetch_candles_timeframe_2, candles_tf_3, nb_fetch_candles_timeframe_3, position_type, position_pnl, position_size, position_duration, base_currency_conversion_rate, account_balance); 
-   
-   if (decision == 2)
-      Print(decision);
+   Print(decision);
 
 // Process the decision received from the DLL
 // Handle the decision accordingly
