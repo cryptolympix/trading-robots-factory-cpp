@@ -730,10 +730,11 @@ int Trader::trade()
     bool has_short_position = has_position && this->current_position->side == PositionSide::SHORT;
 
     // Decision taken
-    double maximum = *std::max_element(this->decisions.begin(), this->decisions.end());
-    bool want_long = maximum == this->decisions[0];
-    bool want_short = maximum == this->decisions[1];
-    bool wait = maximum == this->decisions[2];
+    std::vector<double>::iterator result = std::max_element(this->decisions.begin(), this->decisions.end());
+    int decision = std::distance(this->decisions.begin(), result);
+    bool want_long = decision == 0;
+    bool want_short = decision == 1;
+    bool wait = decision == 2;
 
     if (!wait)
     {
