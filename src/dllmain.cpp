@@ -133,47 +133,63 @@ TEST_DLL_API int make_decision(
 }
 
 BOOL APIENTRY DllMain(HMODULE hModule,
-                      DWORD ul_reason_for_call,
-                      LPVOID lpReserved)
-{
-    // Get the path to the DLL file
-    wchar_t dllPath[MAX_PATH];
-    GetModuleFileNameW(hModule, dllPath, MAX_PATH);
-
-    // Extract the directory path
-    wchar_t *lastBackslash = wcsrchr(dllPath, L'\\');
-    if (lastBackslash != nullptr)
-    {
-        *lastBackslash = L'\0'; // Terminate the string at the last backslash
-    }
-
-    // Set the current directory to the DLL directory
-    SetCurrentDirectoryW(dllPath);
-
-    // Get the config
-    config = __config__;
-
-    // Construct the full path to the genome file
-    std::filesystem::path genomePath = std::filesystem::path(dllPath) / L"genome.json";
-
-    // Load the genome from the file
-    genome = Genome::load("C:\\Users\\Maxime\\AppData\\Roaming\\MetaQuotes\\Terminal\\D0E8209F77C8CF37AD8BF550E51FF075\\MQL5\\Libraries\\genome.json");
-
-    if (genome == nullptr)
-    {
-        PrintToConsole("Cannot load the genome");
-        std::exit(1);
-    }
-
-    trader = new Trader(genome, config);
+    DWORD ul_reason_for_call,
+    LPVOID lpReserved)
+{ 
+    wchar_t* lastBackslash;
+    std::filesystem::path genomePath;
 
     switch (ul_reason_for_call)
     {
-    case DLL_PROCESS_ATTACH:
-    case DLL_THREAD_ATTACH:
-    case DLL_THREAD_DETACH:
-    case DLL_PROCESS_DETACH:
-        break;
+        case DLL_PROCESS_ATTACH:
+            // Get the path to the DLL file
+            wchar_t dllPath[MAX_PATH];
+            GetModuleFileNameW(hModule, dllPath, MAX_PATH);
+
+            // Extract the directory path
+            lastBackslash = wcsrchr(dllPath, L'\\');
+            if (lastBackslash != nullptr)
+            {
+                *lastBackslash = L'\0'; // Terminate the string at the last backslash
+            }
+
+            // Set the current directory to the DLL directory
+            SetCurrentDirectoryW(dllPath);
+
+            // Get the config
+            config = __config__;
+
+            // Construct the full path to the genome file
+            genomePath = std::filesystem::path(dllPath) / L"genome.json";
+
+            // Load the genome from the file
+            genome = Genome::load("C:\\Users\\Maxime\\AppData\\Roaming\\MetaQuotes\\Terminal\\D0E8209F77C8CF37AD8BF550E51FF075\\MQL5\\Libraries\\genome.json");
+
+            if (genome == nullptr)
+            {
+                PrintToConsole("Cannot load the genome");
+                std::exit(1);
+            }
+
+            trader = new Trader(genome, config);
+
+            break;
+        case DLL_THREAD_ATTACH:
+            break;
+        case DLL_THREAD_DETACH:
+            break;
+        case DLL_PROCESS_DETACH:
+            // Cleanup resources allocated during initialization
+            if (genome != nullptr) {
+                delete genome;
+                genome = nullptr;
+            }
+            if (trader != nullptr) {
+                delete trader;
+                trader = nullptr;
+            }
+
+            break;
     }
     return TRUE;
 }
