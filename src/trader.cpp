@@ -156,7 +156,7 @@ void Trader::look(IndicatorsData &indicators, double base_currency_conversion_ra
         {
             if (this->config.strategy.maximum_trade_duration.has_value())
             {
-                position_info.push_back(this->duration_in_position / this->config.strategy.maximum_trade_duration.value_or(1));
+                position_info.push_back(static_cast<double>(this->duration_in_position)/static_cast<double>(this->config.strategy.maximum_trade_duration.value_or(1)));
             }
             else
             {
