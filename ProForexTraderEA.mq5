@@ -156,7 +156,6 @@ void OnTick()
       double takeProfit = bidPrice + (take_profit_percent * bidPrice) + spread;
       double stopLossPips = DifferenceInPips(askPrice, stopLoss, _Symbol);
       double volume = CalculatePositionVolume(_Symbol, risk_balance, stopLossPips);
-      Print(volume);
       gTrade.Buy(volume, _Symbol, 0, stopLoss, takeProfit);
       return;
      }
@@ -167,7 +166,6 @@ void OnTick()
       double takeProfit = askPrice - (take_profit_percent * askPrice) - spread;
       double stopLossPips = DifferenceInPips(bidPrice, stopLoss, _Symbol);
       double volume = CalculatePositionVolume(_Symbol, risk_balance, stopLossPips);
-      Print(volume);
       gTrade.Sell(volume, _Symbol, 0, stopLoss, takeProfit);
       return;
      }
