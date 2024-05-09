@@ -105,22 +105,22 @@ Trader::Trader(Genome *genome, Config config, Logger *logger)
 
 /**
  * @brief Get inputs for genome.
- * @param indicators Indicator data for all time frames.
+ * @param indicators_data Indicator data for all time frames.
  * @param base_currency_conversion_rate Conversion rate when the base asset traded is different from the account currency.
  * @param position_infos Vector of position information.
  */
-void Trader::look(IndicatorsData &indicators, double base_currency_conversion_rate, std::vector<PositionInfo> position_infos)
+void Trader::look(IndicatorsData& indicators_data, double base_currency_conversion_rate, std::vector<PositionInfo> position_infos)
 {
     std::vector<double> indicators_values = {};
-    std::unordered_map<TimeFrame, std::vector<Indicator *>> indicators_inputs = config.training.inputs.indicators;
+    std::unordered_map<TimeFrame, std::vector<Indicator*>> indicators_inputs = config.training.inputs.indicators;
     this->current_base_currency_conversion_rate = base_currency_conversion_rate;
 
     // Get the values of the indicators
-    for (const auto &indicator : indicators_inputs)
+    for (const auto &[tf, indicators] : indicators_inputs)
     {
-        for (const auto &ind : indicator.second)
+        for (const auto &indicator : indicators)
         {
-            indicators_values.push_back(indicators[indicator.first][ind->id].back());
+            indicators_values.push_back(indicators_data[tf][indicator->id].back());
         }
     }
 
