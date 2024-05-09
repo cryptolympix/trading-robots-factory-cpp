@@ -101,24 +101,16 @@ TEST_DLL_API int make_decision(
     // ==================================================================================================== //
 
     // Update the trader
-    trader->update(candles_data);
     trader->balance = account_balance;
-    trader->duration_in_position = position_duration;
-
-    if (position_type == 0)
-    {
+    trader->update(candles_data);
+    
+    if (trader->current_position != nullptr) {
+        trader->current_position->pnl = position_pnl;
+    
         // Close the current position
-        if (trader->current_position != nullptr)
+        if (position_type == 0)
         {
-            trader->current_position->pnl = position_pnl;
             trader->close_position_by_market();
-        }
-    }
-    else
-    {
-        if (trader->current_position == nullptr)
-        {
-            trader->open_position_by_market(candles_data[TIMEFRAME_1].back().close, position_size, position_type == 1 ? OrderSide::LONG : OrderSide::SHORT);
         }
     }
 
