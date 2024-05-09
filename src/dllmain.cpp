@@ -29,6 +29,13 @@ TimeFrame TIMEFRAME_1 = TimeFrame::M5; // Loop timeframe
 TimeFrame TIMEFRAME_2 = TimeFrame::M30;
 TimeFrame TIMEFRAME_3 = TimeFrame::H4;
 
+// Function to display a message in the MetaTrader editor console
+void PrintToConsole(const char* message)
+{
+    // Use the MessageBoxA function to display the message
+    MessageBoxA(NULL, message, "Message from DLL", MB_OK | MB_ICONINFORMATION);
+}
+
 TEST_DLL_API void test_dll()
 {
 }
@@ -82,7 +89,8 @@ TEST_DLL_API int make_decision(
     {
         if (std::find(candles_timeframes.begin(), candles_timeframes.end(), timeframe) == candles_timeframes.end())
         {
-            std::cerr << "One of the timeframe is not available in the input data" << std::endl;
+            PrintToConsole("One of the timeframe is not available in the input data");
+            std::exit(1);
         }
 
         for (const auto &indicator : indicators)
@@ -153,7 +161,7 @@ BOOL APIENTRY DllMain(HMODULE hModule,
 
     if (genome == nullptr)
     {
-        std::cerr << "Cannot load the genome";
+        PrintToConsole("Cannot load the genome");
         std::exit(1);
     }
 
