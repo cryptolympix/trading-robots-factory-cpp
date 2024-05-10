@@ -32,7 +32,7 @@ struct Candle
 //+------------------------------------------------------------------+
 #import "ProForexTraderEA.dll"
 void test_dll();
-int make_decision(
+double make_decision(
    Candle& candles_tf_1[],
    int candles_tf_1_size,
    Candle& candles_tf_2[],
@@ -65,7 +65,7 @@ input long magic_number = 55555; // Magic number
 //+------------------------------------------------------------------+
 //| Constants                                                        |
 //+------------------------------------------------------------------+
-#define TIMER_INTERVAL 1 // in seconds
+#define TIMER_INTERVAL 60 // in seconds
 
 //+------------------------------------------------------------------+
 //| Global variables                                                 |
@@ -98,8 +98,8 @@ void OnDeinit(const int reason)
 //+------------------------------------------------------------------+
 void OnTick()
   {
-// Process only when a new bar appears
-   if(!IsNewBar())
+// Process only when a new candle appears
+   if(!IsNewCandle())
       return;
 
 // Fetch historical candle data for each timeframe
@@ -136,11 +136,37 @@ void OnTick()
 
 // Call the DLL function
    double decision = make_decision(candles_tf_1, nb_fetch_candles_timeframe_1, candles_tf_2, nb_fetch_candles_timeframe_2, candles_tf_3, nb_fetch_candles_timeframe_3, position_type, position_pnl, position_size, position_duration, base_currency_conversion_rate, account_balance);
-// Print(decision);
 
-// Process the decision received from the DLL
-// Handle the decision accordingly
+   HandleDecision(decision);
+  }
 
+//+------------------------------------------------------------------+
+//| TradeTransaction function                                        |
+//+------------------------------------------------------------------+
+void OnTradeTransaction(const MqlTradeTransaction& trans,
+                        const MqlTradeRequest& request,
+                        const MqlTradeResult& result)
+  {
+
+  }
+
+//+------------------------------------------------------------------+
+//| Trade function                                                   |
+//+------------------------------------------------------------------+
+void OnTrade()
+  {
+//---
+  }
+
+//+==================================================================+
+//+=========================== UTILS ================================+
+//+==================================================================+
+
+//+------------------------------------------------------------------+
+//| Handle the decision accordingly                                  |
+//+------------------------------------------------------------------+
+void HandleDecision(int decision)
+  {
    double bidPrice = SymbolInfoDouble(_Symbol, SYMBOL_BID);
    double askPrice = SymbolInfoDouble(_Symbol, SYMBOL_ASK);
    double spread = askPrice - bidPrice;
@@ -179,28 +205,6 @@ void OnTick()
   }
 
 //+------------------------------------------------------------------+
-//| TradeTransaction function                                        |
-//+------------------------------------------------------------------+
-void OnTradeTransaction(const MqlTradeTransaction& trans,
-                        const MqlTradeRequest& request,
-                        const MqlTradeResult& result)
-  {
-
-  }
-
-//+------------------------------------------------------------------+
-//| Trade function                                                   |
-//+------------------------------------------------------------------+
-void OnTrade()
-  {
-//---
-  }
-
-//+==================================================================+
-//+=========================== UTILS ================================+
-//+==================================================================+
-
-//+------------------------------------------------------------------+
 //| Close every open positions for a symbol                          |
 //+------------------------------------------------------------------+
 void ClosePositions(string pSymbol, ENUM_POSITION_TYPE pType = NULL)
@@ -233,15 +237,27 @@ void CloseOpenOrders(string pSymbol)
   }
 
 //+------------------------------------------------------------------+
-//| Returns true if a new bar has appeared for a symbol/period pair  |
+//| Check if a new candle has formed                                 |
 //+------------------------------------------------------------------+
-bool IsNewBar()
+bool IsNewCandle()
   {
-   static datetime priorTime = 0;
-   datetime currentTime = iTime(Symbol(), Period(), 0);
-   bool result = (currentTime != priorTime);
-   priorTime = currentTime;
-   return(result);
+   static datetime lastCandleTime = 0;
+
+// Get the current time
+   datetime currentTime = TimeCurrent();
+
+// Get the time of the most recent complete candle
+   datetime currentCandleTime = iTime(_Symbol, Period(), 0);
+
+// Check if the current candle's time is different from the last candle's time
+   if(currentCandleTime != lastCandleTime)
+     {
+      // Update the last candle's time
+      lastCandleTime = currentCandleTime;
+      return true; // A new candle has formed
+     }
+
+   return false; // No new candle has formed
   }
 
 //+------------------------------------------------------------------+
@@ -314,14 +330,14 @@ void CopyCandleData(Candle& pCandles[], ENUM_TIMEFRAMES pTimeframe, int pSize)
   {
    for(int i = 0; i < pSize; ++i)
      {
-      pCandles[pSize-1-i].date = (long) iTime(_Symbol, pTimeframe, i);
-      pCandles[pSize-1-i].open = iOpen(_Symbol, pTimeframe, i);
-      pCandles[pSize-1-i].high = iHigh(_Symbol, pTimeframe, i);
-      pCandles[pSize-1-i].low = iLow(_Symbol, pTimeframe, i);
-      pCandles[pSize-1-i].close = iClose(_Symbol, pTimeframe, i);
-      pCandles[pSize-1-i].tick_volume = iTickVolume(_Symbol, pTimeframe, i);
-      pCandles[pSize-1-i].volume = iVolume(_Symbol, pTimeframe, i);
-      pCandles[pSize-1-i].spread = iSpread(_Symbol, pTimeframe, i);
+      pCandles[pSize-1-i].date = (long) iTime(_Symbol, pTimeframe, 1+i);
+      pCandles[pSize-1-i].open = iOpen(_Symbol, pTimeframe, 1+i);
+      pCandles[pSize-1-i].high = iHigh(_Symbol, pTimeframe, 1+i);
+      pCandles[pSize-1-i].low = iLow(_Symbol, pTimeframe, 1+i);
+      pCandles[pSize-1-i].close = iClose(_Symbol, pTimeframe, 1+i);
+      pCandles[pSize-1-i].tick_volume = iTickVolume(_Symbol, pTimeframe, 1+i);
+      pCandles[pSize-1-i].volume = iVolume(_Symbol, pTimeframe, 1+i);
+      pCandles[pSize-1-i].spread = iSpread(_Symbol, pTimeframe, 1+i);
      }
   }
 
