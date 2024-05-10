@@ -123,7 +123,7 @@ void OnTick()
    if(PositionSelect(_Symbol))
      {
       position_type = (PositionGetInteger(POSITION_TYPE) == POSITION_TYPE_BUY) ? 1 : -1;
-      position_pnl = PositionGetDouble(POSITION_PROFIT)/AccountInfoDouble(ACCOUNT_BALANCE);
+      position_pnl = PositionGetDouble(POSITION_PROFIT);
       position_size = PositionGetDouble(POSITION_VOLUME);
       position_duration = TradeDuration();
      }
