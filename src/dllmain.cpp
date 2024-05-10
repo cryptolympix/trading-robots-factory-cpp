@@ -111,16 +111,6 @@ TEST_DLL_API int make_decision(
     // Update the trader
     trader->balance = account_balance;
     trader->update(candles_data);
-    
-    if (trader->current_position != nullptr) {
-        trader->current_position->pnl = position_pnl;
-    
-        // Close the current position
-        if (position_type == 0)
-        {
-            trader->close_position_by_market();
-        }
-    }
 
     // Look at the data
     trader->look(indicators_data, base_currency_conversion_rate, position_infos);
