@@ -58,8 +58,8 @@ struct Candle
  * @brief Type definitions for different data structures.
  */
 using CandlesData = std::unordered_map<TimeFrame, std::vector<Candle>>;
-using IndicatorsData = std::unordered_map<TimeFrame, std::unordered_map<std::string, std::vector<double>>>;
-using BaseCurrencyConversionRateData = std::unordered_map<time_t, double>;
+using IndicatorsData = std::unordered_map<TimeFrame, std::map<std::string, std::vector<double>>>;
+using BaseCurrencyConversionRateData = std::map<time_t, double>;
 
 /**
  * @brief Struct representing cached data with date information.
