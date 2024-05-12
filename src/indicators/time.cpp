@@ -26,12 +26,12 @@ std::vector<double> Hour::calculate(const std::vector<Candle> &candles, bool nor
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
-        std::vector<double> values(candles.size(), 0);
+            std::vector<double> values(candles.size(), 0);
 
-        for (int i = 0; i < candles.size(); ++i)
-        {
+            for (int i = 0; i < candles.size(); ++i)
+            {
 #ifdef DLL_EXPORT
-            tm *time = gmtime(&candles[i].date);
+                tm *time = gmtime(&candles[i].date);
 #else
                 tm *time = localtime(&candles[i].date);
 #endif
