@@ -27,7 +27,7 @@ public:
     int duration_without_trade; // Countdown to avoid trading too much
 
     // Neat stuffs
-    Genome *genome;
+    neat::Genome *genome;
     int generation;
     double fitness;
     double score;
@@ -48,7 +48,7 @@ public:
      * @param config Configuration object.
      * @param logger Logger object.
      */
-    Trader(Genome *genome, Config config, Logger *logger = nullptr);
+    Trader(neat::Genome *genome, Config config, Logger *logger = nullptr);
 
     /**
      * @brief Get inputs for genome.

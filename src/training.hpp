@@ -40,7 +40,7 @@ public:
     BaseCurrencyConversionRateData base_currency_conversion_rate; // Conversion rate when the base asset traded is different from the account currency.
     Cache *cache;                                                 // Cached data for faster access.
 
-    Population *population;                       // NEAT population for evolution.
+    neat::Population *population;                 // NEAT population for evolution.
     std::map<int, std::vector<Trader *>> traders; // Map of traders for each generation.
     std::map<int, Trader *> best_traders;         // Map of the best trader for each generation.
     Trader *best_trader;                          // Best trader overall.
@@ -108,7 +108,7 @@ public:
      * @param genome The genome to be evaluated.
      * @param generation The current generation number.
      */
-    void evaluate_genome(Genome *genome, int generation);
+    void evaluate_genome(neat::Genome *genome, int generation);
 
     /**
      * @brief Run the NEAT algorithm for training.
@@ -122,7 +122,7 @@ public:
      * @param generation The generation number of the genome.
      * @return The exit code of the testing process. 0 if successful, 1 otherwise.
      */
-    int test(Genome *genome, int generation);
+    int test(neat::Genome *genome, int generation);
 };
 
 #endif // TRAINING_HPP

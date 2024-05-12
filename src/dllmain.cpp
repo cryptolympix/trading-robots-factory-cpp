@@ -22,19 +22,23 @@
 #endif
 
 Config config;
-Genome *genome;
+neat::Genome *genome;
 Trader *trader;
 
 TimeFrame TIMEFRAME_1 = TimeFrame::M5; // Loop timeframe
 TimeFrame TIMEFRAME_2 = TimeFrame::M30;
 TimeFrame TIMEFRAME_3 = TimeFrame::H4;
 
+#ifdef _WIN32
+
 // Function to display a message in the MetaTrader editor console
-void PrintToConsole(const char* message)
+void PrintToConsole(const char *message)
 {
     // Use the MessageBoxA function to display the message
     MessageBoxA(NULL, message, "Message from DLL", MB_OK | MB_ICONINFORMATION);
 }
+
+#endif
 
 TEST_DLL_API void test_dll()
 {
@@ -89,7 +93,9 @@ TEST_DLL_API int make_decision(
     {
         if (std::find(candles_timeframes.begin(), candles_timeframes.end(), timeframe) == candles_timeframes.end())
         {
+#if defined(_WIN32)
             PrintToConsole("One of the timeframe is not available in the input data");
+#endif
             std::exit(1);
         }
 
@@ -111,10 +117,11 @@ TEST_DLL_API int make_decision(
     // Update the trader
     trader->balance = account_balance;
     trader->update(candles_data);
-    
-    if (trader->current_position != nullptr) {
+
+    if (trader->current_position != nullptr)
+    {
         trader->current_position->pnl = position_pnl;
-    
+
         // Close the current position
         if (position_type == 0)
         {
@@ -132,64 +139,70 @@ TEST_DLL_API int make_decision(
     return trader->trade();
 }
 
+#ifdef _WIN32
+
 BOOL APIENTRY DllMain(HMODULE hModule,
-    DWORD ul_reason_for_call,
-    LPVOID lpReserved)
-{ 
-    wchar_t* lastBackslash;
+                      DWORD ul_reason_for_call,
+                      LPVOID lpReserved)
+{
+    wchar_t *lastBackslash;
     std::filesystem::path genomePath;
 
     switch (ul_reason_for_call)
     {
-        case DLL_PROCESS_ATTACH:
-            // Get the path to the DLL file
-            wchar_t dllPath[MAX_PATH];
-            GetModuleFileNameW(hModule, dllPath, MAX_PATH);
+    case DLL_PROCESS_ATTACH:
+        // Get the path to the DLL file
+        wchar_t dllPath[MAX_PATH];
+        GetModuleFileNameW(hModule, dllPath, MAX_PATH);
 
-            // Extract the directory path
-            lastBackslash = wcsrchr(dllPath, L'\\');
-            if (lastBackslash != nullptr)
-            {
-                *lastBackslash = L'\0'; // Terminate the string at the last backslash
-            }
+        // Extract the directory path
+        lastBackslash = wcsrchr(dllPath, L'\\');
+        if (lastBackslash != nullptr)
+        {
+            *lastBackslash = L'\0'; // Terminate the string at the last backslash
+        }
 
-            // Set the current directory to the DLL directory
-            SetCurrentDirectoryW(dllPath);
+        // Set the current directory to the DLL directory
+        SetCurrentDirectoryW(dllPath);
 
-            // Get the config
-            config = __config__;
+        // Get the config
+        config = __config__;
 
-            // Construct the full path to the genome file
-            genomePath = std::filesystem::path(dllPath) / L"genome.json";
+        // Construct the full path to the genome file
+        genomePath = std::filesystem::path(dllPath) / L"genome.json";
 
-            // Load the genome from the file
-            genome = Genome::load("C:\\Users\\Maxime\\AppData\\Roaming\\MetaQuotes\\Terminal\\D0E8209F77C8CF37AD8BF550E51FF075\\MQL5\\Libraries\\genome.json");
+        // Load the genome from the file
+        genome = neat::Genome::load("C:\\Users\\Maxime\\AppData\\Roaming\\MetaQuotes\\Terminal\\D0E8209F77C8CF37AD8BF550E51FF075\\MQL5\\Libraries\\genome.json");
 
-            if (genome == nullptr)
-            {
-                PrintToConsole("Cannot load the genome");
-                std::exit(1);
-            }
+        if (genome == nullptr)
+        {
+            PrintToConsole("Cannot load the genome");
+            std::exit(1);
+        }
 
-            trader = new Trader(genome, config);
+        trader = new Trader(genome, config);
 
-            break;
-        case DLL_THREAD_ATTACH:
-            break;
-        case DLL_THREAD_DETACH:
-            break;
-        case DLL_PROCESS_DETACH:
-            // Cleanup resources allocated during initialization
-            if (genome != nullptr) {
-                delete genome;
-                genome = nullptr;
-            }
-            if (trader != nullptr) {
-                delete trader;
-                trader = nullptr;
-            }
+        break;
+    case DLL_THREAD_ATTACH:
+        break;
+    case DLL_THREAD_DETACH:
+        break;
+    case DLL_PROCESS_DETACH:
+        // Cleanup resources allocated during initialization
+        if (genome != nullptr)
+        {
+            delete genome;
+            genome = nullptr;
+        }
+        if (trader != nullptr)
+        {
+            delete trader;
+            trader = nullptr;
+        }
 
-            break;
+        break;
     }
     return TRUE;
 }
+
+#endif

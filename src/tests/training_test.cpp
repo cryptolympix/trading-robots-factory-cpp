@@ -113,7 +113,7 @@ protected:
                 .minimum_profit_factor = 2,
                 .minimum_winrate = 0.5,
             },
-            .neat = load_config("src/configs/neat_config.txt"),
+            .neat = neat::load_config("src/configs/neat_config.txt"),
         };
         config.neat.population_size = 5;
         config.neat.num_inputs = 6;
@@ -247,7 +247,7 @@ TEST_F(TrainingTest, GetAllTimeframes)
 TEST_F(TrainingTest, BestTraders)
 {
     // Mock best traders
-    Genome *genome = new Genome(config.neat);
+    neat::Genome *genome = new neat::Genome(config.neat);
     Trader *best_trader = new Trader(genome, config);
     best_trader->fitness = 10;
     best_trader->score = 10;

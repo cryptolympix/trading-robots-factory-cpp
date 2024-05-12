@@ -8,12 +8,12 @@
 class PopulationTest : public testing::Test
 {
 protected:
-    NeatConfig config;
+    neat::Config config;
 
     void SetUp() override
     {
         // Mock NeatConfig
-        config = load_config("./src/neat/default_config.txt");
+        config = neat::load_config("default_config.txt");
         config.num_inputs = 5;
         config.num_outputs = 2;
         config.population_size = 10;
@@ -28,7 +28,7 @@ protected:
 
 TEST_F(PopulationTest, PopulationInitialization)
 {
-    Population *p = new Population(config);
+    neat::Population *p = new neat::Population(config);
     ASSERT_EQ(p->genomes.size(), config.population_size);
     ASSERT_EQ(p->species.size(), 0);
     ASSERT_EQ(p->generation, 0);
@@ -36,15 +36,15 @@ TEST_F(PopulationTest, PopulationInitialization)
 
 TEST_F(PopulationTest, SetBestGenome)
 {
-    Population *p = new Population(config);
+    neat::Population *p = new neat::Population(config);
 
     // Assume best fitness is set to 10 for simplicity
     p->best_fitness = 10;
 
     // Mock species and genomes
-    Genome *genome = new Genome(config);
+    neat::Genome *genome = new neat::Genome(config);
     genome->fitness = 20;
-    Species *species = new Species(genome);
+    neat::Species *species = new neat::Species(genome);
     species->genomes = {genome};
     p->species = {species};
 
@@ -57,16 +57,16 @@ TEST_F(PopulationTest, SetBestGenome)
 
 TEST_F(PopulationTest, Speciate)
 {
-    Population *p = new Population(config);
+    neat::Population *p = new neat::Population(config);
 
     // Mock genomes
-    Genome *genome1 = new Genome(config);
-    Genome *genome2 = new Genome(config);
+    neat::Genome *genome1 = new neat::Genome(config);
+    neat::Genome *genome2 = new neat::Genome(config);
     p->genomes = {genome1, genome2};
 
     // Mock species
-    Species *species1 = new Species(genome1);
-    Species *species2 = new Species(genome2);
+    neat::Species *species1 = new neat::Species(genome1);
+    neat::Species *species2 = new neat::Species(genome2);
     p->species = {species1, species2};
 
     // Run speciation
@@ -78,11 +78,11 @@ TEST_F(PopulationTest, Speciate)
 
 TEST_F(PopulationTest, ReproduceSpecies)
 {
-    Population *p = new Population(config);
+    neat::Population *p = new neat::Population(config);
 
     // Mock species
-    Genome *genome = new Genome(config);
-    Species *species = new Species(genome);
+    neat::Genome *genome = new neat::Genome(config);
+    neat::Species *species = new neat::Species(genome);
     p->species = {species};
 
     // Run reproduction
@@ -96,14 +96,14 @@ TEST_F(PopulationTest, ReproduceSpecies)
 
 TEST_F(PopulationTest, SortSpecies)
 {
-    Population *p = new Population(config);
+    neat::Population *p = new neat::Population(config);
 
     // Mock species
     for (int i = 0; i < 5; ++i)
     {
-        Genome *genome = new Genome(config);
+        neat::Genome *genome = new neat::Genome(config);
         genome->fitness = random() % 100;
-        Species *species = new Species(genome);
+        neat::Species *species = new neat::Species(genome);
         p->species.push_back(species);
     }
 
@@ -114,27 +114,27 @@ TEST_F(PopulationTest, SortSpecies)
     const auto &speciesList = p->species;
     ASSERT_EQ(p->species.size(), 5);
 
-    auto getBestFitness = [](const Species *s)
+    auto getBestFitness = [](const neat::Species *s)
     { return s->best_fitness; };
-    ASSERT_TRUE(std::is_sorted(speciesList.begin(), speciesList.end(), [&getBestFitness](const Species *s1, const Species *s2)
+    ASSERT_TRUE(std::is_sorted(speciesList.begin(), speciesList.end(), [&getBestFitness](const neat::Species *s1, const neat::Species *s2)
                                { return getBestFitness(s1) > getBestFitness(s2); }));
 }
 
 TEST_F(PopulationTest, KillStagnantSpecies)
 {
-    Population *p = new Population(config);
+    neat::Population *p = new neat::Population(config);
 
     // Mock genomes
-    Genome *genome1 = new Genome(config);
-    Genome *genome2 = new Genome(config);
-    Genome *genome3 = new Genome(config);
-    Genome *genome4 = new Genome(config);
+    neat::Genome *genome1 = new neat::Genome(config);
+    neat::Genome *genome2 = new neat::Genome(config);
+    neat::Genome *genome3 = new neat::Genome(config);
+    neat::Genome *genome4 = new neat::Genome(config);
 
     // Mock species
-    Species *speciesToKeep1 = new Species(genome1);
-    Species *speciesToKeep2 = new Species(genome2);
-    Species *speciesToRemove1 = new Species(genome3);
-    Species *speciesToRemove2 = new Species(genome4);
+    neat::Species *speciesToKeep1 = new neat::Species(genome1);
+    neat::Species *speciesToKeep2 = new neat::Species(genome2);
+    neat::Species *speciesToRemove1 = new neat::Species(genome3);
+    neat::Species *speciesToRemove2 = new neat::Species(genome4);
 
     // Set the stagnation
     speciesToKeep1->stagnation = 2;
@@ -169,17 +169,17 @@ TEST_F(PopulationTest, KillStagnantSpecies)
 
 TEST_F(PopulationTest, KillBadSpecies)
 {
-    Population *p = new Population(config);
+    neat::Population *p = new neat::Population(config);
 
     // Mock genomes
-    Genome *genome1 = new Genome(config);
-    Genome *genome2 = new Genome(config);
-    Genome *genome3 = new Genome(config);
+    neat::Genome *genome1 = new neat::Genome(config);
+    neat::Genome *genome2 = new neat::Genome(config);
+    neat::Genome *genome3 = new neat::Genome(config);
 
     // Mock species
-    Species *goodSpecies = new Species(genome1);
-    Species *badSpecies1 = new Species(genome2);
-    Species *badSpecies2 = new Species(genome3);
+    neat::Species *goodSpecies = new neat::Species(genome1);
+    neat::Species *badSpecies1 = new neat::Species(genome2);
+    neat::Species *badSpecies2 = new neat::Species(genome3);
 
     // Mock average fitness
     double average_fitness1 = 100.0;
@@ -215,12 +215,12 @@ TEST_F(PopulationTest, KillBadSpecies)
 
 TEST_F(PopulationTest, UpdateSpecies)
 {
-    Population *p = new Population(config);
+    neat::Population *p = new neat::Population(config);
 
     // Mock species
-    Species *species = new Species(new Genome(config));
+    neat::Species *species = new neat::Species(new neat::Genome(config));
     for (int i = 0; i < 10; ++i)
-        species->add_to_species(new Genome(config));
+        species->add_to_species(new neat::Genome(config));
     p->species.push_back(species);
 
     // Run updating species
@@ -236,8 +236,8 @@ TEST_F(PopulationTest, UpdateSpecies)
 
 TEST_F(PopulationTest, Clone)
 {
-    Population *population = new Population(config);
-    Population *clone = population->clone();
+    neat::Population *population = new neat::Population(config);
+    neat::Population *clone = population->clone();
 
     // Asserts the clone is valid
 

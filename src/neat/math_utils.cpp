@@ -1,10 +1,9 @@
-#define _USE_MATH_DEFINES
-
 #include <cmath>
 #include <iostream>
 #include <random>
+#include "math_utils.hpp"
 
-double randrange(double min = 0.0, double max = 1.0)
+double neat::randrange(double min, double max)
 {
     std::random_device rd;
     std::mt19937 gen(rd());
@@ -12,12 +11,12 @@ double randrange(double min = 0.0, double max = 1.0)
     return distribution(gen);
 }
 
-double uniform(double min, double max)
+double neat::uniform(double min, double max)
 {
     return min + (max - min) * randrange();
 }
 
-double normal(double mean, double stdev)
+double neat::normal(double mean, double stdev)
 {
     double u1 = randrange();
     double u2 = randrange();

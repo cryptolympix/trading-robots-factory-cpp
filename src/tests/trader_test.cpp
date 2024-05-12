@@ -86,7 +86,7 @@ protected:
                 .minimum_profit_factor = 2,
 
             },
-            .neat = load_config("src/configs/neat_config.txt"),
+            .neat = neat::load_config("src/configs/neat_config.txt"),
         };
         config.neat.population_size = 5;
         config.neat.num_inputs = 4;
@@ -106,7 +106,7 @@ protected:
         date = std::mktime(&date_tm);
 
         // Trader configurations
-        trader = new Trader(new Genome(config.neat), config, nullptr);
+        trader = new Trader(new neat::Genome(config.neat), config, nullptr);
         trader->balance = config.general.initial_balance;
         trader->current_position = nullptr;
         trader->open_orders = {};

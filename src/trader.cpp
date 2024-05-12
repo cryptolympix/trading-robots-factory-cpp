@@ -13,6 +13,7 @@
 #include "utils/math.hpp"
 #include "utils/vectors.hpp"
 #include "libs/gnuplot-iostream.hpp"
+#include "neat/genome.hpp"
 #include "trading/trading_schedule.hpp"
 #include "trading/trading_tools.hpp"
 #include "indicators/utils.hpp"
@@ -37,7 +38,7 @@ std::string time_t_to_string(time_t time)
  * @param config Configuration object.
  * @param logger Logger object.
  */
-Trader::Trader(Genome *genome, Config config, Logger *logger)
+Trader::Trader(neat::Genome *genome, Config config, Logger *logger)
 {
     this->config = config;
     this->symbol_info = symbol_infos[config.general.symbol];
@@ -109,10 +110,10 @@ Trader::Trader(Genome *genome, Config config, Logger *logger)
  * @param base_currency_conversion_rate Conversion rate when the base asset traded is different from the account currency.
  * @param position_infos Vector of position information.
  */
-void Trader::look(IndicatorsData& indicators_data, double base_currency_conversion_rate, std::vector<PositionInfo> position_infos)
+void Trader::look(IndicatorsData &indicators_data, double base_currency_conversion_rate, std::vector<PositionInfo> position_infos)
 {
     std::vector<double> indicators_values = {};
-    std::unordered_map<TimeFrame, std::vector<Indicator*>> indicators_inputs = config.training.inputs.indicators;
+    std::map<TimeFrame, std::vector<Indicator *>> indicators_inputs = config.training.inputs.indicators;
     this->current_base_currency_conversion_rate = base_currency_conversion_rate;
 
     // Get the values of the indicators
@@ -156,7 +157,7 @@ void Trader::look(IndicatorsData& indicators_data, double base_currency_conversi
         {
             if (this->config.strategy.maximum_trade_duration.has_value())
             {
-                position_info.push_back(static_cast<double>(this->duration_in_position)/static_cast<double>(this->config.strategy.maximum_trade_duration.value_or(1)));
+                position_info.push_back(static_cast<double>(this->duration_in_position) / static_cast<double>(this->config.strategy.maximum_trade_duration.value_or(1)));
             }
             else
             {

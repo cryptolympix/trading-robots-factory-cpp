@@ -13,13 +13,13 @@ class TestGenome : public testing::Test
 {
 protected:
     // Mock NeatConfig
-    NeatConfig config;
-    std::vector<std::shared_ptr<ConnectionHistory>> connection_history;
+    neat::Config config;
+    std::vector<std::shared_ptr<neat::ConnectionHistory>> connection_history;
 
     void SetUp() override
     {
         // Set up NeatConfig
-        config = load_config("./src/neat/default_config.txt");
+        config = neat::load_config("default_config.txt");
         config.num_inputs = 2;
         config.num_outputs = 2;
 
@@ -36,7 +36,7 @@ protected:
 
 TEST_F(TestGenome, Init)
 {
-    Genome *genome = new Genome(config);
+    neat::Genome *genome = new neat::Genome(config);
 
     ASSERT_TRUE(genome->id.size() > 0);
     ASSERT_TRUE(genome->genes.empty());
@@ -51,7 +51,7 @@ TEST_F(TestGenome, Init)
 
 TEST_F(TestGenome, FullyConnect)
 {
-    Genome *genome = new Genome(config);
+    neat::Genome *genome = new neat::Genome(config);
     genome->fully_connect(connection_history);
 
     // Check if the genes are generated properly
@@ -70,8 +70,8 @@ TEST_F(TestGenome, FullyConnect)
 
 TEST_F(TestGenome, GetNode)
 {
-    Genome *genome = new Genome(config);
-    std::shared_ptr<Node> node = genome->get_node(0);
+    neat::Genome *genome = new neat::Genome(config);
+    std::shared_ptr<neat::Node> node = genome->get_node(0);
 
     ASSERT_NE(node, nullptr);
     ASSERT_EQ(node->id, 0);
@@ -79,7 +79,7 @@ TEST_F(TestGenome, GetNode)
 
 TEST_F(TestGenome, ConnectNodes)
 {
-    Genome *genome = new Genome(config);
+    neat::Genome *genome = new neat::Genome(config);
     genome->fully_connect(connection_history);
     genome->connect_nodes();
 
@@ -91,7 +91,7 @@ TEST_F(TestGenome, ConnectNodes)
 
 TEST_F(TestGenome, FeedForward)
 {
-    Genome *genome = new Genome(config);
+    neat::Genome *genome = new neat::Genome(config);
     genome->fully_connect(connection_history);
 
     std::vector<double> inputValues = {1, 0};
@@ -105,7 +105,7 @@ TEST_F(TestGenome, FeedForward)
 
 TEST_F(TestGenome, GenerateNetwork)
 {
-    Genome *genome = new Genome(config);
+    neat::Genome *genome = new neat::Genome(config);
     genome->fully_connect(connection_history);
     genome->generate_network();
 
@@ -120,7 +120,7 @@ TEST_F(TestGenome, GenerateNetwork)
 
 TEST_F(TestGenome, AddNode)
 {
-    Genome *genome = new Genome(config);
+    neat::Genome *genome = new neat::Genome(config);
     genome->fully_connect(connection_history);
     const size_t initialNumGenes = genome->genes.size();
     const size_t initialNumNodes = genome->nodes.size();
@@ -136,7 +136,7 @@ TEST_F(TestGenome, AddNode)
 
 TEST_F(TestGenome, RemoveNode)
 {
-    Genome *genome = new Genome(config);
+    neat::Genome *genome = new neat::Genome(config);
     genome->fully_connect(connection_history);
     genome->add_node(connection_history);
     const size_t initialNumGenes = genome->genes.size();
@@ -153,7 +153,7 @@ TEST_F(TestGenome, RemoveNode)
 
 TEST_F(TestGenome, AddConnection)
 {
-    Genome *genome = new Genome(config);
+    neat::Genome *genome = new neat::Genome(config);
     const size_t initialNumGenes = genome->genes.size();
 
     genome->add_connection(connection_history);
@@ -164,7 +164,7 @@ TEST_F(TestGenome, AddConnection)
 
 TEST_F(TestGenome, RemoveConnection)
 {
-    Genome *genome = new Genome(config);
+    neat::Genome *genome = new neat::Genome(config);
     genome->fully_connect(connection_history);
     const size_t initialNumGenes = genome->genes.size();
 
@@ -176,7 +176,7 @@ TEST_F(TestGenome, RemoveConnection)
 
 TEST_F(TestGenome, NewConnectionWeight)
 {
-    Genome *genome = new Genome(config);
+    neat::Genome *genome = new neat::Genome(config);
 
     double weight = genome->new_connection_weight();
 
@@ -187,9 +187,9 @@ TEST_F(TestGenome, NewConnectionWeight)
 
 TEST_F(TestGenome, GetInnovationNumber)
 {
-    Genome *genome = new Genome(config);
-    std::shared_ptr<Node> fromNode = std::make_shared<Node>(0, "sigmoid", 0);
-    std::shared_ptr<Node> toNode = std::make_shared<Node>(2, "sigmoid", 1);
+    neat::Genome *genome = new neat::Genome(config);
+    std::shared_ptr<neat::Node> fromNode = std::make_shared<neat::Node>(0, "sigmoid", 0);
+    std::shared_ptr<neat::Node> toNode = std::make_shared<neat::Node>(2, "sigmoid", 1);
     int innovationNumber = genome->get_innovation_number(connection_history, fromNode, toNode);
 
     // Check if the innovation number is obtained properly
@@ -198,7 +198,7 @@ TEST_F(TestGenome, GetInnovationNumber)
 
 TEST_F(TestGenome, FullyConnected)
 {
-    Genome *genome = new Genome(config);
+    neat::Genome *genome = new neat::Genome(config);
     genome->fully_connect(connection_history);
 
     // Check if the genome is considered fully connected
@@ -207,7 +207,7 @@ TEST_F(TestGenome, FullyConnected)
 
 TEST_F(TestGenome, Mutate)
 {
-    Genome *genome = new Genome(config);
+    neat::Genome *genome = new neat::Genome(config);
     int initialNumGenes = genome->genes.size();
     int initialNumNodes = genome->genes.size();
 
@@ -222,27 +222,27 @@ TEST_F(TestGenome, Mutate)
 
 TEST_F(TestGenome, Crossover)
 {
-    Genome *parent1 = new Genome(config);
-    Genome *parent2 = new Genome(config);
+    neat::Genome *parent1 = new neat::Genome(config);
+    neat::Genome *parent2 = new neat::Genome(config);
     parent1->fully_connect(connection_history);
     parent2->fully_connect(connection_history);
     parent1->fitness = 1;
     parent2->fitness = 0.5;
 
-    Genome *child = parent1->crossover(parent2);
+    neat::Genome *child = parent1->crossover(parent2);
 
     // Check if crossover produces a child genome
-    ASSERT_EQ(typeid(child), typeid(Genome *));
+    ASSERT_EQ(typeid(child), typeid(neat::Genome *));
     ASSERT_NE(&child, &parent1);
     ASSERT_NE(&child, &parent2);
 }
 
 TEST_F(TestGenome, MatchingGene)
 {
-    Genome *genome = new Genome(config);
+    neat::Genome *genome = new neat::Genome(config);
     genome->fully_connect(connection_history);
 
-    std::sort(genome->genes.begin(), genome->genes.end(), [](const std::shared_ptr<ConnectionGene> g1, const std::shared_ptr<ConnectionGene> g2)
+    std::sort(genome->genes.begin(), genome->genes.end(), [](const std::shared_ptr<neat::ConnectionGene> g1, const std::shared_ptr<neat::ConnectionGene> g2)
               { return g1->innovation_nb < g2->innovation_nb; });
 
     int matchingGeneIndex = genome->matching_gene(genome, genome->genes[0]->innovation_nb);
@@ -253,12 +253,12 @@ TEST_F(TestGenome, MatchingGene)
 
 TEST_F(TestGenome, CloneTest)
 {
-    Genome *genome = new Genome(config);
+    neat::Genome *genome = new neat::Genome(config);
     genome->fully_connect(connection_history);
-    Genome *clone = genome->clone();
+    neat::Genome *clone = genome->clone();
 
     // Check if cloning the genome produces a valid clone
-    ASSERT_TRUE(typeid(clone) == typeid(Genome *));
+    ASSERT_TRUE(typeid(clone) == typeid(neat::Genome *));
     ASSERT_NE(&clone, &genome);
     ASSERT_EQ(clone->genes.size(), genome->genes.size());
     ASSERT_EQ(clone->nodes.size(), genome->nodes.size());
@@ -266,7 +266,7 @@ TEST_F(TestGenome, CloneTest)
 
 TEST_F(TestGenome, SaveLoadTest)
 {
-    Genome *genome = new Genome(config);
+    neat::Genome *genome = new neat::Genome(config);
     genome->fully_connect(connection_history);
 
     // Create a temporary directory for testing
@@ -277,10 +277,10 @@ TEST_F(TestGenome, SaveLoadTest)
     genome->save(filePath);
 
     // Load the saved genome
-    Genome *loadedGenome = Genome::load(filePath);
+    neat::Genome *loadedGenome = neat::Genome::load(filePath);
 
     // Check if the loaded genome is valid
-    ASSERT_EQ(typeid(loadedGenome), typeid(Genome *));
+    ASSERT_EQ(typeid(loadedGenome), typeid(neat::Genome *));
     ASSERT_NE(loadedGenome, genome);
     ASSERT_TRUE(loadedGenome->is_equal(genome));
 

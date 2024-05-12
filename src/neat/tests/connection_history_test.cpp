@@ -9,20 +9,20 @@
 class ConnectionHistoryTest : public ::testing::Test
 {
 protected:
-    NeatConfig config;
-    Genome *genome;
-    std::shared_ptr<Node> fromNode;
-    std::shared_ptr<Node> toNode;
-    std::shared_ptr<ConnectionHistory> connectionHistory;
+    neat::Config config;
+    neat::Genome *genome;
+    std::shared_ptr<neat::Node> fromNode;
+    std::shared_ptr<neat::Node> toNode;
+    std::shared_ptr<neat::ConnectionHistory> connectionHistory;
 
     void SetUp() override
     {
-        config = load_config("./src/neat/default_config.txt");
-        genome = new Genome(config);
-        fromNode = std::make_shared<Node>(1, "sigmoid", 1);
-        toNode = std::make_shared<Node>(2, "sigmoid", 2);
-        genome->genes.emplace_back(std::make_shared<ConnectionGene>(fromNode, toNode, 0.5, 1, true));
-        connectionHistory = std::make_shared<ConnectionHistory>(fromNode, toNode, 1);
+        config = neat::load_config("default_config.txt");
+        genome = new neat::Genome(config);
+        fromNode = std::make_shared<neat::Node>(1, "sigmoid", 1);
+        toNode = std::make_shared<neat::Node>(2, "sigmoid", 2);
+        genome->genes.emplace_back(std::make_shared<neat::ConnectionGene>(fromNode, toNode, 0.5, 1, true));
+        connectionHistory = std::make_shared<neat::ConnectionHistory>(fromNode, toNode, 1);
     }
 
     void testInit()
@@ -39,7 +39,7 @@ protected:
 
     void testMatchesWithNonExistingConnection()
     {
-        std::shared_ptr<Node> node = std::make_shared<Node>(3, "relu", 2);
+        std::shared_ptr<neat::Node> node = std::make_shared<neat::Node>(3, "relu", 2);
         bool result = connectionHistory->matches(fromNode, node);
         ASSERT_FALSE(result);
     }

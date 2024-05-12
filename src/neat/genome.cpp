@@ -1,4 +1,4 @@
-﻿#include <iostream>
+#include <iostream>
 #include <string>
 #include <vector>
 #include <random>
@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <fstream>
 #include <filesystem>
-#include "../libs/json.hpp"
+#include "json.hpp"
 #include "math_utils.hpp"
 #include "config.hpp"
 #include "node.hpp"
@@ -14,7 +14,7 @@
 #include "connection_history.hpp"
 #include "genome.hpp"
 
-std::string generate_uid_for_genome(int size)
+std::string generate_uid_genome(int size)
 {
     const std::string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     thread_local std::random_device rd;
@@ -25,25 +25,21 @@ std::string generate_uid_for_genome(int size)
     uid.reserve(size); // Reserve space to avoid reallocation inside the loop
 
     for (int i = 0; i < size; ++i)
-    {
         uid += characters[dis(gen)];
-    }
 
     return uid;
 }
 
 int next_innovation_nb = 1;
 
-Genome::Genome(){};
+neat::Genome::Genome(){};
 
-Genome::Genome(const NeatConfig &config, bool crossover) : config(config), inputs(config.num_inputs), outputs(config.num_outputs), layers(2), next_node(0), fitness(0)
+neat::Genome::Genome(const Config &config, bool crossover) : config(config), inputs(config.num_inputs), outputs(config.num_outputs), layers(2), next_node(0), fitness(0)
 {
-    id = generate_uid_for_genome(8);
+    id = generate_uid_genome(8);
 
     if (crossover)
-    {
         return;
-    }
 
     // create input nodes
     for (int i = 0; i < inputs; ++i)
@@ -60,7 +56,7 @@ Genome::Genome(const NeatConfig &config, bool crossover) : config(config), input
     }
 }
 
-void Genome::fully_connect(std::vector<std::shared_ptr<ConnectionHistory>> innovation_history)
+void neat::Genome::fully_connect(std::vector<std::shared_ptr<ConnectionHistory>> innovation_history)
 {
     for (int i = 0; i < inputs; ++i)
     {
@@ -84,47 +80,35 @@ void Genome::fully_connect(std::vector<std::shared_ptr<ConnectionHistory>> innov
     connect_nodes();
 }
 
-std::shared_ptr<Node> Genome::get_node(int id)
+std::shared_ptr<neat::Node> neat::Genome::get_node(int id)
 {
     for (auto &n : nodes)
-    {
         if (n->id == id)
-        {
             return n;
-        }
-    }
     return nullptr;
 }
 
-void Genome::connect_nodes()
+void neat::Genome::connect_nodes()
 {
     // Clear the connections for each node
     for (auto &n : nodes)
-    {
         n->output_connections.clear();
-    }
 
     // Add the connections to the nodes
     for (auto &g : genes)
-    {
         g->from_node->output_connections.push_back(g);
-    }
 }
 
-std::vector<double> Genome::feed_forward(std::vector<double> input_values)
+std::vector<double> neat::Genome::feed_forward(std::vector<double> input_values)
 {
     try
     {
         if (inputs != static_cast<int>(input_values.size()))
-        {
-            throw std::invalid_argument("The number of inputs must match the number of input nodes. Should be " + std::to_string(input_values.size()));
-        }
+            throw std::invalid_argument("The number of inputs must match the number of input nodes.");
 
         // Set the outputs of the input nodes
         for (int i = 0; i < inputs; ++i)
-        {
             nodes[i]->output_value = input_values[i];
-        }
 
         // Engage each node in the network
         for (auto &n : network)
@@ -136,16 +120,11 @@ std::vector<double> Genome::feed_forward(std::vector<double> input_values)
         // The outputs are nodes[inputs] to nodes[inputs+outputs-1]
         std::vector<double> outs(outputs, 0.0);
         for (int i = 0; i < outputs; ++i)
-        {
-            // Store the outputs of the output nodes
             outs[i] = nodes[inputs + i]->output_value;
-        }
 
         // Reset all the nodes for the next feed forward
         for (auto &n : nodes)
-        {
             n->input_sum = 0;
-        }
 
         return outs;
     }
@@ -156,25 +135,19 @@ std::vector<double> Genome::feed_forward(std::vector<double> input_values)
     }
 }
 
-void Genome::generate_network()
+void neat::Genome::generate_network()
 {
     connect_nodes();
     network.clear();
 
     // For each layer, add the nodes in that layer to the network
     for (int l = 0; l < layers; ++l)
-    {
         for (auto &n : nodes)
-        {
             if (n->layer == l)
-            {
                 network.push_back(n);
-            }
-        }
-    }
 }
 
-void Genome::add_node(std::vector<std::shared_ptr<ConnectionHistory>> innovation_history)
+void neat::Genome::add_node(std::vector<std::shared_ptr<ConnectionHistory>> innovation_history)
 {
     // Pick a random connection to create a node between
     if (genes.empty())
@@ -226,20 +199,16 @@ void Genome::add_node(std::vector<std::shared_ptr<ConnectionHistory>> innovation
     if (new_node->layer == genes[random_connection]->to_node->layer)
     {
         for (size_t i = 0; i < nodes.size() - 1; ++i)
-        {
             // Don't include the new node
             if (nodes[i]->layer >= new_node->layer)
-            {
                 nodes[i]->layer += 1;
-            }
-        }
         ++layers;
     }
 
     connect_nodes();
 }
 
-void Genome::remove_node()
+void neat::Genome::remove_node()
 {
     // Select a random node by excluding inputs, outputs
     auto it = std::find_if(nodes.begin(), nodes.end(), [&](const std::shared_ptr<Node> n)
@@ -260,13 +229,11 @@ void Genome::remove_node()
     }
 }
 
-void Genome::add_connection(std::vector<std::shared_ptr<ConnectionHistory>> innovation_history)
+void neat::Genome::add_connection(std::vector<std::shared_ptr<ConnectionHistory>> innovation_history)
 {
     // Cannot add a connection to a fully connected network
     if (fully_connected())
-    {
         return;
-    }
 
     auto random_connection_nodes_are_valid = [&](int rand1, int rand2)
     {
@@ -312,7 +279,7 @@ void Genome::add_connection(std::vector<std::shared_ptr<ConnectionHistory>> inno
     connect_nodes();
 }
 
-void Genome::remove_connection()
+void neat::Genome::remove_connection()
 {
     if (!genes.empty())
     {
@@ -321,7 +288,7 @@ void Genome::remove_connection()
     }
 }
 
-double Genome::new_connection_weight() const
+double neat::Genome::new_connection_weight() const
 {
     double weight = 0.0;
 
@@ -331,23 +298,17 @@ double Genome::new_connection_weight() const
 
         // Keep the value between bounds
         if (weight > config.weight_max_value)
-        {
             weight = config.weight_max_value;
-        }
-        else if (weight < config.weight_min_value)
-        {
+        if (weight < config.weight_min_value)
             weight = config.weight_min_value;
-        }
     }
     else if (config.weight_init_type == "uniform")
-    {
         weight = uniform(config.weight_min_value, config.weight_max_value);
-    }
 
     return weight;
 }
 
-int Genome::get_innovation_number(std::vector<std::shared_ptr<ConnectionHistory>> innovation_history, std::shared_ptr<Node> from_node, std::shared_ptr<Node> to_node) const
+int neat::Genome::get_innovation_number(std::vector<std::shared_ptr<ConnectionHistory>> innovation_history, std::shared_ptr<Node> from_node, std::shared_ptr<Node> to_node) const
 {
     bool is_new = true;
     int connection_innovation_nb = next_innovation_nb;
@@ -374,7 +335,7 @@ int Genome::get_innovation_number(std::vector<std::shared_ptr<ConnectionHistory>
     return connection_innovation_nb;
 }
 
-bool Genome::fully_connected() const
+bool neat::Genome::fully_connected() const
 {
     int max_connections = 0;
 
@@ -383,19 +344,15 @@ bool Genome::fully_connected() const
 
     // Populate the array
     for (const auto &node : nodes)
-    {
         ++nodes_in_layers[node->layer];
-    }
 
     // For each layer, calculate the maximum number of connections
     for (int i = 0; i < layers - 1; ++i)
     {
         int nodes_in_front = 0;
         for (int j = i + 1; j < layers; ++j)
-        {
             // For each layer in front of this layer
             nodes_in_front += nodes_in_layers[j]; // Add up nodes
-        }
 
         max_connections += nodes_in_layers[i] * nodes_in_front;
     }
@@ -403,44 +360,30 @@ bool Genome::fully_connected() const
     return max_connections <= static_cast<int>(genes.size());
 }
 
-void Genome::mutate(std::vector<std::shared_ptr<ConnectionHistory>> innovation_history)
+void neat::Genome::mutate(std::vector<std::shared_ptr<ConnectionHistory>> innovation_history)
 {
     try
     {
         if (genes.empty())
-        {
             add_connection(innovation_history);
-        }
 
         for (auto &node : nodes)
-        {
             node->mutate(config);
-        }
 
         for (auto &gene : genes)
-        {
             gene->mutate(config);
-        }
 
         if (randrange() < config.conn_add_prob)
-        {
             add_connection(innovation_history);
-        }
 
         if (randrange() < config.conn_delete_prob)
-        {
             remove_connection();
-        }
 
         if (randrange() < config.node_add_prob)
-        {
             add_node(innovation_history);
-        }
 
         // if (randrange() < config.node_delete_prob)
-        // {
         //     remove_node();
-        // }
     }
     catch (const std::exception &e)
     {
@@ -448,7 +391,7 @@ void Genome::mutate(std::vector<std::shared_ptr<ConnectionHistory>> innovation_h
     }
 }
 
-Genome *Genome::crossover(Genome *parent) const
+neat::Genome *neat::Genome::crossover(Genome *parent) const
 {
     Genome *child = new Genome(config, true);
     child->genes.clear();
@@ -479,14 +422,10 @@ Genome *Genome::crossover(Genome *parent) const
             }
 
             if (randrange() < 0.5)
-            {
                 child_genes.push_back(gene);
-            }
             else
-            {
                 // Get gene from the parent
                 child_genes.push_back(parent->genes[parent_gene_index]);
-            }
         }
         else
         {
@@ -503,9 +442,7 @@ Genome *Genome::crossover(Genome *parent) const
     // but this won't affect nodes.
     // So, all the nodes can be inherited from this parent.
     for (auto &node : nodes)
-    {
         child->nodes.push_back(node->clone());
-    }
 
     // Clone all the connections so that they connect the child new nodes
     for (size_t i = 0; i < child_genes.size(); ++i)
@@ -520,20 +457,15 @@ Genome *Genome::crossover(Genome *parent) const
     return child;
 }
 
-int Genome::matching_gene(Genome *parent, int innovation) const
+int neat::Genome::matching_gene(Genome *parent, int innovation) const
 {
     for (size_t i = 0; i < parent->genes.size(); ++i)
-    {
         if (parent->genes[i]->innovation_nb == innovation)
-        {
             return i;
-        }
-    }
-
     return -1; // No matching gene found
 }
 
-void Genome::print() const
+void neat::Genome::print() const
 {
     std::cout << "------------------------------ GENOME ----------------------------\n";
     std::cout << "⚪️ Resume: {"
@@ -557,19 +489,15 @@ void Genome::print() const
     std::cout << std::endl;
 }
 
-bool Genome::is_equal(Genome *other)
+bool neat::Genome::is_equal(Genome *other)
 {
     // Compare the number of nodes
     if (nodes.size() != other->nodes.size())
-    {
         return false;
-    }
 
     // Compare the number of genes
     if (genes.size() != other->genes.size())
-    {
         return false;
-    }
 
     // Compare the nodes
     for (auto &node1 : nodes)
@@ -584,9 +512,7 @@ bool Genome::is_equal(Genome *other)
             }
         }
         if (found == false)
-        {
             return false;
-        }
     }
 
     // Compare the genes
@@ -602,31 +528,25 @@ bool Genome::is_equal(Genome *other)
             }
         }
         if (found == false)
-        {
             return false;
-        }
     }
 
     return true;
 }
 
-Genome *Genome::clone()
+neat::Genome *neat::Genome::clone()
 {
     Genome *clone = new Genome(config, true);
 
     // Copy nodes
     for (auto &node : nodes)
-    {
         clone->nodes.push_back(node->clone());
-    }
 
     // Copy genes and connect them to the clone new nodes
     for (auto &gene : genes)
-    {
         clone->genes.push_back(gene->clone(
             clone->get_node(gene->from_node->id),
             clone->get_node(gene->to_node->id)));
-    }
 
     clone->layers = layers;
     clone->next_node = next_node;
@@ -636,7 +556,7 @@ Genome *Genome::clone()
     return clone;
 }
 
-void Genome::save(const std::string &file_path)
+void neat::Genome::save(const std::string &file_path)
 {
     try
     {
@@ -703,6 +623,7 @@ void Genome::save(const std::string &file_path)
         }
         file << genome_json.dump(4); // Pretty-print with 4 spaces
         file.close();                // Close the file after writing
+        std::cout << "Genome saved to '" << file_path << "'" << std::endl;
     }
     catch (const std::exception &e)
     {
@@ -710,7 +631,7 @@ void Genome::save(const std::string &file_path)
     }
 }
 
-Genome *Genome::load(const std::string &file_path)
+neat::Genome *neat::Genome::load(const std::string &file_path)
 {
     try
     {
@@ -720,15 +641,15 @@ Genome *Genome::load(const std::string &file_path)
         file >> genome_json;
 
         // Create a new Genome object
-        Genome *loaded_genome = new Genome;
+        Genome *loadedGenome = new Genome;
 
         // Deserialize simple data members
-        loaded_genome->id = genome_json["id"];
-        loaded_genome->inputs = genome_json["inputs"];
-        loaded_genome->outputs = genome_json["outputs"];
-        loaded_genome->layers = genome_json["layers"];
-        loaded_genome->next_node = genome_json["next_node"];
-        loaded_genome->fitness = genome_json["fitness"];
+        loadedGenome->id = genome_json["id"];
+        loadedGenome->inputs = genome_json["inputs"];
+        loadedGenome->outputs = genome_json["outputs"];
+        loadedGenome->layers = genome_json["layers"];
+        loadedGenome->next_node = genome_json["next_node"];
+        loadedGenome->fitness = genome_json["fitness"];
 
         // Deserialize nodes
         for (const auto &node_json : genome_json["nodes"])
@@ -736,7 +657,7 @@ Genome *Genome::load(const std::string &file_path)
             int id = node_json["id"];
             int layer = node_json["layer"];
             std::string activation_function = node_json["activation_function"];
-            loaded_genome->nodes.push_back(std::make_shared<Node>(id, activation_function, layer));
+            loadedGenome->nodes.push_back(std::make_shared<Node>(id, activation_function, layer));
         }
 
         // Deserialize genes
@@ -748,14 +669,15 @@ Genome *Genome::load(const std::string &file_path)
             bool enabled = gene_json["enabled"];
             double weight = gene_json["weight"];
 
-            std::shared_ptr<Node> from_node = loaded_genome->get_node(from_node_id);
-            std::shared_ptr<Node> to_node = loaded_genome->get_node(to_node_id);
+            std::shared_ptr<Node> from_node = loadedGenome->get_node(from_node_id);
+            std::shared_ptr<Node> to_node = loadedGenome->get_node(to_node_id);
 
-            loaded_genome->genes.push_back(std::make_shared<ConnectionGene>(from_node, to_node, weight, innovation_nb, enabled));
+            loadedGenome->genes.push_back(std::make_shared<ConnectionGene>(from_node, to_node, weight, innovation_nb, enabled));
         }
 
-        loaded_genome->generate_network();
-        return loaded_genome;
+        std::cout << "Genome loaded from '" << file_path << "'" << std::endl;
+        loadedGenome->generate_network();
+        return loadedGenome;
     }
     catch (const std::exception &e)
     {

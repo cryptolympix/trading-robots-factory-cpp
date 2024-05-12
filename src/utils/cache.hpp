@@ -17,8 +17,8 @@
 class Cache
 {
 public:
-    std::string file_path;                 // The file path where the dictionary will be cached.
-    std::map<std::string, CacheData> data; // The dictionary data to be cached.
+    std::string file_path;                  // The file path where the dictionary will be cached.
+    std::map<std::string, CachedData> data; // The dictionary data to be cached.
 
 public:
     /**
@@ -61,7 +61,7 @@ public:
      * @param key The key whose value is to be retrieved.
      * @return The value of the key.
      */
-    CacheData get(const std::string &key);
+    CachedData get(const std::string &key);
 
     /**
      * @brief Set the value of a key in the dictionary.
@@ -69,7 +69,7 @@ public:
      * @param key The key whose value is to be set.
      * @param value The value to be set.
      */
-    void add(const std::string &key, CacheData value);
+    void add(const std::string &key, CachedData value);
 
     /**
      * @brief Check if a key exists in the dictionary.

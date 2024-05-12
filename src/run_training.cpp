@@ -3,7 +3,6 @@
 #include <sstream>
 #include "configs/default.hpp"
 #include "training.hpp"
-#include "neat/genome.hpp"
 
 int main()
 {

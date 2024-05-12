@@ -35,7 +35,7 @@ Training::Training(std::string id, Config &config, bool debug)
 
     // Initialize the population.
     this->config.neat.num_inputs = this->count_indicators() + this->config.training.inputs.position.size();
-    this->population = new Population(this->config.neat);
+    this->population = new neat::Population(this->config.neat);
 
     this->candles = {};
     this->indicators = {};
@@ -134,7 +134,7 @@ void Training::load_candles()
  */
 void Training::load_indicators()
 {
-    std::__1::unordered_map<TimeFrame, std::vector<Indicator *>> all_indicators = config.training.inputs.indicators;
+    std::__1::map<TimeFrame, std::vector<Indicator *>> all_indicators = config.training.inputs.indicators;
 
     for (auto const &[tf, indicators] : all_indicators)
     {
@@ -254,7 +254,7 @@ void Training::cache_data()
         }
 
         // Cache the data
-        this->cache->add(std::to_string(date), CacheData{.candles = current_candles, .indicators = current_indicators, .base_currency_conversion_rate = current_base_currency_conversion_rate});
+        this->cache->add(std::to_string(date), CachedData{.candles = current_candles, .indicators = current_indicators, .base_currency_conversion_rate = current_base_currency_conversion_rate});
     }
 
     // Create the file of the cache
@@ -347,7 +347,7 @@ Trader *Training::get_best_trader_of_generation(int generation) const
  * @param genome The genome to be evaluated.
  * @param generation The current generation number.
  */
-void Training::evaluate_genome(Genome *genome, int generation)
+void Training::evaluate_genome(neat::Genome *genome, int generation)
 {
     TimeFrame loop_timeframe = this->config.strategy.timeframe;
     int loop_timeframe_minutes = get_time_frame_value(loop_timeframe);
@@ -422,7 +422,7 @@ int Training::run()
 
     try
     {
-        auto callback_generation = [&](Population *population, int generation)
+        auto callback_generation = [&](neat::Population *population, int generation)
         {
             // Update the progress bar
             progress_bar->update(1);
@@ -483,7 +483,7 @@ int Training::run()
  * @param generation The generation number of the genome.
  * @return The exit code of the testing process. 0 if successful, 1 otherwise.
  */
-int Training::test(Genome *genome, int generation)
+int Training::test(neat::Genome *genome, int generation)
 {
     // Create a trader with the genome
     Trader *trader = new Trader(genome, this->config, nullptr);

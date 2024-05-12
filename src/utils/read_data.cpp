@@ -7,6 +7,7 @@
 #include <ctime>
 #include <chrono>
 #include <iomanip>
+#include "time_frame.hpp"
 #include "read_data.hpp"
 
 /**
@@ -73,23 +74,33 @@ std::vector<Candle> read_data(const std::string &symbol, TimeFrame time_frame, t
         // Read candle data from CSV line
         std::getline(ss, token, '\t'); // DATE
         std::string date_str = token;
+
         std::getline(ss, token, '\t'); // TIME
         date_str += " " + token;
+
         std::tm tm = {};
         std::istringstream(date_str) >> std::get_time(&tm, "%Y.%m.%d %H:%M:%S");
-        candle.date = std::mktime(&tm);
+        time_t date = std::mktime(&tm) + 60 * get_time_frame_value(time_frame); // To have the closing time of the candle
+        candle.date = date;
+
         std::getline(ss, token, '\t'); // OPEN
         candle.open = std::stod(token);
+
         std::getline(ss, token, '\t'); // HIGH
         candle.high = std::stod(token);
+
         std::getline(ss, token, '\t'); // LOW
         candle.low = std::stod(token);
+
         std::getline(ss, token, '\t'); // CLOSE
         candle.close = std::stod(token);
+
         std::getline(ss, token, '\t'); // TICK_VOLUME
         candle.tick_volume = std::stod(token);
+
         std::getline(ss, token, '\t'); // VOLUME
         candle.volume = std::stod(token);
+
         std::getline(ss, token, '\t'); // SPREAD
         candle.spread = std::stod(token);
 
@@ -98,6 +109,12 @@ std::vector<Candle> read_data(const std::string &symbol, TimeFrame time_frame, t
         if (candle_date >= start_date && candle_date <= end_date)
         {
             candles.push_back(candle);
+        }
+
+        // Stop reading data if the date of the candle is greater than the end date
+        if (candle_date > end_date)
+        {
+            break;
         }
     }
 

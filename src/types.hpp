@@ -44,7 +44,7 @@ enum class TimeFrame
  */
 struct Candle
 {
-    time_t date;
+    time_t date; // Close date of the candle
     double open;
     double high;
     double low;
@@ -64,7 +64,7 @@ using BaseCurrencyConversionRateData = std::unordered_map<time_t, double>;
 /**
  * @brief Struct representing cached data with date information.
  */
-struct CacheData
+struct CachedData
 {
     CandlesData candles;                  // Cached candle data
     IndicatorsData indicators;            // Cached indicator data
@@ -277,8 +277,8 @@ struct StrategyConfig
  */
 struct NeuralNetworkInputs
 {
-    std::unordered_map<TimeFrame, std::vector<Indicator *>> indicators; // Indicators
-    std::vector<PositionInfo> position;                                 // Position information
+    std::map<TimeFrame, std::vector<Indicator *>> indicators; // Indicators
+    std::vector<PositionInfo> position;                       // Position information
 };
 
 /**
@@ -319,7 +319,7 @@ struct Config
     StrategyConfig strategy;     // Trading strategy configuration
     TrainingConfig training;     // Training configuration
     EvaluationConfig evaluation; // Evaluation configuration
-    NeatConfig neat;             // NEAT configuration
+    neat::Config neat;           // NEAT configuration
 };
 
 #endif /* TYPES_HPP */

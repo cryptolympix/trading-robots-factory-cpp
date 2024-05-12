@@ -40,7 +40,7 @@ void Cache::create()
         nlohmann::json json_data;
 
         // Map for converting timeframes to strings
-        std::map<TimeFrame, std::string> tf_map = {
+        std::unordered_map<TimeFrame, std::string> tf_map = {
             {TimeFrame::M1, "M1"},
             {TimeFrame::M5, "M5"},
             {TimeFrame::M15, "M15"},
@@ -112,7 +112,7 @@ Cache *Cache::load(const std::string &file_path)
         file >> json_data;
 
         // Map for converting strings to timeframes
-        std::map<std::string, TimeFrame> tf_map = {
+        std::unordered_map<std::string, TimeFrame> tf_map = {
             {"M1", TimeFrame::M1},
             {"M5", TimeFrame::M5},
             {"M15", TimeFrame::M15},
@@ -123,7 +123,7 @@ Cache *Cache::load(const std::string &file_path)
 
         for (auto const &[date, value] : json_data.items())
         {
-            CacheData cache_data;
+            CachedData cache_data;
             for (auto const &[tf, candles] : value["candles"].items())
             {
                 for (auto const &candle : candles)
@@ -182,9 +182,9 @@ bool Cache::exist()
  * @brief Get the value of a key in the dictionary.
  *
  * @param key The key whose value is to be retrieved.
- * @return CacheData The value of the key.
+ * @return CachedData The value of the key.
  */
-CacheData Cache::get(const std::string &key)
+CachedData Cache::get(const std::string &key)
 {
     if (!this->has(key))
     {
@@ -199,7 +199,7 @@ CacheData Cache::get(const std::string &key)
  * @param key The key whose value is to be set.
  * @param value The value to be set.
  */
-void Cache::add(const std::string &key, CacheData value)
+void Cache::add(const std::string &key, CachedData value)
 {
     data[key] = value;
 }

@@ -44,7 +44,7 @@ std::tm end_training_date = {
     .tm_min = 0,
     .tm_hour = 0,
     .tm_mday = 1,
-    .tm_mon = 3,
+    .tm_mon = 2,
     .tm_year = 2023 - 1900};
 
 std::tm start_test_date = {
@@ -52,15 +52,15 @@ std::tm start_test_date = {
     .tm_min = 0,
     .tm_hour = 0,
     .tm_mday = 1,
-    .tm_mon = 3,
+    .tm_mon = 2,
     .tm_year = 2023 - 1900};
 
 std::tm end_test_date = {
     .tm_sec = 0,
     .tm_min = 0,
     .tm_hour = 0,
-    .tm_mday = 31,
-    .tm_mon = 4,
+    .tm_mday = 1,
+    .tm_mon = 3,
     .tm_year = 2023 - 1900};
 
 Config __config__ = {
@@ -175,6 +175,6 @@ Config __config__ = {
         .minimum_winrate = 0.8,
         .minimum_profit_factor = 3,
     },
-    .neat = load_config("src/configs/neat_config.txt")
-    //.neat = load_config("C:\\Users\\Maxime\\AppData\\Roaming\\MetaQuotes\\Terminal\\D0E8209F77C8CF37AD8BF550E51FF075\\MQL5\\Libraries\\neat_config.txt")
+    .neat = neat::load_config("src/configs/neat_config.txt")
+    //.neat = neat::load_config("C:\\Users\\Maxime\\AppData\\Roaming\\MetaQuotes\\Terminal\\D0E8209F77C8CF37AD8BF550E51FF075\\MQL5\\Libraries\\neat_config.txt")
 };

@@ -81,7 +81,7 @@ TEST_F(ConfigTest, ValidConfigFile)
     createTempConfigFile(valid_config_content);
 
     // Load config from the temporary file
-    NeatConfig config = load_config(temp_file_name);
+    neat::Config config = neat::load_config(temp_file_name);
 
     // Assert specific values from the loaded config
     ASSERT_EQ(config.population_size, 50);
@@ -127,7 +127,7 @@ TEST_F(ConfigTest, UnknownKeyInConfig)
     testing::internal::CaptureStderr();
 
     // Load config from the temporary file
-    NeatConfig config = load_config(temp_file_name);
+    neat::Config config = neat::load_config(temp_file_name);
 
     // Get cerr output during the test
     std::string output = testing::internal::GetCapturedStderr();
