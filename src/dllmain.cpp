@@ -2,6 +2,9 @@
 #include <windows.h>
 #endif
 
+// Define the dll environment
+#define DLL_EXPORT
+
 #include <iostream>
 #include <stdexcept>
 #include <string>
@@ -20,9 +23,6 @@
 #else
 #define TEST_DLL_API
 #endif
-
-// Define the dll environment
-#define DLL_EXPORT
 
 Config config;
 neat::Genome *genome;
