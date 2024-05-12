@@ -3,6 +3,7 @@
 #include <iostream>
 #include <ctime>
 #include "../types.hpp"
+#include "../constants.hpp"
 #include "trading_schedule.hpp"
 
 /**

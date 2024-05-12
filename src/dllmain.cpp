@@ -11,6 +11,7 @@
 #include "utils/time_frame.hpp"
 #include "trader.hpp"
 #include "types.hpp"
+#include "constants.hpp"
 
 // Choose the configuration file to use
 #include "configs/default.hpp"
@@ -20,9 +21,6 @@
 #else
 #define TEST_DLL_API
 #endif
-
-// Define the dll environment
-#define DLL_EXPORT
 
 Config config;
 neat::Genome *genome;

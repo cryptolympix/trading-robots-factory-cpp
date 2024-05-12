@@ -4,6 +4,7 @@
 #include <string>
 #include <cctype> // for std::toupper
 #include "../types.hpp"
+#include "../constants.hpp"
 #include "time.hpp"
 
 /**

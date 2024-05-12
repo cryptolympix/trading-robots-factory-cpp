@@ -19,6 +19,7 @@
 #include "indicators/utils.hpp"
 #include "symbols.hpp"
 #include "trader.hpp"
+#include "constants.hpp"
 
 /**
  * @brief Convert time_t to string.
