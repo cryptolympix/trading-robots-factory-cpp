@@ -11,7 +11,7 @@ protected:
 
     void SetUp() override
     {
-        config = neat::load_config("default_config.txt");
+        config = neat::load_config("./src/neat/default_config.txt");
         node = std::make_shared<neat::Node>(1, "relu", 1);
     }
 

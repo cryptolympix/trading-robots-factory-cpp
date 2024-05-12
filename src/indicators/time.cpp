@@ -25,11 +25,15 @@ std::vector<double> Hour::calculate(const std::vector<Candle> &candles, bool nor
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
-            std::vector<double> values(candles.size(), 0);
+        std::vector<double> values(candles.size(), 0);
 
-            for (int i = 0; i < candles.size(); ++i)
-            {
-                tm* time = localtime(&candles[i].date);
+        for (int i = 0; i < candles.size(); ++i)
+        {
+#ifdef DLL_EXPORT
+            tm *time = gmtime(&candles[i].date);
+#else
+                tm *time = localtime(&candles[i].date);
+#endif
                 values[i] = time->tm_hour;
             }
 
@@ -62,8 +66,12 @@ std::vector<double> NFPWeek::calculate(const std::vector<Candle> &candles, bool 
 
             for (int i = 0; i < candles.size(); i++)
             {
-                // Check if the candle's date falls within the NFP week (assuming NFP week is the first week of each month)
-                tm* time = localtime(&candles[i].date);
+            // Check if the candle's date falls within the NFP week (assuming NFP week is the first week of each month)
+#ifdef DLL_EXPORT
+                tm *time = gmtime(&candles[i].date);
+#else
+                tm *time = localtime(&candles[i].date);
+#endif
                 bool is_nfp_week = time->tm_mday >= 1 && time->tm_mday <= 7;
                 result[i] = is_nfp_week ? 1.0 : 0.0;
             }
@@ -101,8 +109,12 @@ std::vector<double> MarketSession::calculate(const std::vector<Candle> &candles,
 
             for (int i = 0; i < candles.size(); i++)
             {
-                // Check if the candle's date falls within the market session
-                tm* time = localtime(&candles[i].date);
+            // Check if the candle's date falls within the market session
+#ifdef DLL_EXPORT
+                tm *time = gmtime(&candles[i].date);
+#else
+                tm *time = localtime(&candles[i].date);
+#endif
                 bool is_market_session = false;
 
                 if (zone == "london")
@@ -174,8 +186,12 @@ std::vector<double> WeekDay::calculate(const std::vector<Candle> &candles, bool 
 
             for (int i = 0; i < candles.size(); i++)
             {
-                // Convert time_t to std::tm
-                tm* time = localtime(&candles[i].date);
+            // Convert time_t to std::tm
+#ifdef DLL_EXPORT
+                tm *time = gmtime(&candles[i].date);
+#else
+                tm *time = localtime(&candles[i].date);
+#endif
 
                 // Extract the weekday (Sunday is 0, Monday is 1, etc.)
                 int candle_day = time->tm_wday;

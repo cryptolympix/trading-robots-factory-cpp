@@ -19,7 +19,7 @@ protected:
     void SetUp() override
     {
         // Set up NeatConfig
-        config = neat::load_config("default_config.txt");
+        config = neat::load_config("./src/neat/default_config.txt");
         config.num_inputs = 2;
         config.num_outputs = 2;
 

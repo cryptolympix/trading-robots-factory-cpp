@@ -14,7 +14,7 @@ protected:
 
     void SetUp() override
     {
-        config = neat::load_config("default_config.txt");
+        config = neat::load_config("./src/neat/default_config.txt");
         fromNode = std::make_shared<neat::Node>(1, "sigmoid", 1);
         toNode = std::make_shared<neat::Node>(2, "sigmoid", 2);
         gene = std::make_shared<neat::ConnectionGene>(fromNode, toNode, 0.5, 1, true);

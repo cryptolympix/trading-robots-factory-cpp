@@ -17,7 +17,7 @@ protected:
 
     void SetUp() override
     {
-        config = neat::load_config("default_config.txt");
+        config = neat::load_config("./src/neat/default_config.txt");
         genome = new neat::Genome(config);
         fromNode = std::make_shared<neat::Node>(1, "sigmoid", 1);
         toNode = std::make_shared<neat::Node>(2, "sigmoid", 2);

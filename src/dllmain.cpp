@@ -21,6 +21,9 @@
 #define TEST_DLL_API
 #endif
 
+// Define the dll environment
+#define DLL_EXPORT
+
 Config config;
 neat::Genome *genome;
 Trader *trader;

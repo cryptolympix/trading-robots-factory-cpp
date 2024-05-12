@@ -14,7 +14,12 @@
  */
 bool is_on_trading_schedule(const time_t date, const TradingSchedule &trading_schedule)
 {
+#ifdef DLL_EXPORT
+    std::tm date_tm = *std::gmtime(&date);
+#else
     std::tm date_tm = *std::localtime(&date);
+#endif
+
     int day = date_tm.tm_wday;
 
     std::vector<bool> day_schedule;

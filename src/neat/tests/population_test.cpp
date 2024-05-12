@@ -13,7 +13,7 @@ protected:
     void SetUp() override
     {
         // Mock NeatConfig
-        config = neat::load_config("default_config.txt");
+        config = neat::load_config("./src/neat/default_config.txt");
         config.num_inputs = 5;
         config.num_outputs = 2;
         config.population_size = 10;
