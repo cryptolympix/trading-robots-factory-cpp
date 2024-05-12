@@ -92,18 +92,18 @@ Config __config__ = {
         .inputs = {
             .indicators = {
                 {TimeFrame::M5, {
-                                    new Hour(),
-                                    new NFPWeek(),
-                                    new MarketSession("london"),
-                                    new MarketSession("new-york"),
-                                    new MarketSession("tokyo"),
-                                    new WeekDay("sunday"),
-                                    new WeekDay("monday"),
-                                    new WeekDay("tuesday"),
-                                    new WeekDay("wednesday"),
-                                    new WeekDay("thursday"),
-                                    new WeekDay("friday"),
-                                    new WeekDay("saturday"),
+                                    // new Hour(),
+                                    // new NFPWeek(),
+                                    // new MarketSession("london"),
+                                    // new MarketSession("new-york"),
+                                    // new MarketSession("tokyo"),
+                                    // new WeekDay("sunday"),
+                                    // new WeekDay("monday"),
+                                    // new WeekDay("tuesday"),
+                                    // new WeekDay("wednesday"),
+                                    // new WeekDay("thursday"),
+                                    // new WeekDay("friday"),
+                                    // new WeekDay("saturday"),
                                     new CandlePriceChange(),
                                     new CandleClose(),
                                     new CandleVolume(),
@@ -175,6 +175,9 @@ Config __config__ = {
         .minimum_winrate = 0.8,
         .minimum_profit_factor = 3,
     },
+#ifdef _WIN32
+    .neat = neat::load_config("C:\\Users\\Maxime\\AppData\\Roaming\\MetaQuotes\\Terminal\\D0E8209F77C8CF37AD8BF550E51FF075\\MQL5\\Libraries\\neat_config.txt")
+#else
     .neat = neat::load_config("src/configs/neat_config.txt")
-    //.neat = neat::load_config("C:\\Users\\Maxime\\AppData\\Roaming\\MetaQuotes\\Terminal\\D0E8209F77C8CF37AD8BF550E51FF075\\MQL5\\Libraries\\neat_config.txt")
+#endif
 };
