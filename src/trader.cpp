@@ -679,12 +679,20 @@ bool Trader::can_trade()
         int number_of_trades_today = 0;
         for (const auto &trade : this->trades_history)
         {
+#ifdef DLL_EXPORT
+            struct tm current_date_tm = *std::gmtime(&this->current_date);
+#else
             struct tm current_date_tm = *std::localtime(&this->current_date);
+#endif
             int current_year = current_date_tm.tm_year;
             int current_month = current_date_tm.tm_mon;
             int current_day = current_date_tm.tm_mday;
 
+#ifdef DLL_EXPORT
+            struct tm trade_date_tm = *std::gmtime(&trade.exit_date);
+#else
             struct tm trade_date_tm = *std::localtime(&trade.exit_date);
+#endif
             int trade_year = trade_date_tm.tm_year;
             int trade_month = trade_date_tm.tm_mon;
             int trade_day = trade_date_tm.tm_mday;

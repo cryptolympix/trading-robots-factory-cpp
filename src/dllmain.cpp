@@ -2,6 +2,9 @@
 #include <windows.h>
 #endif
 
+// Define the dll environment
+#define DLL_EXPORT
+
 #include <iostream>
 #include <stdexcept>
 #include <string>
