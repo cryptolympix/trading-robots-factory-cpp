@@ -623,7 +623,6 @@ void neat::Genome::save(const std::string &file_path)
         }
         file << genome_json.dump(4); // Pretty-print with 4 spaces
         file.close();                // Close the file after writing
-        std::cout << "Genome saved to '" << file_path << "'" << std::endl;
     }
     catch (const std::exception &e)
     {
@@ -675,7 +674,6 @@ neat::Genome *neat::Genome::load(const std::string &file_path)
             loadedGenome->genes.push_back(std::make_shared<ConnectionGene>(from_node, to_node, weight, innovation_nb, enabled));
         }
 
-        std::cout << "Genome loaded from '" << file_path << "'" << std::endl;
         loadedGenome->generate_network();
         return loadedGenome;
     }

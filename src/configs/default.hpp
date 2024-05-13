@@ -13,14 +13,18 @@
 #include "../indicators/volatility.hpp"
 #include "../indicators/volume.hpp"
 
+std::vector<bool> schedule_working_days = {false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false};
+std::vector<bool> schedule_rest_days = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
+
 TradingSchedule schedule = {
-    .monday = {false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false},
-    .tuesday = {false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false},
-    .wednesday = {false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false},
-    .thursday = {false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false},
-    .friday = {false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false},
-    .saturday = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false},
-    .sunday = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false}};
+    .monday = schedule_working_days,
+    .tuesday = schedule_working_days,
+    .wednesday = schedule_working_days,
+    .thursday = schedule_working_days,
+    .friday = schedule_working_days,
+    .saturday = schedule_rest_days,
+    .sunday = schedule_rest_days,
+};
 
 TakeProfitStopLossConfig tpsl_config = {
     .type_stop_loss = TypeTakeProfitStopLoss::PERCENT,
@@ -37,7 +41,8 @@ std::tm start_training_date = {
     .tm_hour = 0,
     .tm_mday = 1,
     .tm_mon = 0,
-    .tm_year = 2023 - 1900};
+    .tm_year = 2023 - 1900,
+};
 
 std::tm end_training_date = {
     .tm_sec = 0,
@@ -45,7 +50,8 @@ std::tm end_training_date = {
     .tm_hour = 0,
     .tm_mday = 1,
     .tm_mon = 3,
-    .tm_year = 2023 - 1900};
+    .tm_year = 2023 - 1900,
+};
 
 std::tm start_test_date = {
     .tm_sec = 0,
@@ -53,7 +59,8 @@ std::tm start_test_date = {
     .tm_hour = 0,
     .tm_mday = 1,
     .tm_mon = 3,
-    .tm_year = 2023 - 1900};
+    .tm_year = 2023 - 1900,
+};
 
 std::tm end_test_date = {
     .tm_sec = 0,
@@ -61,7 +68,8 @@ std::tm end_test_date = {
     .tm_hour = 0,
     .tm_mday = 1,
     .tm_mon = 4,
-    .tm_year = 2023 - 1900};
+    .tm_year = 2023 - 1900,
+};
 
 Config __config__ = {
     .general{
@@ -70,7 +78,8 @@ Config __config__ = {
         .symbol = "EURUSD",
         .initial_balance = 1000.0,
         .account_currency = "USD",
-        .leverage = 100},
+        .leverage = 100,
+    },
     .strategy{
         .timeframe = TimeFrame::M5,
         .maximum_risk = 0.05,
@@ -80,7 +89,8 @@ Config __config__ = {
         // .maximum_trade_duration = 10,
         .minimum_duration_before_next_trade = 10,
         .take_profit_stop_loss_config = tpsl_config,
-        .trading_schedule = schedule},
+        .trading_schedule = schedule,
+    },
     .training{
         .generations = 100,
         .bad_trader_threshold = 0.01,

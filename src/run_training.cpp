@@ -1,7 +1,3 @@
-#include <ctime>
-#include <chrono>
-#include <sstream>
-#include <iomanip>
 #include "configs/default.hpp"
 #include "training.hpp"
 
@@ -11,6 +7,5 @@ int main()
     Training training(id, __config__, true);
     training.prepare();
     training.run();
-
     return 0;
 }

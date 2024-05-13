@@ -488,6 +488,10 @@ int Training::test(neat::Genome *genome, int generation)
     // Create a trader with the genome
     Trader *trader = new Trader(genome, this->config, nullptr);
 
+    // Saved the decisions to a file
+    std::string decisions_file_path = this->directory.generic_string() + "/trader_" + std::to_string(generation) + "_" + trader->genome->id + "_test_decisions.csv";
+    std::ofstream decisions_file(decisions_file_path);
+
     // Get the dates for the test from the candles in the loop timeframe
     std::vector<std::string> dates = {};
     for (const auto &[date_string, value] : this->cache->data)
@@ -516,7 +520,14 @@ int Training::test(neat::Genome *genome, int generation)
                 trader->update(current_candles);
                 trader->look(current_indicators, current_base_currency_conversion_rate, position);
                 trader->think();
-                trader->trade();
+                int decision = trader->trade();
+
+                // Save the decision to the file
+                time_t time = std::stoll(date);
+                std::stringstream ss;
+                ss << std::put_time(std::localtime(&time), "%Y-%m-%d %H:%M:%S");
+                std::string date_string = ss.str();
+                decisions_file << date_string << ";" << decision << std::endl;
             }
             else
             {
@@ -524,6 +535,9 @@ int Training::test(neat::Genome *genome, int generation)
             }
         }
     }
+
+    // Close the decisions file
+    decisions_file.close();
 
     // Calculate the stats of the trader
     trader->calculate_stats();
