@@ -11,4 +11,11 @@
  */
 std::string generate_uid(int size);
 
+/**
+ * @brief Generate a unique ID based on the current date and time.
+ *
+ * @return std::string The generated unique ID.
+ */
+std::string generate_date_uid();
+
 #endif /* UID_GENERATOR_H */

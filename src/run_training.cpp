@@ -1,18 +1,13 @@
 #include <ctime>
 #include <chrono>
 #include <sstream>
+#include <iomanip>
 #include "configs/default.hpp"
 #include "training.hpp"
 
 int main()
 {
-    // Generate a unique id for this training
-    auto now = std::chrono::system_clock::now();
-    time_t date = std::chrono::system_clock::to_time_t(now);
-    std::stringstream date_string;
-    date_string << std::put_time(std::localtime(&date), "%Y%m%d%H%M%S");
-    std::string id = date_string.str();
-
+    std::string id = generate_date_uid();
     Training training(id, __config__, true);
     training.prepare();
     training.run();
