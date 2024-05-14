@@ -659,7 +659,7 @@ bool Trader::can_trade()
         int number_of_trades_today = 0;
         for (const auto &trade : this->trades_history)
         {
-            struct tm current_date_tm = time_t_to_tm(trade.exit_date);
+            struct tm current_date_tm = time_t_to_tm(this->current_date);
             int current_year = current_date_tm.tm_year;
             int current_month = current_date_tm.tm_mon;
             int current_day = current_date_tm.tm_mday;

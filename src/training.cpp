@@ -14,6 +14,7 @@
 #include "utils/cache.hpp"
 #include "utils/read_data.hpp"
 #include "utils/time_frame.hpp"
+#include "utils/date.hpp"
 #include "utils/progress_bar.hpp"
 #include "neat/population.hpp"
 #include "neat/genome.hpp"
@@ -534,9 +535,7 @@ int Training::test(neat::Genome *genome, int generation, bool debug_data)
                 {
                     // Save the decision to the file
                     time_t time = std::stoll(date);
-                    std::stringstream ss;
-                    ss << std::put_time(std::localtime(&time), "%Y-%m-%d %H:%M:%S");
-                    std::string date_string = ss.str();
+                    std::string date_string = time_t_to_string(time);
 
                     decisions_file << date_string << ";" << decision << std::endl;
 
