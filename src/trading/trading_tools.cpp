@@ -160,10 +160,10 @@ std::tuple<double, double> calculate_tp_sl_price(double market_price, PositionSi
  * @param symbol_info Symbol information including precision details.
  * @return The liquidation price.
  */
-double calculate_liquidation_price(Position position, int leverage, SymbolInfo symbol_info)
+double calculate_liquidation_price(Position *position, int leverage, SymbolInfo symbol_info)
 {
-    int direction_multiplier = (position.side == PositionSide::LONG) ? -1 : 1;
-    double liquidation = position.entry_price + direction_multiplier * (position.entry_price / leverage);
+    int direction_multiplier = (position->side == PositionSide::LONG) ? -1 : 1;
+    double liquidation = position->entry_price + direction_multiplier * (position->entry_price / leverage);
     return liquidation;
 }
 

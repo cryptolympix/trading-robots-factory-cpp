@@ -2,8 +2,9 @@
 
 #include <iostream>
 #include <ctime>
+#include <vector>
+#include "../utils/date.hpp"
 #include "../types.hpp"
-#include "../constants.hpp"
 #include "trading_schedule.hpp"
 
 /**
@@ -15,12 +16,7 @@
  */
 bool is_on_trading_schedule(const time_t date, const TradingSchedule &trading_schedule)
 {
-#ifdef DLL_EXPORT
-    std::tm date_tm = *std::gmtime(&date);
-#else
-    std::tm date_tm = *std::localtime(&date);
-#endif
-
+    std::tm date_tm = time_t_to_tm(date);
     int day = date_tm.tm_wday;
 
     std::vector<bool> day_schedule;

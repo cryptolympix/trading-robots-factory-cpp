@@ -145,15 +145,11 @@ TEST_F(TradingToolsTest, TestCalculateTpSlPriceWithPercent)
 TEST_F(TradingToolsTest, TestCalculateLiquidationPrice)
 {
     int leverage = 100;
-    Position position;
-    position.size = 0.01;
-    position.entry_price = 1.0000;
+    Position *long_position = new Position{PositionSide::LONG, 0.01, 1.0000, std::time(nullptr), 0.0};
+    ASSERT_FLOAT_EQ(0.99, calculate_liquidation_price(long_position, leverage, symbol_infos));
 
-    position.side = PositionSide::LONG;
-    ASSERT_FLOAT_EQ(0.99, calculate_liquidation_price(position, leverage, symbol_infos));
-
-    position.side = PositionSide::SHORT;
-    ASSERT_FLOAT_EQ(1.01, calculate_liquidation_price(position, leverage, symbol_infos));
+    Position *short_position = new Position{PositionSide::SHORT, 0.01, 1.0000, std::time(nullptr), 0.0};
+    ASSERT_FLOAT_EQ(1.01, calculate_liquidation_price(short_position, leverage, symbol_infos));
 }
 
 // Test case for calculate_commission function

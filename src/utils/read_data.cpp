@@ -7,6 +7,7 @@
 #include <ctime>
 #include <chrono>
 #include <iomanip>
+#include "date.hpp"
 #include "time_frame.hpp"
 #include "read_data.hpp"
 
@@ -78,8 +79,7 @@ std::vector<Candle> read_data(const std::string &symbol, TimeFrame time_frame, t
         std::getline(ss, token, '\t'); // TIME
         date_str += " " + token;
 
-        std::tm tm = {};
-        std::istringstream(date_str) >> std::get_time(&tm, "%Y.%m.%d %H:%M:%S");
+        std::tm tm = string_to_tm(date_str, "%Y.%m.%d %H:%M:%S");
         time_t date = std::mktime(&tm) + 60 * get_time_frame_value(time_frame); // To have the closing time of the candle
         candle.date = date;
 

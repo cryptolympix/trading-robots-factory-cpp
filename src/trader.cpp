@@ -12,6 +12,7 @@
 #include "utils/time_frame.hpp"
 #include "utils/math.hpp"
 #include "utils/vectors.hpp"
+#include "utils/date.hpp"
 #include "libs/gnuplot-iostream.hpp"
 #include "neat/genome.hpp"
 #include "trading/trading_schedule.hpp"
@@ -19,19 +20,6 @@
 #include "indicators/utils.hpp"
 #include "symbols.hpp"
 #include "trader.hpp"
-#include "constants.hpp"
-
-/**
- * @brief Convert time_t to string.
- * @param time Time in time_t format.
- * @return Time in string format.
- */
-std::string time_t_to_string(time_t time)
-{
-    std::stringstream ss;
-    ss << std::put_time(std::localtime(&time), "%Y-%m-%d %H:%M:%S");
-    return ss.str();
-}
 
 /**
  * @brief Constructor for the Trader class.
@@ -278,10 +266,8 @@ void Trader::calculate_fitness()
         std::map<std::string, int> daily_trades = {};
         for (const auto &trade : closed_trades)
         {
-            std::tm *exit_date = std::localtime(&trade.exit_date);
-            std::stringstream date_key;
-            date_key << std::put_time(exit_date, "%Y-%m-%d");
-            daily_trades[date_key.str()]++;
+            std::string date_key = time_t_to_string(trade.exit_date, "%Y-%m-%d");
+            daily_trades[date_key]++;
         }
 
         int nb_days = daily_trades.size();
@@ -315,11 +301,9 @@ void Trader::calculate_fitness()
         std::map<std::string, double> daily_returns = {};
         for (const auto &trade : closed_trades)
         {
-            std::tm *exit_date = std::localtime(&trade.exit_date);
             double trade_return = trade.pnl_percent;
-            std::stringstream date_key;
-            date_key << std::put_time(exit_date, "%Y-%m-%d");
-            daily_returns[date_key.str()] = trade_return;
+            std::string date_key = time_t_to_string(trade.exit_date, "%Y-%m-%d");
+            daily_returns[date_key] = trade_return;
         }
 
         int nb_days = daily_returns.size();
@@ -335,11 +319,9 @@ void Trader::calculate_fitness()
         std::map<std::string, double> monthly_returns = {};
         for (const auto &trade : closed_trades)
         {
-            std::tm *exit_date = std::localtime(&trade.exit_date);
             double trade_return = trade.pnl_percent;
-            std::stringstream date_key;
-            date_key << std::put_time(exit_date, "%Y-%m");
-            monthly_returns[date_key.str()] += trade_return;
+            std::string date_key = time_t_to_string(trade.exit_date, "%Y-%m");
+            monthly_returns[date_key] += trade_return;
         }
 
         int nb_months = monthly_returns.size();
@@ -635,15 +617,13 @@ void Trader::calculate_stats()
     // Calculate the monthly returns
     for (const auto &trade : closed_trades)
     {
-        std::tm *exit_date = std::localtime(&trade.exit_date);
         double trade_return = trade.pnl_net_percent;
-        std::stringstream date_key;
-        date_key << std::put_time(exit_date, "%Y-%m");
-        if (this->stats.monthly_returns.find(date_key.str()) == this->stats.monthly_returns.end())
+        std::string date_key = time_t_to_string(trade.exit_date, "%Y-%m");
+        if (this->stats.monthly_returns.find(date_key) == this->stats.monthly_returns.end())
         {
-            this->stats.monthly_returns[date_key.str()] = 1.0;
+            this->stats.monthly_returns[date_key] = 1.0;
         }
-        this->stats.monthly_returns[date_key.str()] *= (1.0 + trade_return);
+        this->stats.monthly_returns[date_key] *= (1.0 + trade_return);
     }
     for (const auto &[month, monthly_return] : this->stats.monthly_returns)
     {
@@ -679,20 +659,12 @@ bool Trader::can_trade()
         int number_of_trades_today = 0;
         for (const auto &trade : this->trades_history)
         {
-#ifdef DLL_EXPORT
-            struct tm current_date_tm = *std::gmtime(&this->current_date);
-#else
-            struct tm current_date_tm = *std::localtime(&this->current_date);
-#endif
+            struct tm current_date_tm = time_t_to_tm(trade.exit_date);
             int current_year = current_date_tm.tm_year;
             int current_month = current_date_tm.tm_mon;
             int current_day = current_date_tm.tm_mday;
 
-#ifdef DLL_EXPORT
-            struct tm trade_date_tm = *std::gmtime(&trade.exit_date);
-#else
-            struct tm trade_date_tm = *std::localtime(&trade.exit_date);
-#endif
+            struct tm trade_date_tm = time_t_to_tm(trade.exit_date);
             int trade_year = trade_date_tm.tm_year;
             int trade_month = trade_date_tm.tm_mon;
             int trade_day = trade_date_tm.tm_mday;
@@ -1101,7 +1073,7 @@ void Trader::check_position_liquidation()
 {
     if (this->current_position != nullptr)
     {
-        double liquidation_price = calculate_liquidation_price(*this->current_position, this->config.general.leverage, this->symbol_info);
+        double liquidation_price = calculate_liquidation_price(this->current_position, this->config.general.leverage, this->symbol_info);
         double current_price = this->candles[this->config.strategy.timeframe].back().close;
 
         if (this->current_position->side == PositionSide::LONG)
