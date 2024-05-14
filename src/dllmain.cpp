@@ -11,7 +11,6 @@
 #include "utils/time_frame.hpp"
 #include "trader.hpp"
 #include "types.hpp"
-#include "constants.hpp"
 
 // Choose the configuration file to use
 #include "configs/default.hpp"
