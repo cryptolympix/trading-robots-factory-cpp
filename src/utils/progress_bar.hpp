@@ -1,6 +1,7 @@
 #ifndef PROGRESS_BAR_HPP
 #define PROGRESS_BAR_HPP
 
+#include <chrono>
 #include <iostream>
 #include <string>
 
