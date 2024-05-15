@@ -3,6 +3,7 @@
 #include <iostream>
 #include <ctime>
 #include "../utils/time_frame.hpp"
+#include "../utils/date_conversion.hpp"
 #include "../neat/config.hpp"
 #include "../neat/genome.hpp"
 #include "../indicators/momentum.hpp"

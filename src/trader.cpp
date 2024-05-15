@@ -12,7 +12,7 @@
 #include "utils/time_frame.hpp"
 #include "utils/math.hpp"
 #include "utils/vectors.hpp"
-#include "utils/date.hpp"
+#include "utils/date_conversion.hpp"
 #include "libs/gnuplot-iostream.hpp"
 #include "neat/genome.hpp"
 #include "trading/trading_schedule.hpp"

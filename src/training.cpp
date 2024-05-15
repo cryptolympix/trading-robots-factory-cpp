@@ -14,7 +14,7 @@
 #include "utils/cache.hpp"
 #include "utils/read_data.hpp"
 #include "utils/time_frame.hpp"
-#include "utils/date.hpp"
+#include "utils/date_conversion.hpp"
 #include "utils/progress_bar.hpp"
 #include "neat/population.hpp"
 #include "neat/genome.hpp"
@@ -431,16 +431,19 @@ int Training::run()
             // Update the best traders
             this->set_best_traders(generation);
 
-            // Print the best trader stats
-            std::cout << "========================== BEST TRADER ==========================" << std::endl;
-            std::cout << "📋 Genome ID: " << this->best_trader->genome->id << std::endl;
-            std::cout << "📈 Fitness"
-                      << ": " << this->best_trader->fitness << std::endl;
-            std::cout << "📈 Score"
-                      << ": " << this->best_trader->score << std::endl;
-            std::cout << "==================================================================" << std::endl;
-            this->best_trader->print_stats_to_console();
-            std::cout << "==================================================================" << std::endl;
+            if (this->debug)
+            {
+                // Print the best trader stats
+                std::cout << "========================== BEST TRADER ==========================" << std::endl;
+                std::cout << "📋 Genome ID: " << this->best_trader->genome->id << std::endl;
+                std::cout << "📈 Fitness"
+                          << ": " << this->best_trader->fitness << std::endl;
+                std::cout << "📈 Score"
+                          << ": " << this->best_trader->score << std::endl;
+                std::cout << "==================================================================" << std::endl;
+                this->best_trader->print_stats_to_console();
+                std::cout << "==================================================================" << std::endl;
+            }
 
             // Save the best trader info of the generation
             std::string genome_save_file = this->directory.generic_string() + "/trader_" + std::to_string(generation) + "_" + best_trader->genome->id + "_genome_save.json";
