@@ -152,7 +152,7 @@ void Training::load_indicators()
 
             if (!included)
             {
-                this->indicators[tf][tf_indicator->id] = tf_indicator->calculate(this->candles[tf], false);
+                this->indicators[tf][tf_indicator->id] = tf_indicator->calculate(this->candles[tf], true);
             }
         }
     }
