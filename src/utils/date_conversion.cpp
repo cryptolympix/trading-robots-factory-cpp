@@ -15,7 +15,11 @@
 std::string time_t_to_string(time_t time, const std::string &format)
 {
     std::stringstream ss;
+#ifdef _WIN32
+    ss << std::put_time(std::gmtime(&time), format.c_str());
+#else
     ss << std::put_time(std::localtime(&time), format.c_str());
+#endif
     return ss.str();
 }
 
@@ -41,7 +45,11 @@ time_t string_to_time_t(const std::string &time, const std::string &format)
  */
 std::tm time_t_to_tm(time_t time)
 {
+#ifdef _WIN32
+    return *std::gmtime(&time);
+#else
     return *std::localtime(&time);
+#endif
 }
 
 /**
