@@ -27,11 +27,9 @@ TEST(DateConversionTest, TmAndString)
 
     std::string format = "%Y-%m-%d %H:%M:%S %Z"; // Format including time zone
     std::string customTimeStr = tm_to_string(customTime, format);
-    std::cout << "Custom time (tm to string): " << customTimeStr << std::endl;
 
     std::tm convertedBackTm = string_to_tm(customTimeStr, format);
     std::string convertedBackTmStr = tm_to_string(convertedBackTm, format);
-    std::cout << "Converted back time (string to tm): " << convertedBackTmStr << std::endl;
     ASSERT_EQ(customTimeStr, convertedBackTmStr);
 }
 

@@ -353,8 +353,19 @@ void Training::evaluate_genome(neat::Genome *genome, int generation)
     TimeFrame loop_timeframe = this->config.strategy.timeframe;
     int loop_timeframe_minutes = get_time_frame_value(loop_timeframe);
 
-    Logger *logger = new Logger(this->directory.generic_string() + "/logs/trader_" + genome->id + ".log");
-    Trader *trader = new Trader(genome, this->config, logger);
+    Logger *logger = new Logger(this->directory.generic_string() + "/logs/training/trader_" + genome->id + ".log");
+    Trader *trader = new Trader(genome, this->config, this->debug ? logger : nullptr);
+
+    // Debug files
+    std::ofstream decisions_file;
+    std::ofstream vision_file;
+    if (this->debug)
+    {
+        std::string decisions_file_path = this->directory.generic_string() + "/trader_" + std::to_string(generation) + "_" + trader->genome->id + "_training_decisions.csv";
+        std::string vision_file_path = this->directory.generic_string() + "/trader_" + std::to_string(generation) + "_" + trader->genome->id + "_training_vision_debug.csv";
+        decisions_file = std::ofstream(decisions_file_path);
+        vision_file = std::ofstream(vision_file_path);
+    }
 
     // Get the dates for the training from the candles in the loop timeframe
     std::vector<std::string> dates = {};
@@ -384,7 +395,24 @@ void Training::evaluate_genome(neat::Genome *genome, int generation)
                 trader->update(current_candles);
                 trader->look(current_indicators, current_base_currency_conversion_rate, position);
                 trader->think();
-                trader->trade();
+                int decision = trader->trade();
+
+                if (this->debug)
+                {
+                    // Save the decision to the file
+                    time_t time = std::stoll(date);
+                    std::string date_string = time_t_to_string(time);
+
+                    decisions_file << date_string << ";" << decision << std::endl;
+
+                    // Save the vision data to the file
+                    vision_file << date_string << ";";
+                    for (const auto &vision : trader->vision)
+                    {
+                        vision_file << vision << ";";
+                    }
+                    vision_file << std::endl;
+                }
             }
             else
             {
@@ -408,6 +436,13 @@ void Training::evaluate_genome(neat::Genome *genome, int generation)
     if (this->debug && trader->logger != nullptr)
     {
         trader->logger->close();
+    }
+
+    // Close the debug files
+    if (this->debug)
+    {
+        decisions_file.close();
+        vision_file.close();
     }
 }
 
@@ -460,7 +495,7 @@ int Training::run()
             std::cout << "✅ Training of generation " << generation << " finished!" << std::endl;
 
             // Test the trader on a the new period
-            this->test(best_trader->genome, generation, true);
+            this->test(best_trader->genome, generation);
             std::cout << "🧪 Testing of the best trader of generation " << generation << " finished!" << std::endl;
         };
 
@@ -485,18 +520,18 @@ int Training::run()
  * @brief Run the testing process for the best trader.
  * @param genome The genome to be tested.
  * @param generation The generation number of the genome.
- * @param debug_data Flag to enable debug data. Default is false.
  * @return The exit code of the testing process. 0 if successful, 1 otherwise.
  */
-int Training::test(neat::Genome *genome, int generation, bool debug_data)
+int Training::test(neat::Genome *genome, int generation)
 {
     // Create a trader with the genome
+    Logger *logger = new Logger(this->directory.generic_string() + "/logs/test/trader_" + genome->id + ".log");
     Trader *trader = new Trader(genome, this->config, nullptr);
 
     // Debug files
     std::ofstream decisions_file;
     std::ofstream vision_file;
-    if (debug_data)
+    if (this->debug)
     {
         std::string decisions_file_path = this->directory.generic_string() + "/trader_" + std::to_string(generation) + "_" + trader->genome->id + "_test_decisions.csv";
         std::string vision_file_path = this->directory.generic_string() + "/trader_" + std::to_string(generation) + "_" + trader->genome->id + "_test_vision_debug.csv";
@@ -534,7 +569,7 @@ int Training::test(neat::Genome *genome, int generation, bool debug_data)
                 trader->think();
                 int decision = trader->trade();
 
-                if (debug_data)
+                if (this->debug)
                 {
                     // Save the decision to the file
                     time_t time = std::stoll(date);
@@ -559,7 +594,7 @@ int Training::test(neat::Genome *genome, int generation, bool debug_data)
     }
 
     // Close the debug files
-    if (debug_data)
+    if (this->debug)
     {
         decisions_file.close();
         vision_file.close();

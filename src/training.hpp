@@ -120,10 +120,9 @@ public:
      * @brief Run the testing process for the best trader.
      * @param genome The genome to be tested.
      * @param generation The generation number of the genome. Default is 0.
-     * @param debug_data Flag to enable debug data. Default is false.
      * @return The exit code of the testing process. 0 if successful, 1 otherwise.
      */
-    int test(neat::Genome *genome, int generation = 0, bool debug_data = false);
+    int test(neat::Genome *genome, int generation = 0);
 };
 
 #endif // TRAINING_HPP
