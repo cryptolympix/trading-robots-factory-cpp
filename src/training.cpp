@@ -491,7 +491,7 @@ int Training::test(neat::Genome *genome, int generation)
 {
     // Create a trader with the genome
     Logger *logger = new Logger(this->directory.generic_string() + "/logs/test/trader_" + genome->id + ".log");
-    Trader *trader = new Trader(genome, this->config, nullptr);
+    Trader *trader = new Trader(genome, this->config, this->debug ? logger : nullptr);
 
     // Debug files
     std::ofstream decisions_file;
