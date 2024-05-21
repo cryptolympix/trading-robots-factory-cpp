@@ -105,6 +105,29 @@ public:
 };
 
 /**
+ * @brief Class for CandleTickVolume indicator.
+ */
+class CandleTickVolume : public Indicator
+{
+public:
+    /**
+     * @brief Construct a new CandleTickVolume object.
+     *
+     * @param offset Offset value. Default is 0.
+     */
+    CandleTickVolume(int offset = 0);
+
+    /**
+     * @brief Calculate the CandleTickVolume values.
+     *
+     * @param candles Vector of Candle data.
+     * @param normalize_data Boolean flag indicating whether to normalize data.
+     * @return std::vector<double> Vector containing calculated values.
+     */
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+};
+
+/**
  * @brief Class for CandleVolume indicator.
  */
 class CandleVolume : public Indicator

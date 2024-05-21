@@ -332,7 +332,7 @@ void CopyCandleData(Candle &pCandles[], ENUM_TIMEFRAMES pTimeframe, int pSize)
       pCandles[pSize - 1 - i].low = iLow(_Symbol, pTimeframe, 1 + i);
       pCandles[pSize - 1 - i].close = iClose(_Symbol, pTimeframe, 1 + i);
       pCandles[pSize - 1 - i].tick_volume = iTickVolume(_Symbol, pTimeframe, 1 + i);
-      pCandles[pSize - 1 - i].volume = iVolume(_Symbol, pTimeframe, 1 + i);
+      pCandles[pSize - 1 - i].volume = iTickVolume(_Symbol, pTimeframe, 1 + i);
       pCandles[pSize - 1 - i].spread = iSpread(_Symbol, pTimeframe, 1 + i);
    }
 }

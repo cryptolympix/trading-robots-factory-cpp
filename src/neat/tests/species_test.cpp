@@ -69,7 +69,7 @@ TEST_F(SpeciesTest, SameSpeciesTrue)
 
 TEST_F(SpeciesTest, SameSpeciesFalse)
 {
-    neat::Config otherConfig = neat::load_config("default_config.txt");
+    neat::Config otherConfig = neat::load_config("./src/neat/default_config.txt");
     otherConfig.num_inputs = 5;
     otherConfig.num_outputs = 1;
 

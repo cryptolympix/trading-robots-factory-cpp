@@ -134,6 +134,37 @@ std::vector<double> CandleClose::calculate(const std::vector<Candle> &candles, b
 // *********************************************************************************************
 
 /**
+ * @brief Construct a new CandleTickVolume object.
+ *
+ * @param offset Offset value. Default is 0.
+ */
+CandleTickVolume::CandleTickVolume(int offset) : Indicator("Candle Tick Volume", "candle-tick-volume-" + std::to_string(offset), offset) {}
+
+/**
+ * @brief Calculate the CandleTickVolume values.
+ *
+ * @param candles Vector of Candle data.
+ * @param normalize_data Boolean flag indicating whether to normalize data.
+ * @return std::vector<double> Vector containing calculated values.
+ */
+std::vector<double> CandleTickVolume::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+{
+    return Indicator::calculate(
+        candles, [this](std::vector<Candle> candles) -> std::vector<double>
+        {
+            std::vector<double> values;
+            for (int i = 0; i < candles.size(); ++i)
+            {
+                values.push_back(candles[i].tick_volume);
+            }
+            return values; },
+
+        normalize_data);
+}
+
+// *********************************************************************************************
+
+/**
  * @brief Construct a new CandleVolume object.
  *
  * @param offset Offset value. Default is 0.
