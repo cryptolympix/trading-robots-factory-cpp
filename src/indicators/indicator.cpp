@@ -67,7 +67,7 @@ std::vector<double> Indicator::calculate(const std::vector<Candle> &candles, std
     // Normalize the data
     if (normalize_data)
     {
-        values = normalize_vectors(values);
+        values = normalize_vector(values);
     }
 
     // Check that there isn't nan values

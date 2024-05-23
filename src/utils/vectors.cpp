@@ -90,30 +90,34 @@ std::vector<double> divide_vectors(const std::vector<double> &vec1, const std::v
 /**
  * @brief Normalize a numeric vector to a specified range.
  *
- * @param array The input numeric vector to be normalized.
+ * @param vector The input numeric vector to be normalized.
  * @param current_range The current range of values in the input vector.
  * @param new_range The target range for normalization.
  * @return std::vector<double> The normalized vector.
  */
-std::vector<double> normalize_vectors(const std::vector<double> &vector, std::pair<double, double> current_range, std::pair<double, double> new_range)
+std::vector<double> normalize_vector(const std::vector<double> &vector, std::pair<double, double> current_range, std::pair<double, double> new_range)
 {
-    if (current_range.first == 0.0f && current_range.second == 0.0f)
+    double current_range_min = current_range.first;
+    double current_range_max = current_range.second;
+    double new_range_min = new_range.first;
+    double new_range_max = new_range.second;
+
+    if (current_range.first == 0.0 && current_range.second == 0.0)
     {
-        auto minmax = std::minmax_element(vector.begin(), vector.end());
-        current_range = std::make_pair(*minmax.first, *minmax.second);
+        auto current_range_minmax = std::minmax_element(vector.begin(), vector.end());
+        current_range_min = *current_range_minmax.first;
+        current_range_max = *current_range_minmax.second;
+    }
+
+    if (current_range_min == current_range_max)
+    {
+        throw std::invalid_argument("The current range of values in the input vector is zero.");
     }
 
     std::vector<double> normalized_vector(vector.size(), 0.0);
     for (size_t i = 0; i < vector.size(); ++i)
     {
-        if (current_range.first == current_range.second)
-        {
-            normalized_vector[i] = new_range.first;
-        }
-        else
-        {
-            normalized_vector[i] = new_range.first + (vector[i] - current_range.first) * (new_range.second - new_range.first) / (current_range.second - current_range.first);
-        }
+        normalized_vector[i] = new_range_min + (vector[i] - current_range_min) * (new_range_max - new_range_min) / (current_range_max - current_range_min);
     }
     return normalized_vector;
 }

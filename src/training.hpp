@@ -13,7 +13,7 @@
 /**
  * @brief Number of candles needed to calculate the indicator in all time frames.
  */
-constexpr int MINIMUM_CANDLES = 25;
+constexpr int CANDLES_WINDOW = 25;
 
 /**
  * @brief The last n value(s) loaded for each iteration of training for individuals.
@@ -35,8 +35,8 @@ public:
     std::filesystem::path directory;  // Directory to save the training results.
     std::filesystem::path cache_file; // Optional cache file path.
 
-    CandlesData candles;                                          // Candle data for all time frames.
-    IndicatorsData indicators;                                    // Indicator data for all time frames.
+    std::map<time_t, CandlesData> candles;                        // Candle data for all time frames at a specified date.
+    std::map<time_t, IndicatorsData> indicators;                  // Indicator data for all time frames at a specified date.
     BaseCurrencyConversionRateData base_currency_conversion_rate; // Conversion rate when the base asset traded is different from the account currency.
     Cache *cache;                                                 // Cached data for faster access.
 

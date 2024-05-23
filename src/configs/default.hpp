@@ -114,7 +114,8 @@ Config __config__ = {
                                     // new WeekDay("thursday"),
                                     // new WeekDay("friday"),
                                     // new WeekDay("saturday"),
-                                    new CandlePriceChange(), new CandleClose(), new CandleTickVolume(), new CandleBody(), new CandleShadowUpper(), new CandleShadowLower(),
+                                    new CandlePriceChange(),
+                                    // new CandleClose(), new CandleTickVolume(), new CandleBody(), new CandleShadowUpper(), new CandleShadowLower(),
                                     // new PeakDistance(20, 0),
                                     // new PeakCandleDistance(20, 0),
                                     // new NewHighSignal(20, 0),
@@ -139,7 +140,7 @@ Config __config__ = {
                                     // new VWAP(),
                                 }},
                 {TimeFrame::M30, {
-                                     new CandlePriceChange(), new CandleClose(), new CandleTickVolume(), new CandleBody(), new CandleShadowUpper(), new CandleShadowLower(),
+                                     //  new CandlePriceChange(), new CandleClose(), new CandleTickVolume(), new CandleBody(), new CandleShadowUpper(), new CandleShadowLower(),
                                      //  new PeakDistance(20, 0),
                                      //  new PeakCandleDistance(20, 0),
                                      //  new NewHighSignal(20, 0),

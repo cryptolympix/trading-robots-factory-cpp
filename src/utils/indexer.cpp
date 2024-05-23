@@ -28,16 +28,16 @@ Indexer::Indexer(const CandlesData &candles, int window) : candles(candles), win
  */
 void Indexer::update_indexes(time_t date)
 {
-    for (auto &[tf, c] : candles)
+    for (auto &[tf, c] : this->candles)
     {
         while (indexes[tf].second < c.size() &&
-               c[indexes[tf].second].date + get_time_frame_value(tf) * 60 <= date)
+               c[indexes[tf].second].date < date)
         {
             // Increment the index
             indexes[tf].second++;
 
             // Adjust window
-            if (indexes[tf].second - indexes[tf].first > window)
+            if (indexes[tf].second - indexes[tf].first >= window)
             {
                 indexes[tf].first++;
             }

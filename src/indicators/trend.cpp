@@ -394,7 +394,11 @@ std::vector<double> DPO::calculate(const std::vector<Candle> &candles, bool norm
             // Calculate the Detrended Price Oscillator (DPO)
             for (size_t i = period / 2 + offset; i < candles.size(); ++i)
             {
-                double dpo = candles[i - period / 2 - 1].close - sma_values[i - period + 1];
+                if (i < period + offset)
+                {
+                    continue;
+                } 
+                double dpo = candles[i - period / 2 - 1].close - sma_values[i - period + offset];
                 dpo_values[i] = dpo;
             }
 
@@ -925,8 +929,8 @@ std::vector<double> Vortex::calculate(const std::vector<Candle> &candles, bool n
     }
 
     // // Normalize data if required
-    positive_vi_14 = normalize_vectors(positive_vi_14);
-    negative_vi_14 = normalize_vectors(negative_vi_14);
+    positive_vi_14 = normalize_vector(positive_vi_14);
+    negative_vi_14 = normalize_vector(negative_vi_14);
 
     // // Combine positive and negative VI into one vector for output
     std::vector<double> vortex_indicator(candles.size(), 0);

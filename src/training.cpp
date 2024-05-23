@@ -121,12 +121,44 @@ void Training::prepare()
 void Training::load_candles()
 {
     std::vector<TimeFrame> all_timeframes = this->get_all_timeframes();
+    TimeFrame loop_timeframe = this->config.strategy.timeframe;
+    CandlesData candles = {};
+
+    // Load the candles from data for all the timeframes
     for (int i = 0; i < all_timeframes.size(); i++)
     {
         TimeFrame tf = all_timeframes[i];
         time_t start_date = this->config.training.training_start_date;
         time_t end_date = this->config.training.test_end_date;
         candles[tf] = read_data(config.general.symbol, tf, start_date, end_date);
+    }
+
+    // Get all the dates from the candles in the loop timeframe
+    std::vector<time_t> dates = {};
+    for (const auto &candle : candles[loop_timeframe])
+    {
+        dates.push_back(candle.date);
+    }
+
+    // Loop through the dates and get the candles for each timeframe
+    for (const auto &date : dates)
+    {
+        CandlesData current_candles = {};
+        Indexer *indexer = new Indexer(candles, CANDLES_WINDOW);
+        indexer->update_indexes(date);
+
+        // Get the candles for the current date
+        for (const auto &tf : all_timeframes)
+        {
+            std::pair<int, int> index = indexer->get_indexes(tf);
+            for (int i = index.first; i <= index.second; i++)
+            {
+                current_candles[tf].push_back(candles[tf][i]);
+            }
+        }
+
+        // Save the candles
+        this->candles[date] = current_candles;
     }
 }
 
@@ -135,24 +167,47 @@ void Training::load_candles()
  */
 void Training::load_indicators()
 {
-    std::__1::map<TimeFrame, std::vector<Indicator *>> all_indicators = config.training.inputs.indicators;
-
-    for (auto const &[tf, indicators] : all_indicators)
+    if (this->config.training.inputs.indicators.empty())
     {
-        for (auto const &tf_indicator : indicators)
-        {
-            bool included = false;
-            for (auto const &[id, indicator] : this->indicators[tf])
-            {
-                if (id == tf_indicator->id)
-                {
-                    included = true;
-                }
-            }
+        std::cerr << "Error: no indicators found in the configuration." << std::endl;
+        return;
+    }
 
-            if (!included)
+    // Get all the dates from the candles in the loop timeframe
+    std::vector<time_t> dates = {};
+    for (const auto &[date, candles_data] : this->candles)
+    {
+        dates.push_back(date);
+    }
+
+    std::map<TimeFrame, std::vector<Indicator *>> all_indicators = config.training.inputs.indicators;
+
+    // Loop through the dates
+    for (const auto &date : dates)
+    {
+        this->indicators[date] = {};
+
+        // Loop through all the indicators and calculate the values
+        for (auto const &[tf, indicators] : all_indicators)
+        {
+            for (auto const &indicator : indicators)
             {
-                this->indicators[tf][tf_indicator->id] = tf_indicator->calculate(this->candles[tf], !this->debug);
+                // Get the candles for the current date
+                std::vector<Candle> current_candles = this->candles[date][tf];
+
+                // Calculate the indicator values
+                if (current_candles.size() >= CANDLES_WINDOW)
+                {
+                    std::vector<double> values = indicator->calculate(current_candles, !this->debug);
+                    for (int i = 0; i < INDICATOR_WINDOW; i++)
+                    {
+                        this->indicators[date][tf][indicator->id].push_back(values[values.size() - INDICATOR_WINDOW + i]);
+                    }
+                }
+                else
+                {
+                    this->indicators[date][tf][indicator->id] = std::vector<double>(INDICATOR_WINDOW, 0.0);
+                }
             }
         }
     }
@@ -169,16 +224,16 @@ void Training::load_base_currency_conversion_rate()
 
     if (account_currency == base_currency_traded)
     {
-        for (const auto &candle : candles[loop_timeframe])
+        for (const auto &[date, candles_data] : this->candles)
         {
-            base_currency_conversion_rate[candle.date] = 1.0;
+            base_currency_conversion_rate[date] = 1.0;
         }
     }
     else
     {
         std::string symbol = account_currency + base_currency_traded;
         time_t start_date = this->config.training.training_start_date;
-        time_t end_date = this->config.training.training_end_date;
+        time_t end_date = this->config.training.test_end_date;
         std::vector<Candle> data = read_data(symbol, loop_timeframe, start_date, end_date);
 
         for (const auto &candle : data)
@@ -196,53 +251,30 @@ void Training::cache_data()
     std::vector<TimeFrame> all_timeframes = get_all_timeframes();
     TimeFrame loop_timeframe = config.strategy.timeframe;
     int loop_timeframe_minutes = get_time_frame_value(loop_timeframe);
-    Indexer *indexer = new Indexer(this->candles, MINIMUM_CANDLES);
 
     // Get all the dates from the candles in the loop timeframe
     std::vector<time_t> dates = {};
-    for (const auto &candle : this->candles[loop_timeframe])
+    for (const auto &[date, candles_data] : this->candles)
     {
-        dates.push_back(candle.date);
+        dates.push_back(date);
     }
 
     for (const auto &date : dates)
     {
-        indexer->update_indexes(date);
-
         CandlesData current_candles = {};
         IndicatorsData current_indicators = {};
         double current_base_currency_conversion_rate = {};
 
         // Get the candles for the current date
-        for (const auto &tf : all_timeframes)
+        for (const auto &[date, candles] : this->candles[date])
         {
-            std::pair<int, int> index = indexer->get_indexes(tf);
-            for (int i = index.first; i <= index.second; i++)
-            {
-                current_candles[tf].push_back(candles[tf][i]);
-            }
+            current_candles[date] = candles;
         }
 
         // Get the indicators for the current date
-        for (const auto &tf : all_timeframes)
+        for (const auto &[date, indicators] : this->indicators[date])
         {
-            std::pair<int, int> index = indexer->get_indexes(tf);
-            for (const auto &indicator : config.training.inputs.indicators[tf])
-            {
-                std::vector<double> indicator_values = {};
-                for (int i = index.second - INDICATOR_WINDOW + 1; i <= index.second; i++)
-                {
-                    if (i < 0)
-                    {
-                        indicator_values.push_back(0.0);
-                    }
-                    else
-                    {
-                        indicator_values.push_back(indicators[tf][indicator->id][i]);
-                    }
-                }
-                current_indicators[tf][indicator->id] = indicator_values;
-            }
+            current_indicators[date] = indicators;
         }
 
         // Get the base currency conversion rate for the current date
@@ -251,6 +283,10 @@ void Training::cache_data()
             if (base_currency_conversion_rate.find(candle.date) != base_currency_conversion_rate.end())
             {
                 current_base_currency_conversion_rate = base_currency_conversion_rate[candle.date];
+            }
+            else
+            {
+                current_base_currency_conversion_rate = 1.0;
             }
         }
 
@@ -494,15 +530,10 @@ int Training::test(neat::Genome *genome, int generation)
     Trader *trader = new Trader(genome, this->config, this->debug ? logger : nullptr);
 
     // Debug files
-    std::ofstream decisions_file;
-    std::ofstream vision_file;
-    if (this->debug)
-    {
-        std::string decisions_file_path = this->directory.generic_string() + "/trader_" + std::to_string(generation) + "_" + trader->genome->id + "_test_decisions.csv";
-        std::string vision_file_path = this->directory.generic_string() + "/trader_" + std::to_string(generation) + "_" + trader->genome->id + "_test_vision_debug.csv";
-        decisions_file = std::ofstream(decisions_file_path);
-        vision_file = std::ofstream(vision_file_path);
-    }
+    std::string decisions_file_path = this->directory.generic_string() + "/trader_" + std::to_string(generation) + "_" + trader->genome->id + "_test_decisions.csv";
+    std::string vision_file_path = this->directory.generic_string() + "/trader_" + std::to_string(generation) + "_" + trader->genome->id + "_test_vision_debug.csv";
+    std::ofstream decisions_file = std::ofstream(decisions_file_path);
+    std::ofstream vision_file = std::ofstream(vision_file_path);
 
     // Get the dates for the test from the candles in the loop timeframe
     std::vector<std::string> dates = {};
@@ -534,22 +565,19 @@ int Training::test(neat::Genome *genome, int generation)
                 trader->think();
                 int decision = trader->trade();
 
-                if (this->debug)
+                // Save the decision to the file
+                time_t time = std::stoll(date);
+                std::string date_string = time_t_to_string(time);
+
+                decisions_file << date_string << ";" << decision << std::endl;
+
+                // Save the vision data to the file
+                vision_file << date_string << ";";
+                for (const auto &vision : trader->vision)
                 {
-                    // Save the decision to the file
-                    time_t time = std::stoll(date);
-                    std::string date_string = time_t_to_string(time);
-
-                    decisions_file << date_string << ";" << decision << std::endl;
-
-                    // Save the vision data to the file
-                    vision_file << date_string << ";";
-                    for (const auto &vision : trader->vision)
-                    {
-                        vision_file << vision << ";";
-                    }
-                    vision_file << std::endl;
+                    vision_file << vision << ";";
                 }
+                vision_file << std::endl;
             }
             else
             {
@@ -559,11 +587,8 @@ int Training::test(neat::Genome *genome, int generation)
     }
 
     // Close the debug files
-    if (this->debug)
-    {
-        decisions_file.close();
-        vision_file.close();
-    }
+    decisions_file.close();
+    vision_file.close();
 
     // Calculate the stats of the trader
     trader->calculate_stats();

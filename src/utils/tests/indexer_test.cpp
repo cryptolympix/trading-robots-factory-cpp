@@ -60,12 +60,12 @@ TEST_F(TestIndexer, TestIndexes)
         int start_index = std::get<0>(indexer->get_indexes(TimeFrame::H1));
         int end_index = std::get<1>(indexer->get_indexes(TimeFrame::H1));
 
-        EXPECT_EQ(start_index, std::max(0, indexes.second - window + i));
+        EXPECT_EQ(start_index, std::max(0, indexes.second - window + 1 + i));
         EXPECT_EQ(end_index, indexes.second + i);
 
         if (end_index >= window)
         {
-            EXPECT_EQ(end_index - start_index, window);
+            EXPECT_EQ(end_index - start_index, window - 1);
         }
         else
         {

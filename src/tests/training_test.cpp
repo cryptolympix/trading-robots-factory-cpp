@@ -2,6 +2,11 @@
 #include <filesystem>
 #include <ctime>
 #include <chrono>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <vector>
+#include <algorithm>
 #include "../neat/genome.hpp"
 #include "../utils/time_frame.hpp"
 #include "../trading/trading_schedule.hpp"
@@ -133,24 +138,61 @@ protected:
 TEST_F(TrainingTest, LoadCandles)
 {
     training->load_candles();
-    ASSERT_TRUE(training->candles.find(TimeFrame::M15) != training->candles.end());
-    ASSERT_TRUE(training->candles.find(TimeFrame::M30) != training->candles.end());
-    ASSERT_TRUE(training->candles.find(TimeFrame::H1) != training->candles.end());
-    ASSERT_FALSE(training->candles[TimeFrame::M15].empty());
-    ASSERT_FALSE(training->candles[TimeFrame::M30].empty());
-    ASSERT_FALSE(training->candles[TimeFrame::H1].empty());
+
+    ASSERT_FALSE(training->candles.empty());
+
+    std::vector<time_t> dates = {};
+    for (const auto &[date, candles_data] : training->candles)
+    {
+        dates.push_back(date);
+    }
+
+    for (int i = 0; i < dates.size(); ++i)
+    {
+        time_t date = dates[i];
+
+        ASSERT_TRUE(training->candles.find(date) != training->candles.end());
+
+        ASSERT_TRUE(training->candles[date].find(TimeFrame::M15) != training->candles[date].end());
+        ASSERT_TRUE(training->candles[date].find(TimeFrame::M30) != training->candles[date].end());
+        ASSERT_TRUE(training->candles[date].find(TimeFrame::H1) != training->candles[date].end());
+
+        ASSERT_FALSE(training->candles[date][TimeFrame::M15].empty());
+        ASSERT_FALSE(training->candles[date][TimeFrame::M30].empty());
+        ASSERT_FALSE(training->candles[date][TimeFrame::H1].empty());
+
+        ASSERT_EQ(training->candles[date][TimeFrame::M15].back().date, date);
+        ASSERT_EQ(training->candles[date][TimeFrame::M30].back().date, date);
+        ASSERT_EQ(training->candles[date][TimeFrame::H1].back().date, date);
+
+        ASSERT_LE(training->candles[date][TimeFrame::M15].size(), CANDLES_WINDOW);
+        ASSERT_LE(training->candles[date][TimeFrame::M30].size(), CANDLES_WINDOW);
+        ASSERT_LE(training->candles[date][TimeFrame::H1].size(), CANDLES_WINDOW);
+    }
 }
 
 TEST_F(TrainingTest, LoadIndicators)
 {
     training->load_candles();
     training->load_indicators();
-    ASSERT_TRUE(training->indicators.find(TimeFrame::M15) != training->indicators.end());
-    ASSERT_TRUE(training->indicators.find(TimeFrame::M30) != training->indicators.end());
-    ASSERT_TRUE(training->indicators.find(TimeFrame::H1) != training->indicators.end());
-    ASSERT_FALSE(training->indicators[TimeFrame::M15].empty());
-    ASSERT_FALSE(training->indicators[TimeFrame::M30].empty());
-    ASSERT_FALSE(training->indicators[TimeFrame::H1].empty());
+
+    ASSERT_FALSE(training->indicators.empty());
+
+    for (const auto &[date, indicators_data] : training->indicators)
+    {
+        ASSERT_FALSE(indicators_data.empty());
+        for (const auto &[tf, data] : indicators_data)
+        {
+            for (const auto &[id, values] : data)
+            {
+                ASSERT_EQ(values.size(), INDICATOR_WINDOW);
+            }
+        }
+
+        ASSERT_TRUE(training->indicators[date].find(TimeFrame::M15) != training->indicators[date].end());
+        ASSERT_TRUE(training->indicators[date].find(TimeFrame::M30) != training->indicators[date].end());
+        ASSERT_TRUE(training->indicators[date].find(TimeFrame::H1) != training->indicators[date].end());
+    }
 }
 
 TEST_F(TrainingTest, LoadBaseCurrencyConversionRate)
@@ -169,16 +211,15 @@ TEST_F(TrainingTest, CacheData)
 
     TimeFrame loop_timeframe = config.strategy.timeframe;
     int loop_timeframe_minutes = get_time_frame_value(loop_timeframe);
-    int nb_dates = training->candles[loop_timeframe].size();
+    int nb_dates = training->candles.size();
 
     // Check the dates is in the cache
     ASSERT_EQ(training->cache->data.size(), nb_dates);
 
     // Get the dates from the candles of loop_timeframe
     std::vector<time_t> dates;
-    for (int i = 0; i < nb_dates; ++i)
+    for (const auto &[date, candles_data] : training->candles)
     {
-        time_t date = training->candles[loop_timeframe][i].date;
         dates.push_back(date);
     }
 
