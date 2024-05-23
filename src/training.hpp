@@ -60,23 +60,27 @@ public:
 
     /**
      * @brief Load candle data for all time frames.
+     * @param display_progress Flag to show the progress bar. Default is false.
      */
-    void load_candles();
+    void load_candles(bool display_progress = false);
 
     /**
      * @brief Calculate and store all indicator values to the cache.
+     * @param display_progress Flag to show the progress bar. Default is false.
      */
-    void load_indicators();
+    void load_indicators(bool display_progress = false);
 
     /**
      * @brief Load the conversion rate when the base asset traded is different from the account currency.
+     * @param display_progress Flag to show the progress bar. Default is false.
      */
-    void load_base_currency_conversion_rate();
+    void load_base_currency_conversion_rate(bool display_progress = false);
 
     /**
      * @brief Cache all the data (candles and indicators values) for every datetime.
+     * @param display_progress Flag to show the progress bar. Default is false.
      */
-    void cache_data();
+    void cache_data(bool display_progress = false);
 
     /**
      * @brief Count the total number of indicators used in training.

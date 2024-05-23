@@ -98,27 +98,28 @@ void Training::prepare()
     {
         // Progress bar
         std::cout << "⏳ Load the candles..." << std::endl;
-        this->load_candles();
+        this->load_candles(true);
         std::cout << "✅ Candles loaded!" << std::endl;
 
         std::cout << "⏳ Load the indicators..." << std::endl;
-        this->load_indicators();
+        this->load_indicators(true);
         std::cout << "✅ Indicators loaded!" << std::endl;
 
         std::cout << "⏳ Load the base currency conversion rate..." << std::endl;
-        this->load_base_currency_conversion_rate();
+        this->load_base_currency_conversion_rate(true);
         std::cout << "✅ Base currency conversion rate loaded!" << std::endl;
 
         std::cout << "⏳ Cache the data..." << std::endl;
-        this->cache_data();
+        this->cache_data(true);
         std::cout << "✅ Cache created!" << std::endl;
     }
 }
 
 /**
  * @brief Load candle data for all time frames.
+ * @param display_progress Flag to show the progress bar. Default is false.
  */
-void Training::load_candles()
+void Training::load_candles(bool display_progress)
 {
     std::vector<TimeFrame> all_timeframes = this->get_all_timeframes();
     TimeFrame loop_timeframe = this->config.strategy.timeframe;
@@ -140,6 +141,9 @@ void Training::load_candles()
         dates.push_back(candle.date);
     }
 
+    // Progress bar
+    ProgressBar *progress_bar = display_progress ? new ProgressBar(100, dates.size()) : nullptr;
+
     // Loop through the dates and get the candles for each timeframe
     for (const auto &date : dates)
     {
@@ -159,13 +163,24 @@ void Training::load_candles()
 
         // Save the candles
         this->candles[date] = current_candles;
+
+        if (progress_bar)
+        {
+            progress_bar->update(1);
+        }
+    }
+
+    if (progress_bar)
+    {
+        progress_bar->complete();
     }
 }
 
 /**
  * @brief Calculate and store all indicator values to the cache.
+ * @param display_progress Flag to show the progress bar. Default is false.
  */
-void Training::load_indicators()
+void Training::load_indicators(bool display_progress)
 {
     if (this->config.training.inputs.indicators.empty())
     {
@@ -181,6 +196,7 @@ void Training::load_indicators()
     }
 
     std::map<TimeFrame, std::vector<Indicator *>> all_indicators = config.training.inputs.indicators;
+    ProgressBar *progress_bar = display_progress ? new ProgressBar(100, dates.size()) : nullptr;
 
     // Loop through the dates
     for (const auto &date : dates)
@@ -210,13 +226,24 @@ void Training::load_indicators()
                 }
             }
         }
+
+        if (progress_bar)
+        {
+            progress_bar->update(1);
+        }
+    }
+
+    if (progress_bar)
+    {
+        progress_bar->complete();
     }
 }
 
 /**
  * @brief Load the conversion rate when the base asset traded is different from the account currency.
+ * @param display_progress Flag to show the progress bar. Default is false.
  */
-void Training::load_base_currency_conversion_rate()
+void Training::load_base_currency_conversion_rate(bool display_progress)
 {
     std::string account_currency = this->config.general.account_currency;
     std::string base_currency_traded = symbol_infos[this->config.general.symbol].base;
@@ -224,9 +251,21 @@ void Training::load_base_currency_conversion_rate()
 
     if (account_currency == base_currency_traded)
     {
+        ProgressBar *progress_bar = display_progress ? new ProgressBar(100, this->candles.size()) : nullptr;
+
         for (const auto &[date, candles_data] : this->candles)
         {
             base_currency_conversion_rate[date] = 1.0;
+
+            if (progress_bar)
+            {
+                progress_bar->update(1);
+            }
+        }
+
+        if (progress_bar)
+        {
+            progress_bar->complete();
         }
     }
     else
@@ -234,19 +273,32 @@ void Training::load_base_currency_conversion_rate()
         std::string symbol = account_currency + base_currency_traded;
         time_t start_date = this->config.training.training_start_date;
         time_t end_date = this->config.training.test_end_date;
+
         std::vector<Candle> data = read_data(symbol, loop_timeframe, start_date, end_date);
+        ProgressBar *progress_bar = display_progress ? new ProgressBar(100, data.size()) : nullptr;
 
         for (const auto &candle : data)
         {
             base_currency_conversion_rate[candle.date] = candle.close;
+
+            if (progress_bar)
+            {
+                progress_bar->update(1);
+            }
+        }
+
+        if (progress_bar)
+        {
+            progress_bar->complete();
         }
     }
 }
 
 /**
  * @brief Cache all the data (candles, indicators and base currencyconversion rate values) for every datetime.
+ * @param display_progress Flag to show the progress bar. Default is false.
  */
-void Training::cache_data()
+void Training::cache_data(bool display_progress)
 {
     std::vector<TimeFrame> all_timeframes = get_all_timeframes();
     TimeFrame loop_timeframe = config.strategy.timeframe;
@@ -258,6 +310,8 @@ void Training::cache_data()
     {
         dates.push_back(date);
     }
+
+    ProgressBar *progress_bar = display_progress ? new ProgressBar(100, dates.size()) : nullptr;
 
     for (const auto &date : dates)
     {
@@ -292,10 +346,20 @@ void Training::cache_data()
 
         // Cache the data
         this->cache->add(std::to_string(date), CachedData{.candles = current_candles, .indicators = current_indicators, .base_currency_conversion_rate = current_base_currency_conversion_rate});
+
+        if (progress_bar)
+        {
+            progress_bar->update(1);
+        }
     }
 
     // Create the file of the cache
     cache->create();
+
+    if (progress_bar)
+    {
+        progress_bar->complete();
+    }
 }
 
 /**
