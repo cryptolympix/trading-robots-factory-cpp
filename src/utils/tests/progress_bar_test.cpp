@@ -38,7 +38,7 @@ TEST_F(ProgressBarTest, UpdateProgressAndLabel)
     std::cout.rdbuf(old_cout);
 
     // Check if the output matches the expected output
-    EXPECT_EQ(ss.str(), "\rProgress [=========================>                        ] 50% (50/100) Elapsed: 0s Remaining: 0s - Updated label\n");
+    EXPECT_EQ(ss.str(), "\rProgress [=========================>                        ] 50% (50/100) Elapsed: 0s Remaining: 0s - Updated label");
 }
 
 TEST_F(ProgressBarTest, CompleteProgress)

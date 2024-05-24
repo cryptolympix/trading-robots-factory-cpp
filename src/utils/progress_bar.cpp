@@ -44,7 +44,6 @@ void ProgressBar::update(int progress_iteration, std::string new_label)
     {
         std::cout << " - " << new_label;
     }
-    std::cout << std::endl;
     std::cout.flush();
 }
 
