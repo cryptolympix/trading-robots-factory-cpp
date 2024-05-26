@@ -9,7 +9,7 @@
 /**
  * @brief Constructs an Indexer object with candles data and a window size.
  *
- * @param candles_data A dictionary containing candle data for different timeframes.
+ * @param candles A dictionary containing candle data for different timeframes.
  * @param window The size of the window for parsing candles.
  */
 Indexer::Indexer(const CandlesData &candles, int window) : candles(candles), window(window)
@@ -31,7 +31,7 @@ void Indexer::update_indexes(time_t date)
     for (auto &[tf, c] : this->candles)
     {
         while (indexes[tf].second < c.size() &&
-               c[indexes[tf].second].date < date)
+               c[indexes[tf].second].date < date && date - c[indexes[tf].second].date >= get_time_frame_value(tf) * 60)
         {
             // Increment the index
             indexes[tf].second++;

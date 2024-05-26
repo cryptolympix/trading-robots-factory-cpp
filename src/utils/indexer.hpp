@@ -21,7 +21,7 @@ public:
     /**
      * @brief Constructs an Indexer object with candles data and a window size.
      *
-     * @param candles_data A dictionary containing candle data for different timeframes.
+     * @param candles A dictionary containing candle data for different timeframes.
      * @param window The size of the window for parsing candles.
      */
     Indexer(const CandlesData &candles, int window);
