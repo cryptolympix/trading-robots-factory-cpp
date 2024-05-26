@@ -99,15 +99,34 @@ std::vector<double> normalize_vector(const std::vector<double> &vector, std::pai
 {
     double current_range_min = current_range.first;
     double current_range_max = current_range.second;
-    double new_range_min = new_range.first;
-    double new_range_max = new_range.second;
 
-    if (current_range.first == 0.0 && current_range.second == 0.0)
+    // If the current range is not specified, calculate it
+    if (current_range_min == 0.0 && current_range_max == 0.0)
     {
         auto current_range_minmax = std::minmax_element(vector.begin(), vector.end());
         current_range_min = *current_range_minmax.first;
         current_range_max = *current_range_minmax.second;
     }
+
+    // If the new range is not specified, set it to [0, 1] or [-1, 0] or [-1, 1] based on the current range
+    if (new_range.first == 0.0 && new_range.second == 0.0)
+    {
+        if (current_range_min < 0.0 && current_range_max <= 0.0)
+        {
+            new_range = std::make_pair(-1.0, 0.0);
+        }
+        else if (current_range_min >= 0.0 && current_range_max > 0.0)
+        {
+            new_range = std::make_pair(0.0, 1.0);
+        }
+        else
+        {
+            new_range = std::make_pair(-1.0, 1.0);
+        }
+    }
+
+    double new_range_min = new_range.first;
+    double new_range_max = new_range.second;
 
     if (current_range_min == current_range_max)
     {

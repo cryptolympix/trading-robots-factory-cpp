@@ -121,12 +121,20 @@ public:
     int run();
 
     /**
-     * @brief Run the testing process for the best trader.
+     * @brief Run the strategy of the best trader in the test period.
      * @param genome The genome to be tested.
      * @param generation The generation number of the genome. Default is 0.
      * @return The exit code of the testing process. 0 if successful, 1 otherwise.
      */
     int test(neat::Genome *genome, int generation = 0);
+
+    /**
+     * @brief Evaluate the strategy of a trader using the Monte Carlo simulation.
+     * @param trader The trader to be evaluated.
+     * @param nb_simulations The number of simulations to run. Default is 1000.
+     * @return The exit code of the evaluation process. 0 if the results are consistences with the training period, 1 otherwise.
+     */
+    int evaluate_trader_with_monte_carlo_simulation(Trader *trader, int nb_simulations = 1000);
 };
 
 #endif // TRAINING_HPP

@@ -60,12 +60,13 @@ TEST(VectorsTest, NormalizeVectorsWithNegativeValues)
     std::vector<double> values = {-1.0, -2.0, -3.0, -4.0, -5.0};
     std::pair<double, double> current_range = std::make_pair(-5.0, -1.0);
     std::pair<double, double> new_range = std::make_pair(0.0, 1.0);
-    std::vector<double> expected_output = {1.0, 0.75, 0.5, 0.25, 0.0};
     std::vector<double> results1 = normalize_vector(values, current_range, new_range);
     std::vector<double> results2 = normalize_vector(values);
+    std::vector<double> expected_output1 = {1.0, 0.75, 0.5, 0.25, 0.0};
+    std::vector<double> expected_output2 = {0.0, -0.25, -0.5, -0.75, -1.0};
 
-    ASSERT_EQ(results1, expected_output);
-    ASSERT_EQ(results2, expected_output);
+    ASSERT_EQ(results1, expected_output1);
+    ASSERT_EQ(results2, expected_output2);
     ASSERT_EQ(results1.size(), values.size());
     ASSERT_EQ(results2.size(), values.size());
 }
@@ -76,12 +77,13 @@ TEST(VectorsTest, NormalizeVectorsWithMixedValues)
     std::vector<double> values = {-2.0, -1.0, 0.0, 1.0, 2.0};
     std::pair<double, double> current_range = std::make_pair(-2.0, 2.0);
     std::pair<double, double> new_range = std::make_pair(0.0, 1.0);
-    std::vector<double> expected_output = {0.0, 0.25, 0.5, 0.75, 1.0};
     std::vector<double> results1 = normalize_vector(values, current_range, new_range);
     std::vector<double> results2 = normalize_vector(values);
+    std::vector<double> expected_output1 = {0.0, 0.25, 0.5, 0.75, 1.0};
+    std::vector<double> expected_output2 = {-1.0, -0.5, 0.0, 0.5, 1.0};
 
-    ASSERT_EQ(results1, expected_output);
-    ASSERT_EQ(results2, expected_output);
+    ASSERT_EQ(results1, expected_output1);
+    ASSERT_EQ(results2, expected_output2);
     ASSERT_EQ(results1.size(), values.size());
     ASSERT_EQ(results2.size(), values.size());
 }

@@ -38,7 +38,7 @@ std::vector<double> divide_vectors(const std::vector<double> &vec1, const std::v
  * @param new_range The target range for normalization.
  * @return std::vector<double> The normalized vector.
  */
-std::vector<double> normalize_vector(const std::vector<double> &vector, std::pair<double, double> current_range = std::make_pair(0.0, 0.0), std::pair<double, double> new_range = std::make_pair(0.0, 1.0));
+std::vector<double> normalize_vector(const std::vector<double> &vector, std::pair<double, double> current_range = std::make_pair(0.0, 0.0), std::pair<double, double> new_range = std::make_pair(0.0, 0.0));
 
 /**
  * @brief Function to calculate the sum of a subvector of size 'period'

@@ -582,7 +582,7 @@ int Training::run()
 }
 
 /**
- * @brief Run the testing process for the best trader.
+ * @brief Run the strategy of the best trader in the test period.
  * @param genome The genome to be tested.
  * @param generation The generation number of the genome.
  * @return The exit code of the testing process. 0 if successful, 1 otherwise.
@@ -664,6 +664,55 @@ int Training::test(neat::Genome *genome, int generation)
     // Generate the balance history graph
     std::string graphic_file = this->directory.generic_string() + "/trader_" + std::to_string(generation) + "_" + trader->genome->id + "_test_balance_history.png";
     trader->generate_balance_history_graph(graphic_file);
+
+    return 0;
+}
+
+/**
+ * @brief Evaluate the strategy of a trader using the Monte Carlo simulation.
+ * @param trader The trader to be evaluated.
+ * @param nb_simulations The number of simulations to run. Default is 1000.
+ * @return The exit code of the evaluation process. 0 if the results are consistences with the training period, 1 otherwise.
+ */
+int Training::evaluate_trader_with_monte_carlo_simulation(Trader *trader, int nb_simulations)
+{
+    // Get the dates for the testing period from the candles in the loop timeframe
+    std::vector<std::string> training_dates = {};
+    for (const auto &[date_string, value] : this->cache->data)
+    {
+        time_t date = std::stoll(date_string); // Convert the string to time_t
+        if (date >= this->config.training.training_start_date && date <= this->config.training.training_end_date)
+        {
+            training_dates.push_back(date_string);
+        }
+    }
+
+    // Get the dates for the test period from the candles in the loop timeframe
+    std::vector<std::string> test_dates = {};
+    for (const auto &[date_string, value] : this->cache->data)
+    {
+        time_t date = std::stoll(date_string); // Convert the string to time_t
+        if (date >= this->config.training.test_start_date && date <= this->config.training.test_end_date)
+        {
+            test_dates.push_back(date_string);
+        }
+    }
+
+    // Number of trades to simulate in the testing period proportionally to the number of trades in the training period
+    int nb_trades_to_simulate = trader->stats.total_trades * test_dates.size() / training_dates.size();
+
+    // Monte Carlo simulation
+    std::vector<double> simulation_final_balance = {};
+    for (int i = 0; i < nb_simulations; i++)
+    {
+        // Create a new trader with the same genome
+        Trader *simulation_trader = new Trader(trader->genome, this->config, nullptr);
+
+        // Simulate the trades
+        for (int j = 0; j < nb_trades_to_simulate; j++)
+        {
+        }
+    }
 
     return 0;
 }
