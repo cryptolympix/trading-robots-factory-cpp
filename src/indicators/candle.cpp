@@ -200,7 +200,7 @@ std::vector<double> CandleVolume::calculate(const std::vector<Candle> &candles, 
  *
  * @param offset Offset value. Default is 0.
  */
-WhiteCandle::WhiteCandle(int offset) : Indicator("White Candle", "white-candle-" + std::to_string(offset), offset) {}
+WhiteCandle::WhiteCandle(int offset) : Indicator("White Candle", "white-candle-" + std::to_string(offset), offset, {0, 1}) {}
 
 /**
  * @brief Calculate the WhiteCandle values.
@@ -231,7 +231,7 @@ std::vector<double> WhiteCandle::calculate(const std::vector<Candle> &candles, b
  *
  * @param offset Offset value. Default is 0.
  */
-BlackCandle::BlackCandle(int offset) : Indicator("Black Candle", "black-candle-" + std::to_string(offset), offset) {}
+BlackCandle::BlackCandle(int offset) : Indicator("Black Candle", "black-candle-" + std::to_string(offset), offset, {0, 1}) {}
 
 /**
  * @brief Calculate the BlackCandle values.
@@ -262,7 +262,7 @@ std::vector<double> BlackCandle::calculate(const std::vector<Candle> &candles, b
  *
  * @param offset Offset value. Default is 0.
  */
-CandleBody::CandleBody(int offset) : Indicator("Candle Body", "candle-body-" + std::to_string(offset), offset) {}
+CandleBody::CandleBody(int offset) : Indicator("Candle Body", "candle-body-" + std::to_string(offset), offset, {0, 1}) {}
 
 /**
  * @brief Calculate the CandleBody values.
@@ -299,7 +299,7 @@ std::vector<double> CandleBody::calculate(const std::vector<Candle> &candles, bo
  *
  * @param offset Offset value. Default is 0.
  */
-CandleShadowUpper::CandleShadowUpper(int offset) : Indicator("Candle Shadow Upper", "candle-shadow-upper-" + std::to_string(offset), offset) {}
+CandleShadowUpper::CandleShadowUpper(int offset) : Indicator("Candle Shadow Upper", "candle-shadow-upper-" + std::to_string(offset), offset, {0, 1}) {}
 
 /**
  * @brief Calculate the CandleShadowUpper values.
@@ -334,7 +334,7 @@ std::vector<double> CandleShadowUpper::calculate(const std::vector<Candle> &cand
  *
  * @param offset Offset value. Default is 0.
  */
-CandleShadowLower::CandleShadowLower(int offset) : Indicator("Candle Shadow Lower", "candle-shadow-lower-" + std::to_string(offset), offset) {}
+CandleShadowLower::CandleShadowLower(int offset) : Indicator("Candle Shadow Lower", "candle-shadow-lower-" + std::to_string(offset), offset, {0, 1}) {}
 
 /**
  * @brief Calculate the CandleShadowLower values.

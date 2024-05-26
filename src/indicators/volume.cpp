@@ -63,7 +63,7 @@ double ADL::calculate_money_flow_multiplier(const Candle &candle) const
  * @param period Period for the CMF. Default is 20.
  * @param offset Offset value for the indicator. Default is 0.
  */
-CMF::CMF(int period, int offset) : Indicator("Chaikin Money Flow", "cmf-" + std::to_string(period) + "-" + std::to_string(offset), offset), period(period) {}
+CMF::CMF(int period, int offset) : Indicator("Chaikin Money Flow", "cmf-" + std::to_string(period) + "-" + std::to_string(offset), offset, {-1, 1}), period(period) {}
 
 /**
  * @brief Calculate the Chaikin Money Flow (CMF) values.

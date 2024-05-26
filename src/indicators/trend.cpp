@@ -17,7 +17,7 @@
  * @param adx_period Period value. Default is 14.
  * @param offset Offset value. Default is 0.
  */
-ADX::ADX(int adx_period, int offset) : Indicator("Average Directional Movement Index", "adx-" + std::to_string(adx_period) + "-" + std::to_string(offset), offset), adx_period(adx_period) {}
+ADX::ADX(int adx_period, int offset) : Indicator("Average Directional Movement Index", "adx-" + std::to_string(adx_period) + "-" + std::to_string(offset), offset, {0, 100}), adx_period(adx_period) {}
 
 /**
  * @brief Calculate the Average Directional Index (ADX).
@@ -171,7 +171,7 @@ std::vector<double> ADX::calculate_adx(const std::vector<double> &dx_values) con
  * @param period Period value. Default is 14.
  * @param offset Offset value. Default is 0.
  */
-AroonUp::AroonUp(int period, int offset) : Indicator("Aroon Up", "aroon-up-" + std::to_string(period) + "-" + std::to_string(offset), offset), period(period) {}
+AroonUp::AroonUp(int period, int offset) : Indicator("Aroon Up", "aroon-up-" + std::to_string(period) + "-" + std::to_string(offset), offset, {0, 100}), period(period) {}
 
 /**
  * @brief Calculate the Aroon Up values.
@@ -228,7 +228,7 @@ std::vector<double> AroonUp::calculate(const std::vector<Candle> &candles, bool 
  * @param period Period value. Default is 14.
  * @param offset Offset value. Default is 0.
  */
-AroonDown::AroonDown(int period, int offset) : Indicator("Aroon Down", "aroon-down-" + std::to_string(period) + "-" + std::to_string(offset), offset), period(period) {}
+AroonDown::AroonDown(int period, int offset) : Indicator("Aroon Down", "aroon-down-" + std::to_string(period) + "-" + std::to_string(offset), offset, {0, 100}), period(period) {}
 
 /**
  * @brief Calculate the Aroon Down values.
@@ -951,7 +951,7 @@ std::vector<double> Vortex::calculate(const std::vector<Candle> &candles, bool n
  * @param long_period Period for long EMA calculation.
  * @param offset Offset value. Default is 0.
  */
-InstitutionalBias::InstitutionalBias(int short_period, int long_period, int offset) : Indicator("Institutional Bias", "institutional-bias-" + std::to_string(short_period) + "-" + std::to_string(long_period) + "-" + std::to_string(offset), offset),
+InstitutionalBias::InstitutionalBias(int short_period, int long_period, int offset) : Indicator("Institutional Bias", "institutional-bias-" + std::to_string(short_period) + "-" + std::to_string(long_period) + "-" + std::to_string(offset), offset, {-1, 1}),
                                                                                       short_period(short_period), long_period(long_period) {}
 
 /**
@@ -1038,7 +1038,7 @@ std::vector<double> EMADifference::calculate(const std::vector<Candle> &candles,
  * @param period Period value. Default is 14.
  * @param offset Offset value. Default is 0.
  */
-AroonTrend::AroonTrend(int period, int offset) : Indicator("Aroon Trend", "aroon-trend-" + std::to_string(period) + "-" + std::to_string(offset), offset), period(period) {}
+AroonTrend::AroonTrend(int period, int offset) : Indicator("Aroon Trend", "aroon-trend-" + std::to_string(period) + "-" + std::to_string(offset), offset, {-1, 1}), period(period) {}
 
 /**
  * @brief Calculate the Aroon Up values.
@@ -1122,7 +1122,7 @@ std::vector<double> AroonTrend::calculate(const std::vector<Candle> &candles, bo
  * @param offset Offset value. Default is 0.
  */
 IchimokuCloudTrend::IchimokuCloudTrend(int conversion_period, int base_period, int lagging_period, int leading_period, int offset)
-    : Indicator("Ichimoku Cloud Trend", "ichimoku-cloud-trend-" + std::to_string(conversion_period) + "-" + std::to_string(base_period) + "-" + std::to_string(lagging_period) + "-" + std::to_string(leading_period) + "-" + std::to_string(offset), offset),
+    : Indicator("Ichimoku Cloud Trend", "ichimoku-cloud-trend-" + std::to_string(conversion_period) + "-" + std::to_string(base_period) + "-" + std::to_string(lagging_period) + "-" + std::to_string(leading_period) + "-" + std::to_string(offset), offset, {-1, 1}),
       conversion_period(conversion_period),
       base_period(base_period),
       lagging_period(lagging_period),
@@ -1238,7 +1238,7 @@ std::vector<double> IchimokuCloudTrend::calculate(const std::vector<Candle> &can
  * @param offset Offset value. Default is 0.
  */
 IchimokuKijunTenkanTrend::IchimokuKijunTenkanTrend(int conversion_period, int base_period, int lagging_period, int leading_period, int offset)
-    : Indicator("Ichimoku Kijun Tenkan Trend", "ichimoku-tenkan-kijun-trend-" + std::to_string(conversion_period) + "-" + std::to_string(base_period) + "-" + std::to_string(lagging_period) + "-" + std::to_string(leading_period) + "-" + std::to_string(offset), offset),
+    : Indicator("Ichimoku Kijun Tenkan Trend", "ichimoku-tenkan-kijun-trend-" + std::to_string(conversion_period) + "-" + std::to_string(base_period) + "-" + std::to_string(lagging_period) + "-" + std::to_string(leading_period) + "-" + std::to_string(offset), offset, {-1, 1}),
       conversion_period(conversion_period),
       base_period(base_period),
       lagging_period(lagging_period),

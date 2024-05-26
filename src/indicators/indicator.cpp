@@ -2,6 +2,7 @@
 #include <regex>
 #include <cmath>
 #include <stdexcept>
+#include <utility>
 #include "../utils/vectors.hpp"
 #include "indicator.hpp"
 #include "../types.hpp"
@@ -9,8 +10,8 @@
 /**
  * @brief Construct a new Indicator::Indicator object.
  */
-Indicator::Indicator(const std::string &label, const std::string &id, int offset)
-    : label(label), id(id), offset(offset)
+Indicator::Indicator(const std::string &label, const std::string &id, int offset, std::pair<double, double> values_range)
+    : label(label), id(id), offset(offset), values_range(values_range)
 {
 }
 
@@ -26,7 +27,7 @@ std::vector<double> Indicator::calculate(const std::vector<Candle> &candles, std
 {
     std::vector<double> values(candles.size(), 0.0);
 
-    if (offset < 0)
+    if (this->offset < 0)
     {
         std::cerr << "Offset cannot be negative." << std::endl;
         return values;
@@ -36,21 +37,21 @@ std::vector<double> Indicator::calculate(const std::vector<Candle> &candles, std
         std::cerr << "Candles data is empty." << std::endl;
         return values;
     }
-    else if (candles.size() < offset)
+    else if (candles.size() < this->offset)
     {
         std::cerr << "Offset is greater than the number of candles." << std::endl;
         return values;
     }
-    else if (candles.size() == offset)
+    else if (candles.size() == this->offset)
     {
         std::cerr << "Offset is equal to the number of candles." << std::endl;
         return values;
     }
 
     // Adjust candles based on the offset
-    if (offset > 0)
+    if (this->offset > 0)
     {
-        std::vector<Candle> adjusted_candles(candles.begin(), candles.end() - offset);
+        std::vector<Candle> adjusted_candles(candles.begin(), candles.end() - this->offset);
         // Calculate the indicator
         values = calculator(adjusted_candles);
 
@@ -67,14 +68,14 @@ std::vector<double> Indicator::calculate(const std::vector<Candle> &candles, std
     // Normalize the data
     if (normalize_data)
     {
-        values = normalize_vector(values);
+        values = normalize_vector(values, this->values_range);
     }
 
     // Check that there isn't nan values
     if (std::any_of(values.begin(), values.end(), [](double value)
                     { return std::isnan(value); }))
     {
-        std::cerr << "There are nan values in the indicator: " << id << std::endl;
+        std::cerr << "There are nan values in the indicator: " << this->id << std::endl;
         std::exit(1);
     }
 

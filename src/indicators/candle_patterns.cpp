@@ -9,7 +9,7 @@
  * @param pattern_name Name of the pattern.
  * @param offset Offset value. Default is 0.
  */
-DojiCandlePattern::DojiCandlePattern(int offset) : Indicator("Doji Candle Pattern", "doji-candle-pattern-" + std::to_string(offset), offset) {}
+DojiCandlePattern::DojiCandlePattern(int offset) : Indicator("Doji Candle Pattern", "doji-candle-pattern-" + std::to_string(offset), offset, {0, 4}) {}
 
 /**
  * @brief Calculate the DojiCandlePattern values.
@@ -157,7 +157,7 @@ bool DojiCandlePattern::isGravestoneDoji(const std::vector<Candle> &candles, siz
  *
  * @param offset Offset value. Default is 0.
  */
-SingleCandlePattern::SingleCandlePattern(int offset) : Indicator("Single Candle Pattern", "single-candle-pattern-" + std::to_string(offset), offset) {}
+SingleCandlePattern::SingleCandlePattern(int offset) : Indicator("Single Candle Pattern", "single-candle-pattern-" + std::to_string(offset), offset, {-4, 4}) {}
 
 /**
  * @brief Calculate the SingleCandlePattern values.
@@ -475,7 +475,7 @@ bool SingleCandlePattern::isBearishMarubozu(const std::vector<Candle> &candles, 
  *
  * @param offset Offset value. Default is 0.
  */
-DoubleCandlePattern::DoubleCandlePattern(int offset) : Indicator("Double Candle Pattern", "multiple-candle-pattern-" + std::to_string(offset), offset) {}
+DoubleCandlePattern::DoubleCandlePattern(int offset) : Indicator("Double Candle Pattern", "multiple-candle-pattern-" + std::to_string(offset), offset, {-2, 2}) {}
 
 /**
  * @brief Calculate the DoubleCandlePattern values.
@@ -675,7 +675,7 @@ bool DoubleCandlePattern::isDarkCloudCover(const std::vector<Candle> &candles, s
  *
  * @param offset Offset value. Default is 0.
  */
-TripleCandlePattern::TripleCandlePattern(int offset) : Indicator("Triple Candle Pattern", "triple-candle-pattern-" + std::to_string(offset), offset) {}
+TripleCandlePattern::TripleCandlePattern(int offset) : Indicator("Triple Candle Pattern", "triple-candle-pattern-" + std::to_string(offset), offset, {-6, 6}) {}
 
 /**
  * @brief Calculate the TripleCandlePattern values.

@@ -161,7 +161,7 @@ double KAMA::calculate_initial_kama(const std::vector<double> &closes) const
  * @param period The period for calculating Money Flow Index (MFI).
  * @param offset Offset value. Default is 0.
  */
-MFI::MFI(int period, int offset) : Indicator("Money Flow Index", "mfi-" + std::to_string(period) + "-" + std::to_string(offset), offset), period(period) {}
+MFI::MFI(int period, int offset) : Indicator("Money Flow Index", "mfi-" + std::to_string(period) + "-" + std::to_string(offset), offset, {0, 100}), period(period) {}
 
 /**
  * @brief Calculate the Money Flow Index (MFI) values.
@@ -402,7 +402,7 @@ std::vector<double> ROC::calculate(const std::vector<Candle> &candles, bool norm
  * @param offset Offset value. Default is 0.
  *
  */
-RSI::RSI(int period, int offset) : Indicator("Relative Strength Index (RSI)", "rsi-" + std::to_string(period) + "-" + std::to_string(offset), offset), period(period) {}
+RSI::RSI(int period, int offset) : Indicator("Relative Strength Index (RSI)", "rsi-" + std::to_string(period) + "-" + std::to_string(offset), offset, {0, 100}), period(period) {}
 
 /**
  * @brief Calculate the Relative Strength Index (RSI) values.
@@ -476,7 +476,7 @@ std::vector<double> RSI::calculate(const std::vector<Candle> &candles, bool norm
  * @param offset Offset value. Default is 0.
  */
 StochasticRSI::StochasticRSI(int period, int sma_period, int offset)
-    : Indicator("Stochastic Relative Strength Index (Stoch RSI)", "stoch-rsi-" + std::to_string(period) + "-" + std::to_string(sma_period) + "-" + std::to_string(offset), offset),
+    : Indicator("Stochastic Relative Strength Index (Stoch RSI)", "stoch-rsi-" + std::to_string(period) + "-" + std::to_string(sma_period) + "-" + std::to_string(offset), offset, {0, 100}),
       period(period), sma_period(sma_period) {}
 
 /**
@@ -529,7 +529,7 @@ std::vector<double> StochasticRSI::calculate(const std::vector<Candle> &candles,
  * @param offset Offset value. Default is 0.
  */
 StochasticOscillator::StochasticOscillator(int k_period, int d_period, int offset)
-    : Indicator("Stochastic Oscillator", "stoch-oscillator-" + std::to_string(k_period) + "-" + std::to_string(d_period) + "-" + std::to_string(offset), offset),
+    : Indicator("Stochastic Oscillator", "stoch-oscillator-" + std::to_string(k_period) + "-" + std::to_string(d_period) + "-" + std::to_string(offset), offset, {0, 100}),
       k_period(k_period),
       d_period(d_period) {}
 
@@ -593,7 +593,7 @@ std::vector<double> StochasticOscillator::calculate(const std::vector<Candle> &c
  * @param offset Offset value. Default is 0.
  */
 TSI::TSI(int short_period, int long_period, int offset)
-    : Indicator("True Strength Index", "tsi-" + std::to_string(short_period) + "-" + std::to_string(long_period) + "-" + std::to_string(offset), offset),
+    : Indicator("True Strength Index", "tsi-" + std::to_string(short_period) + "-" + std::to_string(long_period) + "-" + std::to_string(offset), offset, {-100, 100}),
       short_period(short_period), long_period(long_period) {}
 
 /**
@@ -714,7 +714,7 @@ std::vector<double> UO::calculate(const std::vector<Candle> &candles, bool norma
  * @param period The period for calculating Williams %R.
  * @param offset Offset value. Default is 0.
  */
-WilliamsPercentR::WilliamsPercentR(int period, int offset) : Indicator("Williams %R", "wpr-" + std::to_string(period) + "-" + std::to_string(offset), offset), period(period) {}
+WilliamsPercentR::WilliamsPercentR(int period, int offset) : Indicator("Williams %R", "wpr-" + std::to_string(period) + "-" + std::to_string(offset), offset, {-100, 0}), period(period) {}
 
 /**
  * @brief Calculate the Williams Percent R values.

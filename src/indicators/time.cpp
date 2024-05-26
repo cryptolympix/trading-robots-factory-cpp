@@ -12,7 +12,7 @@
  *
  * @param offset Offset value. Default is 0.
  */
-Hour::Hour(int offset) : Indicator("Hour", "hour-" + std::to_string(offset), offset) {}
+Hour::Hour(int offset) : Indicator("Hour", "hour-" + std::to_string(offset), offset, {0, 23}) {}
 
 /**
  * @brief Calculate the Hour values.
@@ -46,7 +46,7 @@ std::vector<double> Hour::calculate(const std::vector<Candle> &candles, bool nor
  *
  * @param offset Offset value. Default is 0.
  */
-NFPWeek::NFPWeek(int offset) : Indicator("NFP Week", "nfp-week-" + std::to_string(offset), offset) {}
+NFPWeek::NFPWeek(int offset) : Indicator("NFP Week", "nfp-week-" + std::to_string(offset), offset, {0, 1}) {}
 
 /**
  * @brief Check if the candle is on NFP week.
@@ -84,7 +84,7 @@ std::vector<double> NFPWeek::calculate(const std::vector<Candle> &candles, bool 
  */
 MarketSession::MarketSession(std::string zone, int offset) : Indicator(zone == "new-york" ? "New York Market Session" : zone == "london" ? "London Market Session"
                                                                                                                                          : "Tokyo Market Session",
-                                                                       "market-session-" + zone + "-" + std::to_string(offset), offset),
+                                                                       "market-session-" + zone + "-" + std::to_string(offset), offset, {0, 1}),
                                                              zone(zone) {}
 
 /**
@@ -135,7 +135,7 @@ std::vector<double> MarketSession::calculate(const std::vector<Candle> &candles,
  * @param day Week day.
  * @param offset Offset value. Default is 0.
  */
-WeekDay::WeekDay(std::string day, int offset) : Indicator("Week Day (" + day + ")", "week-day-" + day + "-" + std::to_string(offset), offset), day(day) {}
+WeekDay::WeekDay(std::string day, int offset) : Indicator("Week Day (" + day + ")", "week-day-" + day + "-" + std::to_string(offset), offset, {0, 1}), day(day) {}
 
 /**
  * @brief Get the days of the candle.

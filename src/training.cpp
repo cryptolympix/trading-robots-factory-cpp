@@ -16,6 +16,7 @@
 #include "utils/time_frame.hpp"
 #include "utils/date_conversion.hpp"
 #include "utils/progress_bar.hpp"
+#include "utils/math.hpp"
 #include "neat/population.hpp"
 #include "neat/genome.hpp"
 #include "training.hpp"
@@ -549,6 +550,8 @@ int Training::run()
             std::string genome_save_file = this->directory.generic_string() + "/trader_" + std::to_string(generation) + "_" + best_trader->genome->id + "_genome_save.json";
             std::string graphic_file = this->directory.generic_string() + "/trader_" + std::to_string(generation) + "_" + best_trader->genome->id + "_training_balance_history.png";
             std::string report_file = this->directory.generic_string() + "/trader_" + std::to_string(generation) + "_" + best_trader->genome->id + "_training_report.html";
+
+            std::cout << std::endl;
             best_trader->genome->save(genome_save_file);
             std::cout << "💾 Genome saved to '" << genome_save_file << "'" << std::endl;
             best_trader->generate_balance_history_graph(graphic_file);
@@ -702,7 +705,7 @@ int Training::evaluate_trader_with_monte_carlo_simulation(Trader *trader, int nb
     int nb_trades_to_simulate = trader->stats.total_trades * test_dates.size() / training_dates.size();
 
     // Monte Carlo simulation
-    std::vector<double> simulation_final_balance = {};
+    std::vector<double> simulation_final_balance = std::vector<double>(nb_simulations, this->config.general.initial_balance);
     for (int i = 0; i < nb_simulations; i++)
     {
         // Create a new trader with the same genome
@@ -711,6 +714,15 @@ int Training::evaluate_trader_with_monte_carlo_simulation(Trader *trader, int nb
         // Simulate the trades
         for (int j = 0; j < nb_trades_to_simulate; j++)
         {
+            double random = (double)rand() / RAND_MAX;
+            bool winning_trade = random < trader->stats.win_rate;
+
+            if (winning_trade)
+            {
+            }
+            else
+            {
+            }
         }
     }
 

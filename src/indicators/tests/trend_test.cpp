@@ -147,6 +147,10 @@ TEST_F(TrendIndicatorsTest, InstitutionalBias)
     std::vector<double> result_ib = ib.calculate(mock_candles);
 
     ASSERT_EQ(result_ib.size(), mock_candles.size());
+    for (int i = 0; i < result_ib.size(); i++)
+    {
+        ASSERT_TRUE(result_ib[i] == -1 || result_ib[i] == 0 || result_ib[i] == 1);
+    }
 }
 
 TEST_F(TrendIndicatorsTest, EMADifference)
