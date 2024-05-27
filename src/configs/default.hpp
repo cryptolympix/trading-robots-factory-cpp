@@ -49,7 +49,7 @@ std::tm end_training_date = {
     .tm_min = 0,
     .tm_hour = 0,
     .tm_mday = 1,
-    .tm_mon = 3,
+    .tm_mon = 1,
     .tm_year = 2023 - 1900,
 };
 
@@ -58,7 +58,7 @@ std::tm start_test_date = {
     .tm_min = 0,
     .tm_hour = 0,
     .tm_mday = 1,
-    .tm_mon = 3,
+    .tm_mon = 1,
     .tm_year = 2023 - 1900,
 };
 
@@ -67,7 +67,7 @@ std::tm end_test_date = {
     .tm_min = 0,
     .tm_hour = 0,
     .tm_mday = 1,
-    .tm_mon = 4,
+    .tm_mon = 2,
     .tm_year = 2023 - 1900,
 };
 

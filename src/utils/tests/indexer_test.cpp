@@ -51,7 +51,7 @@ TEST_F(TestIndexer, TestIndexes)
     for (int i = 0; i < 5; ++i)
     {
         // New date to update indexes
-        time_t new_date = mock_date + i * get_time_frame_value(TimeFrame::H1) * 60;
+        time_t new_date = mock_date + i * get_time_frame_in_minutes(TimeFrame::H1) * 60;
 
         // Call the function to update indexes
         indexer->update_indexes(new_date);

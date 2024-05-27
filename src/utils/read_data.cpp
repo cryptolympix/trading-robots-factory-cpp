@@ -80,7 +80,7 @@ std::vector<Candle> read_data(const std::string &symbol, TimeFrame time_frame, t
         date_str += " " + token;
 
         std::tm tm = string_to_tm(date_str, "%Y.%m.%d %H:%M:%S");
-        time_t date = std::mktime(&tm) + 60 * get_time_frame_value(time_frame); // To have the closing time of the candle
+        time_t date = std::mktime(&tm) + 60 * get_time_frame_in_minutes(time_frame); // To have the closing time of the candle
         candle.date = date;
 
         std::getline(ss, token, '\t'); // OPEN

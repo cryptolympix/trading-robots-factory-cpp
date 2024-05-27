@@ -13,7 +13,7 @@
  * @param time_frame The timeframe for which the number of minutes is requested.
  * @return int The number of minutes corresponding to the specified timeframe.
  */
-int get_time_frame_value(TimeFrame time_frame);
+int get_time_frame_in_minutes(TimeFrame time_frame);
 
 /**
  * @brief Check if the given time matches the specified format for the given timeframe.

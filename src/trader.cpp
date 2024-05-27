@@ -703,7 +703,7 @@ bool Trader::can_trade()
  */
 int Trader::trade()
 {
-    int loop_interval_minutes = get_time_frame_value(this->config.strategy.timeframe);
+    int loop_interval_minutes = get_time_frame_in_minutes(this->config.strategy.timeframe);
     Candle last_candle = this->candles[this->config.strategy.timeframe].back();
 
     // Position information

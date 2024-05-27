@@ -10,7 +10,7 @@
  * @param time_frame The timeframe for which the number of minutes is requested.
  * @return int The number of minutes corresponding to the specified timeframe.
  */
-int get_time_frame_value(TimeFrame time_frame)
+int get_time_frame_in_minutes(TimeFrame time_frame)
 {
     switch (time_frame)
     {
@@ -86,7 +86,7 @@ TimeFrame highest_time_frame(const std::vector<TimeFrame> &time_frames)
     else
     {
         std::sort(time_frames_copy.begin(), time_frames_copy.end(), [](TimeFrame a, TimeFrame b)
-                  { return get_time_frame_value(a) > get_time_frame_value(b); });
+                  { return get_time_frame_in_minutes(a) > get_time_frame_in_minutes(b); });
         return time_frames_copy[0];
     }
 }

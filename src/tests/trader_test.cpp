@@ -554,7 +554,7 @@ TEST_F(TraderTest, ClosePositionForDurationExceeded)
     trader->duration_in_position = config.strategy.maximum_trade_duration.value() - 1;
 
     // Call the update method
-    time_t new_date = date + get_time_frame_value(config.strategy.timeframe) * 60;
+    time_t new_date = date + get_time_frame_in_minutes(config.strategy.timeframe) * 60;
     trader->update(trader->candles);
     trader->current_date = new_date;
     trader->trade();
@@ -583,7 +583,7 @@ TEST_F(TraderTest, WaitForDurationBeforeClosePosition)
     // Call the update method for the maximum trade duration - 1
     for (int i = 0; i < config.strategy.minimum_trade_duration.value() - 1; ++i)
     {
-        time_t new_date = date + i * get_time_frame_value(config.strategy.timeframe) * 60;
+        time_t new_date = date + i * get_time_frame_in_minutes(config.strategy.timeframe) * 60;
         trader->update(trader->candles);
         trader->current_date = new_date;
         trader->trade();
@@ -594,7 +594,7 @@ TEST_F(TraderTest, WaitForDurationBeforeClosePosition)
     ASSERT_EQ(trader->duration_in_position, config.strategy.minimum_trade_duration.value() - 1);
 
     // Call the update method for the last trade duration
-    time_t last_date = date + config.strategy.minimum_trade_duration.value() * get_time_frame_value(config.strategy.timeframe) * 60;
+    time_t last_date = date + config.strategy.minimum_trade_duration.value() * get_time_frame_in_minutes(config.strategy.timeframe) * 60;
     trader->update(trader->candles);
     trader->current_date = last_date;
     trader->trade();

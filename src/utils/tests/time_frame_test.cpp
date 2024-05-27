@@ -1,19 +1,19 @@
 #include <gtest/gtest.h>
 #include "../time_frame.hpp"
 
-// Test case for get_time_frame_value function
-TEST(TimeFrameTest, GetTimeFrameValue)
+// Test case for get_time_frame_in_minutes function
+TEST(TimeFrameTest, GetTimeFrameInMinutes)
 {
     // Test each time frame and check if the returned value is correct
-    EXPECT_EQ(get_time_frame_value(TimeFrame::M1), 1);
-    EXPECT_EQ(get_time_frame_value(TimeFrame::M5), 5);
-    EXPECT_EQ(get_time_frame_value(TimeFrame::M15), 15);
-    EXPECT_EQ(get_time_frame_value(TimeFrame::M30), 30);
-    EXPECT_EQ(get_time_frame_value(TimeFrame::H1), 60);
-    EXPECT_EQ(get_time_frame_value(TimeFrame::H4), 60 * 4);
-    EXPECT_EQ(get_time_frame_value(TimeFrame::H12), 60 * 12);
-    EXPECT_EQ(get_time_frame_value(TimeFrame::D1), 60 * 24);
-    EXPECT_THROW(get_time_frame_value(static_cast<TimeFrame>(-1)), std::runtime_error);
+    EXPECT_EQ(get_time_frame_in_minutes(TimeFrame::M1), 1);
+    EXPECT_EQ(get_time_frame_in_minutes(TimeFrame::M5), 5);
+    EXPECT_EQ(get_time_frame_in_minutes(TimeFrame::M15), 15);
+    EXPECT_EQ(get_time_frame_in_minutes(TimeFrame::M30), 30);
+    EXPECT_EQ(get_time_frame_in_minutes(TimeFrame::H1), 60);
+    EXPECT_EQ(get_time_frame_in_minutes(TimeFrame::H4), 60 * 4);
+    EXPECT_EQ(get_time_frame_in_minutes(TimeFrame::H12), 60 * 12);
+    EXPECT_EQ(get_time_frame_in_minutes(TimeFrame::D1), 60 * 24);
+    EXPECT_THROW(get_time_frame_in_minutes(static_cast<TimeFrame>(-1)), std::runtime_error);
 }
 
 // Test case for match_time_frame function

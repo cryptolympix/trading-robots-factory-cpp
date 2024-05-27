@@ -141,15 +141,9 @@ TEST_F(TrainingTest, LoadCandles)
 
     ASSERT_FALSE(training->candles.empty());
 
-    std::vector<time_t> dates = {};
-    for (const auto &[date, candles_data] : training->candles)
+    for (int i = 0; i < training->dates.size(); ++i)
     {
-        dates.push_back(date);
-    }
-
-    for (int i = 0; i < dates.size(); ++i)
-    {
-        time_t date = dates[i];
+        time_t date = training->dates[i];
 
         ASSERT_TRUE(training->candles.find(date) != training->candles.end());
 
@@ -165,9 +159,9 @@ TEST_F(TrainingTest, LoadCandles)
         ASSERT_EQ(training->candles[date][TimeFrame::M30].back().date, date);
         ASSERT_EQ(training->candles[date][TimeFrame::H1].back().date, date);
 
-        ASSERT_LE(training->candles[date][TimeFrame::M15].size(), CANDLES_WINDOW);
-        ASSERT_LE(training->candles[date][TimeFrame::M30].size(), CANDLES_WINDOW);
-        ASSERT_LE(training->candles[date][TimeFrame::H1].size(), CANDLES_WINDOW);
+        ASSERT_EQ(training->candles[date][TimeFrame::M15].size(), CANDLES_WINDOW);
+        ASSERT_EQ(training->candles[date][TimeFrame::M30].size(), CANDLES_WINDOW);
+        ASSERT_EQ(training->candles[date][TimeFrame::H1].size(), CANDLES_WINDOW);
     }
 }
 
@@ -210,7 +204,7 @@ TEST_F(TrainingTest, CacheData)
     training->cache_data();
 
     TimeFrame loop_timeframe = config.strategy.timeframe;
-    int loop_timeframe_minutes = get_time_frame_value(loop_timeframe);
+    int loop_timeframe_minutes = get_time_frame_in_minutes(loop_timeframe);
     int nb_dates = training->candles.size();
 
     // Check the dates is in the cache

@@ -41,6 +41,7 @@ Training::Training(std::string id, Config &config, bool debug)
 
     this->candles = {};
     this->indicators = {};
+    this->dates = {};
 
     // Conversion rate when the base of asset traded is different of the account currency
     this->base_currency_conversion_rate = {};
@@ -123,30 +124,32 @@ void Training::prepare()
 void Training::load_candles(bool display_progress)
 {
     std::vector<TimeFrame> all_timeframes = this->get_all_timeframes();
+    TimeFrame highest_timeframe = highest_time_frame(all_timeframes);
     TimeFrame loop_timeframe = this->config.strategy.timeframe;
     CandlesData candles = {};
 
     // Load the candles from data for all the timeframes
-    for (int i = 0; i < all_timeframes.size(); i++)
+    for (const TimeFrame &tf : all_timeframes)
     {
-        TimeFrame tf = all_timeframes[i];
         time_t start_date = this->config.training.training_start_date;
         time_t end_date = this->config.training.test_end_date;
-        candles[tf] = read_data(config.general.symbol, tf, start_date, end_date);
+        candles[tf] = read_data(config.general.symbol, tf, 0L, end_date);
     }
 
-    // Get all the dates from the candles in the loop timeframe
-    std::vector<time_t> dates = {};
+    // Filter the dates from the candles in the loop timeframe
     for (const auto &candle : candles[loop_timeframe])
     {
-        dates.push_back(candle.date);
+        if (candle.date >= this->config.training.training_start_date)
+        {
+            this->dates.push_back(candle.date);
+        }
     }
 
     // Progress bar
     ProgressBar *progress_bar = display_progress ? new ProgressBar(100, dates.size()) : nullptr;
 
     // Loop through the dates and get the candles for each timeframe
-    for (const auto &date : dates)
+    for (const auto &date : this->dates)
     {
         CandlesData current_candles = {};
         Indexer *indexer = new Indexer(candles, CANDLES_WINDOW);
@@ -156,9 +159,16 @@ void Training::load_candles(bool display_progress)
         for (const auto &tf : all_timeframes)
         {
             std::pair<int, int> index = indexer->get_indexes(tf);
+
             for (int i = index.first; i <= index.second; i++)
             {
                 current_candles[tf].push_back(candles[tf][i]);
+            }
+
+            if (current_candles[tf].size() < CANDLES_WINDOW)
+            {
+                std::cerr << "Error: not enough candles for the date " << time_t_to_string(date) << std::endl;
+                std::exit(1);
             }
         }
 
@@ -189,18 +199,11 @@ void Training::load_indicators(bool display_progress)
         return;
     }
 
-    // Get all the dates from the candles in the loop timeframe
-    std::vector<time_t> dates = {};
-    for (const auto &[date, candles_data] : this->candles)
-    {
-        dates.push_back(date);
-    }
-
     std::map<TimeFrame, std::vector<Indicator *>> all_indicators = config.training.inputs.indicators;
     ProgressBar *progress_bar = display_progress ? new ProgressBar(100, dates.size()) : nullptr;
 
     // Loop through the dates
-    for (const auto &date : dates)
+    for (const auto &date : this->dates)
     {
         this->indicators[date] = {};
 
@@ -303,18 +306,11 @@ void Training::cache_data(bool display_progress)
 {
     std::vector<TimeFrame> all_timeframes = get_all_timeframes();
     TimeFrame loop_timeframe = config.strategy.timeframe;
-    int loop_timeframe_minutes = get_time_frame_value(loop_timeframe);
-
-    // Get all the dates from the candles in the loop timeframe
-    std::vector<time_t> dates = {};
-    for (const auto &[date, candles_data] : this->candles)
-    {
-        dates.push_back(date);
-    }
+    int loop_timeframe_minutes = get_time_frame_in_minutes(loop_timeframe);
 
     ProgressBar *progress_bar = display_progress ? new ProgressBar(100, dates.size()) : nullptr;
 
-    for (const auto &date : dates)
+    for (const auto &date : this->dates)
     {
         CandlesData current_candles = {};
         IndicatorsData current_indicators = {};
@@ -452,7 +448,7 @@ Trader *Training::get_best_trader_of_generation(int generation) const
 void Training::evaluate_genome(neat::Genome *genome, int generation)
 {
     TimeFrame loop_timeframe = this->config.strategy.timeframe;
-    int loop_timeframe_minutes = get_time_frame_value(loop_timeframe);
+    int loop_timeframe_minutes = get_time_frame_in_minutes(loop_timeframe);
 
     Logger *logger = new Logger(this->directory.generic_string() + "/logs/training/trader_" + genome->id + ".log");
     Trader *trader = new Trader(genome, this->config, this->debug ? logger : nullptr);

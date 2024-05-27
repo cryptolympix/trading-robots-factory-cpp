@@ -53,7 +53,7 @@ TEST(ReadDataTest, TestReadDataWithDateRange)
     // Assert that the vector is not empty
     ASSERT_TRUE(candles.size() > 0);
 
-    int loop_timeframe_minutes = get_time_frame_value(TimeFrame::H1);
+    int loop_timeframe_minutes = get_time_frame_in_minutes(TimeFrame::H1);
     int candles_count = 0;
 
     // Loop through the candles and count the number of candles within the date range

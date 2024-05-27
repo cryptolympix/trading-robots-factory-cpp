@@ -31,7 +31,7 @@ void Indexer::update_indexes(time_t date)
     for (auto &[tf, c] : this->candles)
     {
         while (indexes[tf].second < c.size() &&
-               c[indexes[tf].second].date < date && date - c[indexes[tf].second].date >= get_time_frame_value(tf) * 60)
+               c[indexes[tf].second].date < date && date - c[indexes[tf].second].date >= get_time_frame_in_minutes(tf) * 60)
         {
             // Increment the index
             indexes[tf].second++;

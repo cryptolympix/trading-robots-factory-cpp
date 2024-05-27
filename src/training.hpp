@@ -39,6 +39,8 @@ public:
     std::map<time_t, IndicatorsData> indicators;                  // Indicator data for all time frames at a specified date.
     BaseCurrencyConversionRateData base_currency_conversion_rate; // Conversion rate when the base asset traded is different from the account currency.
     Cache *cache;                                                 // Cached data for faster access.
+    
+    std::vector<time_t> dates; // The list of dates to parse in the simulation
 
     neat::Population *population;                 // NEAT population for evolution.
     std::map<int, std::vector<Trader *>> traders; // Map of traders for each generation.
