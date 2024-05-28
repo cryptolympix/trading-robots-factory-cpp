@@ -11,7 +11,7 @@
  * @param right_bars Number of right bars.
  * @param offset Offset value. Default is 0.
  */
-NewHighSignal::NewHighSignal(int left_bars, int right_bars, int offset) : Indicator("New High Signal", "new-high-signal-" + std::to_string(left_bars) + "-" + std::to_string(right_bars) + "-" + std::to_string(offset), offset), left_bars(left_bars), right_bars(right_bars) {}
+NewHighSignal::NewHighSignal(int left_bars, int right_bars, int offset) : Indicator("New High Signal", "new-high-signal-" + std::to_string(left_bars) + "-" + std::to_string(right_bars) + "-" + std::to_string(offset), offset, {0, 1}), left_bars(left_bars), right_bars(right_bars) {}
 
 /**
  * @brief Calculate the New High Signal values.
@@ -52,7 +52,7 @@ std::vector<double> NewHighSignal::calculate(const std::vector<Candle> &candles,
  * @param right_bars Number of right bars.
  * @param offset Offset value. Default is 0.
  */
-NewLowSignal::NewLowSignal(int left_bars, int right_bars, int offset) : Indicator("New Low Signal", "new-low-signal-" + std::to_string(left_bars) + "-" + std::to_string(right_bars) + "-" + std::to_string(offset), offset), left_bars(left_bars), right_bars(right_bars) {}
+NewLowSignal::NewLowSignal(int left_bars, int right_bars, int offset) : Indicator("New Low Signal", "new-low-signal-" + std::to_string(left_bars) + "-" + std::to_string(right_bars) + "-" + std::to_string(offset), offset, {0, 1}), left_bars(left_bars), right_bars(right_bars) {}
 
 /**
  * @brief Calculate the New Low Signal values.
@@ -93,7 +93,7 @@ std::vector<double> NewLowSignal::calculate(const std::vector<Candle> &candles, 
  * @param right_bars Number of right bars.
  * @param offset Offset value. Default is 0.
  */
-HighBreakSignal::HighBreakSignal(int left_bars, int right_bars, int offset) : Indicator("High Break Signal", "high-break-signal-" + std::to_string(left_bars) + "-" + std::to_string(right_bars) + "-" + std::to_string(offset), offset), left_bars(left_bars), right_bars(right_bars) {}
+HighBreakSignal::HighBreakSignal(int left_bars, int right_bars, int offset) : Indicator("High Break Signal", "high-break-signal-" + std::to_string(left_bars) + "-" + std::to_string(right_bars) + "-" + std::to_string(offset), offset, {0, 1}), left_bars(left_bars), right_bars(right_bars) {}
 
 /**
  * @brief Calculate the High Break Signal values.
@@ -133,7 +133,7 @@ std::vector<double> HighBreakSignal::calculate(const std::vector<Candle> &candle
  * @param right_bars Number of right bars.
  * @param offset Offset value. Default is 0.
  */
-LowBreakSignal::LowBreakSignal(int left_bars, int right_bars, int offset) : Indicator("Low Break Signal", "low-break-signal-" + std::to_string(left_bars) + "-" + std::to_string(right_bars) + "-" + std::to_string(offset), offset), left_bars(left_bars), right_bars(right_bars) {}
+LowBreakSignal::LowBreakSignal(int left_bars, int right_bars, int offset) : Indicator("Low Break Signal", "low-break-signal-" + std::to_string(left_bars) + "-" + std::to_string(right_bars) + "-" + std::to_string(offset), offset, {0, 1}), left_bars(left_bars), right_bars(right_bars) {}
 
 /**
  * @brief Calculate the Low Break Signal values.

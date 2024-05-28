@@ -128,15 +128,17 @@ std::vector<double> normalize_vector(const std::vector<double> &vector, std::pai
     double new_range_min = new_range.first;
     double new_range_max = new_range.second;
 
-    if (current_range_min == current_range_max)
-    {
-        throw std::invalid_argument("The current range of values in the input vector is zero.");
-    }
-
     std::vector<double> normalized_vector(vector.size(), 0.0);
     for (size_t i = 0; i < vector.size(); ++i)
     {
-        normalized_vector[i] = new_range_min + (vector[i] - current_range_min) * (new_range_max - new_range_min) / (current_range_max - current_range_min);
+        if (current_range_max - current_range_min == 0)
+        {
+            normalized_vector[i] = new_range_min;
+        }
+        else
+        {
+            normalized_vector[i] = new_range_min + (vector[i] - current_range_min) * (new_range_max - new_range_min) / (current_range_max - current_range_min);
+        }
     }
     return normalized_vector;
 }

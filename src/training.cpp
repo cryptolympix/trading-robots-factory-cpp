@@ -453,8 +453,11 @@ void Training::evaluate_genome(neat::Genome *genome, int generation)
     TimeFrame loop_timeframe = this->config.strategy.timeframe;
     int loop_timeframe_minutes = get_time_frame_in_minutes(loop_timeframe);
 
-    Logger *logger = new Logger(this->directory.generic_string() + "/logs/training/trader_" + genome->id + ".log");
-    Trader *trader = new Trader(genome, this->config, this->debug ? logger : nullptr);
+    Trader *trader = new Trader(genome, this->config);
+    if (this->debug)
+    {
+        trader->logger = new Logger(this->directory.generic_string() + "/logs/training/trader_" + genome->id + ".log");
+    }
 
     // Get the dates for the training from the candles in the loop timeframe
     std::vector<std::string> dates = {};
@@ -592,8 +595,11 @@ int Training::run()
 int Training::test(neat::Genome *genome, int generation)
 {
     // Create a trader with the genome
-    Logger *logger = new Logger(this->directory.generic_string() + "/logs/test/trader_" + genome->id + ".log");
-    Trader *trader = new Trader(genome, this->config, this->debug ? logger : nullptr);
+    Trader *trader = new Trader(genome, this->config);
+    if (this->debug)
+    {
+        trader->logger = new Logger(this->directory.generic_string() + "/logs/test/trader_" + genome->id + ".log");
+    }
 
     // Debug files
     std::string decisions_file_path = this->directory.generic_string() + "/trader_" + std::to_string(generation) + "_" + trader->genome->id + "_test_decisions.csv";
