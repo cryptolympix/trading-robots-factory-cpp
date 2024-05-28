@@ -17,7 +17,7 @@ Indexer::Indexer(const CandlesData &candles, int window) : candles(candles), win
     // Initialize indexes with start and end set to 0 for each timeframe
     for (const auto &[tf, c] : candles)
     {
-        indexes[tf] = std::make_pair(0, 0);
+        this->indexes[tf] = std::make_pair(0, 0);
     }
 }
 
@@ -30,16 +30,16 @@ void Indexer::update_indexes(time_t date)
 {
     for (auto &[tf, c] : this->candles)
     {
-        while (indexes[tf].second < c.size() &&
-               c[indexes[tf].second].date < date && date - c[indexes[tf].second].date >= get_time_frame_in_minutes(tf) * 60)
+        while (this->indexes[tf].second < c.size() &&
+               c[this->indexes[tf].second].date < date && date - c[this->indexes[tf].second].date >= get_time_frame_in_minutes(tf) * 60)
         {
             // Increment the index
-            indexes[tf].second++;
+            this->indexes[tf].second++;
 
             // Adjust window
-            if (indexes[tf].second - indexes[tf].first >= window)
+            if (this->indexes[tf].second - this->indexes[tf].first >= this->window)
             {
-                indexes[tf].first++;
+                this->indexes[tf].first++;
             }
         }
     }
@@ -54,8 +54,8 @@ void Indexer::update_indexes(time_t date)
  */
 std::pair<int, int> Indexer::get_indexes(TimeFrame timeframe)
 {
-    auto it = indexes.find(timeframe);
-    if (it != indexes.end())
+    auto it = this->indexes.find(timeframe);
+    if (it != this->indexes.end())
     {
         return it->second;
     }

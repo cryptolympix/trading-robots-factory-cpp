@@ -175,6 +175,9 @@ void Training::load_candles(bool display_progress)
         // Save the candles
         this->candles[date] = current_candles;
 
+        // Free the indexer
+        delete indexer;
+
         if (progress_bar)
         {
             progress_bar->update(1);
