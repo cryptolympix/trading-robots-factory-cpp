@@ -13,7 +13,7 @@
 #include "../indicators/volatility.hpp"
 #include "../indicators/volume.hpp"
 
-std::vector<bool> schedule_working_days = {false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false};
+std::vector<bool> schedule_working_days = {true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true};
 std::vector<bool> schedule_rest_days = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
 
 TradingSchedule schedule = {
@@ -29,10 +29,10 @@ TradingSchedule schedule = {
 TakeProfitStopLossConfig tpsl_config = {
     .type_stop_loss = TypeTakeProfitStopLoss::PERCENT,
     .stop_loss_in_points = 300,
-    .stop_loss_in_percent = 0.001,
+    .stop_loss_in_percent = 0.01,
     .type_take_profit = TypeTakeProfitStopLoss::PERCENT,
     .take_profit_in_points = 300,
-    .take_profit_in_percent = 0.002,
+    .take_profit_in_percent = 0.01,
 };
 
 std::tm start_training_date = {
@@ -40,8 +40,8 @@ std::tm start_training_date = {
     .tm_min = 0,
     .tm_hour = 0,
     .tm_mday = 1,
-    .tm_mon = 0,
-    .tm_year = 2023 - 1900,
+    .tm_mon = 1,
+    .tm_year = 2022 - 1900,
 };
 
 std::tm end_training_date = {
@@ -49,8 +49,8 @@ std::tm end_training_date = {
     .tm_min = 0,
     .tm_hour = 0,
     .tm_mday = 1,
-    .tm_mon = 3,
-    .tm_year = 2023 - 1900,
+    .tm_mon = 4,
+    .tm_year = 2024 - 1900,
 };
 
 std::tm start_test_date = {
@@ -58,8 +58,8 @@ std::tm start_test_date = {
     .tm_min = 0,
     .tm_hour = 0,
     .tm_mday = 1,
-    .tm_mon = 3,
-    .tm_year = 2023 - 1900,
+    .tm_mon = 4,
+    .tm_year = 2024 - 1900,
 };
 
 std::tm end_test_date = {
@@ -67,8 +67,8 @@ std::tm end_test_date = {
     .tm_min = 0,
     .tm_hour = 0,
     .tm_mday = 1,
-    .tm_mon = 4,
-    .tm_year = 2023 - 1900,
+    .tm_mon = 5,
+    .tm_year = 2024 - 1900,
 };
 
 Config __config__ = {
@@ -81,7 +81,7 @@ Config __config__ = {
         .leverage = 100,
     },
     .strategy{
-        .timeframe = TimeFrame::M5,
+        .timeframe = TimeFrame::H1,
         .maximum_risk = 0.05,
         .maximum_trades_per_day = 2,
         .maximum_spread = 8,
@@ -101,7 +101,7 @@ Config __config__ = {
         .test_end_date = std::mktime(&end_test_date),
         .inputs = {
             .indicators = {
-                {TimeFrame::M5, {
+                {TimeFrame::H1, {
                                     new Hour(),
                                     new NFPWeek(),
                                     new MarketSession("london"),
@@ -143,40 +143,40 @@ Config __config__ = {
                                     new OBV(),
                                     new VWAP(),
                                 }},
-                {TimeFrame::M30, {
-                                     new CandlePriceChange(),
-                                     new CandleClose(),
-                                     new CandleVolume(),
-                                     new CandleBody(),
-                                     new CandleShadowUpper(),
-                                     new CandleShadowLower(),
-                                     new PeakDistance(20, 0),
-                                     new PeakCandleDistance(20, 0),
-                                     new NewHighSignal(20, 0),
-                                     new NewLowSignal(20, 0),
-                                     new HighBreakSignal(20, 0),
-                                     new LowBreakSignal(20, 0),
-                                     new MFI(),
-                                     new RSI(),
-                                     new StochasticOscillator(),
-                                     new InstitutionalBias(),
-                                     new EMADifference(),
-                                     new AroonTrend(),
-                                     new MACD(),
-                                     new IchimokuCloudTrend(),
-                                     new IchimokuKijunTenkanTrend(),
-                                     new EMASlope(21, "close"),
-                                     new ATR(),
-                                     new StandardDeviation(),
-                                     new AveragePriceChange(),
-                                     new CMF(),
-                                     new OBV(),
-                                     new VWAP(),
-                                 }}},
+                {TimeFrame::H4, {
+                                    new CandlePriceChange(),
+                                    new CandleClose(),
+                                    new CandleVolume(),
+                                    new CandleBody(),
+                                    new CandleShadowUpper(),
+                                    new CandleShadowLower(),
+                                    new PeakDistance(20, 0),
+                                    new PeakCandleDistance(20, 0),
+                                    new NewHighSignal(20, 0),
+                                    new NewLowSignal(20, 0),
+                                    new HighBreakSignal(20, 0),
+                                    new LowBreakSignal(20, 0),
+                                    new MFI(),
+                                    new RSI(),
+                                    new StochasticOscillator(),
+                                    new InstitutionalBias(),
+                                    new EMADifference(),
+                                    new AroonTrend(),
+                                    new MACD(),
+                                    new IchimokuCloudTrend(),
+                                    new IchimokuKijunTenkanTrend(),
+                                    new EMASlope(21, "close"),
+                                    new ATR(),
+                                    new StandardDeviation(),
+                                    new AveragePriceChange(),
+                                    new CMF(),
+                                    new OBV(),
+                                    new VWAP(),
+                                }}},
             .position = {
-                PositionInfo::TYPE,
-                PositionInfo::PNL,
-                PositionInfo::DURATION,
+                // PositionInfo::TYPE,
+                // PositionInfo::PNL,
+                // PositionInfo::DURATION,
             }}},
     .evaluation{
         .expected_return_per_day = 0.02,
