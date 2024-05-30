@@ -30,15 +30,21 @@ void Indexer::update_indexes(time_t date)
 {
     for (auto &[tf, c] : this->candles)
     {
-        while (this->indexes[tf].second < c.size() &&
-               c[this->indexes[tf].second].date < date && date - c[this->indexes[tf].second].date >= get_time_frame_in_minutes(tf) * 60)
+        // Update the indexes
+        while (this->indexes[tf].second < c.size() && c[this->indexes[tf].second].date <= date)
         {
+            if (this->indexes[tf].second + 1 >= c.size() || c[this->indexes[tf].second + 1].date > date)
+            {
+                break;
+            }
+
             // Increment the index
             this->indexes[tf].second++;
 
             // Adjust window
             if (this->indexes[tf].second - this->indexes[tf].first >= this->window)
             {
+                // Increment the start index
                 this->indexes[tf].first++;
             }
         }

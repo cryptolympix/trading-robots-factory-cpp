@@ -320,15 +320,15 @@ void Training::cache_data(bool display_progress)
         double current_base_currency_conversion_rate = {};
 
         // Get the candles for the current date
-        for (const auto &[date, candles] : this->candles[date])
+        for (const auto &[timeframe, candles] : this->candles[date])
         {
-            current_candles[date] = candles;
+            current_candles[timeframe] = candles;
         }
 
         // Get the indicators for the current date
-        for (const auto &[date, indicators] : this->indicators[date])
+        for (const auto &[timeframe, indicators] : this->indicators[date])
         {
-            current_indicators[date] = indicators;
+            current_indicators[timeframe] = indicators;
         }
 
         // Get the base currency conversion rate for the current date

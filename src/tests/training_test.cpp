@@ -64,7 +64,7 @@ protected:
                 .account_currency = "USD",
             },
             .strategy = {
-                .timeframe = TimeFrame::H1,
+                .timeframe = TimeFrame::M15,
                 .maximum_risk = 0.02,
                 .maximum_trades_per_day = 2,
                 .maximum_spread = 8,
@@ -140,6 +140,7 @@ TEST_F(TrainingTest, LoadCandles)
     training->load_candles();
 
     ASSERT_FALSE(training->candles.empty());
+    ASSERT_FALSE(training->dates.empty());
 
     for (int i = 0; i < training->dates.size(); ++i)
     {
@@ -156,8 +157,8 @@ TEST_F(TrainingTest, LoadCandles)
         ASSERT_FALSE(training->candles[date][TimeFrame::H1].empty());
 
         ASSERT_EQ(training->candles[date][TimeFrame::M15].back().date, date);
-        ASSERT_EQ(training->candles[date][TimeFrame::M30].back().date, date);
-        ASSERT_EQ(training->candles[date][TimeFrame::H1].back().date, date);
+        ASSERT_LE(training->candles[date][TimeFrame::M30].back().date, date);
+        ASSERT_LE(training->candles[date][TimeFrame::H1].back().date, date);
 
         ASSERT_EQ(training->candles[date][TimeFrame::M15].size(), CANDLES_WINDOW);
         ASSERT_EQ(training->candles[date][TimeFrame::M30].size(), CANDLES_WINDOW);
@@ -209,6 +210,7 @@ TEST_F(TrainingTest, CacheData)
 
     // Check the dates is in the cache
     ASSERT_EQ(training->cache->data.size(), nb_dates);
+    ASSERT_EQ(training->cache->data.size(), training->dates.size());
 
     // Get the dates from the candles of loop_timeframe
     std::vector<time_t> dates;
