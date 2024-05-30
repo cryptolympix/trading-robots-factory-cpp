@@ -723,7 +723,7 @@ int Trader::trade()
         bool can_trade_now = this->can_trade();
 
         // Check if the trader can close a trade
-        bool can_close_position = true;
+        bool can_close_position = this->config.strategy.can_close_trade.value_or(true);
         if (!has_position)
         {
             can_close_position = false;

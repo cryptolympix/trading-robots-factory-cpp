@@ -29,10 +29,10 @@ TradingSchedule schedule = {
 TakeProfitStopLossConfig tpsl_config = {
     .type_stop_loss = TypeTakeProfitStopLoss::PERCENT,
     .stop_loss_in_points = 300,
-    .stop_loss_in_percent = 0.01,
+    .stop_loss_in_percent = 0.002,
     .type_take_profit = TypeTakeProfitStopLoss::PERCENT,
     .take_profit_in_points = 300,
-    .take_profit_in_percent = 0.01,
+    .take_profit_in_percent = 0.002,
 };
 
 std::tm start_training_date = {
@@ -88,6 +88,7 @@ Config __config__ = {
         // .minimum_trade_duration = 0,
         // .maximum_trade_duration = 10,
         .minimum_duration_before_next_trade = 10,
+        .can_close_trade = false,
         .take_profit_stop_loss_config = tpsl_config,
         .trading_schedule = schedule,
     },
