@@ -99,7 +99,8 @@ std::vector<Candle> read_data(const std::string &symbol, TimeFrame time_frame, t
         candle.tick_volume = std::stod(token);
 
         std::getline(ss, token, '\t'); // VOLUME
-        candle.volume = std::stod(token);
+        // candle.volume = std::stod(token);
+        candle.volume = candle.tick_volume; // Use tick volume instead of real volume for the forex
 
         std::getline(ss, token, '\t'); // SPREAD
         candle.spread = std::stod(token);

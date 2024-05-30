@@ -116,7 +116,7 @@ Config __config__ = {
                                     new WeekDay("saturday"),
                                     new CandlePriceChange(),
                                     new CandleClose(),
-                                    new CandleTickVolume(),
+                                    new CandleVolume(),
                                     new CandleBody(),
                                     new CandleShadowUpper(),
                                     new CandleShadowLower(),
@@ -146,7 +146,7 @@ Config __config__ = {
                 {TimeFrame::M30, {
                                      new CandlePriceChange(),
                                      new CandleClose(),
-                                     new CandleTickVolume(),
+                                     new CandleVolume(),
                                      new CandleBody(),
                                      new CandleShadowUpper(),
                                      new CandleShadowLower(),
