@@ -757,7 +757,7 @@ int Trader::trade()
                     double tp_price = std::get<0>(order_prices);
                     double sl_price = std::get<1>(order_prices);
                     double sl_pips = calculate_pips(last_candle.close, sl_price, this->symbol_info);
-                    double size = calculate_position_size(this->balance, this->config.strategy.maximum_risk, last_candle.close, sl_pips, this->symbol_info, this->current_base_currency_conversion_rate);
+                    double size = calculate_position_size(this->balance, this->config.strategy.risk_per_trade, last_candle.close, sl_pips, this->symbol_info, this->current_base_currency_conversion_rate);
 
                     // Post orders
                     if (size > 0.0)
@@ -775,7 +775,7 @@ int Trader::trade()
                     double tp_price = std::get<0>(order_prices);
                     double sl_price = std::get<1>(order_prices);
                     double sl_pips = calculate_pips(last_candle.close, sl_price, this->symbol_info);
-                    double size = calculate_position_size(this->balance, this->config.strategy.maximum_risk, last_candle.close, sl_pips, this->symbol_info, this->current_base_currency_conversion_rate);
+                    double size = calculate_position_size(this->balance, this->config.strategy.risk_per_trade, last_candle.close, sl_pips, this->symbol_info, this->current_base_currency_conversion_rate);
 
                     // Post orders
                     if (size > 0.0)

@@ -37,7 +37,7 @@ protected:
             },
             .strategy = {
                 .timeframe = TimeFrame::H1,
-                .maximum_risk = 0.02,
+                .risk_per_trade = 0.02,
                 .maximum_spread = 8,
                 .minimum_trade_duration = 2,
                 .maximum_trade_duration = 4,

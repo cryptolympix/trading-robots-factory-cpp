@@ -262,7 +262,7 @@ struct TradingSchedule
 struct StrategyConfig
 {
     TimeFrame timeframe;                                   // Time frame
-    double maximum_risk;                                   // Maximum risk
+    double risk_per_trade;                                 // Risk per trade
     std::optional<int> maximum_trades_per_day;             // Maximum trades per day
     std::optional<double> maximum_spread;                  // Maximum spread
     std::optional<int> minimum_trade_duration;             // Minimum trade duration
