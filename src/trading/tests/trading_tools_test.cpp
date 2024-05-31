@@ -111,8 +111,8 @@ TEST_F(TradingToolsTest, TestCalculateTpSlPriceWithPoints)
     config.take_profit_in_points = 100.0;
     config.type_stop_loss = TypeTakeProfitStopLoss::POINTS;
     config.stop_loss_in_points = 100.0;
-    auto result_tp_sl_prices_long = calculate_tp_sl_price(market_price, PositionSide::LONG, config, symbol_infos);
-    auto result_tp_sl_prices_short = calculate_tp_sl_price(market_price, PositionSide::SHORT, config, symbol_infos);
+    auto result_tp_sl_prices_long = calculate_tp_sl_price(market_price, std::vector<Candle>(), PositionSide::LONG, config, symbol_infos);
+    auto result_tp_sl_prices_short = calculate_tp_sl_price(market_price, std::vector<Candle>(), PositionSide::SHORT, config, symbol_infos);
 
     // Assert that the result matches the expected take profit and stop loss prices
     ASSERT_DOUBLE_EQ(1.01, std::get<0>(result_tp_sl_prices_long));
@@ -131,8 +131,8 @@ TEST_F(TradingToolsTest, TestCalculateTpSlPriceWithPercent)
     config.take_profit_in_percent = 0.01;
     config.type_stop_loss = TypeTakeProfitStopLoss::PERCENT;
     config.stop_loss_in_percent = 0.01;
-    auto result_tp_sl_prices_long = calculate_tp_sl_price(market_price, PositionSide::LONG, config, symbol_infos);
-    auto result_tp_sl_prices_short = calculate_tp_sl_price(market_price, PositionSide::SHORT, config, symbol_infos);
+    auto result_tp_sl_prices_long = calculate_tp_sl_price(market_price, std::vector<Candle>(), PositionSide::LONG, config, symbol_infos);
+    auto result_tp_sl_prices_short = calculate_tp_sl_price(market_price, std::vector<Candle>(), PositionSide::SHORT, config, symbol_infos);
 
     // Assert that the result matches the expected take profit and stop loss prices
     ASSERT_DOUBLE_EQ(1.01, std::get<0>(result_tp_sl_prices_long));

@@ -226,7 +226,8 @@ enum class TypeTakeProfitStopLoss
 {
     POINTS,
     PERCENT,
-    EXTREMUM
+    EXTREMUM,
+    ATR,
 };
 
 /**
@@ -234,12 +235,18 @@ enum class TypeTakeProfitStopLoss
  */
 struct TakeProfitStopLossConfig
 {
-    TypeTakeProfitStopLoss type_stop_loss;   // Type of stop loss
-    double stop_loss_in_points;              // Stop loss in points
-    double stop_loss_in_percent;             // Stop loss as a percentage
-    TypeTakeProfitStopLoss type_take_profit; // Type of take profit
-    double take_profit_in_points;            // Take profit in points
-    double take_profit_in_percent;           // Take profit as a percentage
+    TypeTakeProfitStopLoss type_stop_loss;             // Type of stop loss
+    std::optional<double> stop_loss_in_points;         // Stop loss in points
+    std::optional<double> stop_loss_in_percent;        // Stop loss as a percentage
+    std::optional<double> stop_loss_extremum_period;   // Stop loss based on extremum
+    std::optional<double> stop_loss_atr_period;        // Stop loss based on ATR
+    std::optional<double> stop_loss_atr_multiplier;    // Stop loss based on ATR
+    TypeTakeProfitStopLoss type_take_profit;           // Type of take profit
+    std::optional<double> take_profit_in_points;       // Take profit in points
+    std::optional<double> take_profit_in_percent;      // Take profit as a percentage
+    std::optional<double> take_profit_extremum_period; // Take profit based on extremum
+    std::optional<double> take_profit_atr_period;      // Take profit based on ATR
+    std::optional<double> take_profit_atr_multiplier;  // Take profit based on ATR
 };
 
 /**

@@ -3,6 +3,7 @@
 #include <string>
 #include "../types.hpp"
 #include "../utils/math.hpp"
+#include "../indicators/volatility.hpp"
 #include "trading_tools.hpp"
 
 /**
@@ -96,59 +97,197 @@ double calculate_initial_margin(double market_price, int leverage, SymbolInfo sy
  * @brief Calculate take profit and stop loss prices based on the provided configuration.
  *
  * @param market_price The current market price.
+ * @param candles The historical candle data.
  * @param side The position side (LONG or SHORT).
  * @param config Configuration for take profit and stop loss.
  * @param symbol_info Symbol information including precision details.
  * @return The calculated take profit and stop loss prices.
  */
-std::tuple<double, double> calculate_tp_sl_price(double market_price, PositionSide side, TakeProfitStopLossConfig config, SymbolInfo symbol_info)
+std::tuple<double, double> calculate_tp_sl_price(double market_price, std::vector<Candle> candles, PositionSide side, TakeProfitStopLossConfig config, SymbolInfo symbol_info)
 {
     double tp_price = 0.0, sl_price = 0.0;
     if (config.type_take_profit == TypeTakeProfitStopLoss::POINTS)
     {
+        if (!config.take_profit_in_points.has_value())
+        {
+            throw std::invalid_argument("Take profit in points is not set.");
+            std::exit(1);
+        }
+
         if (side == PositionSide::LONG)
         {
-            tp_price = market_price + config.take_profit_in_points * symbol_info.point_value;
+            tp_price = market_price + config.take_profit_in_points.value() * symbol_info.point_value;
         }
         else
         {
-            tp_price = market_price - config.take_profit_in_points * symbol_info.point_value;
+            tp_price = market_price - config.take_profit_in_points.value() * symbol_info.point_value;
         }
     }
     else if (config.type_take_profit == TypeTakeProfitStopLoss::PERCENT)
     {
+        if (!config.take_profit_in_percent.has_value())
+        {
+            throw std::invalid_argument("Take profit in percent is not set.");
+            std::exit(1);
+        }
+
         if (side == PositionSide::LONG)
         {
-            tp_price = decimal_floor(market_price + market_price * config.take_profit_in_percent, symbol_info.decimal_places);
+            tp_price = decimal_floor(market_price + market_price * config.take_profit_in_percent.value(), symbol_info.decimal_places);
         }
         else
         {
-            tp_price = decimal_ceil(market_price - market_price * config.take_profit_in_percent, symbol_info.decimal_places);
+            tp_price = decimal_ceil(market_price - market_price * config.take_profit_in_percent.value(), symbol_info.decimal_places);
+        }
+    }
+    else if (config.type_take_profit == TypeTakeProfitStopLoss::EXTREMUM)
+    {
+        if (!config.take_profit_extremum_period.has_value())
+        {
+            throw std::invalid_argument("Take profit extremum period is not set.");
+            std::exit(1);
+        }
+
+        if (side == PositionSide::LONG)
+        {
+            double highest_high = 0.0;
+            for (int i = candles.size() - config.take_profit_extremum_period.value(); i < candles.size(); i++)
+            {
+                if (candles[i].high > highest_high)
+                {
+                    highest_high = candles[i].high;
+                }
+            }
+            tp_price = highest_high;
+        }
+        else
+        {
+            double lowest_low = candles[0].low;
+            for (int i = 0; i < config.take_profit_extremum_period.value(); i++)
+            {
+                if (candles[i].low < lowest_low)
+                {
+                    lowest_low = candles[i].low;
+                }
+            }
+            tp_price = lowest_low;
+        }
+    }
+    else if (config.type_take_profit == TypeTakeProfitStopLoss::ATR)
+    {
+        if (!config.take_profit_atr_period.has_value())
+        {
+            config.take_profit_atr_period = 14; // Default value
+        }
+
+        if (config.take_profit_atr_multiplier.has_value())
+        {
+            config.take_profit_atr_multiplier = 1.0; // Default value
+        }
+
+        std::vector<double> atr_values = (new ATR(config.take_profit_atr_period.value()))->calculate(candles, false);
+        double atr = atr_values[atr_values.size() - 1];
+        if (side == PositionSide::LONG)
+        {
+            tp_price = market_price + atr * config.take_profit_atr_multiplier.value();
+        }
+        else
+        {
+            tp_price = market_price - atr * config.take_profit_atr_multiplier.value();
         }
     }
 
     if (config.type_stop_loss == TypeTakeProfitStopLoss::POINTS)
     {
+        if (!config.stop_loss_in_points.has_value())
+        {
+            throw std::invalid_argument("Stop loss in points is not set.");
+            std::exit(1);
+        }
+
         if (side == PositionSide::LONG)
         {
-            sl_price = market_price - config.stop_loss_in_points * symbol_info.point_value;
+            sl_price = market_price - config.stop_loss_in_points.value() * symbol_info.point_value;
         }
         else
         {
-            sl_price = market_price + config.stop_loss_in_points * symbol_info.point_value;
+            sl_price = market_price + config.stop_loss_in_points.value() * symbol_info.point_value;
         }
     }
     else if (config.type_stop_loss == TypeTakeProfitStopLoss::PERCENT)
     {
+        if (!config.stop_loss_in_percent.has_value())
+        {
+            throw std::invalid_argument("Stop loss in percent is not set.");
+            std::exit(1);
+        }
+
         if (side == PositionSide::LONG)
         {
-            sl_price = decimal_ceil(market_price - market_price * config.stop_loss_in_percent, symbol_info.decimal_places);
+            sl_price = decimal_ceil(market_price - market_price * config.stop_loss_in_percent.value(), symbol_info.decimal_places);
         }
         else
         {
-            sl_price = decimal_floor(market_price + market_price * config.stop_loss_in_percent, symbol_info.decimal_places);
+            sl_price = decimal_floor(market_price + market_price * config.stop_loss_in_percent.value(), symbol_info.decimal_places);
         }
     }
+    else if (config.type_stop_loss == TypeTakeProfitStopLoss::EXTREMUM)
+    {
+        if (!config.stop_loss_extremum_period.has_value())
+        {
+            throw std::invalid_argument("Stop loss extremum period is not set.");
+            std::exit(1);
+        }
+
+        if (side == PositionSide::LONG)
+        {
+            double lowest_low = candles[0].low;
+            for (int i = 0; i < config.stop_loss_extremum_period.value(); i++)
+            {
+                if (candles[i].low < lowest_low)
+                {
+                    lowest_low = candles[i].low;
+                }
+            }
+            sl_price = lowest_low;
+        }
+        else
+        {
+            double highest_high = 0.0;
+            for (int i = candles.size() - config.stop_loss_extremum_period.value(); i < candles.size(); i++)
+            {
+                if (candles[i].high > highest_high)
+                {
+                    highest_high = candles[i].high;
+                }
+            }
+            sl_price = highest_high;
+        }
+    }
+    else if (config.type_stop_loss == TypeTakeProfitStopLoss::ATR)
+    {
+        if (!config.stop_loss_atr_period.has_value())
+        {
+            config.stop_loss_atr_period = 14; // Default value
+        }
+
+        if (!config.stop_loss_atr_multiplier.has_value())
+        {
+            config.stop_loss_atr_multiplier = 1.0; // Default value
+        }
+
+        std::vector<double> atr_values = (new ATR(config.stop_loss_atr_period.value()))->calculate(candles, false);
+        double atr = atr_values[atr_values.size() - 1];
+        if (side == PositionSide::LONG)
+        {
+            sl_price = market_price - atr * config.stop_loss_atr_multiplier.value();
+        }
+        else
+        {
+            sl_price = market_price + atr * config.stop_loss_atr_multiplier.value();
+        }
+    }
+
     return std::make_tuple(tp_price, sl_price);
 }
 

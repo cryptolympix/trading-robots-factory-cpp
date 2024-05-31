@@ -70,6 +70,17 @@ public:
     void update(CandlesData &candles);
 
     /**
+     * @brief Check if the trader can trade.
+     */
+    bool can_trade();
+
+    /**
+     * @brief Trade according to the decision.
+     * @return 1 if the trader opened a long position, 2 if the trader opened a short position, 3 if the trader closed a the position, 0 if the trader wait.
+     */
+    int trade();
+
+    /**
      * @brief Calculate the fitness of the trader.
      */
     void calculate_fitness();
@@ -83,17 +94,6 @@ public:
      * @brief Calcule the trader statistics.
      */
     void calculate_stats();
-
-    /**
-     * @brief Check if the trader can trade.
-     */
-    bool can_trade();
-
-    /**
-     * @brief Trade according to the decision.
-     * @return 1 if the trader opened a long position, 2 if the trader opened a short position, 3 if the trader closed a the position, 0 if the trader wait.
-     */
-    int trade();
 
     /**
      * @brief Open a position by market.

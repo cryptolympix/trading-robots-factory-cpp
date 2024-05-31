@@ -65,12 +65,13 @@ double calculate_initial_margin(double market_price, int leverage, SymbolInfo sy
  * @brief Calculate take profit and stop loss prices based on the provided configuration.
  *
  * @param market_price The current market price.
+ * @param candles Historical price data.
  * @param side The position side (LONG or SHORT).
  * @param config Configuration for take profit and stop loss.
  * @param symbol_info Symbol information including precision details.
  * @return The calculated take profit and stop loss prices.
  */
-std::tuple<double, double> calculate_tp_sl_price(double market_price, PositionSide side, TakeProfitStopLossConfig config, SymbolInfo symbol_info);
+std::tuple<double, double> calculate_tp_sl_price(double market_price, std::vector<Candle> candles, PositionSide side, TakeProfitStopLossConfig config, SymbolInfo symbol_info);
 
 /**
  * @brief Calculate the liquidation price for a trading position.
