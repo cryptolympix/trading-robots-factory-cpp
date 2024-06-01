@@ -227,7 +227,6 @@ void Trader::update(CandlesData &candles)
     this->balance_history.push_back(this->balance);
 }
 
-
 /**
  * @brief Check if the trader can trade.
  */
@@ -344,7 +343,8 @@ int Trader::trade()
                 if (want_long)
                 {
                     // Calculate order parameters
-                    auto order_prices = calculate_tp_sl_price(last_candle.close, PositionSide::LONG, this->config.strategy.take_profit_stop_loss_config, this->symbol_info);
+                    std::vector<Candle> candles = this->candles[this->config.strategy.timeframe];
+                    auto order_prices = calculate_tp_sl_price(last_candle.close, candles, PositionSide::LONG, this->config.strategy.take_profit_stop_loss_config, this->symbol_info);
                     double tp_price = std::get<0>(order_prices);
                     double sl_price = std::get<1>(order_prices);
                     double sl_pips = calculate_pips(last_candle.close, sl_price, this->symbol_info);
@@ -362,7 +362,8 @@ int Trader::trade()
                 else if (want_short)
                 {
                     // Calculate order parameters
-                    auto order_prices = calculate_tp_sl_price(last_candle.close, PositionSide::SHORT, this->config.strategy.take_profit_stop_loss_config, this->symbol_info);
+                    std::vector<Candle> candles = this->candles[this->config.strategy.timeframe];
+                    auto order_prices = calculate_tp_sl_price(last_candle.close, candles, PositionSide::SHORT, this->config.strategy.take_profit_stop_loss_config, this->symbol_info);
                     double tp_price = std::get<0>(order_prices);
                     double sl_price = std::get<1>(order_prices);
                     double sl_pips = calculate_pips(last_candle.close, sl_price, this->symbol_info);

@@ -185,7 +185,8 @@ std::tuple<double, double> calculate_tp_sl_price(double market_price, std::vecto
             config.take_profit_atr_multiplier = 1.0; // Default value
         }
 
-        std::vector<double> atr_values = (new ATR(config.take_profit_atr_period.value()))->calculate(candles, false);
+        ATR atr_indicator = ATR(config.take_profit_atr_period.value());
+        std::vector<double> atr_values = atr_indicator.calculate(candles, false);
         double atr = atr_values[atr_values.size() - 1];
         if (side == PositionSide::LONG)
         {

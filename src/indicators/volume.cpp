@@ -80,26 +80,34 @@ std::vector<double> CMF::calculate(const std::vector<Candle> &candles, bool norm
             // Initialize the CMF values vector with zeros.
             std::vector<double> cmf_values(candles.size(), 0.0);
 
-            // Get the typical prices for the candles
-            std::vector<double> typical_prices = get_candles_with_source(candles, "hlc3");
-
             for (size_t i = period - 1; i < candles.size(); ++i)
             {
-                double mf_volume = 0.0;
-                double ad_volume = 0.0;
+                double mf_volume_sum = 0.0;
+                double volume_sum = 0.0;
 
                 for (int j = i - period + 1; j <= i; ++j)
                 {
-                    double typical_price = typical_prices[j];
-                    mf_volume += typical_price * candles[j].volume;
-                    ad_volume += candles[j].volume;
+                    double high = candles[j].high;
+                    double low = candles[j].low;
+                    double close = candles[j].close;
+                    double volume = candles[j].volume;
+
+                    // Calculate the Money Flow Multiplier
+                    double mf_multiplier = ((close - low) - (high - close)) / (high - low);
+                    
+                    // Calculate the Money Flow Volume
+                    double mf_volume = mf_multiplier * volume;
+
+                    // Accumulate sums
+                    mf_volume_sum += mf_volume;
+                    volume_sum += volume;
                 }
 
-                if (ad_volume != 0) {
-                    cmf_values[i] = mf_volume / ad_volume;
+                if (volume_sum != 0) {
+                    cmf_values[i] = mf_volume_sum / volume_sum;
                 }
             }
-
+            
             return cmf_values; },
 
         normalize_data);

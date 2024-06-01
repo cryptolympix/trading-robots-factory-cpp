@@ -19,15 +19,11 @@ protected:
     }
 };
 
-TEST_F(VolumeIndicatorsTest, ADI)
+TEST_F(VolumeIndicatorsTest, ADL)
 {
     ADL adl;
     std::vector<double> adl_values = adl.calculate(mock_candles);
     ASSERT_EQ(adl_values.size(), mock_candles.size());
-    for (size_t i = 0; i < adl_values.size(); ++i)
-    {
-        ASSERT_TRUE(adl_values[i] >= 0);
-    }
 };
 
 TEST_F(VolumeIndicatorsTest, CMF)
@@ -46,10 +42,6 @@ TEST_F(VolumeIndicatorsTest, FI)
     FI fi;
     std::vector<double> fi_values = fi.calculate(mock_candles);
     ASSERT_EQ(fi_values.size(), mock_candles.size());
-    for (size_t i = 0; i < fi_values.size(); ++i)
-    {
-        ASSERT_TRUE(fi_values[i] >= 0);
-    }
 }
 
 TEST_F(VolumeIndicatorsTest, NVI)
