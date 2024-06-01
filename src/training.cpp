@@ -7,6 +7,8 @@
 #include <map>
 #include <functional>
 #include <chrono>
+#include <algorithm>
+#include <random>
 #include "types.hpp"
 #include "utils/logger.hpp"
 #include "utils/indexer.hpp"
@@ -17,6 +19,7 @@
 #include "utils/date_conversion.hpp"
 #include "utils/progress_bar.hpp"
 #include "utils/math.hpp"
+#include "utils/vectors.hpp"
 #include "neat/population.hpp"
 #include "neat/genome.hpp"
 #include "training.hpp"
@@ -724,22 +727,84 @@ int Training::evaluate_trader_with_monte_carlo_simulation(Trader *trader, int nb
     std::vector<double> simulation_final_balance = std::vector<double>(nb_simulations, this->config.general.initial_balance);
     for (int i = 0; i < nb_simulations; i++)
     {
-        // Create a new trader with the same genome
-        Trader *simulation_trader = new Trader(trader->genome, this->config, nullptr);
+        // Create a balance for the simulation
+        double balance = this->config.general.initial_balance;
 
         // Simulate the trades
         for (int j = 0; j < nb_trades_to_simulate; j++)
         {
-            double random = (double)rand() / RAND_MAX;
+            std::random_device rd;
+            std::mt19937 gen(rd());
+            std::uniform_real_distribution<double> distribution(0, 1);
+            double random = distribution(gen);
             bool winning_trade = random < trader->stats.win_rate;
+            double risk_amount = balance * this->config.strategy.risk_per_trade;
 
             if (winning_trade)
             {
+                balance += risk_amount * trader->stats.profit_factor;
             }
             else
             {
+                balance -= risk_amount;
             }
         }
+
+        simulation_final_balance[i] = balance;
+    }
+
+    // Lambda to find lower quartile
+    auto find_lower_quartile = [](std::vector<double> &data) -> double
+    {
+        std::sort(data.begin(), data.end());
+        return data[data.size() / 4];
+    };
+
+    // Lambda to find upper quartile
+    auto find_upper_quartile = [](std::vector<double> &data) -> double
+    {
+        std::sort(data.begin(), data.end());
+        return data[data.size() * 3 / 4];
+    };
+
+    std::sort(simulation_final_balance.begin(), simulation_final_balance.end());
+    double median = find_median(simulation_final_balance);
+    double lower_quartile = find_lower_quartile(simulation_final_balance);
+    double upper_quartile = find_upper_quartile(simulation_final_balance);
+    double worse_case = simulation_final_balance[0];
+    double best_case = simulation_final_balance[simulation_final_balance.size() - 1];
+
+    // Check if the results are consistent with the training period by calculate a note
+    double note = 0.0;
+    if (trader->stats.final_balance < worse_case)
+    {
+        note = 0.0;
+    }
+    else if (trader->stats.final_balance > best_case)
+    {
+        note = 1.0;
+    }
+    else
+    {
+        note = (trader->stats.final_balance - worse_case) / (best_case - worse_case);
+    }
+
+    if (this->debug)
+    {
+        // Print the results
+        std::cout << "📊 Monte Carlo simulation results:" << std::endl;
+        std::cout << "📈 Median: " << median << std::endl;
+        std::cout << "📈 Lower quartile: " << lower_quartile << std::endl;
+        std::cout << "📈 Upper quartile: " << upper_quartile << std::endl;
+        std::cout << "📈 Worse case: " << worse_case << std::endl;
+        std::cout << "📈 Best case: " << best_case << std::endl;
+        std::cout << "📈 Note: " << note << std::endl;
+    }
+
+    if (note < 0.1)
+    {
+        std::cout << "❌ The results are not consistent with the training period." << std::endl;
+        return 1;
     }
 
     return 0;

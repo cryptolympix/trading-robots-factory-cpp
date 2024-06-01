@@ -98,3 +98,18 @@ TEST(VectorsTest, SumSubVectors)
     ASSERT_EQ(results, expected_sum);
     ASSERT_EQ(results.size(), expected_sum.size());
 }
+
+TEST(VectorsTest, MedianVector)
+{
+    std::vector<double> values = {1.0, 2.0, 3.0, 4.0, 5.0};
+    double expected_median = 3.0;
+    double result = find_median(values);
+
+    ASSERT_EQ(result, expected_median);
+
+    values = {1.0, 2.0, 3.0, 4.0, 5.0, 6.0};
+    expected_median = 3.5;
+    result = find_median(values);
+
+    ASSERT_EQ(result, expected_median);
+}

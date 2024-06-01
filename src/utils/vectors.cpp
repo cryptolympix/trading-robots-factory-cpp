@@ -169,3 +169,29 @@ std::vector<double> calculate_sum_subvector(const std::vector<double> &values, i
 
     return sum;
 }
+
+/**
+ * @brief Calculate the mean of a vector of double.
+ *
+ * @param vec The input vector.
+ * @return double The mean of the vector.
+ */
+double find_median(std::vector<double> &values)
+{
+    // Sort the vector
+    std::sort(values.begin(), values.end());
+
+    // Find the size of the vector
+    size_t size = values.size();
+
+    // If the size is odd, return the middle element
+    if (size % 2 != 0)
+    {
+        return values[size / 2];
+    }
+    else
+    {
+        // If the size is even, return the average of the two middle elements
+        return (values[(size / 2) - 1] + values[size / 2]) / 2.0;
+    }
+}

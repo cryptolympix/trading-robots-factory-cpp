@@ -49,4 +49,12 @@ std::vector<double> normalize_vector(const std::vector<double> &vector, std::pai
  */
 std::vector<double> calculate_sum_subvector(const std::vector<double> &values, int period);
 
+/**
+ * @brief Calculate the mean of a vector of double.
+ *
+ * @param vec The input vector.
+ * @return double The mean of the vector.
+ */
+double find_median(std::vector<double> &values);
+
 #endif /* VECTORS_HPP */
