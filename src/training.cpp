@@ -694,9 +694,10 @@ int Training::test(neat::Genome *genome, int generation)
  * @brief Evaluate the strategy of a trader using the Monte Carlo simulation.
  * @param trader The trader to be evaluated.
  * @param nb_simulations The number of simulations to run. Default is 1000.
+ * @param note_threshold The threshold to consider the results consistent with the training period. Default is 0.1.
  * @return The exit code of the evaluation process. 0 if the results are consistences with the training period, 1 otherwise.
  */
-int Training::evaluate_trader_with_monte_carlo_simulation(Trader *trader, int nb_simulations)
+int Training::evaluate_trader_with_monte_carlo_simulation(Trader *trader, int nb_simulations, double note_threshold)
 {
     // Get the dates for the testing period from the candles in the loop timeframe
     std::vector<std::string> training_dates = {};
@@ -801,7 +802,7 @@ int Training::evaluate_trader_with_monte_carlo_simulation(Trader *trader, int nb
         std::cout << "📈 Note: " << note << std::endl;
     }
 
-    if (note < 0.1)
+    if (note < note_threshold)
     {
         std::cout << "❌ The results are not consistent with the training period." << std::endl;
         return 1;

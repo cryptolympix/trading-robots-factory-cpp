@@ -39,7 +39,7 @@ public:
     std::map<time_t, IndicatorsData> indicators;                  // Indicator data for all time frames at a specified date.
     BaseCurrencyConversionRateData base_currency_conversion_rate; // Conversion rate when the base asset traded is different from the account currency.
     Cache *cache;                                                 // Cached data for faster access.
-    
+
     std::vector<time_t> dates; // The list of dates to parse in the simulation
 
     neat::Population *population;                 // NEAT population for evolution.
@@ -134,9 +134,10 @@ public:
      * @brief Evaluate the strategy of a trader using the Monte Carlo simulation.
      * @param trader The trader to be evaluated.
      * @param nb_simulations The number of simulations to run. Default is 1000.
+     * @param note_threshold The threshold to consider the results consistent with the training period. Default is 0.1.
      * @return The exit code of the evaluation process. 0 if the results are consistences with the training period, 1 otherwise.
      */
-    int evaluate_trader_with_monte_carlo_simulation(Trader *trader, int nb_simulations = 1000);
+    int evaluate_trader_with_monte_carlo_simulation(Trader *trader, int nb_simulations = 1000, double note_threshold = 0.1);
 };
 
 #endif // TRAINING_HPP
