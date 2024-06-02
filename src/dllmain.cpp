@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include <filesystem>
+#include <cstring>
 #include "neat/genome.hpp"
 #include "utils/time_frame.hpp"
 #include "trader.hpp"
@@ -22,17 +23,13 @@
 #endif
 
 Config config;
-neat::Genome *genome;
-Trader *trader;
-
-TimeFrame TIMEFRAME_1 = TimeFrame::M5; // Loop timeframe
-TimeFrame TIMEFRAME_2 = TimeFrame::M30;
-TimeFrame TIMEFRAME_3 = TimeFrame::H4;
+neat::Genome* genome = nullptr;
+Trader* trader = nullptr;
 
 #ifdef _WIN32
 
 // Function to display a message in the MetaTrader editor console
-void PrintToConsole(const char *message)
+void PrintToConsole(const char* message)
 {
     // Use the MessageBoxA function to display the message
     MessageBoxA(NULL, message, "Message from DLL", MB_OK | MB_ICONINFORMATION);
@@ -40,17 +37,47 @@ void PrintToConsole(const char *message)
 
 #endif
 
-TEST_DLL_API void test_dll()
+// Function to get the timeframe for a given code 
+TimeFrame TimeFrameFromCode(int timeframe_code)
 {
+    switch (timeframe_code) {
+        case 0:
+            return TimeFrame::M1;
+        case 1:
+            return TimeFrame::M5;
+        case 2:
+            return TimeFrame::M15;
+        case 3:
+            return TimeFrame::M30;
+        case 4:
+            return TimeFrame::H1;
+        case 5:
+            return TimeFrame::H4;
+        case 6:
+            return TimeFrame::D1;
+        default:
+#if defined(_WIN32)
+            PrintToConsole("One of the timeframes is not available.");
+#endif
+            std::exit(1);
+    }
 }
 
-TEST_DLL_API int make_decision(
-    Candle *candles_tf_1,
+TEST_DLL_API void test_dll()
+{
+    // Example function body
+}
+
+TEST_DLL_API double make_decision(
+    Candle* candles_tf_1,
     int candles_tf_1_size,
-    Candle *candles_tf_2,
+    int tf_1_code,
+    Candle* candles_tf_2,
     int candles_tf_2_size,
-    Candle *candles_tf_3,
+    int tf_2_code,
+    Candle* candles_tf_3,
     int candles_tf_3_size,
+    int tf_3_code,
     int position_type,
     double position_pnl,
     double position_size,
@@ -58,48 +85,51 @@ TEST_DLL_API int make_decision(
     double base_currency_conversion_rate,
     double account_balance)
 {
-    std::vector<TimeFrame> candles_timeframes = {};
-    CandlesData candles_data = {};
-    IndicatorsData indicators_data = {};
-    std::vector<PositionInfo> position_infos = {};
+    std::vector<TimeFrame> candles_timeframes;
+    CandlesData candles_data;
+    IndicatorsData indicators_data;
+    std::vector<PositionInfo> position_infos;
 
     if (candles_tf_1_size > 0)
     {
-        candles_timeframes.push_back(TIMEFRAME_1);
+        TimeFrame tf_1 = TimeFrameFromCode(tf_1_code);
+        candles_timeframes.push_back(tf_1);
         for (int i = 0; i < candles_tf_1_size; ++i)
         {
-            candles_data[TIMEFRAME_1].push_back(candles_tf_1[i]);
+            candles_data[tf_1].push_back(candles_tf_1[i]);
         }
     }
     if (candles_tf_2_size > 0)
     {
-        candles_timeframes.push_back(TIMEFRAME_2);
+        TimeFrame tf_2 = TimeFrameFromCode(tf_2_code);
+        candles_timeframes.push_back(tf_2);
         for (int i = 0; i < candles_tf_2_size; ++i)
         {
-            candles_data[TIMEFRAME_2].push_back(candles_tf_2[i]);
+            candles_data[tf_2].push_back(candles_tf_2[i]);
         }
     }
     if (candles_tf_3_size > 0)
     {
-        candles_timeframes.push_back(TIMEFRAME_3);
+        TimeFrame tf_3 = TimeFrameFromCode(tf_3_code);
+        candles_timeframes.push_back(tf_3);
         for (int i = 0; i < candles_tf_3_size; ++i)
         {
-            candles_data[TIMEFRAME_3].push_back(candles_tf_3[i]);
+            candles_data[tf_3].push_back(candles_tf_3[i]);
         }
     }
 
     // Calculate the indicators and add them to the inputs
-    for (const auto &[timeframe, indicators] : config.training.inputs.indicators)
+    for (const auto& [timeframe, indicators] : config.training.inputs.indicators)
     {
         if (std::find(candles_timeframes.begin(), candles_timeframes.end(), timeframe) == candles_timeframes.end())
         {
 #if defined(_WIN32)
-            PrintToConsole("One of the timeframe is not available in the input data");
+            PrintToConsole("One of the timeframes is not available in the input data.");
 #endif
             std::exit(1);
         }
 
-        for (const auto &indicator : indicators)
+        for (const auto& indicator : indicators)
         {
             std::vector<double> values = indicator->calculate(candles_data[timeframe], true);
             indicators_data[timeframe][indicator->id] = values;
@@ -107,16 +137,25 @@ TEST_DLL_API int make_decision(
     }
 
     // Get the position infos from the config
-    for (const auto &position_info : config.training.inputs.position)
+    for (const auto& position_info : config.training.inputs.position)
     {
         position_infos.push_back(position_info);
     }
 
-    // ==================================================================================================== //
-
     // Update the trader
     trader->balance = account_balance;
     trader->update(candles_data);
+
+    // Update the current position
+    if (position_type != 0 && trader->current_position != nullptr)
+    {
+        trader->current_position->pnl = position_pnl;
+    }
+    if (position_type == 0 && trader->current_position != nullptr)
+    {
+        trader->close_position_by_market();
+    }
+
     // Look at the data
     trader->look(indicators_data, base_currency_conversion_rate, position_infos);
 
@@ -130,41 +169,26 @@ TEST_DLL_API int make_decision(
 #ifdef _WIN32
 
 BOOL APIENTRY DllMain(HMODULE hModule,
-                      DWORD ul_reason_for_call,
-                      LPVOID lpReserved)
+    DWORD ul_reason_for_call,
+    LPVOID lpReserved)
 {
-    wchar_t *lastBackslash;
-    std::filesystem::path genomePath;
+    std::string genomePath;
 
     switch (ul_reason_for_call)
     {
     case DLL_PROCESS_ATTACH:
-        // Get the path to the DLL file
-        wchar_t dllPath[MAX_PATH];
-        GetModuleFileNameW(hModule, dllPath, MAX_PATH);
-
-        // Extract the directory path
-        lastBackslash = wcsrchr(dllPath, L'\\');
-        if (lastBackslash != nullptr)
-        {
-            *lastBackslash = L'\0'; // Terminate the string at the last backslash
-        }
-
-        // Set the current directory to the DLL directory
-        SetCurrentDirectoryW(dllPath);
-
         // Get the config
         config = __config__;
 
         // Construct the full path to the genome file
-        genomePath = std::filesystem::path(dllPath) / L"genome.json";
+        genomePath = "C:\\Users\\Maxime\\AppData\\Roaming\\MetaQuotes\\Terminal\\D0E8209F77C8CF37AD8BF550E51FF075\\MQL5\\Libraries\\genome.json";
 
         // Load the genome from the file
-        genome = neat::Genome::load("C:\\Users\\Maxime\\AppData\\Roaming\\MetaQuotes\\Terminal\\D0E8209F77C8CF37AD8BF550E51FF075\\MQL5\\Libraries\\genome.json");
+        genome = neat::Genome::load(genomePath);
 
         if (genome == nullptr)
         {
-            PrintToConsole("Cannot load the genome");
+            PrintToConsole("Cannot load the genome.");
             std::exit(1);
         }
 
@@ -177,16 +201,11 @@ BOOL APIENTRY DllMain(HMODULE hModule,
         break;
     case DLL_PROCESS_DETACH:
         // Cleanup resources allocated during initialization
-        if (genome != nullptr)
-        {
-            delete genome;
-            genome = nullptr;
-        }
-        if (trader != nullptr)
-        {
-            delete trader;
-            trader = nullptr;
-        }
+        delete genome;
+        genome = nullptr;
+
+        delete trader;
+        trader = nullptr;
 
         break;
     }
