@@ -1257,8 +1257,8 @@ void Trader::generate_report(const std::string &filename)
     <title>Strategy Report</title>
     <style>
         html, body {
-            height: 100%;
             font-family: 'Avenir';
+            padding: 20px;
         }
         body {
             margin: 0;

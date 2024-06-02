@@ -73,7 +73,7 @@ std::tm end_test_date = {
 
 Config __config__ = {
     .general{
-        .name = "ForexPro",
+        .name = "ProForexTrader",
         .version = "1.0",
         .symbol = "EURUSD",
         .initial_balance = 1000.0,
