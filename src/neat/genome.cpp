@@ -212,7 +212,7 @@ void neat::Genome::remove_node()
 {
     // Select a random node by excluding inputs, outputs
     auto it = std::find_if(nodes.begin(), nodes.end(), [&](const std::shared_ptr<Node> n)
-                           { return n->layer != 0 && n->layer != layers; });
+                           { return n->layer != 0 && n->layer != layers - 1; });
 
     if (it != nodes.end())
     {
@@ -382,8 +382,8 @@ void neat::Genome::mutate(std::vector<std::shared_ptr<ConnectionHistory>> innova
         if (randrange() < config.node_add_prob)
             add_node(innovation_history);
 
-        // if (randrange() < config.node_delete_prob)
-        //     remove_node();
+        if (randrange() < config.node_delete_prob)
+            remove_node();
     }
     catch (const std::exception &e)
     {
