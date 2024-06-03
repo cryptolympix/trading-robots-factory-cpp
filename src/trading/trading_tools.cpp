@@ -277,7 +277,7 @@ std::tuple<double, double> calculate_tp_sl_price(double market_price, std::vecto
             config.stop_loss_atr_multiplier = 1.0; // Default value
         }
 
-        std::vector<double> atr_values = (new ATR(config.stop_loss_atr_period.value()))->calculate(candles, false);
+        std::vector<double> atr_values = ATR(config.stop_loss_atr_period.value()).calculate(candles, false);
         double atr = atr_values[atr_values.size() - 1];
         if (side == PositionSide::LONG)
         {

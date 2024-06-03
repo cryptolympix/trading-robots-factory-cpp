@@ -1,5 +1,5 @@
-#ifndef MOMENTUM_INDICATORS_H
-#define MOMENTUM_INDICATORS_H
+#ifndef MOMENTUM_INDICATORS_HPP
+#define MOMENTUM_INDICATORS_HPP
 
 #include "../types.hpp"
 #include "indicator.hpp"
@@ -34,7 +34,7 @@ public:
     AwesomeOscillator(int offset = 0);
 
     /**
-     * @brief Calculate the CandleOpen values.
+     * @brief Calculate the AwesomeOscillator values.
      *
      * @param candles Vector of Candle data.
      * @param normalize_data Boolean flag indicating whether to normalize data.
@@ -178,12 +178,12 @@ public:
     /**
      * @brief Construct a new Percentage Volume Oscillator (PVO) object.
      *
-     * @param fast_period The fast period used for calculating the PVO.
-     * @param slow_period The slow period used for calculating the PVO.
-     * @param signal_period The signal period used for calculating the PVO signal line.
+     * @param fast_period The fast period used for calculating the PVO. Default is 12.
+     * @param slow_period The slow period used for calculating the PVO. Default is 26.
+     * @param signal_period The signal period used for calculating the PVO signal line. Default is 9.
      * @param offset Offset value. Default is 0.
      */
-    PVO(int fast_period, int slow_period, int signal_period, int offset = 0);
+    PVO(int fast_period = 12, int slow_period = 26, int signal_period = 9, int offset = 0);
 
     /**
      * @brief Calculate the Percentage Volume Oscillator (PVO) values.
@@ -215,9 +215,10 @@ public:
     /**
      * @brief Construct a new ROC object.
      *
+     * @param period Period value. Default is 9.
      * @param offset Offset value. Default is 0.
      */
-    ROC(int period, int offset = 0);
+    ROC(int period = 9, int offset = 0);
 
     /**
      * @brief Calculate the Rate of Change (ROC) values.
@@ -450,4 +451,4 @@ private:
     int period; // The period for calculating Williams %R.
 };
 
-#endif /* MOMENTUM_INDICATORS_H */
+#endif /* MOMENTUM_INDICATORS_HPP */

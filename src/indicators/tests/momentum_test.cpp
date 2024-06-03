@@ -122,6 +122,10 @@ TEST_F(MomentumIndicatorsTest, UO)
     std::vector<double> result_uo = uo.calculate(mock_candles);
 
     ASSERT_EQ(result_uo.size(), mock_candles.size());
+    for (size_t i = 0; i < result_uo.size(); ++i)
+    {
+        ASSERT_TRUE(result_uo[i] >= 0 && result_uo[i] <= 100);
+    }
 }
 
 TEST_F(MomentumIndicatorsTest, WilliamsPercentR)

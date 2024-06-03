@@ -16,7 +16,7 @@
 AwesomeOscillator::AwesomeOscillator(int offset) : Indicator("Awesome Oscillator", "awesome-indicator-" + std::to_string(offset), offset) {}
 
 /**
- * @brief Calculate the CandleOpen values.
+ * @brief Calculate the AwesomeOscillator values.
  *
  * @param candles Vector of Candle data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
@@ -35,6 +35,7 @@ std::vector<double> AwesomeOscillator::calculate(const std::vector<Candle> &cand
             std::vector<double> average_5 = calculate_exponential_moving_average(median_prices, 5);
             std::vector<double> average_34 = calculate_exponential_moving_average(median_prices, 34);
             std::vector<double> result = subtract_vectors(average_5, average_34);
+
             return result; },
         normalize_data);
 }
@@ -258,7 +259,7 @@ std::vector<double> MFI::calculate(const std::vector<Candle> &candles, bool norm
 PPO::PPO(int short_period, int long_period, int offset) : Indicator("Percentage Price Oscillator", "ppo-" + std::to_string(short_period) + "-" + std::to_string(long_period) + "-" + std::to_string(offset), offset), short_period(short_period), long_period(long_period) {}
 
 /**
- * @brief Calculate the Price Oscillator (PPO) for a given set of candles.
+ * @brief Calculate the Percentage Price Oscillator (PPO) for a given set of candles.
  *
  * @param candles Vector of Candle data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
@@ -296,9 +297,9 @@ std::vector<double> PPO::calculate(const std::vector<Candle> &candles, bool norm
 /**
  * @brief Construct a new Percentage Volume Oscillator (PVO) object.
  *
- * @param fast_period The fast period used for calculating the PVO.
- * @param slow_period The slow period used for calculating the PVO.
- * @param signal_period The signal period used for calculating the PVO signal line.
+ * @param fast_period The fast period used for calculating the PVO. Default is 12.
+ * @param slow_period The slow period used for calculating the PVO. Default is 26.
+ * @param signal_period The signal period used for calculating the PVO signal line. Default is 9.
  * @param offset Offset value. Default is 0.
  */
 PVO::PVO(int fast_period, int slow_period, int signal_period, int offset)
