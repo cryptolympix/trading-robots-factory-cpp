@@ -14,7 +14,7 @@ public:
      * @param threshold Threshold for ATR signal.
      * @param offset Offset for ATR signal.
      */
-    ATRSignal(int period = 14, int threshold = 0.01, int offset = 0);
+    ATRSignal(int period = 14, double threshold = 0.01, int offset = 0);
 
     /**
      * @brief Calculate the ATRSignal values.
@@ -27,7 +27,7 @@ public:
 
 private:
     int period;
-    int threshold;
+    double threshold;
 };
 
 // *********************************************************************************************

@@ -10,7 +10,7 @@
  * @param threshold Threshold for ATR signal.
  * @param offset Offset for ATR signal.
  */
-ATRSignal::ATRSignal(int period, int threshold, int offset) : Indicator("Average True Range Signal", "atr-signal-" + std::to_string(period) + "-" + std::to_string(threshold) + "-" + std::to_string(offset), offset, {0, 1}), period(period), threshold(threshold) {}
+ATRSignal::ATRSignal(int period, double threshold, int offset) : Indicator("Average True Range Signal", "atr-signal-" + std::to_string(period) + "-" + std::to_string(threshold) + "-" + std::to_string(offset), offset, {0, 1}), period(period), threshold(threshold) {}
 
 /**
  * @brief Calculate the ATRSignal values.
