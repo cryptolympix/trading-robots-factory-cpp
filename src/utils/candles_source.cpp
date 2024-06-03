@@ -77,6 +77,20 @@ std::vector<double> get_candles_with_source(const std::vector<Candle> &candles, 
             values.push_back((candle.high + candle.low + candle.close + candle.close) / 4);
         }
     }
+    else if (source == "body-low")
+    {
+        for (auto &candle : candles)
+        {
+            values.push_back(std::min(candle.open, candle.close));
+        }
+    }
+    else if (source == "body-high")
+    {
+        for (auto &candle : candles)
+        {
+            values.push_back(std::max(candle.open, candle.close));
+        }
+    }
     else
     {
         throw std::runtime_error("Unknown candle source passed to get_candles_with_source: " + source);

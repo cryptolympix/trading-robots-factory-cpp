@@ -92,4 +92,16 @@ TEST_F(TestCandlesSource, GetCandlesWithSource)
     ASSERT_EQ(candles.size(), 2);
     EXPECT_EQ(candles[0], 2);
     EXPECT_EQ(candles[1], 2);
+
+    // Body Low
+    candles = get_candles_with_source(mock_candles, "body-low");
+    ASSERT_EQ(candles.size(), 2);
+    EXPECT_EQ(candles[0], 2);
+    EXPECT_EQ(candles[1], 2);
+
+    // Body High
+    candles = get_candles_with_source(mock_candles, "body-high");
+    ASSERT_EQ(candles.size(), 2);
+    EXPECT_EQ(candles[0], 2);
+    EXPECT_EQ(candles[1], 2);
 }
