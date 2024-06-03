@@ -883,11 +883,42 @@ void Trader::calculate_stats()
         this->stats.monthly_returns[month] = decimal_round(monthly_return - 1.0, 4);
     }
 
+    // Calculate the average investment return
+    double average_investment_return = 0;
+    std::vector<double> monthly_investment_returns = {};
+    if (this->stats.monthly_returns.size() > 0)
+    {
+        for (const auto &[month, performance] : this->stats.monthly_returns)
+        {
+            average_investment_return += performance / static_cast<double>(this->stats.monthly_returns.size());
+            monthly_investment_returns.push_back(performance);
+        }
+    }
+
     // Calculate the sharpe ratio
     this->stats.sharpe_ratio = 0;
+    if (monthly_investment_returns.size() > 0)
+    {
+        double std_dev = calculate_standard_deviation(monthly_investment_returns, monthly_investment_returns.size()).back();
+        if (std_dev != 0)
+        {
+            this->stats.sharpe_ratio = (average_investment_return - 0.0) / std_dev;
+        }
+    }
 
     // Calculate the sortino ratio
     this->stats.sortino_ratio = 0;
+    std::vector<double> monthly_investment_returns_negative = {};
+    std::copy_if(monthly_investment_returns.begin(), monthly_investment_returns.end(), std::back_inserter(monthly_investment_returns_negative), [](double x)
+                 { return x < 0; });
+    if (monthly_investment_returns_negative.size() > 0)
+    {
+        double std_dev = calculate_standard_deviation(monthly_investment_returns_negative, monthly_investment_returns_negative.size()).back();
+        if (std_dev != 0)
+        {
+            this->stats.sortino_ratio = (average_investment_return - 0.0) / std_dev;
+        }
+    }
 }
 
 /**

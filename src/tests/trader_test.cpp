@@ -1079,10 +1079,88 @@ TEST_F(TraderTest, CalculateStatsMonthlyReturns)
 
 TEST_F(TraderTest, CalculateStatsSharpeRatio)
 {
+    // Mock data for testing
+    std::tm first_month = {
+        .tm_sec = 0,
+        .tm_min = 0,
+        .tm_hour = 0,
+        .tm_mday = 1,
+        .tm_mon = 0,
+        .tm_year = 2023 - 1900,
+    };
+    std::tm second_month = {
+        .tm_sec = 0,
+        .tm_min = 0,
+        .tm_hour = 0,
+        .tm_mday = 1,
+        .tm_mon = 1,
+        .tm_year = 2023 - 1900,
+    };
+    std::tm third_month = {
+        .tm_sec = 0,
+        .tm_min = 0,
+        .tm_hour = 0,
+        .tm_mday = 1,
+        .tm_mon = 2,
+        .tm_year = 2023 - 1900,
+    };
+
+    // Mock data for testing
+    trader->trades_history = {
+        {.pnl_net_percent = 0.2, .closed = true, .exit_date = std::mktime(&first_month)},
+        {.pnl_net_percent = 0.5, .closed = true, .exit_date = std::mktime(&first_month)},
+        {.pnl_net_percent = -0.1, .closed = true, .exit_date = std::mktime(&second_month)},
+        {.pnl_net_percent = 0.3, .closed = true, .exit_date = std::mktime(&third_month)},
+    };
+
+    // Call the calculate_stats method
+    trader->calculate_stats();
+
+    // Check if stats are updated correctly
+    ASSERT_GT(trader->stats.sharpe_ratio, 0.0);
 }
 
 TEST_F(TraderTest, CalculateStatsSortinoRatio)
 {
+    // Mock data for testing
+    std::tm first_month = {
+        .tm_sec = 0,
+        .tm_min = 0,
+        .tm_hour = 0,
+        .tm_mday = 1,
+        .tm_mon = 0,
+        .tm_year = 2023 - 1900,
+    };
+    std::tm second_month = {
+        .tm_sec = 0,
+        .tm_min = 0,
+        .tm_hour = 0,
+        .tm_mday = 1,
+        .tm_mon = 1,
+        .tm_year = 2023 - 1900,
+    };
+    std::tm third_month = {
+        .tm_sec = 0,
+        .tm_min = 0,
+        .tm_hour = 0,
+        .tm_mday = 1,
+        .tm_mon = 2,
+        .tm_year = 2023 - 1900,
+    };
+
+    // Mock data for testing
+    trader->trades_history = {
+        {.pnl_net_percent = -0.2, .closed = true, .exit_date = std::mktime(&first_month)},
+        {.pnl_net_percent = 0.1, .closed = true, .exit_date = std::mktime(&first_month)},
+        {.pnl_net_percent = -0.15, .closed = true, .exit_date = std::mktime(&second_month)},
+        {.pnl_net_percent = 0.5, .closed = true, .exit_date = std::mktime(&third_month)},
+    };
+
+    // Call the calculate_stats method
+    trader->calculate_stats();
+
+    // Check if stats are updated correctly
+    ASSERT_GT(trader->stats.sortino_ratio, 0.0);
 }
 
 TEST_F(TraderTest, CalculateFitness)
