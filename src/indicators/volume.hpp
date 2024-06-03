@@ -257,6 +257,4 @@ public:
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 };
 
-// *********************************************************************************************************************
-
 #endif // INDICATORS_VOLUME_HPP

@@ -422,5 +422,3 @@ std::vector<double> VWAP::calculate(const std::vector<Candle> &candles, bool nor
 
         normalize_data);
 }
-
-// *********************************************************************************************************************
