@@ -412,8 +412,8 @@ std::vector<double> DPO::calculate(const std::vector<Candle> &candles, bool norm
 /**
  * @brief Construct a new EMA object.
  *
- * @param source Source value.
- * @param period Period value.
+ * @param source Source value. Default is "close".
+ * @param period Period value. Default is 20.
  * @param offset Offset value. Default is 0.
  */
 EMA::EMA(std::string source, int period, int offset) : Indicator("Exponential Moving Average", "ema-" + source + "-" + std::to_string(period) + "-" + std::to_string(offset), offset), source(source), period(period) {}

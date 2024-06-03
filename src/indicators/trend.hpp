@@ -221,11 +221,11 @@ public:
     /**
      * @brief Construct a new EMA object.
      *
-     * @param source Candle source.
-     * @param period Period value.
+     * @param source Candle source. Default is "close".
+     * @param period Period value. Default is 20.
      * @param offset Offset value. Default is 0.
      */
-    EMA(std::string source, int period, int offset = 0);
+    EMA(std::string source = "close", int period = 20, int offset = 0);
 
     /**
      * @brief Calculate the EMA values.
