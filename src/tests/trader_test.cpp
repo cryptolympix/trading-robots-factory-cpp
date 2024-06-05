@@ -194,6 +194,7 @@ TEST_F(TraderTest, UpdateWithPosition)
     ASSERT_EQ(trader->stats.total_profit, 0);
     ASSERT_EQ(trader->stats.total_winning_trades, 0);
     ASSERT_EQ(trader->stats.max_drawdown, 0.0);
+    ASSERT_EQ(trader->nb_trades_today, 0);
 }
 
 TEST_F(TraderTest, UpdateWithOpenOrders)
@@ -236,6 +237,7 @@ TEST_F(TraderTest, UpdateWithPositionLiquidation)
     ASSERT_GT(trader->trades_history[0].fees, 0.0);
     ASSERT_EQ(trader->trades_history[0].size, 0.01);
     ASSERT_TRUE(trader->trades_history[0].closed);
+    ASSERT_EQ(trader->nb_trades_today, 1);
 }
 
 TEST_F(TraderTest, UpdateWithInactiveTrader)
@@ -307,6 +309,7 @@ TEST_F(TraderTest, CheckTpOrderHit)
     ASSERT_GT(trader->trades_history[0].fees, 0.0);
     ASSERT_EQ(trader->trades_history[0].size, 1.0);
     ASSERT_TRUE(trader->trades_history[0].closed);
+    ASSERT_EQ(trader->nb_trades_today, 1);
 }
 
 TEST_F(TraderTest, CheckSlOrderHit)
@@ -350,6 +353,7 @@ TEST_F(TraderTest, CheckSlOrderHit)
     ASSERT_GT(trader->trades_history[0].fees, 0.0);
     ASSERT_EQ(trader->trades_history[0].size, 1.0);
     ASSERT_TRUE(trader->trades_history[0].closed);
+    ASSERT_EQ(trader->nb_trades_today, 1);
 }
 
 TEST_F(TraderTest, TradeCloseLongWithProfit)
@@ -382,6 +386,7 @@ TEST_F(TraderTest, TradeCloseLongWithProfit)
     ASSERT_GT(trader->trades_history[0].fees, 0.0);
     ASSERT_EQ(trader->trades_history[0].size, 1.0);
     ASSERT_TRUE(trader->trades_history[0].closed);
+    ASSERT_EQ(trader->nb_trades_today, 1);
 }
 
 TEST_F(TraderTest, TradeCloseLongWithLoss)
@@ -414,6 +419,7 @@ TEST_F(TraderTest, TradeCloseLongWithLoss)
     ASSERT_GT(trader->trades_history[0].fees, 0.0);
     ASSERT_EQ(trader->trades_history[0].size, 1.0);
     ASSERT_TRUE(trader->trades_history[0].closed);
+    ASSERT_EQ(trader->nb_trades_today, 1);
 }
 
 TEST_F(TraderTest, TradeCloseShortWithProfit)
@@ -446,6 +452,7 @@ TEST_F(TraderTest, TradeCloseShortWithProfit)
     ASSERT_GT(trader->trades_history[0].fees, 0.0);
     ASSERT_EQ(trader->trades_history[0].size, 1.0);
     ASSERT_TRUE(trader->trades_history[0].closed);
+    ASSERT_EQ(trader->nb_trades_today, 1);
 }
 
 TEST_F(TraderTest, TradeCloseShortWithLoss)
@@ -478,6 +485,7 @@ TEST_F(TraderTest, TradeCloseShortWithLoss)
     ASSERT_GT(trader->trades_history[0].fees, 0.0);
     ASSERT_EQ(trader->trades_history[0].size, 1.0);
     ASSERT_TRUE(trader->trades_history[0].closed);
+    ASSERT_EQ(trader->nb_trades_today, 1);
 }
 
 TEST_F(TraderTest, TradeEnterLong)
@@ -504,6 +512,7 @@ TEST_F(TraderTest, TradeEnterLong)
     ASSERT_GT(trader->trades_history[0].fees, 0.0);
     ASSERT_EQ(trader->trades_history[0].size, trader->current_position->size);
     ASSERT_FALSE(trader->trades_history[0].closed);
+    ASSERT_EQ(trader->nb_trades_today, 0);
 }
 
 TEST_F(TraderTest, TradeEnterShort)
@@ -529,6 +538,7 @@ TEST_F(TraderTest, TradeEnterShort)
     ASSERT_GT(trader->trades_history[0].fees, 0.0);
     ASSERT_EQ(trader->trades_history[0].size, trader->current_position->size);
     ASSERT_FALSE(trader->trades_history[0].closed);
+    ASSERT_EQ(trader->nb_trades_today, 0);
 }
 
 TEST_F(TraderTest, TradeNoAction)
@@ -543,6 +553,7 @@ TEST_F(TraderTest, TradeNoAction)
     ASSERT_EQ(trader->current_position, nullptr);
     ASSERT_EQ(trader->open_orders.size(), 0);
     ASSERT_EQ(trader->balance, 1000.0);
+    ASSERT_EQ(trader->nb_trades_today, 0);
 }
 
 TEST_F(TraderTest, ClosePositionForDurationExceeded)
@@ -574,6 +585,7 @@ TEST_F(TraderTest, ClosePositionForDurationExceeded)
     ASSERT_EQ(trader->trades_history[0].size, 1.0);
     ASSERT_LE(trader->trades_history[0].duration, config.strategy.maximum_trade_duration.value());
     ASSERT_TRUE(trader->trades_history[0].closed);
+    ASSERT_EQ(trader->nb_trades_today, 1);
 }
 
 TEST_F(TraderTest, WaitForDurationBeforeClosePosition)
@@ -593,6 +605,7 @@ TEST_F(TraderTest, WaitForDurationBeforeClosePosition)
     // Assertions
     ASSERT_NE(trader->current_position, nullptr);
     ASSERT_EQ(trader->duration_in_position, config.strategy.minimum_trade_duration.value() - 1);
+    ASSERT_EQ(trader->nb_trades_today, 0);
 
     // Call the update method for the last trade duration
     time_t last_date = date + config.strategy.minimum_trade_duration.value() * get_time_frame_in_minutes(config.strategy.timeframe) * 60;
@@ -613,6 +626,7 @@ TEST_F(TraderTest, WaitForDurationBeforeClosePosition)
     ASSERT_EQ(trader->trades_history[0].size, 1.0);
     ASSERT_EQ(trader->trades_history[0].duration, config.strategy.minimum_trade_duration.value());
     ASSERT_TRUE(trader->trades_history[0].closed);
+    ASSERT_EQ(trader->nb_trades_today, 1);
 }
 
 TEST_F(TraderTest, WaitForNextTrade)
@@ -625,6 +639,7 @@ TEST_F(TraderTest, WaitForNextTrade)
 
     ASSERT_FALSE(trader->can_trade());
     ASSERT_EQ(trader->current_position, nullptr);
+    ASSERT_EQ(trader->nb_trades_today, 0);
 
     // Set trader's date after the minimum duration before next trade has passed
     trader->duration_without_trade = config.strategy.minimum_duration_before_next_trade.value();
@@ -634,6 +649,7 @@ TEST_F(TraderTest, WaitForNextTrade)
 
     ASSERT_TRUE(trader->can_trade());
     ASSERT_NE(trader->current_position, nullptr);
+    ASSERT_EQ(trader->nb_trades_today, 0);
 }
 
 TEST_F(TraderTest, CreateTpSlForLongPosition)
@@ -695,6 +711,7 @@ TEST_F(TraderTest, TradeNotOutOfTradingSchedule)
     // Check if trader can trade
     ASSERT_FALSE(trader->can_trade());
     ASSERT_EQ(trader->current_position, nullptr);
+    ASSERT_EQ(trader->nb_trades_today, 0);
 
     // Try to trade just before the opening of trading schedule
     std::tm date_tm_2 = {
@@ -714,6 +731,7 @@ TEST_F(TraderTest, TradeNotOutOfTradingSchedule)
     // Check if trader can trade
     ASSERT_FALSE(trader->can_trade());
     ASSERT_EQ(trader->current_position, nullptr);
+    ASSERT_EQ(trader->nb_trades_today, 0);
 
     // Try to trade just after the closing of trading schedule
     std::tm date_tm_3 = {
@@ -733,6 +751,7 @@ TEST_F(TraderTest, TradeNotOutOfTradingSchedule)
     // Check if trader can trade
     ASSERT_FALSE(trader->can_trade());
     ASSERT_EQ(trader->current_position, nullptr);
+    ASSERT_EQ(trader->nb_trades_today, 0);
 }
 
 TEST_F(TraderTest, TradeOnTradingSchedule)
@@ -758,6 +777,7 @@ TEST_F(TraderTest, TradeOnTradingSchedule)
     ASSERT_NE(trader->current_position, nullptr);
     ASSERT_EQ(trader->open_orders.size(), 2);
     ASSERT_LT(trader->balance, 1000.0);
+    ASSERT_EQ(trader->nb_trades_today, 0);
 }
 
 TEST_F(TraderTest, TradeNotWhenSpreadHigh)
@@ -776,6 +796,7 @@ TEST_F(TraderTest, TradeNotWhenSpreadHigh)
     // Check if no new position is opened
     ASSERT_FALSE(trader->can_trade());
     ASSERT_EQ(trader->current_position, nullptr);
+    ASSERT_EQ(trader->nb_trades_today, 0);
 }
 
 TEST_F(TraderTest, RespectNumberOfTradesPerDay)
@@ -801,6 +822,9 @@ TEST_F(TraderTest, RespectNumberOfTradesPerDay)
 
         // Set the duration without trade to the minimum duration before next trade
         trader->duration_without_trade = config.strategy.minimum_duration_before_next_trade.value();
+
+        // Check if the nb of trades today is updated
+        ASSERT_EQ(trader->nb_trades_today, i + 1);
     }
 
     // Check if the trader can trade
@@ -811,6 +835,7 @@ TEST_F(TraderTest, RespectNumberOfTradesPerDay)
 
     // Check if no new position is opened
     ASSERT_EQ(trader->current_position, nullptr);
+    ASSERT_EQ(trader->nb_trades_today, config.strategy.maximum_trades_per_day.value());
 }
 
 TEST_F(TraderTest, UpdateLongPositionPnl)

@@ -17,14 +17,17 @@ public:
     double current_base_currency_conversion_rate;
     time_t current_date;
 
-    // Tradin stuffs
-    double balance;
+    // History
     std::vector<double> balance_history;
     std::vector<Trade> trades_history;
+
+    // Trading stuffs
+    double balance;
     Position *current_position;
     std::vector<Order> open_orders;
     int duration_in_position;   // Duration in the current position
     int duration_without_trade; // Countdown to avoid trading too much
+    int nb_trades_today;        // Number of trades today
 
     // Neat stuffs
     neat::Genome *genome;

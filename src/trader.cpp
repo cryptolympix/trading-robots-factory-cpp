@@ -35,16 +35,20 @@ Trader::Trader(neat::Genome *genome, Config config, Logger *logger)
 
     // Vision
     this->candles = {};
+    this->current_date = 0;
     this->current_base_currency_conversion_rate = 1.0;
 
-    // Balance and history
-    this->balance = config.general.initial_balance;
+    // History
     this->balance_history = {};
     this->trades_history = {};
+
+    // Trading stuff
+    this->balance = config.general.initial_balance;
     this->open_orders = {};
     this->current_position = nullptr;
     this->duration_in_position = 0;
     this->duration_without_trade = this->config.strategy.minimum_duration_before_next_trade.value_or(0);
+    this->nb_trades_today = 0;
 
     // Statistics of the trader
     this->stats = {
@@ -177,11 +181,31 @@ void Trader::think()
  */
 void Trader::update(CandlesData &candles)
 {
+    // Update the candles
     this->candles = candles;
-    this->current_date = candles[this->config.strategy.timeframe].back().date;
 
-    // Increment the lifespan of the trader
-    this->lifespan++;
+    // Detect if it's a new day, and reset the number of trades made today
+    if (this->current_date != 0)
+    {
+        struct tm last_date_tm = time_t_to_tm(this->current_date);
+        int last_year = last_date_tm.tm_year;
+        int last_month = last_date_tm.tm_mon;
+        int last_day = last_date_tm.tm_mday;
+
+        struct tm current_date_tm = time_t_to_tm(candles[this->config.strategy.timeframe].back().date);
+        int current_year = current_date_tm.tm_year;
+        int current_month = current_date_tm.tm_mon;
+        int current_day = current_date_tm.tm_mday;
+
+        bool is_new_day = last_year != current_year || last_month != current_month || last_day != current_day;
+        if (is_new_day)
+        {
+            this->nb_trades_today = 0;
+        }
+    }
+
+    // Update the current date
+    this->current_date = candles[this->config.strategy.timeframe].back().date;
 
     // Increment the position duration
     if (this->current_position != nullptr)
@@ -192,6 +216,14 @@ void Trader::update(CandlesData &candles)
     {
         this->duration_without_trade++;
     }
+
+    // Update the position
+    this->update_position_pnl();
+    this->check_open_orders();
+    this->check_position_liquidation();
+
+    // Increment the lifespan of the trader
+    this->lifespan++;
 
     // Kill the traders that loose all the balance
     bool bad_trader = this->config.training.bad_trader_threshold.has_value() && balance <= this->stats.initial_balance * config.training.bad_trader_threshold.value();
@@ -218,11 +250,6 @@ void Trader::update(CandlesData &candles)
         return;
     }
 
-    // Update
-    this->update_position_pnl();
-    this->check_open_orders();
-    this->check_position_liquidation();
-
     // Record the balance to history
     this->balance_history.push_back(this->balance);
 }
@@ -234,7 +261,7 @@ bool Trader::can_trade()
 {
     Candle last_candle = this->candles[this->config.strategy.timeframe].back();
 
-    // Check if the trader can trade at the moment
+    // Check if the trader can trade at the moment according to the schedule
     bool schedule_is_ok = true;
     if (this->config.strategy.trading_schedule.has_value())
     {
@@ -243,29 +270,7 @@ bool Trader::can_trade()
     }
 
     // Check the number of trades made today
-    bool number_of_trades_per_day_is_ok = true;
-    if (this->config.strategy.maximum_trades_per_day.has_value())
-    {
-        int number_of_trades_today = 0;
-        for (const auto &trade : this->trades_history)
-        {
-            struct tm current_date_tm = time_t_to_tm(this->current_date);
-            int current_year = current_date_tm.tm_year;
-            int current_month = current_date_tm.tm_mon;
-            int current_day = current_date_tm.tm_mday;
-
-            struct tm trade_date_tm = time_t_to_tm(trade.exit_date);
-            int trade_year = trade_date_tm.tm_year;
-            int trade_month = trade_date_tm.tm_mon;
-            int trade_day = trade_date_tm.tm_mday;
-
-            if (trade_year == current_year && trade_month == current_month && trade_day == current_day)
-            {
-                number_of_trades_today++;
-            }
-        }
-        number_of_trades_per_day_is_ok = number_of_trades_today < this->config.strategy.maximum_trades_per_day.value();
-    }
+    bool number_of_trades_per_day_is_ok = this->nb_trades_today < this->config.strategy.maximum_trades_per_day.value();
 
     // Check if the spread is ok
     bool spread_is_ok = true;
@@ -281,10 +286,7 @@ bool Trader::can_trade()
         time_after_previous_trade_is_ok = this->duration_without_trade >= this->config.strategy.minimum_duration_before_next_trade.value();
     }
 
-    // Check if the trader can trade now
-    bool can_trade_now = schedule_is_ok && number_of_trades_per_day_is_ok && spread_is_ok && time_after_previous_trade_is_ok;
-
-    return can_trade_now;
+    return schedule_is_ok && number_of_trades_per_day_is_ok && spread_is_ok && time_after_previous_trade_is_ok;
 }
 
 /**
@@ -407,77 +409,6 @@ int Trader::trade()
     }
 
     return 0; // Wait
-}
-
-/**
- * @brief Open a position by market.
- * @param price Price of the market order.
- * @param size Size of the market order.
- * @param side Side of the market order.
- */
-void Trader::open_position_by_market(double price, double size, OrderSide side)
-{
-    if (this->current_position != nullptr)
-    {
-        return;
-    };
-
-    double fees = calculate_commission(this->symbol_info.commission_per_lot, size, this->current_base_currency_conversion_rate);
-
-    if (side == OrderSide::LONG)
-    {
-        this->stats.total_trades++;
-        this->stats.total_long_trades++;
-        this->balance -= fees;
-        this->duration_in_position = 0;
-        this->current_position = new Position{
-            .side = PositionSide::LONG,
-            .size = size,
-            .entry_price = price,
-            .entry_date = this->current_date,
-            .pnl = 0.0,
-        };
-        this->trades_history.push_back(Trade{
-            .side = PositionSide::LONG,
-            .entry_date = this->current_position->entry_date,
-            .entry_price = this->current_position->entry_price,
-            .size = this->current_position->size,
-            .fees = fees,
-            .closed = false,
-        });
-
-        if (this->logger != nullptr)
-        {
-            this->logger->info("[" + time_t_to_string(this->current_date) + "] [" + std::to_string(balance) + "] : Open long position by market at " + std::to_string(price) + " with " + std::to_string(size) + " lots and " + std::to_string(fees) + " of fees.");
-        }
-    }
-    else if (side == OrderSide::SHORT)
-    {
-        this->stats.total_trades++;
-        this->stats.total_short_trades++;
-        this->balance -= fees;
-        this->duration_in_position = 0;
-        this->current_position = new Position{
-            .side = PositionSide::SHORT,
-            .size = size,
-            .entry_price = price,
-            .entry_date = this->current_date,
-            .pnl = 0.0,
-        };
-        this->trades_history.push_back(Trade{
-            .side = PositionSide::SHORT,
-            .entry_date = this->current_position->entry_date,
-            .entry_price = this->current_position->entry_price,
-            .size = this->current_position->size,
-            .fees = fees,
-            .closed = false,
-        });
-
-        if (this->logger != nullptr)
-        {
-            this->logger->info("[" + time_t_to_string(this->current_date) + "] [" + std::to_string(balance) + "] : Open short position by market at " + std::to_string(price) + " with " + std::to_string(size) + " lots and " + std::to_string(fees) + " of fees.");
-        }
-    }
 }
 
 /**
@@ -933,6 +864,77 @@ void Trader::calculate_stats()
 }
 
 /**
+ * @brief Open a position by market.
+ * @param price Price of the market order.
+ * @param size Size of the market order.
+ * @param side Side of the market order.
+ */
+void Trader::open_position_by_market(double price, double size, OrderSide side)
+{
+    if (this->current_position != nullptr)
+    {
+        return;
+    };
+
+    double fees = calculate_commission(this->symbol_info.commission_per_lot, size, this->current_base_currency_conversion_rate);
+
+    if (side == OrderSide::LONG)
+    {
+        this->stats.total_trades++;
+        this->stats.total_long_trades++;
+        this->balance -= fees;
+        this->duration_in_position = 0;
+        this->current_position = new Position{
+            .side = PositionSide::LONG,
+            .size = size,
+            .entry_price = price,
+            .entry_date = this->current_date,
+            .pnl = 0.0,
+        };
+        this->trades_history.push_back(Trade{
+            .side = PositionSide::LONG,
+            .entry_date = this->current_position->entry_date,
+            .entry_price = this->current_position->entry_price,
+            .size = this->current_position->size,
+            .fees = fees,
+            .closed = false,
+        });
+
+        if (this->logger != nullptr)
+        {
+            this->logger->info("[" + time_t_to_string(this->current_date) + "] [" + std::to_string(balance) + "] : Open long position by market at " + std::to_string(price) + " with " + std::to_string(size) + " lots and " + std::to_string(fees) + " of fees.");
+        }
+    }
+    else if (side == OrderSide::SHORT)
+    {
+        this->stats.total_trades++;
+        this->stats.total_short_trades++;
+        this->balance -= fees;
+        this->duration_in_position = 0;
+        this->current_position = new Position{
+            .side = PositionSide::SHORT,
+            .size = size,
+            .entry_price = price,
+            .entry_date = this->current_date,
+            .pnl = 0.0,
+        };
+        this->trades_history.push_back(Trade{
+            .side = PositionSide::SHORT,
+            .entry_date = this->current_position->entry_date,
+            .entry_price = this->current_position->entry_price,
+            .size = this->current_position->size,
+            .fees = fees,
+            .closed = false,
+        });
+
+        if (this->logger != nullptr)
+        {
+            this->logger->info("[" + time_t_to_string(this->current_date) + "] [" + std::to_string(balance) + "] : Open short position by market at " + std::to_string(price) + " with " + std::to_string(size) + " lots and " + std::to_string(fees) + " of fees.");
+        }
+    }
+}
+
+/**
  * @brief Open a position by limit.
  * @param price Price of the limit order.
  * @param size Size of the limit order.
@@ -974,6 +976,7 @@ void Trader::close_position_by_market(double price)
 
         this->current_position = nullptr;
         this->duration_without_trade = 0;
+        this->nb_trades_today++;
         this->close_open_orders();
     }
 }
@@ -1018,6 +1021,7 @@ void Trader::close_position_by_limit(double price)
 
         this->current_position = nullptr;
         this->duration_without_trade = 0;
+        this->nb_trades_today++;
         this->close_open_orders();
     }
 }

@@ -484,17 +484,19 @@ void Training::evaluate_genome(neat::Genome *genome, int generation)
             double current_base_currency_conversion_rate = this->cache->get(date).base_currency_conversion_rate;
             std::vector<PositionInfo> position = this->config.training.inputs.position;
 
-            // Update the individual
-            if (!trader->dead)
+            // Do not continue if the trader is dead
+            if (trader->dead)
             {
-                trader->update(current_candles);
+                break;
+            }
+
+            // Trader in action
+            trader->update(current_candles);
+            if (trader->can_trade())
+            {
                 trader->look(current_indicators, current_base_currency_conversion_rate, position);
                 trader->think();
                 trader->trade();
-            }
-            else
-            {
-                break;
             }
         }
     }
