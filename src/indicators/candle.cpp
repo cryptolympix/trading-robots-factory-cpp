@@ -7,6 +7,7 @@
 #include "../utils/math.hpp"
 #include "../utils/candles_source.hpp"
 #include "../types.hpp"
+#include "utils.hpp"
 #include "indicator.hpp"
 #include "candle.hpp"
 
@@ -427,30 +428,7 @@ std::vector<double> PivotHigh::calculate(const std::vector<Candle> &candles, boo
                 return values;
             }
 
-            for (size_t i = 0; i < candles.size() - right_bars; ++i)
-            {
-
-                std::vector<double>::iterator start = (i < left_bars) ? source_candles.begin() : source_candles.begin() + i - left_bars;
-                std::vector<double>::iterator end = source_candles.begin() + i + right_bars + 1;
-
-                if (i - left_bars < 0)
-                {
-                    start = source_candles.begin();
-                }
-                if (i + right_bars + 1 > source_candles.size())
-                {
-                    end = source_candles.end();
-                }
-
-                if (i < left_bars)
-                {
-                    values[i] = std::max_element(start, end) == source_candles.begin() + i ? 1 : 0;
-                }
-                else
-                {
-                    values[i] = std::max_element(start, end) == source_candles.begin() + i ? 1 : 0;
-                }
-            }
+            values = calculate_pivots_high(source_candles, left_bars, right_bars);
 
             return values; },
 
@@ -492,36 +470,7 @@ std::vector<double> PivotLow::calculate(const std::vector<Candle> &candles, bool
                 return values;
             }
 
-
-
-            for (size_t i = 0; i < candles.size() - right_bars; ++i)
-            {
-
-                std::vector<double>::iterator start = (i < left_bars) ? source_candles.begin() : source_candles.begin() + i - left_bars;
-                std::vector<double>::iterator end = source_candles.begin() + i + right_bars + 1;
-
-                if (i - left_bars < 0)
-                {
-                    start = source_candles.begin();
-                }
-                if (i + right_bars + 1 > source_candles.size())
-                {
-                    end = source_candles.end();
-                }
-
-                if (i < left_bars)
-                {
-                    std::vector<double>::iterator start = source_candles.begin();
-                    std::vector<double>::iterator end = source_candles.begin() + i + right_bars + 1;
-                    values[i] = (std::min_element(start, end) == source_candles.begin() + i) ? 1 : 0;
-                }
-                else
-                {
-                    std::vector<double>::iterator start = source_candles.begin() + i - left_bars;
-                    std::vector<double>::iterator end = source_candles.begin() + i + right_bars + 1;
-                    values[i] = (std::min_element(start, end) == source_candles.begin() + i) ? 1 : 0;
-                }
-            }
+            values = calculate_pivots_low(source_candles, left_bars, right_bars);
 
             return values; },
 

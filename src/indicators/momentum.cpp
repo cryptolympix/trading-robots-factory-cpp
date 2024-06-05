@@ -691,10 +691,20 @@ std::vector<double> UO::calculate(const std::vector<Candle> &candles, bool norma
                 true_range.push_back(tr);
             }
 
-            // Calculate Averages for 7, 14, and 28 periods using Simple Moving Average
-            std::vector<double> average7 = calculate_simple_moving_average(buying_pressure, period1);
-            std::vector<double> average14 = calculate_simple_moving_average(buying_pressure, period2);
-            std::vector<double> average28 = calculate_simple_moving_average(buying_pressure, period3);
+            // Calculate Buying Pressure Average Price for 7, 14, and 28 periods
+            std::vector<double> bp_average7 = calculate_simple_moving_average(buying_pressure, period1);
+            std::vector<double> bp_average14 = calculate_simple_moving_average(buying_pressure, period2);
+            std::vector<double> bp_average28 = calculate_simple_moving_average(buying_pressure, period3);
+
+            // Calculate True Range Averages for 7, 14, and 28 periods
+            std::vector<double> tr_average7 = calculate_simple_moving_average(true_range, period1);
+            std::vector<double> tr_average14 = calculate_simple_moving_average(true_range, period2);
+            std::vector<double> tr_average28 = calculate_simple_moving_average(true_range, period3);
+
+            // Divide Buying Pressure Averages by True Range Averages
+            std::vector<double> average7 = divide_vectors(bp_average7, tr_average7);
+            std::vector<double> average14 = divide_vectors(bp_average14, tr_average14); 
+            std::vector<double> average28 = divide_vectors(bp_average28, tr_average28);
 
             // Calculate Ultimate Oscillator (UO)
             for (size_t i = period3; i < candles.size(); ++i) {

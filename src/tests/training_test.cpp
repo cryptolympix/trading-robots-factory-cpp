@@ -112,6 +112,7 @@ protected:
             },
             .evaluation = {
                 .nb_trades_per_day = 2,
+                .maximum_trade_duration = 5,
                 .maximum_drawdown = 0.1,
                 .expected_return_per_day = 0.01,
                 .expected_return_per_month = 0.1,
@@ -135,200 +136,200 @@ protected:
     }
 };
 
-// TEST_F(TrainingTest, LoadCandles)
-// {
-//     training->load_candles();
+TEST_F(TrainingTest, LoadCandles)
+{
+    training->load_candles();
 
-//     ASSERT_FALSE(training->candles.empty());
-//     ASSERT_FALSE(training->dates.empty());
+    ASSERT_FALSE(training->candles.empty());
+    ASSERT_FALSE(training->dates.empty());
 
-//     for (int i = 0; i < training->dates.size(); ++i)
-//     {
-//         time_t date = training->dates[i];
+    for (int i = 0; i < training->dates.size(); ++i)
+    {
+        time_t date = training->dates[i];
 
-//         ASSERT_TRUE(training->candles.find(date) != training->candles.end());
+        ASSERT_TRUE(training->candles.find(date) != training->candles.end());
 
-//         ASSERT_TRUE(training->candles[date].find(TimeFrame::M15) != training->candles[date].end());
-//         ASSERT_TRUE(training->candles[date].find(TimeFrame::M30) != training->candles[date].end());
-//         ASSERT_TRUE(training->candles[date].find(TimeFrame::H1) != training->candles[date].end());
+        ASSERT_TRUE(training->candles[date].find(TimeFrame::M15) != training->candles[date].end());
+        ASSERT_TRUE(training->candles[date].find(TimeFrame::M30) != training->candles[date].end());
+        ASSERT_TRUE(training->candles[date].find(TimeFrame::H1) != training->candles[date].end());
 
-//         ASSERT_FALSE(training->candles[date][TimeFrame::M15].empty());
-//         ASSERT_FALSE(training->candles[date][TimeFrame::M30].empty());
-//         ASSERT_FALSE(training->candles[date][TimeFrame::H1].empty());
+        ASSERT_FALSE(training->candles[date][TimeFrame::M15].empty());
+        ASSERT_FALSE(training->candles[date][TimeFrame::M30].empty());
+        ASSERT_FALSE(training->candles[date][TimeFrame::H1].empty());
 
-//         ASSERT_EQ(training->candles[date][TimeFrame::M15].back().date, date);
-//         ASSERT_LE(training->candles[date][TimeFrame::M30].back().date, date);
-//         ASSERT_LE(training->candles[date][TimeFrame::H1].back().date, date);
+        ASSERT_EQ(training->candles[date][TimeFrame::M15].back().date, date);
+        ASSERT_LE(training->candles[date][TimeFrame::M30].back().date, date);
+        ASSERT_LE(training->candles[date][TimeFrame::H1].back().date, date);
 
-//         ASSERT_EQ(training->candles[date][TimeFrame::M15].size(), CANDLES_WINDOW);
-//         ASSERT_EQ(training->candles[date][TimeFrame::M30].size(), CANDLES_WINDOW);
-//         ASSERT_EQ(training->candles[date][TimeFrame::H1].size(), CANDLES_WINDOW);
-//     }
-// }
+        ASSERT_EQ(training->candles[date][TimeFrame::M15].size(), CANDLES_WINDOW);
+        ASSERT_EQ(training->candles[date][TimeFrame::M30].size(), CANDLES_WINDOW);
+        ASSERT_EQ(training->candles[date][TimeFrame::H1].size(), CANDLES_WINDOW);
+    }
+}
 
-// TEST_F(TrainingTest, LoadIndicators)
-// {
-//     training->load_candles();
-//     training->load_indicators();
+TEST_F(TrainingTest, LoadIndicators)
+{
+    training->load_candles();
+    training->load_indicators();
 
-//     ASSERT_FALSE(training->indicators.empty());
+    ASSERT_FALSE(training->indicators.empty());
 
-//     for (const auto &[date, indicators_data] : training->indicators)
-//     {
-//         ASSERT_FALSE(indicators_data.empty());
-//         for (const auto &[tf, data] : indicators_data)
-//         {
-//             for (const auto &[id, values] : data)
-//             {
-//                 ASSERT_EQ(values.size(), INDICATOR_WINDOW);
-//             }
-//         }
+    for (const auto &[date, indicators_data] : training->indicators)
+    {
+        ASSERT_FALSE(indicators_data.empty());
+        for (const auto &[tf, data] : indicators_data)
+        {
+            for (const auto &[id, values] : data)
+            {
+                ASSERT_EQ(values.size(), INDICATOR_WINDOW);
+            }
+        }
 
-//         ASSERT_TRUE(training->indicators[date].find(TimeFrame::M15) != training->indicators[date].end());
-//         ASSERT_TRUE(training->indicators[date].find(TimeFrame::M30) != training->indicators[date].end());
-//         ASSERT_TRUE(training->indicators[date].find(TimeFrame::H1) != training->indicators[date].end());
-//     }
-// }
+        ASSERT_TRUE(training->indicators[date].find(TimeFrame::M15) != training->indicators[date].end());
+        ASSERT_TRUE(training->indicators[date].find(TimeFrame::M30) != training->indicators[date].end());
+        ASSERT_TRUE(training->indicators[date].find(TimeFrame::H1) != training->indicators[date].end());
+    }
+}
 
-// TEST_F(TrainingTest, LoadBaseCurrencyConversionRate)
-// {
-//     training->load_candles();
-//     training->load_base_currency_conversion_rate();
-//     ASSERT_FALSE(training->base_currency_conversion_rate.empty());
-// }
+TEST_F(TrainingTest, LoadBaseCurrencyConversionRate)
+{
+    training->load_candles();
+    training->load_base_currency_conversion_rate();
+    ASSERT_FALSE(training->base_currency_conversion_rate.empty());
+}
 
-// TEST_F(TrainingTest, CacheData)
-// {
-//     training->load_candles();
-//     training->load_indicators();
-//     training->load_base_currency_conversion_rate();
-//     training->cache_data();
+TEST_F(TrainingTest, CacheData)
+{
+    training->load_candles();
+    training->load_indicators();
+    training->load_base_currency_conversion_rate();
+    training->cache_data();
 
-//     TimeFrame loop_timeframe = config.strategy.timeframe;
-//     int loop_timeframe_minutes = get_time_frame_in_minutes(loop_timeframe);
-//     int nb_dates = training->candles.size();
+    TimeFrame loop_timeframe = config.strategy.timeframe;
+    int loop_timeframe_minutes = get_time_frame_in_minutes(loop_timeframe);
+    int nb_dates = training->candles.size();
 
-//     // Check the dates is in the cache
-//     ASSERT_EQ(training->cache->data.size(), nb_dates);
-//     ASSERT_EQ(training->cache->data.size(), training->dates.size());
+    // Check the dates is in the cache
+    ASSERT_EQ(training->cache->data.size(), nb_dates);
+    ASSERT_EQ(training->cache->data.size(), training->dates.size());
 
-//     // Get the dates from the candles of loop_timeframe
-//     std::vector<time_t> dates;
-//     for (const auto &[date, candles_data] : training->candles)
-//     {
-//         dates.push_back(date);
-//     }
+    // Get the dates from the candles of loop_timeframe
+    std::vector<time_t> dates;
+    for (const auto &[date, candles_data] : training->candles)
+    {
+        dates.push_back(date);
+    }
 
-//     // Check the dates in the cache
-//     for (const auto &date : dates)
-//     {
-//         std::string date_string = std::to_string(date);
-//         ASSERT_TRUE(training->cache->has(date_string));
-//     }
+    // Check the dates in the cache
+    for (const auto &date : dates)
+    {
+        std::string date_string = std::to_string(date);
+        ASSERT_TRUE(training->cache->has(date_string));
+    }
 
-//     for (const auto &date : dates)
-//     {
-//         std::string date_string = std::to_string(date);
+    for (const auto &date : dates)
+    {
+        std::string date_string = std::to_string(date);
 
-//         for (const auto &[timeframe, candles] : training->cache->get(date_string).candles)
-//         {
-//             // Check the candles are not empty
-//             ASSERT_FALSE(candles.empty());
+        for (const auto &[timeframe, candles] : training->cache->get(date_string).candles)
+        {
+            // Check the candles are not empty
+            ASSERT_FALSE(candles.empty());
 
-//             // Check the last candle date
-//             if (timeframe == loop_timeframe)
-//             {
-//                 ASSERT_EQ(training->cache->get(date_string).candles[timeframe].back().date, date);
-//             }
-//             else
-//             {
-//                 ASSERT_LE(training->cache->get(date_string).candles[timeframe].back().date, date);
-//             }
+            // Check the last candle date
+            if (timeframe == loop_timeframe)
+            {
+                ASSERT_EQ(training->cache->get(date_string).candles[timeframe].back().date, date);
+            }
+            else
+            {
+                ASSERT_LE(training->cache->get(date_string).candles[timeframe].back().date, date);
+            }
 
-//             // Check the the candle dates are well ordered
-//             for (int j = 0; j < candles.size() - 1; ++j)
-//             {
-//                 ASSERT_LT(candles[j].date, candles[j + 1].date);
-//             }
-//         }
+            // Check the the candle dates are well ordered
+            for (int j = 0; j < candles.size() - 1; ++j)
+            {
+                ASSERT_LT(candles[j].date, candles[j + 1].date);
+            }
+        }
 
-//         // Check the the indicators are in the cache
-//         for (const auto &[timeframe, indicators_data] : training->cache->get(date_string).indicators)
-//         {
-//             for (const auto &[id, data] : indicators_data)
-//             {
-//                 ASSERT_EQ(data.size(), INDICATOR_WINDOW);
-//             }
-//         }
+        // Check the the indicators are in the cache
+        for (const auto &[timeframe, indicators_data] : training->cache->get(date_string).indicators)
+        {
+            for (const auto &[id, data] : indicators_data)
+            {
+                ASSERT_EQ(data.size(), INDICATOR_WINDOW);
+            }
+        }
 
-//         // Check the the base currency conversion rate is in the cache
-//         ASSERT_GT(training->cache->get(date_string).base_currency_conversion_rate, 0);
-//     }
-// }
+        // Check the the base currency conversion rate is in the cache
+        ASSERT_GT(training->cache->get(date_string).base_currency_conversion_rate, 0);
+    }
+}
 
-// TEST_F(TrainingTest, CountIndicators)
-// {
-//     int count = training->count_indicators();
-//     ASSERT_EQ(count, 3);
-// }
+TEST_F(TrainingTest, CountIndicators)
+{
+    int count = training->count_indicators();
+    ASSERT_EQ(count, 3);
+}
 
-// TEST_F(TrainingTest, GetAllTimeframes)
-// {
-//     std::vector<TimeFrame> timeframes = training->get_all_timeframes();
-//     ASSERT_EQ(timeframes.size(), 3);
-//     ASSERT_TRUE(std::find(timeframes.begin(), timeframes.end(), TimeFrame::M15) != timeframes.end());
-//     ASSERT_TRUE(std::find(timeframes.begin(), timeframes.end(), TimeFrame::M30) != timeframes.end());
-//     ASSERT_TRUE(std::find(timeframes.begin(), timeframes.end(), TimeFrame::H1) != timeframes.end());
-// }
+TEST_F(TrainingTest, GetAllTimeframes)
+{
+    std::vector<TimeFrame> timeframes = training->get_all_timeframes();
+    ASSERT_EQ(timeframes.size(), 3);
+    ASSERT_TRUE(std::find(timeframes.begin(), timeframes.end(), TimeFrame::M15) != timeframes.end());
+    ASSERT_TRUE(std::find(timeframes.begin(), timeframes.end(), TimeFrame::M30) != timeframes.end());
+    ASSERT_TRUE(std::find(timeframes.begin(), timeframes.end(), TimeFrame::H1) != timeframes.end());
+}
 
-// TEST_F(TrainingTest, BestTraders)
-// {
-//     // Mock best traders
-//     neat::Genome *genome = new neat::Genome(config.neat);
-//     Trader *best_trader = new Trader(genome, config);
-//     best_trader->fitness = 10;
-//     best_trader->score = 10;
-//     Trader *bad_trader = new Trader(genome, config);
-//     best_trader->fitness = 5;
-//     best_trader->score = 5;
+TEST_F(TrainingTest, BestTraders)
+{
+    // Mock best traders
+    neat::Genome *genome = new neat::Genome(config.neat);
+    Trader *best_trader = new Trader(genome, config);
+    best_trader->fitness = 10;
+    best_trader->score = 10;
+    Trader *bad_trader = new Trader(genome, config);
+    best_trader->fitness = 5;
+    best_trader->score = 5;
 
-//     // Add traders to the history
-//     training->traders[0] = {best_trader, bad_trader};
+    // Add traders to the history
+    training->traders[0] = {best_trader, bad_trader};
 
-//     // Set the best traders
-//     training->set_best_traders(0);
+    // Set the best traders
+    training->set_best_traders(0);
 
-//     ASSERT_EQ(training->get_best_trader_of_generation(0), best_trader);
+    ASSERT_EQ(training->get_best_trader_of_generation(0), best_trader);
 
-//     // Update the best traders
-//     Trader *new_best_trader = new Trader(genome, config);
-//     new_best_trader->fitness = 15;
-//     new_best_trader->score = 15;
+    // Update the best traders
+    Trader *new_best_trader = new Trader(genome, config);
+    new_best_trader->fitness = 15;
+    new_best_trader->score = 15;
 
-//     // Add a new best traders
-//     training->traders[0].push_back(new_best_trader);
+    // Add a new best traders
+    training->traders[0].push_back(new_best_trader);
 
-//     // Set the best traders
-//     training->set_best_traders(0);
+    // Set the best traders
+    training->set_best_traders(0);
 
-//     ASSERT_EQ(training->get_best_trader_of_generation(0), new_best_trader);
-// }
+    ASSERT_EQ(training->get_best_trader_of_generation(0), new_best_trader);
+}
 
-// TEST_F(TrainingTest, Run)
-// {
-//     training->load_candles();
-//     training->load_indicators();
-//     training->load_base_currency_conversion_rate();
-//     training->cache_data();
+TEST_F(TrainingTest, Run)
+{
+    training->load_candles();
+    training->load_indicators();
+    training->load_base_currency_conversion_rate();
+    training->cache_data();
 
-//     for (int i = 0; i < 10; ++i)
-//     {
-//         int result = training->run();
+    for (int i = 0; i < 10; ++i)
+    {
+        int result = training->run();
 
-//         // Asserts that the training went well
-//         ASSERT_EQ(result, 0);
-//     }
-// }
+        // Asserts that the training went well
+        ASSERT_EQ(result, 0);
+    }
+}
 
 TEST_F(TrainingTest, MonteCarloSimulation)
 {

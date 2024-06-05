@@ -487,7 +487,8 @@ void Trader::calculate_fitness()
 {
     EvaluationConfig goals = this->config.evaluation;
 
-    double nb_trades_eval = 0;
+    double nb_trades_per_day_eval = 0;
+    double max_trade_duration_eval = 0;
     double max_drawdown_eval = 0;
     double profit_factor_eval = 0;
     double win_rate_eval = 0;
@@ -495,7 +496,8 @@ void Trader::calculate_fitness()
     double expected_return_per_month_eval = 0;
     double expected_return_eval = 0;
 
-    double nb_trades_weight = 1;
+    double nb_trades_per_day_weight = 1;
+    double max_trade_duration_weight = 1;
     double max_drawdown_weight = 1;
     double profit_factor_weight = 1;
     double win_rate_weight = 1;
@@ -527,7 +529,16 @@ void Trader::calculate_fitness()
         for (const auto &[day, nb_trade] : daily_trades)
         {
             double diff = 10 * std::abs(goals.nb_trades_per_day.value() - nb_trade);
-            nb_trades_eval += nb_trades_weight / (nb_days * std::exp(diff));
+            nb_trades_per_day_eval += nb_trades_per_day_weight / (nb_days * std::exp(diff));
+        }
+    }
+
+    if (goals.maximum_trade_duration.has_value())
+    {
+        for (const auto &trade : closed_trades)
+        {
+            double diff = 10 * std::max(0, trade.duration - goals.maximum_trade_duration.value());
+            max_trade_duration_eval += max_trade_duration_weight / std::exp(diff);
         }
     }
 
@@ -602,7 +613,7 @@ void Trader::calculate_fitness()
     }
     if (goals.nb_trades_per_day.has_value())
     {
-        this->fitness *= nb_trades_eval;
+        this->fitness *= nb_trades_per_day_eval;
     }
     if (goals.maximum_drawdown.has_value())
     {

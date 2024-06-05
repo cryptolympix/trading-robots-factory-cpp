@@ -112,3 +112,81 @@ std::vector<double> calculate_standard_deviation(const std::vector<double> &valu
 
     return std_deviation;
 }
+
+/**
+ * @brief Calculate the pivots position of a given vector of values.
+ *
+ * @param values Vector of values.
+ * @param left_bars Number of bars to the left to consider.
+ * @param right_bars Number of bars to the right to consider.
+ * @return std::vector<double> Vector containing the pivot values represented as 1, otherwise 0.
+ */
+std::vector<double> calculate_pivots_high(std::vector<double> &values, int left_bars, int right_bars)
+{
+    std::vector<double> pivots(values.size(), 0.0);
+
+    for (size_t i = 0; i < values.size() - right_bars; ++i)
+    {
+        std::vector<double>::iterator start = (i < left_bars) ? values.begin() : values.begin() + i - left_bars;
+        std::vector<double>::iterator end = values.begin() + i + right_bars + 1;
+
+        if (i - left_bars < 0)
+        {
+            start = values.begin();
+        }
+        if (i + right_bars + 1 > values.size())
+        {
+            end = values.end();
+        }
+
+        if (i < left_bars)
+        {
+            pivots[i] = std::max_element(start, end) == values.begin() + i ? 1 : 0;
+        }
+        else
+        {
+            pivots[i] = std::max_element(start, end) == values.begin() + i ? 1 : 0;
+        }
+    }
+
+    return pivots;
+}
+
+/**
+ * @brief Calculate the pivots position of a given vector of values.
+ *
+ * @param values Vector of values.
+ * @param left_bars Number of bars to the left to consider.
+ * @param right_bars Number of bars to the right to consider.
+ * @return std::vector<double> Vector containing the pivot values represented as 1, otherwise 0.
+ */
+std::vector<double> calculate_pivots_low(std::vector<double> &values, int left_bars, int right_bars)
+{
+    std::vector<double> pivots(values.size(), 0.0);
+
+    for (size_t i = 0; i < values.size() - right_bars; ++i)
+    {
+        std::vector<double>::iterator start = (i < left_bars) ? values.begin() : values.begin() + i - left_bars;
+        std::vector<double>::iterator end = values.begin() + i + right_bars + 1;
+
+        if (i - left_bars < 0)
+        {
+            start = values.begin();
+        }
+        if (i + right_bars + 1 > values.size())
+        {
+            end = values.end();
+        }
+
+        if (i < left_bars)
+        {
+            pivots[i] = (std::min_element(start, end) == values.begin() + i) ? 1 : 0;
+        }
+        else
+        {
+            pivots[i] = (std::min_element(start, end) == values.begin() + i) ? 1 : 0;
+        }
+    }
+
+    return pivots;
+}

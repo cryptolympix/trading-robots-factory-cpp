@@ -30,4 +30,24 @@ std::vector<double> calculate_exponential_moving_average(const std::vector<doubl
  */
 std::vector<double> calculate_standard_deviation(const std::vector<double> &values, int period);
 
+/**
+ * @brief Calculate the pivots position of a given vector of values.
+ *
+ * @param values Vector of values.
+ * @param left_bars Number of bars to the left to consider.
+ * @param right_bars Number of bars to the right to consider.
+ * @return std::vector<double> Vector containing the pivot values represented as 1, otherwise 0.
+ */
+std::vector<double> calculate_pivots_high(std::vector<double> &values, int left_bars, int right_bars);
+
+/**
+ * @brief Calculate the pivots position of a given vector of values.
+ *
+ * @param values Vector of values.
+ * @param left_bars Number of bars to the left to consider.
+ * @param right_bars Number of bars to the right to consider.
+ * @return std::vector<double> Vector containing the pivot values represented as 1, otherwise 0.
+ */
+std::vector<double> calculate_pivots_low(std::vector<double> &values, int left_bars, int right_bars);
+
 #endif // UTILS_INDICATORS_HPP

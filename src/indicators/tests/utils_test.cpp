@@ -55,3 +55,37 @@ TEST(IndicatorsUtilsTest, StandardDeviation)
 
     ASSERT_EQ(stddev, expected_stddev);
 }
+
+TEST(IndicatorsUtilsTest, PivotsHigh)
+{
+    std::vector<double> values = {12, 16, 10, 13, 7, 17, 18, 15, 12, 21, 20};
+
+    int left_bars = 2;
+    int right_bars = 0;
+    std::vector<double> expected_pivots = {1, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0};
+    std::vector<double> pivots = calculate_pivots_high(values, left_bars, right_bars);
+    ASSERT_EQ(pivots, expected_pivots);
+
+    left_bars = 2;
+    right_bars = 2;
+    expected_pivots = {0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0};
+    pivots = calculate_pivots_high(values, left_bars, right_bars);
+    ASSERT_EQ(pivots, expected_pivots);
+}
+
+TEST(IndicatorsUtilsTest, PivotsLow)
+{
+    std::vector<double> values = {8, 8, 6, 8, 5, 5, 6, 8, 2, 8, 5};
+
+    int left_bars = 2;
+    int right_bars = 0;
+    std::vector<double> expected_pivots = {1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0};
+    std::vector<double> pivots = calculate_pivots_low(values, left_bars, right_bars);
+    ASSERT_EQ(pivots, expected_pivots);
+
+    left_bars = 2;
+    right_bars = 2;
+    expected_pivots = {0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0};
+    pivots = calculate_pivots_low(values, left_bars, right_bars);
+    ASSERT_EQ(pivots, expected_pivots);
+}
