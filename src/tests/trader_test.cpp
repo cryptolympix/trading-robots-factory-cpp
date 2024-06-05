@@ -197,6 +197,36 @@ TEST_F(TraderTest, UpdateWithPosition)
     ASSERT_EQ(trader->nb_trades_today, 0);
 }
 
+TEST_F(TraderTest, UpdateWithNewDay)
+{
+    // Mock data for testing
+    trader->nb_trades_today = 1;
+    trader->current_date = date;
+
+    std::vector<Candle> candles_current_day = {
+        Candle{.date = date, .close = 1.0},
+    };
+    CandlesData candles_data_current_day = {{TimeFrame::H1, candles_current_day}};
+
+    // Call the update method
+    trader->update(candles_data_current_day);
+
+    // Check if the nb trades today is kept
+    ASSERT_EQ(trader->nb_trades_today, 1);
+
+    std::vector<Candle> candles_next_day = {
+        Candle{.date = date, .close = 1.0},
+        Candle{.date = date + 24 * 60 * 60, .close = 1.1},
+    };
+    CandlesData candles_data = {{TimeFrame::H1, candles_next_day}};
+
+    // Call the update method
+    trader->update(candles_data);
+
+    // Check if the nb trades today is reset
+    ASSERT_EQ(trader->nb_trades_today, 0);
+}
+
 TEST_F(TraderTest, UpdateWithOpenOrders)
 {
     // Mock data for testing
