@@ -176,7 +176,8 @@ void Trader::think()
 }
 
 /**
- * @brief Update the trader according to the outputs from the neural network.
+ * @brief Update the candles, the current position of trader and his lifespan.
+ *
  * @param candles Candle data for all time frames.
  */
 void Trader::update(CandlesData &candles)
@@ -221,6 +222,17 @@ void Trader::update(CandlesData &candles)
     this->update_position_pnl();
     this->check_open_orders();
     this->check_position_liquidation();
+
+    // Check the duration of the current trade
+    if (this->current_position != nullptr && config.strategy.maximum_trade_duration.has_value())
+    {
+        // Check if the position has reached the maximum trade duration
+        if (this->duration_in_position >= config.strategy.maximum_trade_duration.value())
+        {
+            Candle last_candle = this->candles[this->config.strategy.timeframe].back();
+            this->close_position_by_market(last_candle.close);
+        }
+    }
 
     // Increment the lifespan of the trader
     this->lifespan++;
@@ -394,17 +406,6 @@ int Trader::trade()
                 this->close_position_by_market(last_candle.close);
                 return 3; // Close
             }
-        }
-    }
-
-    // Check the duration of the current trade
-    if (has_position && config.strategy.maximum_trade_duration.has_value())
-    {
-        // Check if the position has reached the maximum trade duration
-        if (this->duration_in_position >= config.strategy.maximum_trade_duration.value())
-        {
-            this->close_position_by_market(last_candle.close);
-            return 3; // Close
         }
     }
 

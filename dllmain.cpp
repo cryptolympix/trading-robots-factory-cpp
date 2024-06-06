@@ -23,13 +23,13 @@
 #endif
 
 Config config;
-neat::Genome* genome = nullptr;
-Trader* trader = nullptr;
+neat::Genome *genome = nullptr;
+Trader *trader = nullptr;
 
 #ifdef _WIN32
 
 // Function to display a message in the MetaTrader editor console
-void PrintToConsole(const char* message)
+void PrintToConsole(const char *message)
 {
     // Use the MessageBoxA function to display the message
     MessageBoxA(NULL, message, "Message from DLL", MB_OK | MB_ICONINFORMATION);
@@ -37,29 +37,30 @@ void PrintToConsole(const char* message)
 
 #endif
 
-// Function to get the timeframe for a given code 
+// Function to get the timeframe for a given code
 TimeFrame TimeFrameFromCode(int timeframe_code)
 {
-    switch (timeframe_code) {
-        case 0:
-            return TimeFrame::M1;
-        case 1:
-            return TimeFrame::M5;
-        case 2:
-            return TimeFrame::M15;
-        case 3:
-            return TimeFrame::M30;
-        case 4:
-            return TimeFrame::H1;
-        case 5:
-            return TimeFrame::H4;
-        case 6:
-            return TimeFrame::D1;
-        default:
+    switch (timeframe_code)
+    {
+    case 0:
+        return TimeFrame::M1;
+    case 1:
+        return TimeFrame::M5;
+    case 2:
+        return TimeFrame::M15;
+    case 3:
+        return TimeFrame::M30;
+    case 4:
+        return TimeFrame::H1;
+    case 5:
+        return TimeFrame::H4;
+    case 6:
+        return TimeFrame::D1;
+    default:
 #if defined(_WIN32)
-            PrintToConsole("One of the timeframes is not available.");
+        PrintToConsole("One of the timeframes is not available.");
 #endif
-            std::exit(1);
+        std::exit(1);
     }
 }
 
@@ -69,13 +70,13 @@ TEST_DLL_API void test_dll()
 }
 
 TEST_DLL_API double make_decision(
-    Candle* candles_tf_1,
+    Candle *candles_tf_1,
     int candles_tf_1_size,
     int tf_1_code,
-    Candle* candles_tf_2,
+    Candle *candles_tf_2,
     int candles_tf_2_size,
     int tf_2_code,
-    Candle* candles_tf_3,
+    Candle *candles_tf_3,
     int candles_tf_3_size,
     int tf_3_code,
     int position_type,
@@ -119,7 +120,7 @@ TEST_DLL_API double make_decision(
     }
 
     // Calculate the indicators and add them to the inputs
-    for (const auto& [timeframe, indicators] : config.training.inputs.indicators)
+    for (const auto &[timeframe, indicators] : config.training.inputs.indicators)
     {
         if (std::find(candles_timeframes.begin(), candles_timeframes.end(), timeframe) == candles_timeframes.end())
         {
@@ -129,7 +130,7 @@ TEST_DLL_API double make_decision(
             std::exit(1);
         }
 
-        for (const auto& indicator : indicators)
+        for (const auto &indicator : indicators)
         {
             std::vector<double> values = indicator->calculate(candles_data[timeframe], true);
             indicators_data[timeframe][indicator->id] = values;
@@ -137,29 +138,38 @@ TEST_DLL_API double make_decision(
     }
 
     // Get the position infos from the config
-    for (const auto& position_info : config.training.inputs.position)
+    for (const auto &position_info : config.training.inputs.position)
     {
         position_infos.push_back(position_info);
     }
 
-    // Update the trader
+    // Update the balance
     trader->balance = account_balance;
-    trader->update(candles_data);
 
-    // Update the current position
+    // Update the current position pnl
     if (position_type != 0 && trader->current_position != nullptr)
     {
         trader->current_position->pnl = position_pnl;
     }
+
+    trader->update(candles_data);
+
+    // Check if the trader has closed the position due to its duration
+    if (position_type != 0 && trader->current_position == nullptr)
+    {
+        return 3; // Close the position
+    }
+
+    // Close the position of trader if the position type is 0
     if (position_type == 0 && trader->current_position != nullptr)
     {
         trader->close_position_by_market();
     }
 
-    // Look at the data
+    // Update the vision
     trader->look(indicators_data, base_currency_conversion_rate, position_infos);
 
-    // Make the decision
+    // Make a decision
     trader->think();
 
     // Return the decision
@@ -169,8 +179,8 @@ TEST_DLL_API double make_decision(
 #ifdef _WIN32
 
 BOOL APIENTRY DllMain(HMODULE hModule,
-    DWORD ul_reason_for_call,
-    LPVOID lpReserved)
+                      DWORD ul_reason_for_call,
+                      LPVOID lpReserved)
 {
     std::string genomePath;
 

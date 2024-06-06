@@ -597,9 +597,8 @@ TEST_F(TraderTest, ClosePositionForDurationExceeded)
 
     // Call the update method
     time_t new_date = date + get_time_frame_in_minutes(config.strategy.timeframe) * 60;
+    trader->candles.at(TimeFrame::H1).push_back(Candle{.date = new_date, .close = 1.00});
     trader->update(trader->candles);
-    trader->current_date = new_date;
-    trader->trade();
 
     // Assertions
     ASSERT_EQ(trader->current_position, nullptr);
