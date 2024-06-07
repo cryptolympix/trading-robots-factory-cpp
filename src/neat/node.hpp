@@ -1,6 +1,8 @@
 #ifndef NEAT_NODE_HPP
 #define NEAT_NODE_HPP
 
+#include <vector>
+#include "connection_gene.hpp"
 #include "activation_functions.hpp"
 #include "config.hpp"
 

@@ -1,6 +1,8 @@
 #ifndef NEAT_CONNECTION_GENE_HPP
 #define NEAT_CONNECTION_GENE_HPP
 
+#include <vector>
+#include "node.hpp"
 #include "config.hpp"
 
 namespace neat
