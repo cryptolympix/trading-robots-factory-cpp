@@ -423,9 +423,10 @@ std::vector<double> RSI::calculate(const std::vector<Candle> &candles, bool norm
 
             std::vector<double> closes = get_candles_with_source(candles, "close");
             std::vector<double> result(closes.size(), 0.0); // Initialize result vector with the same size as input
-            size_t n = closes.size();
 
-            if (n <= static_cast<size_t>(period)) return result; // Not enough data
+            if (closes.size() <= static_cast<size_t>(period)) {
+                return result; // Not enough data
+            }
 
             double gain_sum = 0.0;
             double loss_sum = 0.0;
@@ -448,7 +449,7 @@ std::vector<double> RSI::calculate(const std::vector<Candle> &candles, bool norm
             result[period] = rsi; // Store the initial RSI value
 
             // Calculate RSI for subsequent periods
-            for (size_t i = period + 1; i < n; ++i) {
+            for (size_t i = period + 1; i < closes.size(); ++i) {
                 double diff = closes[i] - closes[i - 1];
                 double gain = (diff > 0) ? diff : 0;
                 double loss = (diff < 0) ? std::abs(diff) : 0;
@@ -616,10 +617,10 @@ std::vector<double> TSI::calculate(const std::vector<Candle> &candles, bool norm
             }
 
             // Calculate price change
-            std::vector<double> price_change;
+            std::vector<double> price_change(candles.size(), 0.0);
             for (size_t i = 1; i < candles.size(); ++i) {
                 double pc = candles[i].close - candles[i - 1].close;
-                price_change.push_back(pc);
+                price_change[i] = pc;
             }
 
             // Calculate double smoothed price change
@@ -627,10 +628,10 @@ std::vector<double> TSI::calculate(const std::vector<Candle> &candles, bool norm
             std::vector<double> second_smoothed_pc = calculate_exponential_moving_average(first_smoothed_pc, short_period);
 
             // Calculate absolute price change
-            std::vector<double> absolute_price_change;
+            std::vector<double> absolute_price_change(candles.size(), 0.0);
             for (size_t i = 1; i < candles.size(); ++i) {
                 double apc = std::abs(candles[i].close - candles[i - 1].close);
-                absolute_price_change.push_back(apc);
+                absolute_price_change[i] = apc;
             }
 
             // Calculate double smoothed absolute price change
@@ -658,7 +659,7 @@ std::vector<double> TSI::calculate(const std::vector<Candle> &candles, bool norm
  * @param period3 Period value for the third time frame. Default is 28.
  * @param offset Offset value. Default is 0.
  */
-UO::UO(int period1, int period2, int period3, int offset) : Indicator("Ultimate Oscillator", "uo-" + std::to_string(period1) + "-" + std::to_string(period2) + std::to_string(period3) + "-" + std::to_string(offset), offset),
+UO::UO(int period1, int period2, int period3, int offset) : Indicator("Ultimate Oscillator", "uo-" + std::to_string(period1) + "-" + std::to_string(period2) + std::to_string(period3) + "-" + std::to_string(offset), offset, {0, 100}),
                                                             period1(period1), period2(period2), period3(period3) {}
 
 /**
@@ -679,16 +680,16 @@ std::vector<double> UO::calculate(const std::vector<Candle> &candles, bool norma
                 return result; // Not enough data
             }
 
-            std::vector<double> buying_pressure;
-            std::vector<double> true_range;
+            std::vector<double> buying_pressure(candles.size(), 0.0);
+            std::vector<double> true_range(candles.size(), 0.0);
 
             // Calculate Buying Pressure (BP) and True Range (TR)
             for (size_t i = 1; i < candles.size(); ++i) {
                 double bp = candles[i].close - std::min(candles[i].low, candles[i - 1].close);
-                buying_pressure.push_back(bp);
+                buying_pressure[i] = bp;
 
                 double tr = std::max(candles[i].high, candles[i - 1].close) - std::min(candles[i].low, candles[i - 1].close);
-                true_range.push_back(tr);
+                true_range[i] = tr;
             }
 
             // Calculate Buying Pressure Average Price for 7, 14, and 28 periods

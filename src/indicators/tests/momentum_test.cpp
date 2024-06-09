@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include <vector>
-#include <cstdlib> // For rand() function
+#include <cstdlib>
 #include "../../utils/read_data.hpp"
 #include "../../utils/math.hpp"
 #include "../momentum.hpp"

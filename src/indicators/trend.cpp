@@ -83,19 +83,19 @@ std::vector<double> ADX::calculate(const std::vector<Candle> &candles, bool norm
  */
 std::vector<double> ADX::calculate_smoothed(const std::vector<double> &values) const
 {
-    std::vector<double> smoothed_values;
+    std::vector<double> smoothed_values(values.size(), 0.0);
     double sum = 0.0;
     for (size_t i = 0; i < adx_period; ++i)
     {
         sum += values[i];
     }
     double first_smoothed = sum / adx_period;
-    smoothed_values.push_back(first_smoothed);
+    smoothed_values[adx_period - 1] = first_smoothed;
 
     for (size_t i = adx_period; i < values.size(); ++i)
     {
         double smoothed = smoothed_values.back() - (smoothed_values.back() / adx_period) + values[i];
-        smoothed_values.push_back(smoothed);
+        smoothed_values[i] = smoothed;
     }
 
     return smoothed_values;
@@ -110,11 +110,11 @@ std::vector<double> ADX::calculate_smoothed(const std::vector<double> &values) c
  */
 std::vector<double> ADX::calculate_directional_index(const std::vector<double> &smoothed_dm, const std::vector<double> &smoothed_tr) const
 {
-    std::vector<double> di_values;
+    std::vector<double> di_values(smoothed_dm.size(), 0.0);
     for (size_t i = 0; i < smoothed_dm.size(); ++i)
     {
         double di = smoothed_tr[i] != 0 ? (smoothed_dm[i] / smoothed_tr[i]) * 100.0 : 0.0;
-        di_values.push_back(di);
+        di_values[i] = di;
     }
     return di_values;
 }
@@ -128,11 +128,11 @@ std::vector<double> ADX::calculate_directional_index(const std::vector<double> &
  */
 std::vector<double> ADX::calculate_dx(const std::vector<double> &di_plus, const std::vector<double> &di_minus) const
 {
-    std::vector<double> dx_values;
+    std::vector<double> dx_values(di_plus.size(), 0.0);
     for (size_t i = 0; i < di_plus.size(); ++i)
     {
         double dx = di_plus[i] + di_minus[i] != 0 ? (std::abs(di_plus[i] - di_minus[i]) / (di_plus[i] + di_minus[i])) * 100.0 : 0.0;
-        dx_values.push_back(dx);
+        dx_values[i] = dx;
     }
     return dx_values;
 }
@@ -145,19 +145,19 @@ std::vector<double> ADX::calculate_dx(const std::vector<double> &di_plus, const 
  */
 std::vector<double> ADX::calculate_adx(const std::vector<double> &dx_values) const
 {
-    std::vector<double> adx_values;
+    std::vector<double> adx_values(dx_values.size());
     double sum_dx = 0.0;
     for (size_t i = 0; i < adx_period; ++i)
     {
         sum_dx += dx_values[i];
     }
     double first_adx = sum_dx / adx_period;
-    adx_values.push_back(first_adx);
+    adx_values[adx_period - 1] = first_adx;
 
     for (size_t i = adx_period; i < dx_values.size(); ++i)
     {
         double adx = ((adx_values.back() * (adx_period - 1)) + dx_values[i]) / adx_period;
-        adx_values.push_back(adx);
+        adx_values[i] = adx;
     }
 
     return adx_values;
