@@ -13,7 +13,7 @@
 #include "../indicators/volatility.hpp"
 #include "../indicators/volume.hpp"
 
-std::vector<bool> schedule_working_days = {true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true};
+std::vector<bool> schedule_working_days = {false, false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false};
 std::vector<bool> schedule_rest_days = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
 
 TradingSchedule schedule = {
@@ -29,10 +29,10 @@ TradingSchedule schedule = {
 TakeProfitStopLossConfig tpsl_config = {
     .type_stop_loss = TypeTakeProfitStopLoss::PERCENT,
     .stop_loss_in_points = 300,
-    .stop_loss_in_percent = 0.002,
+    .stop_loss_in_percent = 0.0002,
     .type_take_profit = TypeTakeProfitStopLoss::PERCENT,
     .take_profit_in_points = 300,
-    .take_profit_in_percent = 0.002,
+    .take_profit_in_percent = 0.0002,
 };
 
 std::tm start_training_date = {
@@ -81,7 +81,7 @@ Config __config__ = {
         .leverage = 30,
     },
     .strategy{
-        .timeframe = TimeFrame::M15,
+        .timeframe = TimeFrame::M5,
         .risk_per_trade = 0.05,
         .maximum_trades_per_day = 2,
         .maximum_spread = 8,
@@ -99,27 +99,13 @@ Config __config__ = {
         .test_end_date = std::mktime(&end_test_date),
         .inputs = {
             .indicators = {
-                {TimeFrame::M15, {
-                                     new CandlePriceChange(),
-                                     new CandleClose(),
-                                     new CandleVolume(),
-                                     new PeakDistance(20, 0),
-                                     new PeakCandleDistance(20, 0),
-                                     new MFI(),
-                                     new RSI(),
-                                     new StochasticOscillator(),
-                                     new InstitutionalBias(),
-                                     new MACD(),
-                                     new EMASlope(21, "close"),
-                                     new ATR(),
-                                     new StandardDeviation(),
-                                     new CCI(),
-                                     new ATR(),
-                                 }},
-                {TimeFrame::H1, {
+                {TimeFrame::M5, {
                                     new CandlePriceChange(),
                                     new CandleClose(),
                                     new CandleVolume(),
+                                    new CandleBody(),
+                                    new CandleShadowUpper(),
+                                    new CandleShadowLower(),
                                     new PeakDistance(20, 0),
                                     new PeakCandleDistance(20, 0),
                                     new MFI(),
@@ -132,11 +118,35 @@ Config __config__ = {
                                     new StandardDeviation(),
                                     new CCI(),
                                     new ATR(),
-                                }}},
+                                    new StandardDeviation(),
+                                    new AveragePriceChange(),
+                                }},
+                {TimeFrame::M30, {
+                                     new CandlePriceChange(),
+                                     new CandleClose(),
+                                     new CandleVolume(),
+                                     new CandleBody(),
+                                     new CandleShadowUpper(),
+                                     new CandleShadowLower(),
+                                     new PeakDistance(20, 0),
+                                     new PeakCandleDistance(20, 0),
+                                     new MFI(),
+                                     new RSI(),
+                                     new StochasticOscillator(),
+                                     new InstitutionalBias(),
+                                     new MACD(),
+                                     new EMASlope(21, "close"),
+                                     new ATR(),
+                                     new StandardDeviation(),
+                                     new CCI(),
+                                     new ATR(),
+                                     new StandardDeviation(),
+                                     new AveragePriceChange(),
+                                 }}},
             .position = {
-                // PositionInfo::TYPE,
-                // PositionInfo::PNL,
-                // PositionInfo::DURATION,
+                PositionInfo::TYPE,
+                PositionInfo::PNL,
+                PositionInfo::DURATION,
             }}},
     .evaluation{
         .nb_trades_per_day = 1,
