@@ -405,7 +405,7 @@ std::vector<double> CandlePriceChange::calculate(const std::vector<Candle> &cand
  * @param offset Offset value. Default is 0.
  */
 PivotHigh::PivotHigh(std::string source, int left_bars, int right_bars, int offset)
-    : Indicator("Pivot High", "pivot-high-" + source + "-" + std::to_string(left_bars) + "-" + std::to_string(right_bars) + "-" + std::to_string(offset), offset), source(source), left_bars(left_bars), right_bars(right_bars) {}
+    : Indicator("Pivot High", "pivot-high-" + source + "-" + std::to_string(left_bars) + "-" + std::to_string(right_bars) + "-" + std::to_string(offset), offset, {0, 1}), source(source), left_bars(left_bars), right_bars(right_bars) {}
 
 /**
  * @brief Calculate the PivotHigh values.
@@ -446,7 +446,7 @@ std::vector<double> PivotHigh::calculate(const std::vector<Candle> &candles, boo
  * @param offset Offset value. Default is 0.
  */
 PivotLow::PivotLow(std::string source, int left_bars, int right_bars, int offset)
-    : Indicator("Pivot Low", "pivot-low-" + source + "-" + std::to_string(left_bars) + "-" + std::to_string(right_bars) + "-" + std::to_string(offset), offset), source(source), left_bars(left_bars), right_bars(right_bars) {}
+    : Indicator("Pivot Low", "pivot-low-" + source + "-" + std::to_string(left_bars) + "-" + std::to_string(right_bars) + "-" + std::to_string(offset), offset, {0, 1}), source(source), left_bars(left_bars), right_bars(right_bars) {}
 
 /**
  * @brief Calculate the PivotLow values.
@@ -735,7 +735,7 @@ std::vector<double> PeakDistance::calculate(const std::vector<Candle> &candles, 
  * @param right_bars Number of right bars.
  * @param offset Offset value. Default is 0.
  */
-PeakCandleDistance::PeakCandleDistance(int left_bars, int right_bars, int offset) : Indicator("Peak Candle Distance", "peak-candle-distance-" + std::to_string(left_bars) + "-" + std::to_string(right_bars) + "-" + std::to_string(offset), offset), left_bars(left_bars), right_bars(right_bars) {}
+PeakCandleDistance::PeakCandleDistance(int left_bars, int right_bars, int offset) : Indicator("Peak Candle Distance", "peak-candle-distance-" + std::to_string(left_bars) + "-" + std::to_string(right_bars) + "-" + std::to_string(offset), offset, {0, left_bars + right_bars}), left_bars(left_bars), right_bars(right_bars) {}
 
 /**
  * @brief Calculate the PeakCandleDistance values.

@@ -13,6 +13,7 @@
 #include "../indicators/volatility.hpp"
 #include "../indicators/volume.hpp"
 #include "../indicators/momentum_signals.hpp"
+#include "../indicators/trend_signals.hpp"
 
 std::vector<bool> schedule_working_days = {false, false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false};
 std::vector<bool> schedule_rest_days = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
@@ -28,10 +29,10 @@ TradingSchedule schedule = {
 };
 
 TakeProfitStopLossConfig tpsl_config = {
-    .type_stop_loss = TypeTakeProfitStopLoss::PERCENT,
+    .type_stop_loss = TypeTakeProfitStopLoss::POINTS,
     .stop_loss_in_points = 30,
     .stop_loss_in_percent = 0.005,
-    .type_take_profit = TypeTakeProfitStopLoss::PERCENT,
+    .type_take_profit = TypeTakeProfitStopLoss::POINTS,
     .take_profit_in_points = 30,
     .take_profit_in_percent = 0.005,
 };
@@ -85,9 +86,8 @@ Config __config__ = {
         .timeframe = TimeFrame::H1,
         .risk_per_trade = 0.05,
         .maximum_trades_per_day = 2,
-        .maximum_trade_duration = 10,
         .maximum_spread = 8,
-        .can_close_trade = true,
+        .can_close_trade = false,
         .can_open_long_trade = true,
         .can_open_short_trade = false,
         .take_profit_stop_loss_config = tpsl_config,
@@ -141,41 +141,16 @@ Config __config__ = {
                                     new NewLowSignal(20),
                                     new RSISignal(),
                                     new MFISignal(),
-                                }},
-                {TimeFrame::H4, {
-                                    new CandlePriceChange(),
-                                    new CandleClose(),
-                                    new CandleVolume(),
-                                    new CandleBody(),
-                                    new CandleShadowUpper(),
-                                    new CandleShadowLower(),
-                                    new PeakDistance(20, 0),
-                                    new PeakCandleDistance(20, 0),
-                                    new AroonTrend(),
-                                    new MFI(),
-                                    new RSI(),
-                                    new StochasticOscillator(),
-                                    new InstitutionalBias(),
-                                    new MACD(),
-                                    new EMASlope(21, "close"),
-                                    new ATR(),
-                                    new StandardDeviation(),
-                                    new CCI(),
-                                    new CMF(),
-                                    new OBV(),
-                                    new AveragePriceChange(),
-                                    new HighBreakSignal(20),
-                                    new LowBreakSignal(20),
-                                    new NewHighSignal(20),
-                                    new NewLowSignal(20),
-                                    new RSISignal(),
-                                    new MFISignal(),
+                                    new IchimokuCloudTrend(),
+                                    new IchimokuKijunTenkanTrend(),
+                                    new IchimokuCloudSignal(),
+                                    new IchimokuKijunTenkanSignal(),
+                                    new DojiCandlePattern(),
+                                    new SingleCandlePattern(),
+                                    new DoubleCandlePattern(),
+                                    new TripleCandlePattern(),
                                 }}},
-            .position = {
-                PositionInfo::TYPE,
-                PositionInfo::PNL,
-                PositionInfo::DURATION,
-            }}},
+        }},
     .evaluation{
         .nb_trades_per_day = 1,
         .expected_return_per_day = 0.02,

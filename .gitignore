@@ -3,6 +3,9 @@ build/
 reports/
 cache/
 
+# Debug
+run_training.dSYM/
+
 # Prerequisites
 *.d
 

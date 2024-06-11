@@ -183,6 +183,12 @@ void Trader::think()
  */
 void Trader::update(CandlesData &candles)
 {
+    if (candles.empty())
+    {
+        std::cerr << "No candles data provided." << std::endl;
+        return;
+    }
+
     // Update the candles
     this->candles = candles;
 
@@ -506,10 +512,13 @@ void Trader::calculate_fitness()
         }
 
         int nb_days = daily_trades.size();
-        for (const auto &[day, nb_trade] : daily_trades)
+        if (nb_days > 0)
         {
-            double diff = 10 * std::abs(goals.nb_trades_per_day.value() - nb_trade);
-            nb_trades_per_day_eval += nb_trades_per_day_weight / (nb_days * std::exp(diff));
+            for (const auto &[day, nb_trade] : daily_trades)
+            {
+                double diff = 10 * std::abs(goals.nb_trades_per_day.value() - nb_trade);
+                nb_trades_per_day_eval += nb_trades_per_day_weight / (nb_days * std::exp(diff));
+            }
         }
     }
 
@@ -551,10 +560,13 @@ void Trader::calculate_fitness()
         }
 
         int nb_days = daily_returns.size();
-        for (const auto &daily_return : daily_returns)
+        if (nb_days > 0)
         {
-            double diff = 10 * std::max(0.0, goals.expected_return_per_day.value() - daily_return.second);
-            expected_return_per_day_eval += (expected_return_per_day_weight * nb_days) / (nb_days * std::exp(diff));
+            for (const auto &daily_return : daily_returns)
+            {
+                double diff = 10 * std::max(0.0, goals.expected_return_per_day.value() - daily_return.second);
+                expected_return_per_day_eval += (expected_return_per_day_weight * nb_days) / (nb_days * std::exp(diff));
+            }
         }
     }
 
@@ -569,10 +581,13 @@ void Trader::calculate_fitness()
         }
 
         int nb_months = monthly_returns.size();
-        for (const auto &monthly_return : monthly_returns)
+        if (nb_months > 0)
         {
-            double diff = 10 * std::max(0.0, goals.expected_return_per_month.value() - monthly_return.second);
-            expected_return_per_month_eval += (expected_return_per_month_weight * nb_months) / (nb_months * std::exp(diff));
+            for (const auto &monthly_return : monthly_returns)
+            {
+                double diff = 10 * std::max(0.0, goals.expected_return_per_month.value() - monthly_return.second);
+                expected_return_per_month_eval += (expected_return_per_month_weight * nb_months) / (nb_months * std::exp(diff));
+            }
         }
     }
 
