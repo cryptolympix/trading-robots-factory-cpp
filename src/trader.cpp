@@ -87,14 +87,14 @@ Trader::Trader(neat::Genome *genome, Config config, Logger *logger)
     };
 
     // Neat stuffs
-    this->genome = genome;
     this->generation = 0;
     this->fitness = 0;
     this->score = 0;
-    this->vision = {};
-    this->decisions = {};
     this->lifespan = 0;
     this->dead = false;
+    this->genome = genome;
+    this->vision = {};
+    this->decisions = {};
 };
 
 /**
@@ -154,7 +154,8 @@ void Trader::look(IndicatorsData &indicators_data, double base_currency_conversi
             }
             else
             {
-                position_info.push_back(this->duration_in_position);
+                // Cannot normalize the duration if the maximum trade duration is not set
+                position_info.push_back(0.0);
             }
         }
     }
@@ -229,9 +230,16 @@ void Trader::update(CandlesData &candles)
         // Check if the position has reached the maximum trade duration
         if (this->duration_in_position >= config.strategy.maximum_trade_duration.value())
         {
-            Candle last_candle = this->candles[this->config.strategy.timeframe].back();
-            this->close_position_by_market(last_candle.close);
+            this->close_position_by_market();
         }
+    }
+
+    // Close the trade before the weekend
+    int next_date = this->current_date + get_time_frame_in_minutes(this->config.strategy.timeframe) * 60;
+    struct tm next_date_tm = time_t_to_tm(next_date);
+    if (next_date_tm.tm_wday == 6 && this->current_position != nullptr)
+    {
+        this->close_position_by_market();
     }
 
     // Increment the lifespan of the trader
@@ -315,12 +323,37 @@ int Trader::trade()
     bool has_long_position = has_position && this->current_position->side == PositionSide::LONG;
     bool has_short_position = has_position && this->current_position->side == PositionSide::SHORT;
 
-    // Decision taken
-    std::vector<double>::iterator result = std::max_element(this->decisions.begin(), this->decisions.end());
-    int decision = std::distance(this->decisions.begin(), result);
-    bool want_long = decision == 0;
-    bool want_short = decision == 1;
-    bool wait = decision == 2;
+    // Buy decision taken
+    double decision_threshold = this->config.training.decision_threshold.value_or(0.8);
+    bool want_long = false;
+    bool want_short = false;
+    bool want_close_long = false;
+    bool want_close_short = false;
+    bool wait = true;
+
+    if (this->config.strategy.can_open_long_trade.value_or(true) && this->decisions[0] >= decision_threshold)
+    {
+        want_long = true;
+        wait = false;
+    }
+    else if (this->config.strategy.can_open_short_trade.value_or(true) && this->decisions[1] >= decision_threshold)
+    {
+        want_short = true;
+        wait = false;
+    }
+    else if (this->config.strategy.can_close_trade.value_or(false) && has_position)
+    {
+        if (has_long_position && this->decisions[2] >= decision_threshold)
+        {
+            want_close_long = true;
+            wait = false;
+        }
+        else if (has_short_position && this->decisions[3] >= decision_threshold)
+        {
+            want_close_short = true;
+            wait = false;
+        }
+    }
 
     if (!wait)
     {
@@ -341,12 +374,12 @@ int Trader::trade()
         {
             if (has_position)
             {
-                if (has_long_position && want_short && can_close_position)
+                if (has_long_position && want_close_long && can_close_position)
                 {
                     this->close_position_by_market(last_candle.close);
                     return 3; // Close
                 }
-                else if (has_short_position && want_long && can_close_position)
+                else if (has_short_position && want_close_short && can_close_position)
                 {
                     this->close_position_by_market(last_candle.close);
                     return 3; // Close
@@ -354,7 +387,7 @@ int Trader::trade()
             }
             else
             {
-                if (want_long)
+                if (want_long && this->config.strategy.can_open_long_trade.value_or(true))
                 {
                     // Calculate order parameters
                     std::vector<Candle> candles = this->candles[this->config.strategy.timeframe];
@@ -373,7 +406,7 @@ int Trader::trade()
                         return 1; // Long
                     }
                 }
-                else if (want_short)
+                else if (want_short && this->config.strategy.can_open_short_trade.value_or(true))
                 {
                     // Calculate order parameters
                     std::vector<Candle> candles = this->candles[this->config.strategy.timeframe];
@@ -396,12 +429,12 @@ int Trader::trade()
         }
         else if (has_position)
         {
-            if (has_long_position && want_short && can_close_position)
+            if (has_long_position && want_close_long && can_close_position)
             {
                 this->close_position_by_market(last_candle.close);
                 return 3; // Close
             }
-            else if (has_short_position && want_long && can_close_position)
+            else if (has_short_position && want_close_short && can_close_position)
             {
                 this->close_position_by_market(last_candle.close);
                 return 3; // Close

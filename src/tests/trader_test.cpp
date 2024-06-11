@@ -623,37 +623,31 @@ TEST_F(TraderTest, WaitForDurationBeforeClosePosition)
     trader->decisions = {0.0, 1.0, 0.0};
 
     // Call the update method for the maximum trade duration - 1
-    for (int i = 0; i < config.strategy.minimum_trade_duration.value() - 1; ++i)
+    for (int i = 0; i < config.strategy.maximum_trade_duration.value() - 1; ++i)
     {
-        time_t new_date = date + i * get_time_frame_in_minutes(config.strategy.timeframe) * 60;
         trader->update(trader->candles);
-        trader->current_date = new_date;
-        trader->trade();
     }
 
     // Assertions
     ASSERT_NE(trader->current_position, nullptr);
-    ASSERT_EQ(trader->duration_in_position, config.strategy.minimum_trade_duration.value() - 1);
+    ASSERT_EQ(trader->duration_in_position, config.strategy.maximum_trade_duration.value() - 1);
     ASSERT_EQ(trader->nb_trades_today, 0);
 
     // Call the update method for the last trade duration
-    time_t last_date = date + config.strategy.minimum_trade_duration.value() * get_time_frame_in_minutes(config.strategy.timeframe) * 60;
     trader->update(trader->candles);
-    trader->current_date = last_date;
-    trader->trade();
 
     // Assertions
     ASSERT_EQ(trader->current_position, nullptr);
     ASSERT_LT(trader->balance, 1000.0); // Balance decreased due to fees
     ASSERT_EQ(trader->trades_history.size(), 1);
     ASSERT_EQ(trader->trades_history[0].entry_date, date);
-    ASSERT_EQ(trader->trades_history[0].exit_date, last_date);
+    ASSERT_EQ(trader->trades_history[0].exit_date, date);
     ASSERT_EQ(trader->trades_history[0].entry_price, 1.00);
     ASSERT_EQ(trader->trades_history[0].exit_price, 1.00);
     ASSERT_EQ(trader->trades_history[0].side, PositionSide::LONG);
     ASSERT_GT(trader->trades_history[0].fees, 0.0);
     ASSERT_EQ(trader->trades_history[0].size, 1.0);
-    ASSERT_EQ(trader->trades_history[0].duration, config.strategy.minimum_trade_duration.value());
+    ASSERT_EQ(trader->trades_history[0].duration, config.strategy.maximum_trade_duration.value());
     ASSERT_TRUE(trader->trades_history[0].closed);
     ASSERT_EQ(trader->nb_trades_today, 1);
 }
@@ -679,6 +673,33 @@ TEST_F(TraderTest, WaitForNextTrade)
     ASSERT_TRUE(trader->can_trade());
     ASSERT_NE(trader->current_position, nullptr);
     ASSERT_EQ(trader->nb_trades_today, 0);
+}
+
+TEST_F(TraderTest, CloseTraderBeforeWeekend)
+{
+    // Set trader's date to friday
+    struct tm date_tm = {
+        .tm_sec = 0,
+        .tm_min = 0,
+        .tm_hour = 23,
+        .tm_mday = 12,
+        .tm_mon = 0,
+        .tm_year = 2024 - 1900,
+    };
+    time_t date = std::mktime(&date_tm);
+    trader->candles[TimeFrame::H1].push_back(Candle{.date = date, .close = 1.0});
+
+    // Open a position
+    trader->open_position_by_market(1.00, 1.0, OrderSide::LONG);
+
+    // Call the update method
+    trader->update(trader->candles);
+
+    // Check if the trader can trade
+    ASSERT_EQ(trader->current_position, nullptr);
+    ASSERT_EQ(trader->nb_trades_today, 1);
+    ASSERT_LE(trader->balance, 1000.0); // Balance decreased due to fees
+    ASSERT_EQ(trader->trades_history.size(), 1);
 }
 
 TEST_F(TraderTest, CreateTpSlForLongPosition)

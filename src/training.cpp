@@ -40,6 +40,23 @@ Training::Training(std::string id, Config &config, bool debug)
 
     // Initialize the population.
     this->config.neat.num_inputs = this->count_indicators() + this->config.training.inputs.position.size();
+    this->config.neat.num_outputs = 0;
+    if (this->config.strategy.can_open_long_trade.value_or(true))
+    {
+        this->config.neat.num_outputs++;
+        if (this->config.strategy.can_close_trade.value_or(true))
+        {
+            this->config.neat.num_outputs++;
+        }
+    }
+    if (this->config.strategy.can_open_short_trade.value_or(true))
+    {
+        this->config.neat.num_outputs++;
+        if (this->config.strategy.can_close_trade.value_or(true))
+        {
+            this->config.neat.num_outputs++;
+        }
+    }
     this->population = new neat::Population(this->config.neat);
 
     this->candles = {};
@@ -348,7 +365,11 @@ void Training::cache_data(bool display_progress)
         }
 
         // Cache the data
-        this->cache->add(std::to_string(date), CachedData{.candles = current_candles, .indicators = current_indicators, .base_currency_conversion_rate = current_base_currency_conversion_rate});
+        this->cache->add(std::to_string(date), CachedData{
+                                                   .candles = current_candles,
+                                                   .indicators = current_indicators,
+                                                   .base_currency_conversion_rate = current_base_currency_conversion_rate,
+                                               });
 
         if (progress_bar)
         {
@@ -378,6 +399,12 @@ int Training::count_indicators() const
     for (const auto &tf_indicators : indicators)
     {
         nb_indicators += tf_indicators.second.size();
+    }
+
+    if (!this->config.strategy.can_open_long_trade.value_or(true) && !this->config.strategy.can_open_long_trade.value_or(true))
+    {
+        std::cerr << "Error: the strategy must allow to open long or short trades at least." << std::endl;
+        std::exit(1);
     }
 
     return nb_indicators;

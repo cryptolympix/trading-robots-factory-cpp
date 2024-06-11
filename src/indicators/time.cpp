@@ -83,7 +83,8 @@ std::vector<double> NFPWeek::calculate(const std::vector<Candle> &candles, bool 
  * @param offset Offset value. Default is 0.
  */
 MarketSession::MarketSession(std::string zone, int offset) : Indicator(zone == "new-york" ? "New York Market Session" : zone == "london" ? "London Market Session"
-                                                                                                                                         : "Tokyo Market Session",
+                                                                                                                    : zone == "tokyo"    ? "Tokyo Market Session"
+                                                                                                                                         : "unknown",
                                                                        "market-session-" + zone + "-" + std::to_string(offset), offset, {0, 1}),
                                                              zone(zone) {}
 

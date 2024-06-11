@@ -276,6 +276,8 @@ struct StrategyConfig
     std::optional<int> maximum_trade_duration;             // Maximum trade duration
     std::optional<int> minimum_duration_before_next_trade; // Minimum duration before the next trade
     std::optional<bool> can_close_trade;                   // Whether the strategy can close a trade
+    std::optional<bool> can_open_long_trade;               // Whether the strategy can open a long trade
+    std::optional<bool> can_open_short_trade;              // Whether the strategy can open a short trade
     TakeProfitStopLossConfig take_profit_stop_loss_config; // Take profit and stop loss configuration
     std::optional<TradingSchedule> trading_schedule;       // Trading schedule
 };
@@ -302,6 +304,7 @@ struct TrainingConfig
     time_t test_start_date;                          // Start date for testing
     time_t test_end_date;                            // End date for testing
     NeuralNetworkInputs inputs;                      // Inputs for neural network
+    std::optional<double> decision_threshold;        // Decision threshold for buy/sell signals
 };
 
 /**
