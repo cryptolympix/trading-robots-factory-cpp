@@ -596,6 +596,9 @@ int Training::run()
             // The training of generation is finished
             std::cout << "✅ Training of generation " << generation << " finished!" << std::endl;
 
+            // Display the fitness of the best trader
+            std::cout << "📈 Fitness of the best trader: " << best_trader->fitness << std::endl;
+
             // Test the trader on a the new period
             this->test(best_trader->genome, generation);
             std::cout << "🧪 Testing of the best trader of generation " << generation << " finished!" << std::endl;
