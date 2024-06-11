@@ -331,36 +331,51 @@ int Trader::trade()
     bool want_close_short = false;
     bool wait = true;
 
-    if (this->config.strategy.can_open_long_trade.value_or(true) && this->decisions[0] >= decision_threshold)
+    int index_decision = 0;
+    if (this->config.strategy.can_open_long_trade.value_or(true))
     {
-        want_long = true;
-        wait = false;
-    }
-    else if (this->config.strategy.can_open_short_trade.value_or(true) && this->decisions[1] >= decision_threshold)
-    {
-        want_short = true;
-        wait = false;
-    }
-    else if (this->config.strategy.can_close_trade.value_or(false) && has_position)
-    {
-        if (has_long_position && this->decisions[2] >= decision_threshold)
+        if (this->decisions[index_decision] >= decision_threshold)
         {
-            want_close_long = true;
+            want_long = true;
             wait = false;
         }
-        else if (has_short_position && this->decisions[3] >= decision_threshold)
+        index_decision++;
+
+        if (this->config.strategy.can_close_trade.value_or(false))
         {
-            want_close_short = true;
+            if (has_long_position && this->decisions[index_decision] >= decision_threshold)
+            {
+                want_close_long = true;
+                wait = false;
+            }
+            index_decision++;
+        }
+    }
+    if (this->config.strategy.can_open_short_trade.value_or(true))
+    {
+        if (this->decisions[index_decision] >= decision_threshold)
+        {
+            want_short = true;
             wait = false;
+        }
+        index_decision++;
+
+        if (this->config.strategy.can_close_trade.value_or(false))
+        {
+            if (has_short_position && this->decisions[index_decision] >= decision_threshold)
+            {
+                want_close_short = true;
+                wait = false;
+            }
+            index_decision++;
         }
     }
 
     if (!wait)
     {
         bool can_trade_now = this->can_trade();
+        bool can_close_position = this->config.strategy.can_close_trade.value_or(false);
 
-        // Check if the trader can close a trade
-        bool can_close_position = this->config.strategy.can_close_trade.value_or(true);
         if (!has_position)
         {
             can_close_position = false;

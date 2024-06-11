@@ -92,6 +92,11 @@ std::vector<double> CMF::calculate(const std::vector<Candle> &candles, bool norm
                     double close = candles[j].close;
                     double volume = candles[j].volume;
 
+                    if (high == low)
+                    {
+                        continue;
+                    }
+
                     // Calculate the Money Flow Multiplier
                     double mf_multiplier = ((close - low) - (high - close)) / (high - low);
                     

@@ -35,16 +35,17 @@
 Training::Training(std::string id, Config &config, bool debug)
     : id(id), config(config), debug(debug)
 {
+    // Create the directory for the training
     this->directory = "reports/" + this->config.general.name + "/" + this->config.general.version + "/" + id;
     this->cache_file = "cache/" + this->config.general.name + "/" + this->config.general.version + "/data.json";
 
-    // Initialize the population.
+    // Set the number of inputs and outputs for the NEAT algorithm
     this->config.neat.num_inputs = this->count_indicators() + this->config.training.inputs.position.size();
     this->config.neat.num_outputs = 0;
     if (this->config.strategy.can_open_long_trade.value_or(true))
     {
         this->config.neat.num_outputs++;
-        if (this->config.strategy.can_close_trade.value_or(true))
+        if (this->config.strategy.can_close_trade.value_or(false))
         {
             this->config.neat.num_outputs++;
         }
@@ -52,13 +53,16 @@ Training::Training(std::string id, Config &config, bool debug)
     if (this->config.strategy.can_open_short_trade.value_or(true))
     {
         this->config.neat.num_outputs++;
-        if (this->config.strategy.can_close_trade.value_or(true))
+        if (this->config.strategy.can_close_trade.value_or(false))
         {
             this->config.neat.num_outputs++;
         }
     }
+
+    // Initialize the population.
     this->population = new neat::Population(this->config.neat);
 
+    // Initialize the data structures
     this->candles = {};
     this->indicators = {};
     this->dates = {};
