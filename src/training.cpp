@@ -246,14 +246,30 @@ void Training::load_indicators(bool display_progress)
                 if (current_candles.size() >= CANDLES_WINDOW)
                 {
                     std::vector<double> values = indicator->calculate(current_candles, !this->debug);
+                    std::vector<double> reverse_values = reverse_vector(values, indicator->values_range);
+
                     for (int i = 0; i < INDICATOR_WINDOW; i++)
                     {
-                        this->indicators[date][tf][indicator->id].push_back(values[values.size() - INDICATOR_WINDOW + i]);
+                        if (this->config.strategy.can_open_long_trade.value_or(true) || (this->config.strategy.can_open_short_trade.value_or(true) && this->config.strategy.can_close_trade.value_or(false)))
+                        {
+                            this->indicators[date][tf][indicator->id].push_back(values[values.size() - INDICATOR_WINDOW + i]);
+                        }
+                        if (this->config.strategy.can_open_short_trade.value_or(true) || (this->config.strategy.can_open_long_trade.value_or(true) && this->config.strategy.can_close_trade.value_or(false)))
+                        {
+                            this->indicators[date][tf][indicator->id + "reverse"].push_back(reverse_values[reverse_values.size() - INDICATOR_WINDOW + i]);
+                        }
                     }
                 }
                 else
                 {
-                    this->indicators[date][tf][indicator->id] = std::vector<double>(INDICATOR_WINDOW, 0.0);
+                    if (this->config.strategy.can_open_long_trade.value_or(true) || (this->config.strategy.can_open_short_trade.value_or(true) && this->config.strategy.can_close_trade.value_or(false)))
+                    {
+                        this->indicators[date][tf][indicator->id] = std::vector<double>(INDICATOR_WINDOW, 0.0);
+                    }
+                    if (this->config.strategy.can_open_short_trade.value_or(true) || (this->config.strategy.can_open_long_trade.value_or(true) && this->config.strategy.can_close_trade.value_or(false)))
+                    {
+                        this->indicators[date][tf][indicator->id + "reverse"] = std::vector<double>(INDICATOR_WINDOW, 0.0);
+                    }
                 }
             }
         }
@@ -399,16 +415,30 @@ int Training::count_indicators() const
     int nb_indicators = 0;
 
     // Count the number of indicators
-    auto indicators = this->config.training.inputs.indicators;
-    for (const auto &tf_indicators : indicators)
+    for (const auto &tf_indicators : this->config.training.inputs.indicators)
     {
         nb_indicators += tf_indicators.second.size();
     }
 
-    if (!this->config.strategy.can_open_long_trade.value_or(true) && !this->config.strategy.can_open_long_trade.value_or(true))
+    if (!this->config.strategy.can_open_long_trade.value_or(true) && !this->config.strategy.can_open_short_trade.value_or(true))
     {
         std::cerr << "Error: the strategy must allow to open long or short trades at least." << std::endl;
         std::exit(1);
+    }
+
+    if (this->config.strategy.can_open_long_trade.value_or(true) && this->config.strategy.can_close_trade.value_or(false))
+    {
+        return nb_indicators *= 2;
+    }
+
+    if (this->config.strategy.can_open_short_trade.value_or(true) && this->config.strategy.can_close_trade.value_or(false))
+    {
+        return nb_indicators *= 2;
+    }
+
+    if (this->config.strategy.can_open_long_trade.value_or(true) && this->config.strategy.can_open_short_trade.value_or(true))
+    {
+        return nb_indicators *= 2;
     }
 
     return nb_indicators;

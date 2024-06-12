@@ -42,6 +42,40 @@ std::vector<double> Hour::calculate(const std::vector<Candle> &candles, bool nor
 // *********************************************************************************************
 
 /**
+ * @brief Construct a new Minute object.
+ *
+ * @param offset Offset value. Default is 0.
+ */
+Minute::Minute(int offset) : Indicator("Minute", "minute-" + std::to_string(offset), offset, {0, 59}) {}
+
+/**
+ * @brief Calculate the Minute values.
+ *
+ * @param candles Vector of Candle data.
+ * @param normalize_data Boolean flag indicating whether to normalize data.
+ * @return std::vector<double> Vector containing calculated values.
+ */
+std::vector<double> Minute::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+{
+    return Indicator::calculate(
+        candles, [this](std::vector<Candle> candles) -> std::vector<double>
+        {
+            std::vector<double> values(candles.size(), 0);
+
+            for (int i = 0; i < candles.size(); ++i)
+            {
+                tm time = time_t_to_tm(candles[i].date);
+                values[i] = time.tm_min;
+            }
+
+            return values; },
+
+        normalize_data);
+}
+
+// *********************************************************************************************
+
+/**
  * @brief Construct a new NFPWeek object.
  *
  * @param offset Offset value. Default is 0.

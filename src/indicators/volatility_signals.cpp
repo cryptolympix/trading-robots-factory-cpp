@@ -94,21 +94,21 @@ std::vector<double> BollingerChannelSignal::calculate(const std::vector<Candle> 
 // *********************************************************************************************
 
 /**
- * @brief Construct a new DonchianChannel object.
+ * @brief Construct a new DonchianChannelSignal object.
  *
  * @param period Period for Donchian Channel calculation.
  * @param offset Offset for Donchian Channel.
  */
-DonchianChannel::DonchianChannel(int period, int offset) : Indicator("Donchian Channel", "donchian-channel-" + std::to_string(period) + "-" + std::to_string(offset), offset, {-1, 1}), period(period) {}
+DonchianChannelSignal::DonchianChannelSignal(int period, int offset) : Indicator("Donchian Channel Signal", "donchian-channel-signal-" + std::to_string(period) + "-" + std::to_string(offset), offset, {-1, 1}), period(period) {}
 
 /**
- * @brief Calculate the DonchianChannel values.
+ * @brief Calculate the DonchianChannelSignal values.
  *
  * @param candles Vector of Candle data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> DonchianChannel::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+std::vector<double> DonchianChannelSignal::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles)

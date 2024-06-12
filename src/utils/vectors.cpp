@@ -144,6 +144,37 @@ std::vector<double> normalize_vector(const std::vector<double> &vector, std::pai
 }
 
 /**
+ * @brief Reverse a vector of double.
+ *
+ * @param vector The input vector.
+ * @param current_range The current range of values in the input vector.
+ * @return std::vector<double> The reversed vector.
+ */
+std::vector<double> reverse_vector(const std::vector<double> &vector, std::pair<double, double> current_range)
+{
+    double current_range_min = current_range.first;
+    double current_range_max = current_range.second;
+
+    // If the current range is not specified, calculate it
+    if (current_range_min == 0.0 && current_range_max == 0.0)
+    {
+        auto current_range_minmax = std::minmax_element(vector.begin(), vector.end());
+        current_range_min = *current_range_minmax.first;
+        current_range_max = *current_range_minmax.second;
+    }
+
+    std::vector<double> reversed_vector;
+    reversed_vector.reserve(vector.size());
+
+    for (size_t i = 0; i < vector.size(); ++i)
+    {
+        reversed_vector.push_back(current_range_max - (vector[i] - current_range_min));
+    }
+
+    return reversed_vector;
+}
+
+/**
  * @brief Function to calculate the sum of a subvector of size 'period'
  *
  * @param values The input vector of values.

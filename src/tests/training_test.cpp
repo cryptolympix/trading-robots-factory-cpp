@@ -135,6 +135,28 @@ protected:
     }
 };
 
+TEST_F(TrainingTest, CountIndicators)
+{
+
+    training->config.strategy.can_open_long_trade = true;
+    training->config.strategy.can_open_short_trade = false;
+    training->config.strategy.can_close_trade = false;
+    int count = training->count_indicators();
+    ASSERT_EQ(count, 3);
+
+    training->config.strategy.can_open_long_trade = false;
+    training->config.strategy.can_open_short_trade = true;
+    training->config.strategy.can_close_trade = false;
+    count = training->count_indicators();
+    ASSERT_EQ(count, 3);
+
+    training->config.strategy.can_open_long_trade = true;
+    training->config.strategy.can_open_short_trade = true;
+    training->config.strategy.can_close_trade = true;
+    count = training->count_indicators();
+    ASSERT_EQ(count, 6);
+}
+
 TEST_F(TrainingTest, LoadCandles)
 {
     training->load_candles();
@@ -170,6 +192,7 @@ TEST_F(TrainingTest, LoadIndicators)
 {
     training->load_candles();
     training->load_indicators();
+    int nb_indicators = training->config.training.inputs.indicators.size();
 
     ASSERT_FALSE(training->indicators.empty());
 
@@ -187,6 +210,9 @@ TEST_F(TrainingTest, LoadIndicators)
         ASSERT_TRUE(training->indicators[date].find(TimeFrame::M15) != training->indicators[date].end());
         ASSERT_TRUE(training->indicators[date].find(TimeFrame::M30) != training->indicators[date].end());
         ASSERT_TRUE(training->indicators[date].find(TimeFrame::H1) != training->indicators[date].end());
+        ASSERT_EQ(training->indicators[date][TimeFrame::M15].size(), 2);
+        ASSERT_EQ(training->indicators[date][TimeFrame::M30].size(), 2);
+        ASSERT_EQ(training->indicators[date][TimeFrame::H1].size(), 2);
     }
 }
 
@@ -264,12 +290,6 @@ TEST_F(TrainingTest, CacheData)
         // Check the the base currency conversion rate is in the cache
         ASSERT_GT(training->cache->get(date_string).base_currency_conversion_rate, 0);
     }
-}
-
-TEST_F(TrainingTest, CountIndicators)
-{
-    int count = training->count_indicators();
-    ASSERT_EQ(count, 3);
 }
 
 TEST_F(TrainingTest, GetAllTimeframes)

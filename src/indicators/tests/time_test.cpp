@@ -31,6 +31,33 @@ TEST(TimeIndicatorsTest, Hour)
     ASSERT_EQ(result.back(), expected_hour);
 }
 
+TEST(TimeIndicatorsTest, Minute)
+{
+    // Create an instance of the Minute class
+    Minute minute;
+
+    // Expected minute
+    int expected_minute = 30;
+
+    // Create test data
+    tm datetime = {0};
+    datetime.tm_year = 2023 - 1900;
+    datetime.tm_mon = 0;
+    datetime.tm_mday = 1;
+    datetime.tm_hour = 0;
+    datetime.tm_min = expected_minute;
+    time_t date = mktime(&datetime);
+
+    std::vector<Candle> test_candles = {
+        {date, 1, 1, 1, 1, 0, 0, 0}};
+
+    // Call the calculate method
+    std::vector<double> result = minute.calculate(test_candles, false);
+
+    // Validate the result
+    ASSERT_EQ(result.back(), expected_minute);
+}
+
 TEST(TimeIndicatorsTest, NFPWeek)
 {
     // Create an instance of the NFPWeek class

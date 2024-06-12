@@ -88,6 +88,39 @@ TEST(VectorsTest, NormalizeVectorsWithMixedValues)
     ASSERT_EQ(results2.size(), values.size());
 }
 
+TEST(VectorsTest, ReverseVectorWithPositiveValues)
+{
+    std::vector<double> values = {1.0, 2.0, 3.0, 4.0, 5.0};
+    std::pair<double, double> current_range = std::make_pair(1.0, 5.0);
+    std::vector<double> results = reverse_vector(values, current_range);
+    std::vector<double> expected_output = {5.0, 4.0, 3.0, 2.0, 1.0};
+
+    ASSERT_EQ(results, expected_output);
+    ASSERT_EQ(results.size(), values.size());
+}
+
+TEST(VectorsTest, ReverseVectorWithNegativeValues)
+{
+    std::vector<double> values = {-1.0, -2.0, -3.0, -4.0, -5.0};
+    std::pair<double, double> current_range = std::make_pair(-5.0, -1.0);
+    std::vector<double> results = reverse_vector(values, current_range);
+    std::vector<double> expected_output = {-5.0, -4.0, -3.0, -2.0, -1.0};
+
+    ASSERT_EQ(results, expected_output);
+    ASSERT_EQ(results.size(), values.size());
+}
+
+TEST(VectorsTest, ReverseVectorWithMixedValues)
+{
+    std::vector<double> values = {-2.0, -1.0, 0.0, 1.0, 2.0};
+    std::pair<double, double> current_range = std::make_pair(-2.0, 2.0);
+    std::vector<double> results = reverse_vector(values, current_range);
+    std::vector<double> expected_output = {2.0, 1.0, 0.0, -1.0, -2.0};
+
+    ASSERT_EQ(results, expected_output);
+    ASSERT_EQ(results.size(), values.size());
+}
+
 // Test case for calculate_sum_subvector function
 TEST(VectorsTest, SumSubVectors)
 {

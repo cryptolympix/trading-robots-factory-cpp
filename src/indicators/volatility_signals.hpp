@@ -60,16 +60,16 @@ private:
 
 // *********************************************************************************************
 
-class DonchianChannel : public Indicator
+class DonchianChannelSignal : public Indicator
 {
 public:
     /**
-     * @brief Construct a new DonchianChannel object.
+     * @brief Construct a new DonchianChannelSignal object.
      *
      * @param period Period for Donchian Channel calculation.
      * @param offset Offset for Donchian Channel.
      */
-    DonchianChannel(int period = 20, int offset = 0);
+    DonchianChannelSignal(int period = 20, int offset = 0);
 
     /**
      * @brief Calculate the DonchianChannel values.

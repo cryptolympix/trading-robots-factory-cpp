@@ -29,6 +29,31 @@ public:
 
 // *********************************************************************************************
 
+/**
+ * @brief Class for Minute indicator.
+ */
+class Minute : public Indicator
+{
+public:
+    /**
+     * @brief Construct a new Minute object.
+     *
+     * @param offset Offset value. Default is 0.
+     */
+    Minute(int offset = 0);
+
+    /**
+     * @brief Calculate the Minute values.
+     *
+     * @param candles Vector of Candle data.
+     * @param normalize_data Boolean flag indicating whether to normalize data.
+     * @return std::vector<double> Vector containing calculated values.
+     */
+    std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
+};
+
+// *********************************************************************************************
+
 class NFPWeek : public Indicator
 {
 public:

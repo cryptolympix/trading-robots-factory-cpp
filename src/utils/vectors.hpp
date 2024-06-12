@@ -41,6 +41,15 @@ std::vector<double> divide_vectors(const std::vector<double> &vec1, const std::v
 std::vector<double> normalize_vector(const std::vector<double> &vector, std::pair<double, double> current_range = std::make_pair(0.0, 0.0), std::pair<double, double> new_range = std::make_pair(0.0, 0.0));
 
 /**
+ * @brief Reverse a vector of double.
+ *
+ * @param vector The input vector.
+ * @param current_range The current range of values in the input vector.
+ * @return std::vector<double> The reversed vector.
+ */
+std::vector<double> reverse_vector(const std::vector<double> &vector, std::pair<double, double> current_range);
+
+/**
  * @brief Function to calculate the sum of a subvector of size 'period'
  *
  * @param values The input vector of values.
