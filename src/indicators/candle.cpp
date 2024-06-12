@@ -488,7 +488,7 @@ std::vector<double> PivotLow::calculate(const std::vector<Candle> &candles, bool
  * @param offset Offset value. Default is 0.
  */
 PivotHighValue::PivotHighValue(std::string source, int left_bars, int right_bars, int offset)
-    : Indicator("Highest", "highest-" + source + "-" + std::to_string(left_bars) + "-" + std::to_string(right_bars) + "-" + std::to_string(offset), offset), source(source), left_bars(left_bars), right_bars(right_bars) {}
+    : Indicator("Highest", "pivot-high-value-" + source + "-" + std::to_string(left_bars) + "-" + std::to_string(right_bars) + "-" + std::to_string(offset), offset), source(source), left_bars(left_bars), right_bars(right_bars) {}
 
 /**
  * @brief Calculate the PivotHighValue values.
@@ -542,7 +542,7 @@ std::vector<double> PivotHighValue::calculate(const std::vector<Candle> &candles
  * @param offset Offset value. Default is 0.
  */
 PivotLowValue::PivotLowValue(std::string source, int left_bars, int right_bars, int offset)
-    : Indicator("Lowest", "lowest-" + source + "-" + std::to_string(left_bars) + "-" + std::to_string(right_bars) + "-" + std::to_string(offset), offset), source(source), left_bars(left_bars), right_bars(right_bars) {}
+    : Indicator("Lowest", "pivot-low-value-" + source + "-" + std::to_string(left_bars) + "-" + std::to_string(right_bars) + "-" + std::to_string(offset), offset), source(source), left_bars(left_bars), right_bars(right_bars) {}
 
 /**
  * @brief Calculate the PivotLowValue values.
