@@ -130,8 +130,6 @@ Config __config__ = {
                                     new CandlePriceChange(),
                                     new PivotLowValue("low", 10, 10),
                                     new PivotHighValue("high", 10, 10),
-                                    new PivotHighValue("high", 10, 10),
-                                    new PivotLowValue("low", 10, 10),
                                     new HighestHigh(10, 10),
                                     new LowestLow(10, 10),
                                     new PeakDistance(20, 0),
