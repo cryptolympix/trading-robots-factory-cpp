@@ -261,6 +261,64 @@ std::vector<double> KSTSignal::calculate(const std::vector<Candle> &candles, boo
 // *********************************************************************************************
 
 /**
+ * @brief Construct a new MACDSignal object.
+ *
+ * @param short_period Short EMA period value. Default is 12.
+ * @param long_period Long EMA period value. Default is 26.
+ * @param signal_period Signal EMA period value. Default is 9.
+ * @param offset Offset value. Default is 0.
+ */
+MACDSignal::MACDSignal(int short_period, int long_period, int signal_period, int offset) : Indicator("Moving Average Convergence Signal", "macd-signal-" + std::to_string(short_period) + "-" + std::to_string(long_period) + "-" + std::to_string(signal_period) + "-" + std::to_string(offset), offset, {-1, 1}), short_period(short_period), long_period(long_period), signal_period(signal_period) {}
+
+/**
+ * @brief Calculate the MACDSignal values.
+ *
+ * @param candles Vector of Candle data.
+ * @param normalize_data Boolean flag indicating whether to normalize data.
+ * @return std::vector<double> Vector containing calculated values.
+ */
+std::vector<double> MACDSignal::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+{
+    return Indicator::calculate(
+        candles, [this](std::vector<Candle> candles)
+        {
+            std::vector<double> result(candles.size(), 0.0);
+            std::vector<double> closes = get_candles_with_source(candles, "close");
+
+            // Calculate short and long EMA
+            std::vector<double> short_ema = calculate_exponential_moving_average(closes, short_period);
+            std::vector<double> long_ema = calculate_exponential_moving_average(closes, long_period);
+
+            // Calculate MACD line (difference between short EMA and long EMA)
+            std::vector<double> macd_line(candles.size(), 0.0);
+            for (size_t i = 0; i < closes.size(); ++i)
+            {
+                macd_line[i] = short_ema[i] - long_ema[i];
+            }
+
+            // Calculate signal line (EMA of MACD line)
+            std::vector<double> signal_line = calculate_exponential_moving_average(macd_line, signal_period);
+
+            // If MACD line crosses above signal line, buy signal
+            // if MACD line crosses below signal line, sell signal
+            for (size_t i = 1; i < candles.size(); ++i) {
+                if (macd_line[i - 1] < signal_line[i - 1] && macd_line[i] > signal_line[i])
+                {
+                    result[i] = 1.0;
+                }
+                else if (macd_line[i - 1] > signal_line[i - 1] && macd_line[i] < signal_line[i])
+                {
+                    result[i] = -1.0;
+                }
+            }
+
+            return result; },
+        normalize_data);
+}
+
+// *********************************************************************************************
+
+/**
  * @brief Construct a new ParabolicSARSignal object.
  *
  * @param acceleration_factor_initial Initial acceleration factor value. Default is 0.02.
