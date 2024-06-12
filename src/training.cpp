@@ -226,6 +226,24 @@ void Training::load_indicators(bool display_progress)
         return;
     }
 
+    // Check if there are no doubloons in the indicators
+    std::unordered_map<TimeFrame, std::vector<std::string>> check_indicators = {};
+    for (const auto &[tf, indicators] : this->config.training.inputs.indicators)
+    {
+        for (const auto &indicator : indicators)
+        {
+            if (std::find(check_indicators[tf].begin(), check_indicators[tf].end(), indicator->id) != check_indicators[tf].end())
+            {
+                std::cerr << "Error: the indicator '" << indicator->id << "' is duplicated." << std::endl;
+                std::exit(1);
+            }
+            else
+            {
+                check_indicators[tf].push_back(indicator->id);
+            }
+        }
+    }
+
     std::map<TimeFrame, std::vector<Indicator *>> all_indicators = config.training.inputs.indicators;
     ProgressBar *progress_bar = display_progress ? new ProgressBar(100, dates.size()) : nullptr;
 
