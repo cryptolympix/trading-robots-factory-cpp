@@ -8,6 +8,7 @@
 #include <sstream>
 #include <cmath>
 #include <random>
+#include <algorithm>
 #include "utils/logger.hpp"
 #include "utils/time_frame.hpp"
 #include "utils/math.hpp"
@@ -20,6 +21,12 @@
 #include "indicators/utils.hpp"
 #include "symbols.hpp"
 #include "trader.hpp"
+
+// Operaton overloading for the Trade struct
+bool operator==(const Trade &t1, const Trade &t2)
+{
+    return t1.entry_date == t2.entry_date && t1.exit_date == t2.exit_date && t1.side == t2.side && t1.size == t2.size && t1.entry_price == t2.entry_price && t1.exit_price == t2.exit_price && t1.pnl == t2.pnl && t1.pnl_percent == t2.pnl_percent && t1.fees == t2.fees && t1.closed == t2.closed;
+}
 
 /**
  * @brief Constructor for the Trader class.
@@ -106,7 +113,6 @@ Trader::Trader(neat::Genome *genome, Config config, Logger *logger)
 void Trader::look(IndicatorsData &indicators_data, double base_currency_conversion_rate, std::vector<PositionInfo> position_infos)
 {
     std::vector<double> indicators_values = {};
-    std::map<TimeFrame, std::vector<Indicator *>> indicators_inputs = config.training.inputs.indicators;
     this->current_base_currency_conversion_rate = base_currency_conversion_rate;
 
     // Get the values of the indicators
@@ -468,9 +474,20 @@ int Trader::trade()
 
 /**
  * @brief Calculate the fitness of the trader.
+ * @param start_date Start date of the training.
+ * @param end_date End date of the training.
  */
-void Trader::calculate_fitness()
+void Trader::calculate_fitness(time_t start_date, time_t end_date)
 {
+    if (start_date == 0L)
+    {
+        start_date = this->config.training.training_start_date;
+    }
+    if (end_date == 0L)
+    {
+        end_date = this->config.training.training_end_date;
+    }
+
     EvaluationConfig goals = this->config.evaluation;
 
     double nb_trades_per_day_eval = 0;
@@ -501,22 +518,68 @@ void Trader::calculate_fitness()
         }
     }
 
-    if (goals.nb_trades_per_day.has_value())
+    // Get all the dates between the first and the last day of training
+    std::vector<std::string> all_dates = {};
+    time_t current_date = start_date;
+    while (current_date <= end_date)
     {
-        // Calculate the number of trades per day
-        std::map<std::string, int> daily_trades = {};
-        for (const auto &trade : closed_trades)
+        // If the current date is a weekend, skip it
+        struct tm current_date_tm = time_t_to_tm(current_date);
+        if (current_date_tm.tm_wday == 6 || current_date_tm.tm_wday == 0)
         {
-            std::string date_key = time_t_to_string(trade.exit_date, "%Y-%m-%d");
-            daily_trades[date_key]++;
+            current_date += 24 * 60 * 60;
+            continue;
         }
 
-        int nb_days = daily_trades.size();
+        // If the date is not yet contained in the vector, add it
+        if (std::find(all_dates.begin(), all_dates.end(), time_t_to_string(current_date, "%Y-%m-%d")) == all_dates.end())
+        {
+            all_dates.push_back(time_t_to_string(current_date, "%Y-%m-%d"));
+        }
+
+        // Increment the date by one day
+        current_date += 24 * 60 * 60;
+    }
+
+    // Get all the months between the first and the last day of training
+    std::vector<std::string> all_months = {};
+    for (const auto &date : all_dates)
+    {
+        std::string month = date.substr(0, 7);
+        if (std::find(all_months.begin(), all_months.end(), month) == all_months.end())
+        {
+            all_months.push_back(month);
+        }
+    }
+
+    if (goals.nb_trades_per_day.has_value())
+    {
+        std::map<std::string, int> daily_nb_trades = {};
+        std::vector<Trade> closed_trades_copy = closed_trades;
+
+        for (const auto &date : all_dates)
+        {
+            daily_nb_trades[date] = 0;
+            for (const auto &trade : closed_trades_copy)
+            {
+                std::string trade_date = time_t_to_string(trade.exit_date, "%Y-%m-%d");
+                if (trade_date == date)
+                {
+                    daily_nb_trades[date]++;
+
+                    // Remove the trade from the vector to avoid counting it twice
+                    auto it = std::find(closed_trades_copy.begin(), closed_trades_copy.end(), trade);
+                    closed_trades_copy.erase(it, closed_trades_copy.end());
+                }
+            }
+        }
+
+        int nb_days = daily_nb_trades.size();
         if (nb_days > 0)
         {
-            for (const auto &[day, nb_trade] : daily_trades)
+            for (const auto &[day, nb_trades] : daily_nb_trades)
             {
-                double diff = 10 * std::abs(goals.nb_trades_per_day.value() - nb_trade);
+                double diff = 10 * std::abs(goals.nb_trades_per_day.value() - nb_trades);
                 nb_trades_per_day_eval += nb_trades_per_day_weight / (nb_days * std::exp(diff));
             }
         }
@@ -552,11 +615,29 @@ void Trader::calculate_fitness()
     if (goals.expected_return_per_day.has_value())
     {
         std::map<std::string, double> daily_returns = {};
-        for (const auto &trade : closed_trades)
+        std::vector<Trade> closed_trades_copy = closed_trades;
+
+        for (const auto &date : all_dates)
         {
-            double trade_return = trade.pnl_percent;
-            std::string date_key = time_t_to_string(trade.exit_date, "%Y-%m-%d");
-            daily_returns[date_key] = trade_return;
+            daily_returns[date] = 1.0;
+            for (const auto &trade : closed_trades_copy)
+            {
+                double trade_return = trade.pnl_percent;
+                std::string trade_date = time_t_to_string(trade.exit_date, "%Y-%m-%d");
+                if (trade_date == date)
+                {
+                    daily_returns[date] *= 1 + trade_return;
+
+                    // Remove the trade from the vector to avoid counting it twice
+                    auto it = std::find(closed_trades_copy.begin(), closed_trades_copy.end(), trade);
+                    closed_trades_copy.erase(it, closed_trades_copy.end());
+                }
+            }
+        }
+
+        for (auto &[day, daily_return] : daily_returns)
+        {
+            daily_return -= 1.0;
         }
 
         int nb_days = daily_returns.size();
@@ -573,11 +654,29 @@ void Trader::calculate_fitness()
     if (goals.expected_return_per_month.has_value())
     {
         std::map<std::string, double> monthly_returns = {};
-        for (const auto &trade : closed_trades)
+        std::vector<Trade> closed_trades_copy = closed_trades;
+
+        for (const auto &month : all_months)
         {
-            double trade_return = trade.pnl_percent;
-            std::string date_key = time_t_to_string(trade.exit_date, "%Y-%m");
-            monthly_returns[date_key] += trade_return;
+            monthly_returns[month] = 1.0;
+            for (const auto &trade : closed_trades_copy)
+            {
+                double trade_return = trade.pnl_percent;
+                std::string trade_month = time_t_to_string(trade.exit_date, "%Y-%m");
+                if (trade_month == month)
+                {
+                    monthly_returns[month] *= 1 + trade_return;
+
+                    // Remove the trade from the vector to avoid counting it twice
+                    auto it = std::find(closed_trades_copy.begin(), closed_trades_copy.end(), trade);
+                    closed_trades_copy.erase(it, closed_trades_copy.end());
+                }
+            }
+        }
+
+        for (auto &[month, monthly_return] : monthly_returns)
+        {
+            monthly_return -= 1.0;
         }
 
         int nb_months = monthly_returns.size();
