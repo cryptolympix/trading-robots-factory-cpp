@@ -111,7 +111,6 @@ protected:
                 },
             },
             .evaluation = {
-                .nb_trades_per_day = 2,
                 .maximum_trade_duration = 5,
                 .maximum_drawdown = 0.1,
                 .expected_return_per_day = 0.01,
