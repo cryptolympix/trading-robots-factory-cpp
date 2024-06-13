@@ -947,7 +947,7 @@ void Training::generate_fitness_report()
     // Set plot options
     gp << "set title 'Fitness Evolution'\n";
     gp << "set xlabel 'Time'\n";
-    gp << "set ylabel 'Value'\n";
+    gp << "set ylabel 'Generation'\n";
 
     // Plot data
     gp << "plot '-' with lines title 'fitness'\n";
