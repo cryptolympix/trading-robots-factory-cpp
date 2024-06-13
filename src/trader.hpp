@@ -85,10 +85,8 @@ public:
 
     /**
      * @brief Calculate the fitness of the trader.
-     * @param start_date Start date of the backtest.
-     * @param end_date End date of the backtest.
      */
-    void calculate_fitness(time_t start_date = 0L, time_t end_date = 0L);
+    void calculate_fitness();
 
     /**
      * @brief Calculate the score of the trader.

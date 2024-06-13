@@ -474,22 +474,12 @@ int Trader::trade()
 
 /**
  * @brief Calculate the fitness of the trader.
- * @param start_date Start date of the training.
- * @param end_date End date of the training.
  */
-void Trader::calculate_fitness(time_t start_date, time_t end_date)
+void Trader::calculate_fitness()
 {
-    if (start_date == 0L)
-    {
-        start_date = this->config.training.training_start_date;
-    }
-    if (end_date == 0L)
-    {
-        end_date = this->config.training.training_end_date;
-    }
-
     EvaluationConfig goals = this->config.evaluation;
 
+    double minimum_nb_trades_eval = 0;
     double nb_trades_per_day_eval = 0;
     double max_trade_duration_eval = 0;
     double max_drawdown_eval = 0;
@@ -499,6 +489,7 @@ void Trader::calculate_fitness(time_t start_date, time_t end_date)
     double expected_return_per_month_eval = 0;
     double expected_return_eval = 0;
 
+    double minimum_nb_trades_weight = 1;
     double nb_trades_per_day_weight = 1;
     double max_trade_duration_weight = 1;
     double max_drawdown_weight = 1;
@@ -520,8 +511,8 @@ void Trader::calculate_fitness(time_t start_date, time_t end_date)
 
     // Get all the dates between the first and the last day of training
     std::vector<std::string> all_dates = {};
-    time_t current_date = start_date;
-    while (current_date <= end_date)
+    time_t current_date = this->config.training.training_start_date;
+    while (current_date <= this->config.training.training_end_date)
     {
         // If the current date is a weekend, skip it
         struct tm current_date_tm = time_t_to_tm(current_date);
@@ -550,6 +541,12 @@ void Trader::calculate_fitness(time_t start_date, time_t end_date)
         {
             all_months.push_back(month);
         }
+    }
+
+    if (goals.minimum_nb_trades.has_value())
+    {
+        double diff = 10 * std::max(0, goals.minimum_nb_trades.value() - (int)closed_trades.size());
+        minimum_nb_trades_eval = minimum_nb_trades_weight / std::exp(diff);
     }
 
     if (goals.nb_trades_per_day.has_value())
@@ -704,6 +701,10 @@ void Trader::calculate_fitness(time_t start_date, time_t end_date)
     {
         this->fitness = 0;
         return;
+    }
+    if (goals.minimum_nb_trades.has_value())
+    {
+        this->fitness *= minimum_nb_trades_eval;
     }
     if (goals.nb_trades_per_day.has_value())
     {
