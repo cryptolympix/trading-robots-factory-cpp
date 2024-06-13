@@ -902,15 +902,29 @@ int Training::evaluate_trader_with_monte_carlo_simulation(Trader *trader, int nb
  */
 void Training::generate_fitness_report()
 {
-    std::vector<double> fitness_evolution = {};
-    for (int i = 0; i < this->best_traders.size(); i++)
-    {
-        fitness_evolution.push_back(this->best_traders[i]->fitness);
-    }
-
-    if (fitness_evolution.size() < 2)
+    // Check if there are enough data points to generate the report
+    if (this->best_traders.size() < 2)
     {
         return;
+    }
+
+    std::vector<double> best_fitness = {};
+    for (int i = 0; i < this->best_traders.size(); i++)
+    {
+        best_fitness.push_back(this->best_traders[i]->fitness);
+    }
+
+    // Calculate the average fitness for each generation
+    std::vector<double> average_fitness = {};
+    for (int i = 0; i < best_fitness.size(); i++)
+    {
+        double average = 0.0;
+        for (const auto &trader : this->traders[i])
+        {
+            average += trader->fitness;
+        }
+        average /= this->traders[i].size();
+        average_fitness.push_back(average);
     }
 
     // Generate the fitness report
@@ -933,11 +947,13 @@ void Training::generate_fitness_report()
     // Create a Gnuplot object
     Gnuplot gp;
 
-    // Generate data for the sine wave
-    std::vector<std::pair<double, double>> data;
-    for (int i = 0; i < fitness_evolution.size(); ++i)
+    // Generate data for the fitness evolution and average fitness
+    std::vector<std::pair<int, double>> best_fitness_data;
+    std::vector<std::pair<int, double>> average_fitness_data;
+    for (int i = 0; i < best_fitness.size(); i++)
     {
-        data.push_back(std::make_pair(i, fitness_evolution[i]));
+        best_fitness_data.push_back(std::make_pair(i, best_fitness[i]));
+        average_fitness_data.push_back(std::make_pair(i, average_fitness[i]));
     }
 
     // Specify terminal type and output file
@@ -946,12 +962,13 @@ void Training::generate_fitness_report()
 
     // Set plot options
     gp << "set title 'Fitness Evolution'\n";
-    gp << "set xlabel 'Time'\n";
-    gp << "set ylabel 'Generation'\n";
+    gp << "set xlabel 'Generation'\n";
+    gp << "set ylabel 'Fitness'\n";
 
-    // Plot data
-    gp << "plot '-' with lines title 'fitness'\n";
-    gp.send(data); // Send the data to Gnuplot for plotting
+    // Plot data for fitness evolution and average fitness
+    gp << "plot '-' with lines title 'Best fitness', '-' with lines title 'Average fitness'\n";
+    gp.send1d(best_fitness_data);    // Send the fitness evolution data to Gnuplot for plotting
+    gp.send1d(average_fitness_data); // Send the average fitness data to Gnuplot for plotting
 
     // Close output and terminate Gnuplot
     gp << "unset output\n";
