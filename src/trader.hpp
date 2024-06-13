@@ -163,8 +163,10 @@ public:
     /**
      * @brief Print the statistics aanddn the trades list of the trader in a HTML file.
      * @param filename Filename of the HTML file.
+     * @param start_date Start date of the report.
+     * @param end_date End date of the report.
      */
-    void generate_report(const std::string &filename);
+    void generate_report(const std::string &filename, time_t start_date, time_t end_date);
 };
 
 #endif // TRADER_HPP

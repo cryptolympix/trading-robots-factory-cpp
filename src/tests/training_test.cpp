@@ -370,3 +370,14 @@ TEST_F(TrainingTest, MonteCarloSimulation)
     // Asserts that the evaluation went well
     ASSERT_EQ(result, 0);
 }
+
+TEST_F(TrainingTest, GenerateFitnessReport)
+{
+    for (int i = 0; i < 10; ++i)
+    {
+        Trader *trader = new Trader(new neat::Genome(), config);
+        trader->fitness = i;
+        training->best_traders[i] = trader;
+        training->generate_fitness_report();
+    }
+}

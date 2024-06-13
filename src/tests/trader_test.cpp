@@ -1292,7 +1292,7 @@ TEST_F(TraderTest, GenerateReport)
 
     // Call the generate_report method
     std::filesystem::path file = "reports/tests/trader_report.png";
-    trader->generate_report(file);
+    trader->generate_report(file, config.training.training_start_date, config.training.training_end_date);
 
     // Check if the graphic is created
     ASSERT_TRUE(std::filesystem::exists(file));

@@ -22,6 +22,7 @@
 #include "utils/vectors.hpp"
 #include "neat/population.hpp"
 #include "neat/genome.hpp"
+#include "libs/gnuplot-iostream.hpp"
 #include "training.hpp"
 #include "symbols.hpp"
 #include "trader.hpp"
@@ -486,7 +487,7 @@ void Training::set_best_traders(int generation)
     double best_fitness = -std::numeric_limits<double>::infinity();
     double best_score = -std::numeric_limits<double>::infinity();
 
-    for (auto &trader : traders[generation])
+    for (auto &trader : this->traders[generation])
     {
         // if (trader->score > best_score)
         // {
@@ -641,19 +642,20 @@ int Training::run()
             best_trader->genome->save(genome_save_file);
             std::cout << "💾 Genome saved to '" << genome_save_file << "'" << std::endl;
             best_trader->generate_balance_history_graph(graphic_file);
-            std::cout << "📈 Balance history graph generated!" << std::endl;
-            best_trader->generate_report(report_file);
-            std::cout << "📊 Trader report generated!" << std::endl;
+            std::cout << "📈 Balance history graph generated at '" << graphic_file << "'" << std::endl;
+            best_trader->generate_report(report_file, this->config.training.training_start_date, this->config.training.training_end_date);
+            std::cout << "📊 Trader report generated at '" << report_file << "'" << std::endl;
+            this->generate_fitness_report();
 
             // The training of generation is finished
             std::cout << "✅ Training of generation " << generation << " finished!" << std::endl;
 
             // Display the fitness of the best trader
-            std::cout << "📈 Fitness of the best trader: " << best_trader->fitness << std::endl;
+            std::cout << "🧬 Fitness of the best trader: " << best_trader->fitness << std::endl;
 
             // Test the trader on a the new period
             this->test(best_trader->genome, generation);
-            std::cout << "🧪 Testing of the best trader of generation " << generation << " finished!" << std::endl;
+            std::cout << "✅ Testing of the best trader of generation " << generation << " finished!" << std::endl;
         };
 
         std::cout << "🚀 Start the training..." << std::endl;
@@ -765,7 +767,7 @@ int Training::test(neat::Genome *genome, int generation)
 
     // Generate the report
     std::string report_file = this->directory.generic_string() + "/trader_" + std::to_string(generation) + "_" + trader->genome->id + "_test_report.html";
-    trader->generate_report(report_file);
+    trader->generate_report(report_file, this->config.training.test_start_date, this->config.training.test_end_date);
 
     // Generate the balance history graph
     std::string graphic_file = this->directory.generic_string() + "/trader_" + std::to_string(generation) + "_" + trader->genome->id + "_test_balance_history.png";
@@ -893,4 +895,65 @@ int Training::evaluate_trader_with_monte_carlo_simulation(Trader *trader, int nb
     }
 
     return 0;
+}
+
+/**
+ * @brief Generate a fitness report for the training process.
+ */
+void Training::generate_fitness_report()
+{
+    std::vector<double> fitness_evolution = {};
+    for (int i = 0; i < this->best_traders.size(); i++)
+    {
+        fitness_evolution.push_back(this->best_traders[i]->fitness);
+    }
+
+    if (fitness_evolution.size() < 2)
+    {
+        return;
+    }
+
+    // Generate the fitness report
+    std::string fitness_report_file = this->directory.generic_string() + "/fitness_report.png";
+
+    // Check if the directory exists
+    std::filesystem::path dir = std::filesystem::path(fitness_report_file).parent_path();
+    if (!std::filesystem::exists(dir))
+    {
+        try
+        {
+            std::filesystem::create_directories(dir);
+        }
+        catch (const std::filesystem::filesystem_error &e)
+        {
+            std::cerr << "Error creating directories: " << e.what() << std::endl;
+        }
+    }
+
+    // Create a Gnuplot object
+    Gnuplot gp;
+
+    // Generate data for the sine wave
+    std::vector<std::pair<double, double>> data;
+    for (int i = 0; i < fitness_evolution.size(); ++i)
+    {
+        data.push_back(std::make_pair(i, fitness_evolution[i]));
+    }
+
+    // Specify terminal type and output file
+    gp << "set term png\n";
+    gp << "set output '" + fitness_report_file + "'\n";
+
+    // Set plot options
+    gp << "set title 'Fitness Evolution'\n";
+    gp << "set xlabel 'Time'\n";
+    gp << "set ylabel 'Value'\n";
+
+    // Plot data
+    gp << "plot '-' with lines title 'fitness'\n";
+    gp.send(data); // Send the data to Gnuplot for plotting
+
+    // Close output and terminate Gnuplot
+    gp << "unset output\n";
+    gp << "exit\n";
 }

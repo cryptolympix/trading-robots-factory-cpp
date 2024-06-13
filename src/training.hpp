@@ -138,6 +138,11 @@ public:
      * @return The exit code of the evaluation process. 0 if the results are consistences with the training period, 1 otherwise.
      */
     int evaluate_trader_with_monte_carlo_simulation(Trader *trader, int nb_simulations = 1000, double note_threshold = 0.1);
+
+    /**
+     * @brief Generate a fitness report for the training process.
+     */
+    void generate_fitness_report();
 };
 
 #endif // TRAINING_HPP

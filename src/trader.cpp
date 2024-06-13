@@ -1398,8 +1398,8 @@ void Trader::generate_balance_history_graph(const std::string &filename)
 
     // Set plot options
     gp << "set title 'Balance History'\n";
-    gp << "set xlabel 'Temps'\n";
-    gp << "set ylabel 'Balance'\n";
+    gp << "set xlabel 'Time'\n";
+    gp << "set ylabel 'Value'\n";
 
     // Plot data
     gp << "plot '-' with lines title 'balance'\n";
@@ -1413,8 +1413,10 @@ void Trader::generate_balance_history_graph(const std::string &filename)
 /**
  * @brief Print the statistics and the trades list of the trader in a HTML file.
  * @param filename Filename of the HTML file.
+ * @param start_date Start date of the report.
+ * @param end_date End date of the report.
  */
-void Trader::generate_report(const std::string &filename)
+void Trader::generate_report(const std::string &filename, time_t start_date, time_t end_date)
 {
     // Select only closed trade
     std::vector<Trade> closed_trades = {};
@@ -1445,10 +1447,6 @@ void Trader::generate_report(const std::string &filename)
             std::cerr << "Error creating directories: " << e.what() << std::endl;
         }
     }
-
-    // Get the start and end date of the trades
-    time_t start_date = closed_trades[0].entry_date;
-    time_t end_date = closed_trades.back().exit_date;
 
     // Open the file
     std::ofstream file(filename);
