@@ -313,7 +313,6 @@ struct TrainingConfig
 struct EvaluationConfig
 {
     std::optional<int> minimum_nb_trades;            // Minimum number of trades
-    std::optional<int> nb_trades_per_day;            // Number of trades per day
     std::optional<int> maximum_trade_duration;       // Maximum trade duration
     std::optional<double> expected_return_per_day;   // Expected return per day in % of capital
     std::optional<double> expected_return_per_month; // Expected return per month in % of capital

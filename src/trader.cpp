@@ -480,7 +480,6 @@ void Trader::calculate_fitness()
     EvaluationConfig goals = this->config.evaluation;
 
     double minimum_nb_trades_eval = 0;
-    double nb_trades_per_day_eval = 0;
     double max_trade_duration_eval = 0;
     double max_drawdown_eval = 0;
     double profit_factor_eval = 0;
@@ -490,7 +489,6 @@ void Trader::calculate_fitness()
     double expected_return_eval = 0;
 
     double minimum_nb_trades_weight = 1;
-    double nb_trades_per_day_weight = 1;
     double max_trade_duration_weight = 1;
     double max_drawdown_weight = 1;
     double profit_factor_weight = 1;
@@ -547,39 +545,6 @@ void Trader::calculate_fitness()
     {
         double diff = 10 * std::max(0, goals.minimum_nb_trades.value() - (int)closed_trades.size());
         minimum_nb_trades_eval = minimum_nb_trades_weight / std::exp(diff);
-    }
-
-    if (goals.nb_trades_per_day.has_value())
-    {
-        std::map<std::string, int> daily_nb_trades = {};
-        std::vector<Trade> closed_trades_copy = closed_trades;
-
-        for (const auto &date : all_dates)
-        {
-            daily_nb_trades[date] = 0;
-            for (const auto &trade : closed_trades_copy)
-            {
-                std::string trade_date = time_t_to_string(trade.exit_date, "%Y-%m-%d");
-                if (trade_date == date)
-                {
-                    daily_nb_trades[date]++;
-
-                    // Remove the trade from the vector to avoid counting it twice
-                    auto it = std::find(closed_trades_copy.begin(), closed_trades_copy.end(), trade);
-                    closed_trades_copy.erase(it, closed_trades_copy.end());
-                }
-            }
-        }
-
-        int nb_days = daily_nb_trades.size();
-        if (nb_days > 0)
-        {
-            for (const auto &[day, nb_trades] : daily_nb_trades)
-            {
-                double diff = 10 * std::abs(goals.nb_trades_per_day.value() - nb_trades);
-                nb_trades_per_day_eval += nb_trades_per_day_weight / (nb_days * std::exp(diff));
-            }
-        }
     }
 
     if (goals.maximum_trade_duration.has_value())
@@ -705,10 +670,6 @@ void Trader::calculate_fitness()
     if (goals.minimum_nb_trades.has_value())
     {
         this->fitness *= minimum_nb_trades_eval;
-    }
-    if (goals.nb_trades_per_day.has_value())
-    {
-        this->fitness *= nb_trades_per_day_eval;
     }
     if (goals.maximum_drawdown.has_value())
     {
