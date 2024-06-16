@@ -156,15 +156,15 @@ void Training::load_candles(bool display_progress)
     // Load the candles from data for all the timeframes
     for (const TimeFrame &tf : all_timeframes)
     {
-        time_t start_date = this->config.training.training_start_date;
+        time_t start_date = this->config.training.training_start_date - get_time_frame_in_minutes(highest_timeframe) * 60 * CANDLES_WINDOW;
         time_t end_date = this->config.training.test_end_date;
-        candles[tf] = read_data(config.general.symbol, tf, 0L, end_date);
+        candles[tf] = read_data(config.general.symbol, tf, start_date, end_date);
     }
 
     // Filter the dates from the candles in the loop timeframe
     for (const auto &candle : candles[loop_timeframe])
     {
-        if (candle.date >= this->config.training.training_start_date)
+        if (candle.date >= this->config.training.training_start_date && candle.date <= this->config.training.training_end_date)
         {
             this->dates.push_back(candle.date);
         }
@@ -724,33 +724,26 @@ int Training::test(neat::Genome *genome, int generation)
             std::vector<PositionInfo> position = this->config.training.inputs.position;
 
             // Update the individual
-            if (!trader->dead)
-            {
-                trader->update(current_candles);
-                trader->look(current_indicators, current_base_currency_conversion_rate, position);
-                trader->think();
-                int decision = trader->trade();
+            trader->update(current_candles);
+            trader->look(current_indicators, current_base_currency_conversion_rate, position);
+            trader->think();
+            int decision = trader->trade();
 
-                if (this->debug)
+            if (this->debug)
+            {
+                // Save the decision to the file
+                time_t time = std::stoll(date);
+                std::string date_string = time_t_to_string(time);
+
+                decisions_file << date_string << ";" << decision << std::endl;
+
+                // Save the vision data to the file
+                vision_file << date_string << ";";
+                for (const auto &vision : trader->vision)
                 {
-                    // Save the decision to the file
-                    time_t time = std::stoll(date);
-                    std::string date_string = time_t_to_string(time);
-
-                    decisions_file << date_string << ";" << decision << std::endl;
-
-                    // Save the vision data to the file
-                    vision_file << date_string << ";";
-                    for (const auto &vision : trader->vision)
-                    {
-                        vision_file << vision << ";";
-                    }
-                    vision_file << std::endl;
+                    vision_file << vision << ";";
                 }
-            }
-            else
-            {
-                break;
+                vision_file << std::endl;
             }
         }
     }

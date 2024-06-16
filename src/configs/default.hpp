@@ -32,10 +32,10 @@ TradingSchedule schedule = {
 
 TakeProfitStopLossConfig tpsl_config = {
     .type_stop_loss = TypeTakeProfitStopLoss::POINTS,
-    .stop_loss_in_points = 30,
+    .stop_loss_in_points = 10,
     .stop_loss_in_percent = 0.005,
     .type_take_profit = TypeTakeProfitStopLoss::POINTS,
-    .take_profit_in_points = 30,
+    .take_profit_in_points = 10,
     .take_profit_in_percent = 0.005,
 };
 

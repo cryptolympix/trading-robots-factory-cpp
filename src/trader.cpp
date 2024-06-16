@@ -209,7 +209,7 @@ void Trader::update(CandlesData &candles)
         int last_month = last_date_tm.tm_mon;
         int last_day = last_date_tm.tm_mday;
 
-        struct tm current_date_tm = time_t_to_tm(candles[this->config.strategy.timeframe].back().date);
+        struct tm current_date_tm = time_t_to_tm(this->candles[this->config.strategy.timeframe].back().date);
         int current_year = current_date_tm.tm_year;
         int current_month = current_date_tm.tm_mon;
         int current_day = current_date_tm.tm_mday;
@@ -222,7 +222,7 @@ void Trader::update(CandlesData &candles)
     }
 
     // Update the current date
-    this->current_date = candles[this->config.strategy.timeframe].back().date;
+    this->current_date = this->candles[this->config.strategy.timeframe].back().date;
 
     // Increment the position duration
     if (this->current_position != nullptr)
