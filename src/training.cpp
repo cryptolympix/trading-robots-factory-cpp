@@ -275,7 +275,7 @@ void Training::load_indicators(bool display_progress)
                         }
                         if (this->config.strategy.can_open_short_trade.value_or(true) || (this->config.strategy.can_open_long_trade.value_or(true) && this->config.strategy.can_close_trade.value_or(false)))
                         {
-                            this->indicators[date][tf][indicator->id + "reverse"].push_back(reverse_values[reverse_values.size() - INDICATOR_WINDOW + i]);
+                            this->indicators[date][tf][indicator->id + "-reverse"].push_back(reverse_values[reverse_values.size() - INDICATOR_WINDOW + i]);
                         }
                     }
                 }
@@ -287,7 +287,7 @@ void Training::load_indicators(bool display_progress)
                     }
                     if (this->config.strategy.can_open_short_trade.value_or(true) || (this->config.strategy.can_open_long_trade.value_or(true) && this->config.strategy.can_close_trade.value_or(false)))
                     {
-                        this->indicators[date][tf][indicator->id + "reverse"] = std::vector<double>(INDICATOR_WINDOW, 0.0);
+                        this->indicators[date][tf][indicator->id + "-reverse"] = std::vector<double>(INDICATOR_WINDOW, 0.0);
                     }
                 }
             }

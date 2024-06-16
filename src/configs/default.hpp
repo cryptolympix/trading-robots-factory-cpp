@@ -17,7 +17,7 @@
 #include "../indicators/volume.hpp"
 #include "../indicators/volume_signals.hpp"
 
-std::vector<bool> schedule_working_days = {false, false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false};
+std::vector<bool> schedule_working_days = {true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true};
 std::vector<bool> schedule_rest_days = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
 
 TradingSchedule schedule = {
@@ -208,7 +208,7 @@ Config __config__ = {
                         new AroonTrend(),
                         new IchimokuCloudTrend(),
                         new IchimokuKijunTenkanTrend(),
-                        new SMASlope(21, "close"),
+                        // new SMASlope(21, "close"),
                         new EMASlope(21, "close"),
                         new Zigzag(),
                         // Volatility signals
@@ -302,17 +302,17 @@ Config __config__ = {
                         // new UO(),
                         new WilliamsPercentR(),
                         // Time
-                        new Hour(),
-                        new Minute(),
-                        new NFPWeek(),
-                        new MarketSession("new-york"),
-                        new MarketSession("london"),
-                        new MarketSession("tokyo"),
-                        new WeekDay("monday"),
-                        new WeekDay("tuesday"),
-                        new WeekDay("wednesday"),
-                        new WeekDay("thursday"),
-                        new WeekDay("friday"),
+                        // new Hour(),
+                        // new Minute(),
+                        // new NFPWeek(),
+                        // new MarketSession("new-york"),
+                        // new MarketSession("london"),
+                        // new MarketSession("tokyo"),
+                        // new WeekDay("monday"),
+                        // new WeekDay("tuesday"),
+                        // new WeekDay("wednesday"),
+                        // new WeekDay("thursday"),
+                        // new WeekDay("friday"),
                         // Trend signals
                         // new ADXSignal(),
                         // new AroonSignal(),
@@ -348,7 +348,7 @@ Config __config__ = {
                         new AroonTrend(),
                         new IchimokuCloudTrend(),
                         new IchimokuKijunTenkanTrend(),
-                        new SMASlope(21, "close"),
+                        // new SMASlope(21, "close"),
                         new EMASlope(21, "close"),
                         new Zigzag(),
                         // Volatility signals

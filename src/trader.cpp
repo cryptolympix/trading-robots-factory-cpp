@@ -115,6 +115,18 @@ void Trader::look(IndicatorsData &indicators_data, double base_currency_conversi
     std::vector<double> indicators_values = {};
     this->current_base_currency_conversion_rate = base_currency_conversion_rate;
 
+    for (const auto &[tf, indicators] : this->config.training.inputs.indicators)
+    {
+        for (const auto &indicator : indicators)
+        {
+            indicators_values.push_back(indicators_data[tf][indicator->id].back());
+            if ((this->config.strategy.can_open_long_trade.value_or(true) && this->config.strategy.can_close_trade.value_or(false)) || (this->config.strategy.can_open_short_trade.value_or(true) && this->config.strategy.can_close_trade.value_or(false)) || (this->config.strategy.can_open_long_trade.value_or(true) && this->config.strategy.can_open_short_trade.value_or(true)))
+            {
+                indicators_values.push_back(indicators_data[tf][indicator->id + "-reverse"].back());
+            }
+        }
+    }
+
     // Get the values of the indicators
     for (const auto &[tf, indicators] : indicators_data)
     {
