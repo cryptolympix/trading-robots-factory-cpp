@@ -127,15 +127,6 @@ void Trader::look(IndicatorsData &indicators_data, double base_currency_conversi
         }
     }
 
-    // Get the values of the indicators
-    for (const auto &[tf, indicators] : indicators_data)
-    {
-        for (const auto &[id, values] : indicators)
-        {
-            indicators_values.push_back(indicators_data[tf][id].back());
-        }
-    }
-
     // Get the position information
     std::vector<double> position_info = {};
     for (const auto &info : position_infos)
