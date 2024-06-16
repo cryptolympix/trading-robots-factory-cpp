@@ -394,6 +394,7 @@ Config __config__ = {
     },
     .evaluation{
         .minimum_nb_trades = 250,
+        .maximum_trade_duration = 5,
         .expected_return_per_day = 0.02,
         .expected_return_per_month = 0.5,
         .maximum_drawdown = 0.05,

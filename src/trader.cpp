@@ -674,6 +674,10 @@ void Trader::calculate_fitness()
     {
         this->fitness *= minimum_nb_trades_eval;
     }
+    if (goals.maximum_trade_duration.has_value())
+    {
+        this->fitness *= max_trade_duration_eval;
+    }
     if (goals.maximum_drawdown.has_value())
     {
         this->fitness *= max_drawdown_eval;
