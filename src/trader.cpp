@@ -554,7 +554,7 @@ void Trader::calculate_fitness()
     {
         for (const auto &trade : closed_trades)
         {
-            double diff = 10 * std::max(0, trade.duration - goals.maximum_trade_duration.value());
+            double diff = 10 * std::max(0, goals.maximum_trade_duration.value() - trade.duration);
             max_trade_duration_eval += max_trade_duration_weight / std::exp(diff);
         }
     }
