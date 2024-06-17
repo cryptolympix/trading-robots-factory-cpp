@@ -11,7 +11,7 @@ neat::Species::Species(Genome *genome)
     best_fitness = genome->fitness;
     average_fitness = 0;
     stagnation = 0;
-    if (genome != nullptr)
+    if (genome != NULL)
     {
         genomes.push_back(genome);
     }
@@ -20,9 +20,7 @@ neat::Species::Species(Genome *genome)
 neat::Species::~Species()
 {
     for (auto &genome : genomes)
-    {
         delete genome;
-    }
 }
 
 void neat::Species::add_to_species(Genome *genome)

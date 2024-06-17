@@ -338,7 +338,7 @@ int Trader::trade()
     bool has_long_position = has_position && this->current_position->side == PositionSide::LONG;
     bool has_short_position = has_position && this->current_position->side == PositionSide::SHORT;
 
-    // Buy decision taken
+    // Decision taken
     double decision_threshold = this->config.training.decision_threshold.value_or(0.8);
     bool want_long = false;
     bool want_short = false;
@@ -346,10 +346,13 @@ int Trader::trade()
     bool want_close_short = false;
     bool wait = true;
 
+    // Get the index of the maximum value in the decisions
+    int max_decision_index = std::distance(this->decisions.begin(), std::max_element(this->decisions.begin(), this->decisions.end()));
+
     int index_decision = 0;
     if (this->config.strategy.can_open_long_trade.value_or(true))
     {
-        if (this->decisions[index_decision] >= decision_threshold)
+        if (max_decision_index == index_decision && this->decisions[index_decision] >= decision_threshold)
         {
             want_long = true;
             wait = false;
@@ -358,7 +361,7 @@ int Trader::trade()
 
         if (this->config.strategy.can_close_trade.value_or(false))
         {
-            if (has_long_position && this->decisions[index_decision] >= decision_threshold)
+            if (max_decision_index == index_decision && has_long_position && this->decisions[index_decision] >= decision_threshold)
             {
                 want_close_long = true;
                 wait = false;
@@ -368,7 +371,7 @@ int Trader::trade()
     }
     if (this->config.strategy.can_open_short_trade.value_or(true))
     {
-        if (this->decisions[index_decision] >= decision_threshold)
+        if (max_decision_index == index_decision && this->decisions[index_decision] >= decision_threshold)
         {
             want_short = true;
             wait = false;
@@ -377,7 +380,7 @@ int Trader::trade()
 
         if (this->config.strategy.can_close_trade.value_or(false))
         {
-            if (has_short_position && this->decisions[index_decision] >= decision_threshold)
+            if (max_decision_index == index_decision && has_short_position && this->decisions[index_decision] >= decision_threshold)
             {
                 want_close_short = true;
                 wait = false;

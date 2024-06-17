@@ -25,7 +25,7 @@ namespace neat
          * @brief Initializes a Species instance.
          * @param genome The initial genome for the species.
          */
-        Species(Genome *genome = nullptr);
+        Species(Genome *genome = NULL);
 
         /**
          * @brief Deconstructor for Species instance.

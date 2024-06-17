@@ -45,7 +45,7 @@ std::tm start_training_date = {
     .tm_hour = 0,
     .tm_mday = 1,
     .tm_mon = 1,
-    .tm_year = 2023 - 1900,
+    .tm_year = 2022 - 1900,
 };
 
 std::tm end_training_date = {
@@ -85,7 +85,7 @@ Config __config__ = {
         .leverage = 30,
     },
     .strategy{
-        .timeframe = TimeFrame::M15,
+        .timeframe = TimeFrame::H1,
         .risk_per_trade = 0.05,
         .maximum_trades_per_day = 2,
         .maximum_spread = 8,
@@ -106,7 +106,7 @@ Config __config__ = {
         .inputs = {
             .indicators = {
                 {
-                    TimeFrame::M15,
+                    TimeFrame::H1,
                     {
                         // Candle signals
                         new DojiCandlePattern(),
@@ -246,7 +246,7 @@ Config __config__ = {
                     },
                 },
                 {
-                    TimeFrame::H1,
+                    TimeFrame::H4,
                     {
                         // Candle signals
                         new DojiCandlePattern(),
@@ -393,7 +393,7 @@ Config __config__ = {
         },
     },
     .evaluation{
-        // .minimum_nb_trades = 250,
+        .minimum_nb_trades = 250,
         .maximum_trade_duration = 5,
         // .expected_return_per_day = 0.02,
         // .expected_return_per_month = 0.5,

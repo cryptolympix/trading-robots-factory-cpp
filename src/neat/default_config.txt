@@ -11,6 +11,7 @@ activation_default = sigmoid
 activation_mutate_rate = 0.1
 num_inputs = 20
 num_outputs = 1
+num_hidden_layers = 0
 compatibility_disjoint_coefficient = 3.0
 compatibility_weight_coefficient = 0.5
 conn_add_prob = 0.1

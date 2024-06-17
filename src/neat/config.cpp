@@ -48,6 +48,8 @@ neat::Config neat::load_config(const std::string &filename)
                 config.num_inputs = std::stoi(value);
             else if (key == "num_outputs")
                 config.num_outputs = std::stoi(value);
+            else if (key == "num_hidden_layers")
+                config.num_hidden_layers = std::stoi(value);
             else if (key == "compatibility_disjoint_coefficient")
                 config.compatibility_disjoint_coefficient = std::stod(value);
             else if (key == "compatibility_weight_coefficient")

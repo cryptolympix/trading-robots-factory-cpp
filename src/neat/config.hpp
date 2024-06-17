@@ -32,6 +32,7 @@ namespace neat
         double activation_mutate_rate;
         int num_inputs;
         int num_outputs;
+        int num_hidden_layers;
         double compatibility_disjoint_coefficient;
         double compatibility_weight_coefficient;
         double conn_add_prob;

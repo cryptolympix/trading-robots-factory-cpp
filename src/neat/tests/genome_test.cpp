@@ -22,6 +22,7 @@ protected:
         config = neat::load_config("./src/neat/default_config.txt");
         config.num_inputs = 2;
         config.num_outputs = 2;
+        config.num_hidden_layers = 1;
 
         // Set up ConnectionHistory
         connection_history = {};
@@ -40,11 +41,11 @@ TEST_F(TestGenome, Init)
 
     ASSERT_TRUE(genome->id.size() > 0);
     ASSERT_TRUE(genome->genes.empty());
-    ASSERT_EQ(genome->nodes.size(), 4);
+    ASSERT_EQ(genome->nodes.size(), 6);
     ASSERT_EQ(genome->inputs, 2);
     ASSERT_EQ(genome->outputs, 2);
-    ASSERT_EQ(genome->layers, 2);
-    ASSERT_EQ(genome->next_node, 4);
+    ASSERT_EQ(genome->layers, 3);
+    ASSERT_EQ(genome->next_node, 6);
     ASSERT_TRUE(genome->network.empty());
     ASSERT_EQ(genome->fitness, 0);
 }
@@ -55,17 +56,25 @@ TEST_F(TestGenome, FullyConnect)
     genome->fully_connect(connection_history);
 
     // Check if the genes are generated properly
-    ASSERT_EQ(genome->genes.size(), 4);
-    // First input node
+    ASSERT_EQ(genome->genes.size(), 8);
+    // From layer 0 to 1
     ASSERT_EQ(genome->genes[0]->from_node->id, 0);
     ASSERT_EQ(genome->genes[0]->to_node->id, 2);
     ASSERT_EQ(genome->genes[1]->from_node->id, 0);
     ASSERT_EQ(genome->genes[1]->to_node->id, 3);
-    // Second input node
     ASSERT_EQ(genome->genes[2]->from_node->id, 1);
     ASSERT_EQ(genome->genes[2]->to_node->id, 2);
     ASSERT_EQ(genome->genes[3]->from_node->id, 1);
     ASSERT_EQ(genome->genes[3]->to_node->id, 3);
+    // From layer 1 to 2
+    ASSERT_EQ(genome->genes[4]->from_node->id, 2);
+    ASSERT_EQ(genome->genes[4]->to_node->id, 4);
+    ASSERT_EQ(genome->genes[5]->from_node->id, 2);
+    ASSERT_EQ(genome->genes[5]->to_node->id, 5);
+    ASSERT_EQ(genome->genes[6]->from_node->id, 3);
+    ASSERT_EQ(genome->genes[6]->to_node->id, 4);
+    ASSERT_EQ(genome->genes[7]->from_node->id, 3);
+    ASSERT_EQ(genome->genes[7]->to_node->id, 5);
 }
 
 TEST_F(TestGenome, GetNode)
@@ -86,7 +95,10 @@ TEST_F(TestGenome, ConnectNodes)
     // Check if the connections are set properly
     ASSERT_EQ(genome->nodes[0]->output_connections.size(), 2);
     ASSERT_EQ(genome->nodes[1]->output_connections.size(), 2);
-    ASSERT_EQ(genome->nodes[2]->output_connections.size(), 0);
+    ASSERT_EQ(genome->nodes[2]->output_connections.size(), 2);
+    ASSERT_EQ(genome->nodes[3]->output_connections.size(), 2);
+    ASSERT_EQ(genome->nodes[4]->output_connections.size(), 0);
+    ASSERT_EQ(genome->nodes[5]->output_connections.size(), 0);
 }
 
 TEST_F(TestGenome, FeedForward)
@@ -110,12 +122,14 @@ TEST_F(TestGenome, GenerateNetwork)
     genome->generate_network();
 
     // Check if the network is generated properly
-    ASSERT_EQ(genome->network.size(), 4);
+    ASSERT_EQ(genome->network.size(), 6);
     // 2 input nodes + 2 output nodes
     ASSERT_EQ(genome->network[0]->id, 0); // First input node
     ASSERT_EQ(genome->network[1]->id, 1); // Second input node
-    ASSERT_EQ(genome->network[2]->id, 2); // First output node
-    ASSERT_EQ(genome->network[3]->id, 3); // Second output node
+    ASSERT_EQ(genome->network[2]->id, 2); // First node in the hidden layer
+    ASSERT_EQ(genome->network[3]->id, 3); // Second node in the hidden layer
+    ASSERT_EQ(genome->network[4]->id, 4); // First output node
+    ASSERT_EQ(genome->network[5]->id, 5); // Second output node
 }
 
 TEST_F(TestGenome, AddNode)
