@@ -79,7 +79,6 @@ protected:
                 },
             },
             .evaluation = {
-                .nb_trades_per_day = 2,
                 .maximum_trade_duration = 5,
                 .expected_return_per_day = 0.01,
                 .expected_return_per_month = 0.1,
