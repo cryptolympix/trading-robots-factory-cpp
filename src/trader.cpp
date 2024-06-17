@@ -670,6 +670,10 @@ void Trader::calculate_fitness()
         this->fitness = 0;
         return;
     }
+    if (goals.maximize_nb_trades.value_or(false))
+    {
+        this->fitness *= stats.total_trades;
+    }
     if (goals.minimum_nb_trades.has_value())
     {
         this->fitness *= minimum_nb_trades_eval;

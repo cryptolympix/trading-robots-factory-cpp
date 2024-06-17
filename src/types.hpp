@@ -312,6 +312,7 @@ struct TrainingConfig
  */
 struct EvaluationConfig
 {
+    std::optional<bool> maximize_nb_trades;          // Maximize the number of trades
     std::optional<int> minimum_nb_trades;            // Minimum number of trades
     std::optional<int> maximum_trade_duration;       // Maximum trade duration
     std::optional<double> expected_return_per_day;   // Expected return per day in % of capital
