@@ -156,8 +156,17 @@ void Training::load_candles(bool display_progress)
     // Load the candles from data for all the timeframes
     for (const TimeFrame &tf : all_timeframes)
     {
-        time_t start_date = this->config.training.training_start_date - get_time_frame_in_minutes(highest_timeframe) * 60 * CANDLES_WINDOW;
+        time_t start_date = this->config.training.training_start_date - get_time_frame_in_minutes(highest_timeframe) * 60 * 2 * CANDLES_WINDOW;
         time_t end_date = this->config.training.test_end_date;
+
+        // Find the first date that is not a weekend
+        struct tm *tm = localtime(&start_date);
+        while (tm->tm_wday == 0 || tm->tm_wday == 6)
+        {
+            start_date -= 24 * 60 * 60;
+            tm = localtime(&start_date);
+        }
+
         candles[tf] = read_data(config.general.symbol, tf, start_date, end_date);
     }
 
