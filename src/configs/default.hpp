@@ -103,6 +103,7 @@ Config __config__ = {
         .training_end_date = std::mktime(&end_training_date),
         .test_start_date = std::mktime(&start_test_date),
         .test_end_date = std::mktime(&end_test_date),
+        .decision_threshold = 0.5,
         .inputs = {
             .indicators = {
                 {

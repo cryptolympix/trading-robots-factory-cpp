@@ -42,7 +42,7 @@ Training::Training(std::string id, Config &config, bool debug)
 
     // Set the number of inputs and outputs for the NEAT algorithm
     this->config.neat.num_inputs = this->count_indicators() + this->config.training.inputs.position.size();
-    this->config.neat.num_outputs = 0;
+    this->config.neat.num_outputs = 0; // At least one output for the decision to wait
     if (this->config.strategy.can_open_long_trade.value_or(true))
     {
         this->config.neat.num_outputs++;
@@ -66,7 +66,8 @@ Training::Training(std::string id, Config &config, bool debug)
     // Initialize the data structures
     this->candles = {};
     this->indicators = {};
-    this->dates = {};
+    this->training_dates = {};
+    this->test_dates = {};
 
     // Conversion rate when the base of asset traded is different of the account currency
     this->base_currency_conversion_rate = {};
@@ -156,31 +157,30 @@ void Training::load_candles(bool display_progress)
     // Load the candles from data for all the timeframes
     for (const TimeFrame &tf : all_timeframes)
     {
-        time_t start_date = this->config.training.training_start_date - get_time_frame_in_minutes(highest_timeframe) * 60 * 2 * CANDLES_WINDOW;
+        time_t start_date = this->config.training.training_start_date - 7 * 24 * 60 * 60; // 7 days before the training start date
         time_t end_date = this->config.training.test_end_date;
-
-        // Find the first date that is not a weekend
-        struct tm *tm = localtime(&start_date);
-        while (tm->tm_wday == 0 || tm->tm_wday == 6)
-        {
-            start_date -= 24 * 60 * 60;
-            tm = localtime(&start_date);
-        }
-
         candles[tf] = read_data(config.general.symbol, tf, start_date, end_date);
     }
 
-    // Filter the dates from the candles in the loop timeframe
+    // Save the dates for the training and test periods
     for (const auto &candle : candles[loop_timeframe])
     {
-        if (candle.date >= this->config.training.training_start_date && candle.date <= this->config.training.training_end_date)
+        if (candle.date >= this->config.training.training_start_date && candle.date <= this->config.training.test_end_date)
         {
             this->dates.push_back(candle.date);
+        }
+        if (candle.date >= this->config.training.training_start_date && candle.date <= this->config.training.training_end_date)
+        {
+            this->training_dates.push_back(candle.date);
+        }
+        if (candle.date >= this->config.training.test_start_date && candle.date <= this->config.training.test_end_date)
+        {
+            this->test_dates.push_back(candle.date);
         }
     }
 
     // Progress bar
-    ProgressBar *progress_bar = display_progress ? new ProgressBar(100, dates.size()) : nullptr;
+    ProgressBar *progress_bar = display_progress ? new ProgressBar(100, this->dates.size()) : nullptr;
 
     // Loop through the dates and get the candles for each timeframe
     for (const auto &date : this->dates)
@@ -201,7 +201,7 @@ void Training::load_candles(bool display_progress)
 
             if (current_candles[tf].size() < CANDLES_WINDOW)
             {
-                std::cerr << "Error: not enough candles for the date " << time_t_to_string(date) << std::endl;
+                std::cerr << "Error: not enough candles for the date " << time_t_to_string(date) << ", have only " << current_candles[tf].size() << " candles" << std::endl;
                 std::exit(1);
             }
         }
@@ -255,7 +255,7 @@ void Training::load_indicators(bool display_progress)
     }
 
     std::map<TimeFrame, std::vector<Indicator *>> all_indicators = config.training.inputs.indicators;
-    ProgressBar *progress_bar = display_progress ? new ProgressBar(100, dates.size()) : nullptr;
+    ProgressBar *progress_bar = display_progress ? new ProgressBar(100, this->dates.size()) : nullptr;
 
     // Loop through the dates
     for (const auto &date : this->dates)
@@ -551,26 +551,16 @@ void Training::evaluate_genome(neat::Genome *genome, int generation)
         trader->logger = new Logger(this->directory.generic_string() + "/logs/training/trader_" + genome->id + ".log");
     }
 
-    // Get the dates for the training from the candles in the loop timeframe
-    std::vector<std::string> dates = {};
-    for (const auto &[date_string, value] : this->cache->data)
-    {
-        time_t date = std::stoll(date_string); // Convert the string to time_t
-        if (date >= this->config.training.training_start_date && date <= this->config.training.training_end_date)
-        {
-            dates.push_back(date_string);
-        }
-    }
-
     // Loop through the dates and update the trader
-    for (const auto &date : dates)
+    for (const auto &date : this->training_dates)
     {
-        if (this->cache->has(date))
+        std::string date_string = std::to_string(date);
+        if (this->cache->has(date_string))
         {
             // Get the data from cache
-            CandlesData current_candles = this->cache->get(date).candles;
-            IndicatorsData current_indicators = this->cache->get(date).indicators;
-            double current_base_currency_conversion_rate = this->cache->get(date).base_currency_conversion_rate;
+            CandlesData current_candles = this->cache->get(date_string).candles;
+            IndicatorsData current_indicators = this->cache->get(date_string).indicators;
+            double current_base_currency_conversion_rate = this->cache->get(date_string).base_currency_conversion_rate;
             std::vector<PositionInfo> position = this->config.training.inputs.position;
 
             // Do not continue if the trader is dead
@@ -710,26 +700,16 @@ int Training::test(neat::Genome *genome, int generation)
         vision_file = std::ofstream(vision_file_path);
     }
 
-    // Get the dates for the test from the candles in the loop timeframe
-    std::vector<std::string> dates = {};
-    for (const auto &[date_string, value] : this->cache->data)
-    {
-        time_t date = std::stoll(date_string); // Convert the string to time_t
-        if (date >= this->config.training.test_start_date && date <= this->config.training.test_end_date)
-        {
-            dates.push_back(date_string);
-        }
-    }
-
     // Loop through the dates and update the trader
-    for (const auto &date : dates)
+    for (const auto &date : this->test_dates)
     {
-        if (this->cache->has(date))
+        std::string date_string = std::to_string(date);
+        if (this->cache->has(date_string))
         {
             // Get the data from cache
-            CandlesData current_candles = this->cache->get(date).candles;
-            IndicatorsData current_indicators = this->cache->get(date).indicators;
-            double current_base_currency_conversion_rate = this->cache->get(date).base_currency_conversion_rate;
+            CandlesData current_candles = this->cache->get(date_string).candles;
+            IndicatorsData current_indicators = this->cache->get(date_string).indicators;
+            double current_base_currency_conversion_rate = this->cache->get(date_string).base_currency_conversion_rate;
             std::vector<PositionInfo> position = this->config.training.inputs.position;
 
             // Update the individual
@@ -741,8 +721,7 @@ int Training::test(neat::Genome *genome, int generation)
             if (this->debug)
             {
                 // Save the decision to the file
-                time_t time = std::stoll(date);
-                std::string date_string = time_t_to_string(time);
+                std::string date_string = time_t_to_string(date);
 
                 decisions_file << date_string << ";" << decision << std::endl;
 
@@ -787,30 +766,8 @@ int Training::test(neat::Genome *genome, int generation)
  */
 int Training::evaluate_trader_with_monte_carlo_simulation(Trader *trader, int nb_simulations, double note_threshold)
 {
-    // Get the dates for the testing period from the candles in the loop timeframe
-    std::vector<std::string> training_dates = {};
-    for (const auto &[date_string, value] : this->cache->data)
-    {
-        time_t date = std::stoll(date_string); // Convert the string to time_t
-        if (date >= this->config.training.training_start_date && date <= this->config.training.training_end_date)
-        {
-            training_dates.push_back(date_string);
-        }
-    }
-
-    // Get the dates for the test period from the candles in the loop timeframe
-    std::vector<std::string> test_dates = {};
-    for (const auto &[date_string, value] : this->cache->data)
-    {
-        time_t date = std::stoll(date_string); // Convert the string to time_t
-        if (date >= this->config.training.test_start_date && date <= this->config.training.test_end_date)
-        {
-            test_dates.push_back(date_string);
-        }
-    }
-
     // Number of trades to simulate in the testing period proportionally to the number of trades in the training period
-    int nb_trades_to_simulate = trader->stats.total_trades * test_dates.size() / training_dates.size();
+    int nb_trades_to_simulate = trader->stats.total_trades * this->test_dates.size() / this->training_dates.size();
 
     // Monte Carlo simulation
     std::vector<double> simulation_final_balance = std::vector<double>(nb_simulations, this->config.general.initial_balance);

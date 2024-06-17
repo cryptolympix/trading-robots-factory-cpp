@@ -339,7 +339,7 @@ int Trader::trade()
     bool has_short_position = has_position && this->current_position->side == PositionSide::SHORT;
 
     // Decision taken
-    double decision_threshold = this->config.training.decision_threshold.value_or(0.8);
+    double decision_threshold = this->config.training.decision_threshold.value_or(0.0);
     bool want_long = false;
     bool want_short = false;
     bool want_close_long = false;

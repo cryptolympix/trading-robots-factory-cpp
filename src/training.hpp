@@ -40,7 +40,9 @@ public:
     BaseCurrencyConversionRateData base_currency_conversion_rate; // Conversion rate when the base asset traded is different from the account currency.
     Cache *cache;                                                 // Cached data for faster access.
 
-    std::vector<time_t> dates; // The list of dates to parse in the simulation
+    std::vector<time_t> dates;          // All dates available in the data.
+    std::vector<time_t> training_dates; // Dates used for training period.
+    std::vector<time_t> test_dates;     // Dates used for testing period.
 
     neat::Population *population;                 // NEAT population for evolution.
     std::map<int, std::vector<Trader *>> traders; // Map of traders for each generation.

@@ -303,8 +303,8 @@ struct TrainingConfig
     time_t training_end_date;                        // End date for training
     time_t test_start_date;                          // Start date for testing
     time_t test_end_date;                            // End date for testing
-    NeuralNetworkInputs inputs;                      // Inputs for neural network
     std::optional<double> decision_threshold;        // Decision threshold for buy/sell signals
+    NeuralNetworkInputs inputs;                      // Inputs for neural network
 };
 
 /**

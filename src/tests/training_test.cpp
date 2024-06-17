@@ -162,6 +162,8 @@ TEST_F(TrainingTest, LoadCandles)
 
     ASSERT_FALSE(training->candles.empty());
     ASSERT_FALSE(training->dates.empty());
+    ASSERT_FALSE(training->training_dates.empty());
+    ASSERT_FALSE(training->test_dates.empty());
 
     for (int i = 0; i < training->dates.size(); ++i)
     {
