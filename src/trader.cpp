@@ -709,6 +709,12 @@ void Trader::calculate_fitness()
     {
         this->fitness *= expected_return_eval;
     }
+
+    if (this->fitness < 0)
+    {
+        std::cerr << "Fitness is negative: " << this->fitness << std::endl;
+        std::exit(1);
+    }
 }
 
 /**

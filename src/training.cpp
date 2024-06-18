@@ -120,6 +120,25 @@ void Training::prepare()
     {
         std::cout << "⏳ Import the data from the cache..." << std::endl;
         this->cache = Cache::load(this->cache_file.generic_string());
+
+        // Save the dates for the training and test periods
+        for (const auto &[date_string, data] : this->cache->data)
+        {
+            time_t date = std::stol(date_string);
+            if (date >= this->config.training.training_start_date && date <= this->config.training.test_end_date)
+            {
+                this->dates.push_back(date);
+            }
+            if (date >= this->config.training.training_start_date && date <= this->config.training.training_end_date)
+            {
+                this->training_dates.push_back(date);
+            }
+            if (date >= this->config.training.test_start_date && date <= this->config.training.test_end_date)
+            {
+                this->test_dates.push_back(date);
+            }
+        }
+
         std::cout << "✅ Cache loaded!" << std::endl;
     }
     else
@@ -165,17 +184,18 @@ void Training::load_candles(bool display_progress)
     // Save the dates for the training and test periods
     for (const auto &candle : candles[loop_timeframe])
     {
-        if (candle.date >= this->config.training.training_start_date && candle.date <= this->config.training.test_end_date)
+        time_t date = candle.date;
+        if (date >= this->config.training.training_start_date && date <= this->config.training.test_end_date)
         {
-            this->dates.push_back(candle.date);
+            this->dates.push_back(date);
         }
-        if (candle.date >= this->config.training.training_start_date && candle.date <= this->config.training.training_end_date)
+        if (date >= this->config.training.training_start_date && date <= this->config.training.training_end_date)
         {
-            this->training_dates.push_back(candle.date);
+            this->training_dates.push_back(date);
         }
-        if (candle.date >= this->config.training.test_start_date && candle.date <= this->config.training.test_end_date)
+        if (date >= this->config.training.test_start_date && date <= this->config.training.test_end_date)
         {
-            this->test_dates.push_back(candle.date);
+            this->test_dates.push_back(date);
         }
     }
 
