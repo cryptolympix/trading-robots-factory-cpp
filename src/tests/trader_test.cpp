@@ -36,19 +36,21 @@ protected:
                 .account_currency = "USD",
             },
             .strategy = {
-                .timeframe = TimeFrame::H1,
+                .timeframe = TimeFrame::M15,
                 .risk_per_trade = 0.02,
                 .maximum_spread = 8,
                 .minimum_trade_duration = 2,
                 .maximum_trade_duration = 4,
                 .minimum_duration_before_next_trade = 4,
                 .maximum_trades_per_day = 2,
+                .can_open_long_trade = true,
+                .can_open_short_trade = true,
                 .take_profit_stop_loss_config = {
                     .type_stop_loss = TypeTakeProfitStopLoss::POINTS,
-                    .stop_loss_in_points = 300,
+                    .stop_loss_in_points = 30,
                     .stop_loss_in_percent = 0.01,
                     .type_take_profit = TypeTakeProfitStopLoss::POINTS,
-                    .take_profit_in_points = 300,
+                    .take_profit_in_points = 30,
                     .take_profit_in_percent = 0.01,
                 },
                 .trading_schedule = TradingSchedule{
@@ -108,50 +110,12 @@ protected:
 
         // Trader configurations
         trader = new Trader(new neat::Genome(config.neat), config, nullptr);
-        trader->balance = config.general.initial_balance;
-        trader->current_position = nullptr;
-        trader->open_orders = {};
-        trader->balance_history = {};
-        trader->trades_history = {};
-        trader->decisions = {0, 0, 1};
-        trader->current_date = date;
-        trader->candles = {{TimeFrame::H1, {
-                                               Candle{.date = date, .close = 1.0},
-                                           }}};
+        trader->decisions = {0, 0, 1}; // No action
         trader->current_base_currency_conversion_rate = 1;
-        trader->stats = {
-            .initial_balance = config.general.initial_balance,
-            .final_balance = config.general.initial_balance,
-            .total_net_profit = 0,
-            .total_profit = 0,
-            .total_loss = 0,
-            .total_fees = 0,
-            .total_trades = 0,
-            .total_long_trades = 0,
-            .total_short_trades = 0,
-            .total_winning_trades = 0,
-            .total_winning_long_trades = 0,
-            .total_winning_short_trades = 0,
-            .total_lost_trades = 0,
-            .total_lost_long_trades = 0,
-            .total_lost_short_trades = 0,
-            .max_consecutive_winning_trades = 0,
-            .max_consecutive_lost_trades = 0,
-            .profit_factor = 0,
-            .max_drawdown = 0,
-            .win_rate = 0,
-            .long_win_rate = 0,
-            .short_win_rate = 0,
-            .average_profit = 0,
-            .average_loss = 0,
-            .max_profit = 0,
-            .max_loss = 0,
-            .max_consecutive_profit = 0,
-            .max_consecutive_loss = 0,
-            .average_trade_duration = 0,
-            .sharpe_ratio = 0,
-            .sortino_ratio = 0,
-        };
+        trader->current_date = date;
+        trader->candles = {{TimeFrame::M15, {
+                                                Candle{.date = date, .close = 1.0},
+                                            }}};
     }
 
     void TearDown() override
@@ -205,7 +169,7 @@ TEST_F(TraderTest, UpdateWithNewDay)
     std::vector<Candle> candles_current_day = {
         Candle{.date = date, .close = 1.0},
     };
-    CandlesData candles_data_current_day = {{TimeFrame::H1, candles_current_day}};
+    CandlesData candles_data_current_day = {{TimeFrame::M15, candles_current_day}};
 
     // Call the update method
     trader->update(candles_data_current_day);
@@ -217,7 +181,7 @@ TEST_F(TraderTest, UpdateWithNewDay)
         Candle{.date = date, .close = 1.0},
         Candle{.date = date + 24 * 60 * 60, .close = 1.1},
     };
-    CandlesData candles_data = {{TimeFrame::H1, candles_next_day}};
+    CandlesData candles_data = {{TimeFrame::M15, candles_next_day}};
 
     // Call the update method
     trader->update(candles_data);
@@ -249,7 +213,7 @@ TEST_F(TraderTest, UpdateWithPositionLiquidation)
     trader->open_position_by_market(100.0, 0.01, OrderSide::LONG);
 
     // Simulate liquidation condition
-    trader->candles[TimeFrame::H1][0].close = 99.0;
+    trader->candles[TimeFrame::M15][0].close = 99.0;
 
     // Call the update method
     trader->update(trader->candles);
@@ -300,9 +264,9 @@ TEST_F(TraderTest, UpdateWithBadTrader)
 TEST_F(TraderTest, CheckTpOrderHit)
 {
     // Mock data
-    trader->candles = {{TimeFrame::H1, {
-                                           Candle{.close = 1.00500, .high = 1.00600, .low = 0.99900, .spread = 2},
-                                       }}};
+    trader->candles = {{TimeFrame::M15, {
+                                            Candle{.close = 1.00500, .high = 1.00600, .low = 0.99900, .spread = 2},
+                                        }}};
 
     // Simulate a long position
     trader->open_position_by_market(1.00000, 1.0, OrderSide::LONG);
@@ -344,9 +308,9 @@ TEST_F(TraderTest, CheckTpOrderHit)
 TEST_F(TraderTest, CheckSlOrderHit)
 {
     // Mock data
-    trader->candles = {{TimeFrame::H1, {
-                                           Candle{.close = 0.99400, .high = 1.00500, .low = 0.99300, .spread = 2},
-                                       }}};
+    trader->candles = {{TimeFrame::M15, {
+                                            Candle{.close = 0.99400, .high = 1.00500, .low = 0.99300, .spread = 2},
+                                        }}};
 
     // Simulate a long position
     trader->open_position_by_market(1.00000, 1.0, OrderSide::LONG);
@@ -596,7 +560,7 @@ TEST_F(TraderTest, ClosePositionForDurationExceeded)
 
     // Call the update method
     time_t new_date = date + get_time_frame_in_minutes(config.strategy.timeframe) * 60;
-    trader->candles.at(TimeFrame::H1).push_back(Candle{.date = new_date, .close = 1.00});
+    trader->candles.at(TimeFrame::M15).push_back(Candle{.date = new_date, .close = 1.00});
     trader->update(trader->candles);
 
     // Assertions
@@ -679,14 +643,14 @@ TEST_F(TraderTest, CloseTraderBeforeWeekend)
     // Set trader's date to friday
     struct tm date_tm = {
         .tm_sec = 0,
-        .tm_min = 0,
+        .tm_min = 45,
         .tm_hour = 23,
         .tm_mday = 12,
         .tm_mon = 0,
         .tm_year = 2024 - 1900,
     };
     time_t date = std::mktime(&date_tm);
-    trader->candles[TimeFrame::H1].push_back(Candle{.date = date, .close = 1.0});
+    trader->candles[TimeFrame::M15].push_back(Candle{.date = date, .close = 1.0});
 
     // Open a position
     trader->open_position_by_market(1.00, 1.0, OrderSide::LONG);
@@ -713,10 +677,10 @@ TEST_F(TraderTest, CreateTpSlForLongPosition)
     ASSERT_EQ(trader->open_orders.size(), 2);
     ASSERT_EQ(trader->open_orders[0].side, OrderSide::SHORT);
     ASSERT_EQ(trader->open_orders[0].type, OrderType::TAKE_PROFIT);
-    ASSERT_EQ(trader->open_orders[0].price, 1.03000);
+    ASSERT_EQ(trader->open_orders[0].price, 1.00300);
     ASSERT_EQ(trader->open_orders[1].side, OrderSide::SHORT);
     ASSERT_EQ(trader->open_orders[1].type, OrderType::STOP_LOSS);
-    ASSERT_EQ(trader->open_orders[1].price, 0.97000);
+    ASSERT_EQ(trader->open_orders[1].price, 0.99700);
 }
 
 TEST_F(TraderTest, CreateTpSlForShortPosition)
@@ -731,10 +695,10 @@ TEST_F(TraderTest, CreateTpSlForShortPosition)
     ASSERT_EQ(trader->open_orders.size(), 2);
     ASSERT_EQ(trader->open_orders[0].side, OrderSide::LONG);
     ASSERT_EQ(trader->open_orders[0].type, OrderType::TAKE_PROFIT);
-    ASSERT_EQ(trader->open_orders[0].price, 0.97000);
+    ASSERT_EQ(trader->open_orders[0].price, 0.99700);
     ASSERT_EQ(trader->open_orders[1].side, OrderSide::LONG);
     ASSERT_EQ(trader->open_orders[1].type, OrderType::STOP_LOSS);
-    ASSERT_EQ(trader->open_orders[1].price, 1.03000);
+    ASSERT_EQ(trader->open_orders[1].price, 1.00300);
 }
 
 TEST_F(TraderTest, TradeNotOutOfTradingSchedule)
@@ -835,9 +799,9 @@ TEST_F(TraderTest, TradeNotWhenSpreadHigh)
     trader->decisions = {1.0, 0.0, 0.0};
 
     // Mock data for testing
-    trader->candles = {{TimeFrame::H1, {
-                                           Candle{.date = date, .close = 1.0, .spread = config.strategy.maximum_spread.value() + 1},
-                                       }}};
+    trader->candles = {{TimeFrame::M15, {
+                                            Candle{.date = date, .close = 1.0, .spread = config.strategy.maximum_spread.value() + 1},
+                                        }}};
 
     // Call the trade method
     trader->trade();
@@ -890,9 +854,9 @@ TEST_F(TraderTest, RespectNumberOfTradesPerDay)
 TEST_F(TraderTest, UpdateLongPositionPnl)
 {
     // Mock data for testing
-    trader->candles = {{TimeFrame::H1, {
-                                           Candle{.date = date, .close = 1.00100},
-                                       }}};
+    trader->candles = {{TimeFrame::M15, {
+                                            Candle{.date = date, .close = 1.00100},
+                                        }}};
     trader->current_position = new Position{.entry_date = date, .entry_price = 1.00000, .size = 1.0, .side = PositionSide::LONG, .pnl = 0.0};
 
     // Call the update_position_pnl method
@@ -905,9 +869,9 @@ TEST_F(TraderTest, UpdateLongPositionPnl)
 TEST_F(TraderTest, UpdateShortPositionPnl)
 {
     // Mock data for testing
-    trader->candles = {{TimeFrame::H1, {
-                                           Candle{.date = date, .close = 0.99900},
-                                       }}};
+    trader->candles = {{TimeFrame::M15, {
+                                            Candle{.date = date, .close = 0.99900},
+                                        }}};
     trader->current_position = new Position{.entry_date = date, .entry_price = 1.00000, .size = 1.0, .side = PositionSide::SHORT, .pnl = 0.0};
 
     // Call the update_position_pnl method
@@ -915,6 +879,114 @@ TEST_F(TraderTest, UpdateShortPositionPnl)
 
     // Check if pnl is updated correctly for a short position
     ASSERT_EQ(trader->current_position->pnl, 100.0);
+}
+
+TEST_F(TraderTest, TrailingStopLossForLong)
+{
+    trader->config.strategy.trailing_stop_loss_config = {
+        .type_trailing_stop_loss = TypeTrailingStopLoss::POINTS,
+        .activation_level_in_points = 20,
+        .trailing_stop_loss_in_points = 10,
+    };
+
+    // Simulate a long position
+    trader->open_position_by_market(1.00000, 1.0, OrderSide::LONG);
+
+    // Set stop loss order
+    trader->open_orders = {
+        {.side = OrderSide::SHORT, .type = OrderType::TAKE_PROFIT, .price = 1.00500},
+        {.side = OrderSide::SHORT, .type = OrderType::STOP_LOSS, .price = 0.99700},
+    };
+
+    // Simulate a new candle
+    trader->candles[TimeFrame::M15].push_back(Candle{.date = date, .close = 1.00000 + 20 * symbol_info.point_value});
+
+    // Call the update method
+    trader->update_trailing_stop_loss();
+
+    // Check the stop loss order updated by the trailing stop loss
+    ASSERT_NE(trader->current_position, nullptr);
+    ASSERT_EQ(trader->open_orders[1].side, OrderSide::SHORT);
+    ASSERT_EQ(trader->open_orders[1].type, OrderType::STOP_LOSS);
+    ASSERT_DOUBLE_EQ(trader->open_orders[1].price, 1.00000 + 10 * symbol_info.point_value);
+
+    // Simulate a new candle
+    trader->candles[TimeFrame::M15].push_back(Candle{.date = date, .close = 1.00000 + 15 * symbol_info.point_value});
+
+    // Call the update method
+    trader->update_trailing_stop_loss();
+
+    // Check the stop loss order updated by the trailing stop loss
+    ASSERT_NE(trader->current_position, nullptr);
+    ASSERT_EQ(trader->open_orders[1].side, OrderSide::SHORT);
+    ASSERT_EQ(trader->open_orders[1].type, OrderType::STOP_LOSS);
+    ASSERT_DOUBLE_EQ(trader->open_orders[1].price, 1.00000 + 10 * symbol_info.point_value);
+
+    // Simulate a new candle
+    trader->candles[TimeFrame::M15].push_back(Candle{.date = date, .close = 1.00000 + 30 * symbol_info.point_value});
+
+    // Call the update method
+    trader->update_trailing_stop_loss();
+
+    // Check the stop loss order updated by the trailing stop loss
+    ASSERT_NE(trader->current_position, nullptr);
+    ASSERT_EQ(trader->open_orders[1].side, OrderSide::SHORT);
+    ASSERT_EQ(trader->open_orders[1].type, OrderType::STOP_LOSS);
+    ASSERT_DOUBLE_EQ(trader->open_orders[1].price, 1.00000 + 20 * symbol_info.point_value);
+}
+
+TEST_F(TraderTest, TrailingStopLossForShort)
+{
+    trader->config.strategy.trailing_stop_loss_config = {
+        .type_trailing_stop_loss = TypeTrailingStopLoss::PERCENT,
+        .activation_level_in_percent = 0.01,
+        .trailing_stop_loss_in_percent = 0.005,
+    };
+
+    // Simulate a short position
+    trader->open_position_by_market(1.00000, 1.0, OrderSide::SHORT);
+
+    // Set stop loss order
+    trader->open_orders = {
+        {.side = OrderSide::LONG, .type = OrderType::TAKE_PROFIT, .price = 0.95000},
+        {.side = OrderSide::LONG, .type = OrderType::STOP_LOSS, .price = 1.00300},
+    };
+
+    // Simulate a new candle
+    trader->candles[TimeFrame::M15].push_back(Candle{.date = date, .close = 0.99000});
+
+    // Call the update method
+    trader->update_trailing_stop_loss();
+
+    // Check the stop loss order updated by the trailing stop loss
+    ASSERT_NE(trader->current_position, nullptr);
+    ASSERT_EQ(trader->open_orders[1].side, OrderSide::LONG);
+    ASSERT_EQ(trader->open_orders[1].type, OrderType::STOP_LOSS);
+    ASSERT_DOUBLE_EQ(trader->open_orders[1].price, 0.994950);
+
+    // Simulate a new candle
+    trader->candles[TimeFrame::M15].push_back(Candle{.date = date, .close = 0.99600});
+
+    // Call the update method
+    trader->update_trailing_stop_loss();
+
+    // Check the stop loss order updated by the trailing stop loss
+    ASSERT_NE(trader->current_position, nullptr);
+    ASSERT_EQ(trader->open_orders[1].side, OrderSide::LONG);
+    ASSERT_EQ(trader->open_orders[1].type, OrderType::STOP_LOSS);
+    ASSERT_DOUBLE_EQ(trader->open_orders[1].price, 0.994950);
+
+    // Simulate a new candle
+    trader->candles[TimeFrame::M15].push_back(Candle{.date = date, .close = 0.98000});
+
+    // Call the update method
+    trader->update_trailing_stop_loss();
+
+    // Check the stop loss order updated by the trailing stop loss
+    ASSERT_NE(trader->current_position, nullptr);
+    ASSERT_EQ(trader->open_orders[1].side, OrderSide::LONG);
+    ASSERT_EQ(trader->open_orders[1].type, OrderType::STOP_LOSS);
+    ASSERT_DOUBLE_EQ(trader->open_orders[1].price, 0.98490);
 }
 
 TEST_F(TraderTest, CalculateStatsDrawdown)

@@ -244,18 +244,18 @@ enum class TypeTrailingStopLoss
  */
 struct TakeProfitStopLossConfig
 {
-    TypeTakeProfitStopLoss type_stop_loss;             // Type of stop loss
-    std::optional<double> stop_loss_in_points;         // Stop loss in points
-    std::optional<double> stop_loss_in_percent;        // Stop loss as a percentage
-    std::optional<double> stop_loss_extremum_period;   // Stop loss based on extremum
-    std::optional<double> stop_loss_atr_period;        // Stop loss based on ATR
-    std::optional<double> stop_loss_atr_multiplier;    // Stop loss based on ATR
-    TypeTakeProfitStopLoss type_take_profit;           // Type of take profit
-    std::optional<double> take_profit_in_points;       // Take profit in points
-    std::optional<double> take_profit_in_percent;      // Take profit as a percentage
-    std::optional<double> take_profit_extremum_period; // Take profit based on extremum
-    std::optional<int> take_profit_atr_period;         // Take profit based on ATR
-    std::optional<double> take_profit_atr_multiplier;  // Take profit based on ATR
+    TypeTakeProfitStopLoss type_stop_loss;            // Type of stop loss
+    std::optional<int> stop_loss_in_points;           // Stop loss in points
+    std::optional<double> stop_loss_in_percent;       // Stop loss as a percentage
+    std::optional<int> stop_loss_extremum_period;     // Stop loss based on extremum
+    std::optional<int> stop_loss_atr_period;          // Stop loss based on ATR
+    std::optional<double> stop_loss_atr_multiplier;   // Stop loss based on ATR
+    TypeTakeProfitStopLoss type_take_profit;          // Type of take profit
+    std::optional<int> take_profit_in_points;         // Take profit in points
+    std::optional<double> take_profit_in_percent;     // Take profit as a percentage
+    std::optional<int> take_profit_extremum_period;   // Take profit based on extremum
+    std::optional<int> take_profit_atr_period;        // Take profit based on ATR
+    std::optional<double> take_profit_atr_multiplier; // Take profit based on ATR
 };
 
 /**
@@ -264,11 +264,10 @@ struct TakeProfitStopLossConfig
 struct TrailingStopLossConfig
 {
     TypeTrailingStopLoss type_trailing_stop_loss;        // Type of trailing stop loss
-    std::optional<double> activation_level_in_points;    // Activation level in points before trailing stop loss is activated
+    std::optional<int> activation_level_in_points;       // Activation level in points before trailing stop loss is activated
     std::optional<double> activation_level_in_percent;   // Activation level as a percentage before trailing stop loss is activated
-    std::optional<double> trailing_stop_loss_in_points;  // Trailing stop loss in points
+    std::optional<int> trailing_stop_loss_in_points;     // Trailing stop loss in points
     std::optional<double> trailing_stop_loss_in_percent; // Trailing stop loss as a percentage
-    std::optional<double> trailing_stop_loss_step;       // Trailing stop loss step
 };
 
 /**

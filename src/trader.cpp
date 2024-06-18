@@ -341,54 +341,13 @@ int Trader::trade()
 
     // Decision taken
     double decision_threshold = this->config.training.decision_threshold.value_or(0.0);
-    bool want_long = false;
-    bool want_short = false;
-    bool want_close_long = false;
-    bool want_close_short = false;
-    bool wait = true;
+    int decision = std::distance(this->decisions.begin(), std::max_element(this->decisions.begin(), this->decisions.end()));
+    bool want_long = decision == 0 && this->decisions[0] >= decision_threshold;
+    bool want_short = decision == 1 && this->decisions[1] >= decision_threshold;
+    bool wait = decision == 2;
 
     // Get the index of the maximum value in the decisions
     int max_decision_index = std::distance(this->decisions.begin(), std::max_element(this->decisions.begin(), this->decisions.end()));
-
-    int index_decision = 0;
-    if (this->config.strategy.can_open_long_trade.value_or(true))
-    {
-        if (max_decision_index == index_decision && this->decisions[index_decision] >= decision_threshold)
-        {
-            want_long = true;
-            wait = false;
-        }
-        index_decision++;
-
-        if (this->config.strategy.can_close_trade.value_or(false))
-        {
-            if (max_decision_index == index_decision && has_long_position && this->decisions[index_decision] >= decision_threshold)
-            {
-                want_close_long = true;
-                wait = false;
-            }
-            index_decision++;
-        }
-    }
-    if (this->config.strategy.can_open_short_trade.value_or(true))
-    {
-        if (max_decision_index == index_decision && this->decisions[index_decision] >= decision_threshold)
-        {
-            want_short = true;
-            wait = false;
-        }
-        index_decision++;
-
-        if (this->config.strategy.can_close_trade.value_or(false))
-        {
-            if (max_decision_index == index_decision && has_short_position && this->decisions[index_decision] >= decision_threshold)
-            {
-                want_close_short = true;
-                wait = false;
-            }
-            index_decision++;
-        }
-    }
 
     if (!wait)
     {
@@ -408,12 +367,12 @@ int Trader::trade()
         {
             if (has_position)
             {
-                if (has_long_position && want_close_long && can_close_position)
+                if (has_long_position && want_short && can_close_position)
                 {
                     this->close_position_by_market(last_candle.close);
                     return 3; // Close
                 }
-                else if (has_short_position && want_close_short && can_close_position)
+                else if (has_short_position && want_long && can_close_position)
                 {
                     this->close_position_by_market(last_candle.close);
                     return 3; // Close
@@ -463,12 +422,12 @@ int Trader::trade()
         }
         else if (has_position)
         {
-            if (has_long_position && want_close_long && can_close_position)
+            if (has_long_position && want_short && can_close_position)
             {
                 this->close_position_by_market(last_candle.close);
                 return 3; // Close
             }
-            else if (has_short_position && want_close_short && can_close_position)
+            else if (has_short_position && want_long && can_close_position)
             {
                 this->close_position_by_market(last_candle.close);
                 return 3; // Close
@@ -1314,7 +1273,7 @@ void Trader::update_trailing_stop_loss()
     }
 
     TrailingStopLossConfig config = this->config.strategy.trailing_stop_loss_config.value();
-    Order *stop_loss_order = this->open_orders[0].type == OrderType::STOP_LOSS ? &this->open_orders[0] : &this->open_orders[1];
+    Order *stop_loss_order = &this->open_orders[1];
     double current_price = this->candles[this->config.strategy.timeframe].back().close;
 
     if (config.type_trailing_stop_loss == TypeTrailingStopLoss::PERCENT)

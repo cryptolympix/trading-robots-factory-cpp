@@ -42,23 +42,7 @@ Training::Training(std::string id, Config &config, bool debug)
 
     // Set the number of inputs and outputs for the NEAT algorithm
     this->config.neat.num_inputs = this->count_indicators() + this->config.training.inputs.position.size();
-    this->config.neat.num_outputs = 0; // At least one output for the decision to wait
-    if (this->config.strategy.can_open_long_trade.value_or(true))
-    {
-        this->config.neat.num_outputs++;
-        if (this->config.strategy.can_close_trade.value_or(false))
-        {
-            this->config.neat.num_outputs++;
-        }
-    }
-    if (this->config.strategy.can_open_short_trade.value_or(true))
-    {
-        this->config.neat.num_outputs++;
-        if (this->config.strategy.can_close_trade.value_or(false))
-        {
-            this->config.neat.num_outputs++;
-        }
-    }
+    this->config.neat.num_outputs = 3; // Buy, Sell, Wait
 
     // Initialize the population.
     this->population = new neat::Population(this->config.neat);
