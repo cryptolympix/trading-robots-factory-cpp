@@ -231,6 +231,15 @@ enum class TypeTakeProfitStopLoss
 };
 
 /**
+ * @brief Enum for different types of trailing stop loss configurations.
+ */
+enum class TypeTrailingStopLoss
+{
+    POINTS,
+    PERCENT,
+};
+
+/**
  * @brief Struct representing take profit and stop loss configuration.
  */
 struct TakeProfitStopLossConfig
@@ -245,8 +254,21 @@ struct TakeProfitStopLossConfig
     std::optional<double> take_profit_in_points;       // Take profit in points
     std::optional<double> take_profit_in_percent;      // Take profit as a percentage
     std::optional<double> take_profit_extremum_period; // Take profit based on extremum
-    std::optional<double> take_profit_atr_period;      // Take profit based on ATR
+    std::optional<int> take_profit_atr_period;         // Take profit based on ATR
     std::optional<double> take_profit_atr_multiplier;  // Take profit based on ATR
+};
+
+/**
+ * @brief Struct representing trailing stop loss configuration.
+ */
+struct TrailingStopLossConfig
+{
+    TypeTrailingStopLoss type_trailing_stop_loss;        // Type of trailing stop loss
+    std::optional<double> activation_level_in_points;    // Activation level in points before trailing stop loss is activated
+    std::optional<double> activation_level_in_percent;   // Activation level as a percentage before trailing stop loss is activated
+    std::optional<double> trailing_stop_loss_in_points;  // Trailing stop loss in points
+    std::optional<double> trailing_stop_loss_in_percent; // Trailing stop loss as a percentage
+    std::optional<double> trailing_stop_loss_step;       // Trailing stop loss step
 };
 
 /**
@@ -268,18 +290,19 @@ struct TradingSchedule
  */
 struct StrategyConfig
 {
-    TimeFrame timeframe;                                   // Time frame
-    double risk_per_trade;                                 // Risk per trade
-    std::optional<int> maximum_trades_per_day;             // Maximum trades per day
-    std::optional<double> maximum_spread;                  // Maximum spread
-    std::optional<int> minimum_trade_duration;             // Minimum trade duration
-    std::optional<int> maximum_trade_duration;             // Maximum trade duration
-    std::optional<int> minimum_duration_before_next_trade; // Minimum duration before the next trade
-    std::optional<bool> can_close_trade;                   // Whether the strategy can close a trade
-    std::optional<bool> can_open_long_trade;               // Whether the strategy can open a long trade
-    std::optional<bool> can_open_short_trade;              // Whether the strategy can open a short trade
-    TakeProfitStopLossConfig take_profit_stop_loss_config; // Take profit and stop loss configuration
-    std::optional<TradingSchedule> trading_schedule;       // Trading schedule
+    TimeFrame timeframe;                                             // Time frame
+    double risk_per_trade;                                           // Risk per trade
+    std::optional<int> maximum_trades_per_day;                       // Maximum trades per day
+    std::optional<double> maximum_spread;                            // Maximum spread
+    std::optional<int> minimum_trade_duration;                       // Minimum trade duration
+    std::optional<int> maximum_trade_duration;                       // Maximum trade duration
+    std::optional<int> minimum_duration_before_next_trade;           // Minimum duration before the next trade
+    std::optional<bool> can_close_trade;                             // Whether the strategy can close a trade
+    std::optional<bool> can_open_long_trade;                         // Whether the strategy can open a long trade
+    std::optional<bool> can_open_short_trade;                        // Whether the strategy can open a short trade
+    TakeProfitStopLossConfig take_profit_stop_loss_config;           // Take profit and stop loss configuration
+    std::optional<TradingSchedule> trading_schedule;                 // Trading schedule
+    std::optional<TrailingStopLossConfig> trailing_stop_loss_config; // Trailing stop loss configuration
 };
 
 /**

@@ -236,6 +236,7 @@ void Trader::update(CandlesData &candles)
 
     // Update the position
     this->update_position_pnl();
+    this->update_trailing_stop_loss();
     this->check_open_orders();
     this->check_position_liquidation();
 
@@ -614,7 +615,7 @@ void Trader::calculate_fitness()
             for (const auto &daily_return : daily_returns)
             {
                 double diff = 10 * std::max(0.0, goals.expected_return_per_day.value() - daily_return.second);
-                expected_return_per_day_eval += (expected_return_per_day_weight * nb_days) / (nb_days * std::exp(diff));
+                expected_return_per_day_eval += expected_return_per_day_weight / (nb_days * std::exp(diff));
             }
         }
     }
@@ -653,7 +654,7 @@ void Trader::calculate_fitness()
             for (const auto &monthly_return : monthly_returns)
             {
                 double diff = 10 * std::max(0.0, goals.expected_return_per_month.value() - monthly_return.second);
-                expected_return_per_month_eval += (expected_return_per_month_weight * nb_months) / (nb_months * std::exp(diff));
+                expected_return_per_month_eval += expected_return_per_month_weight / (nb_months * std::exp(diff));
             }
         }
     }
@@ -1298,6 +1299,109 @@ void Trader::update_position_pnl(double price)
     {
         double current_price = price != 0.0 ? price : this->candles[this->config.strategy.timeframe].back().close;
         this->current_position->pnl = calculate_profit_loss(current_price, *this->current_position, this->symbol_info, this->current_base_currency_conversion_rate);
+    }
+}
+
+/**
+ * @brief Update the trailing stop loss.
+ */
+void Trader::update_trailing_stop_loss()
+{
+    // Check if the trailing stop loss is enabled
+    if (!this->config.strategy.trailing_stop_loss_config.has_value() || this->current_position == nullptr)
+    {
+        return;
+    }
+
+    TrailingStopLossConfig config = this->config.strategy.trailing_stop_loss_config.value();
+    Order *stop_loss_order = this->open_orders[0].type == OrderType::STOP_LOSS ? &this->open_orders[0] : &this->open_orders[1];
+    double current_price = this->candles[this->config.strategy.timeframe].back().close;
+
+    if (config.type_trailing_stop_loss == TypeTrailingStopLoss::PERCENT)
+    {
+        if (!config.trailing_stop_loss_in_percent.has_value())
+        {
+            std::cerr << "The trailing stop loss in percent is not set." << std::endl;
+            return;
+        }
+
+        if (this->current_position->side == PositionSide::LONG)
+        {
+            // Check if the activation level is reached
+            if (config.activation_level_in_percent.has_value())
+            {
+                if (current_price < this->current_position->entry_price + (this->current_position->entry_price * config.activation_level_in_percent.value()))
+                {
+                    return;
+                }
+            }
+
+            double trailing_stop_loss = current_price - (current_price * config.trailing_stop_loss_in_percent.value());
+            if (trailing_stop_loss > stop_loss_order->price)
+            {
+                stop_loss_order->price = trailing_stop_loss;
+            }
+        }
+        else if (this->current_position->side == PositionSide::SHORT)
+        {
+            // Check if the activation level is reached
+            if (config.activation_level_in_percent.has_value())
+            {
+                if (current_price > this->current_position->entry_price - (this->current_position->entry_price * config.activation_level_in_percent.value()))
+                {
+                    return;
+                }
+            }
+
+            double trailing_stop_loss = current_price + (current_price * config.trailing_stop_loss_in_percent.value());
+            if (trailing_stop_loss < stop_loss_order->price)
+            {
+                stop_loss_order->price = trailing_stop_loss;
+            }
+        }
+    }
+    else if (config.type_trailing_stop_loss == TypeTrailingStopLoss::POINTS)
+    {
+        if (!config.trailing_stop_loss_in_points.has_value())
+        {
+            std::cerr << "The trailing stop loss in points is not set." << std::endl;
+            return;
+        }
+
+        if (this->current_position->side == PositionSide::LONG)
+        {
+            // Check if the activation level is reached
+            if (config.activation_level_in_points.has_value())
+            {
+                if (current_price < this->current_position->entry_price + config.activation_level_in_points.value() * symbol_info.point_value)
+                {
+                    return;
+                }
+            }
+
+            double trailing_stop_loss = current_price - config.trailing_stop_loss_in_points.value() * symbol_info.point_value;
+            if (trailing_stop_loss > stop_loss_order->price)
+            {
+                stop_loss_order->price = trailing_stop_loss;
+            }
+        }
+        else if (this->current_position->side == PositionSide::SHORT)
+        {
+            // Check if the activation level is reached
+            if (config.activation_level_in_points.has_value())
+            {
+                if (current_price > this->current_position->entry_price - config.activation_level_in_points.value() * symbol_info.point_value)
+                {
+                    return;
+                }
+            }
+
+            double trailing_stop_loss = current_price + config.trailing_stop_loss_in_points.value() * symbol_info.point_value;
+            if (trailing_stop_loss < stop_loss_order->price)
+            {
+                stop_loss_order->price = trailing_stop_loss;
+            }
+        }
     }
 }
 

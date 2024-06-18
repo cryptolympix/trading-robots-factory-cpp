@@ -150,6 +150,11 @@ public:
     void update_position_pnl(double price = 0.0);
 
     /**
+     * @brief Update the trailing stop loss.
+     */
+    void update_trailing_stop_loss();
+
+    /**
      * @brief Print the statistics of the trader in the console.
      */
     void print_stats_to_console();
