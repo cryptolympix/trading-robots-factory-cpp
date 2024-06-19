@@ -4,7 +4,7 @@
 int main()
 {
     std::string id = generate_date_uid();
-    Training training(id, __config__, false);
+    Training training(id, __config__, true);
     training.prepare();
     training.run();
     return 0;

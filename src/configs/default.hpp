@@ -91,7 +91,7 @@ Config __config__ = {
         .leverage = 30,
     },
     .strategy{
-        .timeframe = TimeFrame::M15,
+        .timeframe = TimeFrame::H1,
         .risk_per_trade = 0.05,
         .maximum_trades_per_day = 2,
         .maximum_spread = 8,
@@ -113,7 +113,7 @@ Config __config__ = {
         .inputs = {
             .indicators = {
                 {
-                    TimeFrame::M15,
+                    TimeFrame::H1,
                     {
                         // Candle signals
                         new DojiCandlePattern(),
@@ -255,7 +255,7 @@ Config __config__ = {
                     },
                 },
                 {
-                    TimeFrame::H1,
+                    TimeFrame::H4,
                     {
                         // Candle signals
                         new DojiCandlePattern(),

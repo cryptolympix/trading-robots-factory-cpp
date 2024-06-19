@@ -626,7 +626,7 @@ void Trader::calculate_fitness()
 
     // ***************** FORMULA TO CALCULATE FITNESS ***************** //
 
-    this->fitness = 1;
+    this->fitness = this->score > 0 ? this->score : 0;
 
     if (this->trades_history.empty())
     {
@@ -668,12 +668,6 @@ void Trader::calculate_fitness()
     if (goals.expected_return.has_value())
     {
         this->fitness *= expected_return_eval;
-    }
-
-    if (this->fitness < 0)
-    {
-        std::cerr << "Fitness is negative: " << this->fitness << std::endl;
-        std::exit(1);
     }
 }
 
