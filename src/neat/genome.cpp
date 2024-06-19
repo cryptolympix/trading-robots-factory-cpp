@@ -272,6 +272,26 @@ void neat::Genome::remove_node()
         };
 
         genes.erase(std::remove_if(genes.begin(), genes.end(), removeCondition), genes.end());
+
+        // Check if the layer of the node is unique
+        bool unique_layer = true;
+        for (const auto &n : nodes)
+        {
+            if (n->layer == random_node->layer)
+            {
+                unique_layer = false;
+                break;
+            }
+        }
+
+        // If the layer is unique, then remove it
+        if (unique_layer)
+        {
+            for (size_t i = 0; i < nodes.size(); ++i)
+                if (nodes[i]->layer > random_node->layer)
+                    nodes[i]->layer -= 1;
+            --layers;
+        }
     }
 }
 
