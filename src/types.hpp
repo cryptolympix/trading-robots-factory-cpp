@@ -247,15 +247,15 @@ struct TakeProfitStopLossConfig
     TypeTakeProfitStopLoss type_stop_loss;            // Type of stop loss
     std::optional<int> stop_loss_in_points;           // Stop loss in points
     std::optional<double> stop_loss_in_percent;       // Stop loss as a percentage
-    std::optional<int> stop_loss_extremum_period;     // Stop loss based on extremum
-    std::optional<int> stop_loss_atr_period;          // Stop loss based on ATR
-    std::optional<double> stop_loss_atr_multiplier;   // Stop loss based on ATR
+    std::optional<int> stop_loss_extremum_period;     // Stop loss period for extremum
+    std::optional<int> stop_loss_atr_period;          // Stop loss period for ATR
+    std::optional<double> stop_loss_atr_multiplier;   // Stop loss multiplier for ATR
     TypeTakeProfitStopLoss type_take_profit;          // Type of take profit
     std::optional<int> take_profit_in_points;         // Take profit in points
     std::optional<double> take_profit_in_percent;     // Take profit as a percentage
-    std::optional<int> take_profit_extremum_period;   // Take profit based on extremum
-    std::optional<int> take_profit_atr_period;        // Take profit based on ATR
-    std::optional<double> take_profit_atr_multiplier; // Take profit based on ATR
+    std::optional<int> take_profit_extremum_period;   // Take profit period for extremum
+    std::optional<int> take_profit_atr_period;        // Take profit period for ATR
+    std::optional<double> take_profit_atr_multiplier; // Take profit multiplier for ATR
 };
 
 /**
@@ -263,7 +263,7 @@ struct TakeProfitStopLossConfig
  */
 struct TrailingStopLossConfig
 {
-    TypeTrailingStopLoss type_trailing_stop_loss;        // Type of trailing stop loss
+    TypeTrailingStopLoss type_trailing_stop_loss;        // Type of trailing stop loss configuration (POINTS or PERCENT)
     std::optional<int> activation_level_in_points;       // Activation level in points before trailing stop loss is activated
     std::optional<double> activation_level_in_percent;   // Activation level as a percentage before trailing stop loss is activated
     std::optional<int> trailing_stop_loss_in_points;     // Trailing stop loss in points
@@ -289,10 +289,10 @@ struct TradingSchedule
  */
 struct StrategyConfig
 {
-    TimeFrame timeframe;                                             // Time frame
-    double risk_per_trade;                                           // Risk per trade
-    std::optional<int> maximum_trades_per_day;                       // Maximum trades per day
-    std::optional<double> maximum_spread;                            // Maximum spread
+    TimeFrame timeframe;                                             // Time frame with which the strategy is used
+    double risk_per_trade;                                           // Risk per trade in % of capital
+    std::optional<int> maximum_trades_per_day;                       // Maximum trades per day allowed
+    std::optional<double> maximum_spread;                            // Maximum spread allowed
     std::optional<int> minimum_trade_duration;                       // Minimum trade duration
     std::optional<int> maximum_trade_duration;                       // Maximum trade duration
     std::optional<int> minimum_duration_before_next_trade;           // Minimum duration before the next trade
@@ -310,7 +310,7 @@ struct StrategyConfig
 struct NeuralNetworkInputs
 {
     std::map<TimeFrame, std::vector<Indicator *>> indicators; // Indicators
-    std::vector<PositionInfo> position;                       // Position information
+    std::vector<PositionInfo> position;                       // Position information (TYPE, PNL, DURATION)
 };
 
 /**
@@ -318,14 +318,14 @@ struct NeuralNetworkInputs
  */
 struct TrainingConfig
 {
-    int generations;                                 // Number of generations
-    std::optional<double> bad_trader_threshold;      // Threshold for identifying bad traders
-    std::optional<double> inactive_trader_threshold; // Threshold for identifying inactive traders
+    int generations;                                 // Number of generations for training
+    std::optional<double> bad_trader_threshold;      // If the trader balance is below this threshold, the trader dies
+    std::optional<double> inactive_trader_threshold; // If during this number of generations the trader does not make any trade, the trader dies
     time_t training_start_date;                      // Start date for training
     time_t training_end_date;                        // End date for training
     time_t test_start_date;                          // Start date for testing
     time_t test_end_date;                            // End date for testing
-    std::optional<double> decision_threshold;        // Decision threshold for buy/sell signals
+    std::optional<double> decision_threshold;        // Below this threshold, the trader does not make any decision
     NeuralNetworkInputs inputs;                      // Inputs for neural network
 };
 
@@ -340,8 +340,8 @@ struct EvaluationConfig
     std::optional<double> expected_return_per_day;   // Expected return per day in % of capital
     std::optional<double> expected_return_per_month; // Expected return per month in % of capital
     std::optional<double> expected_return;           // Expected return per year in % of capital
-    std::optional<double> maximum_drawdown;          // Maximum drawdown
-    std::optional<double> minimum_winrate;           // Minimum win rate
+    std::optional<double> maximum_drawdown;          // Maximum drawdown in % of capital
+    std::optional<double> minimum_winrate;           // Minimum win rate in %
     std::optional<double> minimum_profit_factor;     // Minimum profit factor
 };
 

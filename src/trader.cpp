@@ -36,6 +36,12 @@ bool operator==(const Trade &t1, const Trade &t2)
  */
 Trader::Trader(neat::Genome *genome, Config config, Logger *logger)
 {
+    if (genome == nullptr)
+    {
+        std::cerr << "Genome object is null." << std::endl;
+        return;
+    }
+
     this->config = config;
     this->symbol_info = symbol_infos[config.general.symbol];
     this->logger = logger;
@@ -626,7 +632,7 @@ void Trader::calculate_fitness()
 
     // ***************** FORMULA TO CALCULATE FITNESS ***************** //
 
-    this->fitness = this->score > 0 ? this->score : 0;
+    this->fitness = this->score > 0 ? this->score : 1;
 
     if (this->trades_history.empty())
     {

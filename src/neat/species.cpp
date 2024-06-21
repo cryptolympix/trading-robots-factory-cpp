@@ -7,14 +7,14 @@
 
 neat::Species::Species(Genome *genome)
 {
+    if (genome == nullptr)
+        throw std::invalid_argument("Creating a species with a null genome.");
+
     champion = genome;
     best_fitness = genome->fitness;
     average_fitness = 0;
     stagnation = 0;
-    if (genome != NULL)
-    {
-        genomes.push_back(genome);
-    }
+    genomes.push_back(genome);
 }
 
 neat::Species::~Species()
@@ -189,8 +189,7 @@ bool neat::Species::is_equal(Species *other)
 
 neat::Species *neat::Species::clone()
 {
-    Species *clone = new Species();
-    clone->champion = champion->clone();
+    Species *clone = new Species(champion->clone());
     clone->average_fitness = average_fitness;
     clone->best_fitness = best_fitness;
     clone->stagnation = stagnation;

@@ -592,6 +592,12 @@ void Training::evaluate_genome(neat::Genome *genome, int generation)
     trader->calculate_fitness();
     genome->fitness = trader->fitness;
 
+    // Add the list of traders for the generation
+    if (this->traders.find(generation) == this->traders.end())
+    {
+        this->traders[generation] = {};
+    }
+
     // Add the traders to the history
     this->traders[generation].push_back(trader);
 
@@ -757,6 +763,15 @@ int Training::test(neat::Genome *genome, int generation)
     // Generate the balance history graph
     std::string graphic_file = this->directory.generic_string() + "/trader_" + std::to_string(generation) + "_" + trader->genome->id + "_test_balance_history.png";
     trader->generate_balance_history_graph(graphic_file);
+
+    // Evaluate the trader with the Monte Carlo simulation
+    int exit_code = this->evaluate_trader_with_monte_carlo_simulation(trader);
+
+    // Close the logger
+    if (this->debug && trader->logger != nullptr)
+    {
+        trader->logger->close();
+    }
 
     return 0;
 }
