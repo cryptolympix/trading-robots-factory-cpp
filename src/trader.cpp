@@ -101,7 +101,7 @@ Trader::Trader(neat::Genome *genome, Config config, Logger *logger)
 
     // Neat stuffs
     this->generation = 0;
-    this->fitness = 0;
+    this->fitness = genome->fitness;
     this->score = 0;
     this->lifespan = 0;
     this->dead = false;
@@ -115,8 +115,6 @@ Trader::Trader(neat::Genome *genome, Config config, Logger *logger)
  */
 Trader::~Trader()
 {
-    delete this->genome;
-
     if (this->logger != nullptr)
     {
         delete this->logger;

@@ -570,6 +570,20 @@ void Training::evaluate_genome(neat::Genome *genome, int generation)
     {
         trader->logger->close();
     }
+
+    // Save the best trader of the generation
+    if (this->best_trader == nullptr || trader->fitness > this->best_trader->fitness)
+    {
+        if (this->best_trader != nullptr)
+        {
+            delete this->best_trader;
+        }
+        this->best_trader = trader;
+    }
+    else
+    {
+        delete trader;
+    }
 }
 
 /**
@@ -589,13 +603,10 @@ int Training::run()
             // Update the progress bar
             progress_bar->update(1);
 
-            // Set the best genome of the generation
-            this->best_trader = new Trader(population->best_genome->clone(), this->config);
-
             // Save the best fitness of the generation
-            this->best_fitnesses[generation] = population->best_genome->fitness;
+            this->best_fitnesses[generation] = population->best_fitness;
 
-            // Save the average fitness of the generation
+            // Calculate the average fitness of the generation
             this->average_fitnesses[generation] = population->average_fitness;
 
             if (this->debug)
@@ -733,9 +744,6 @@ int Training::test(neat::Genome *genome, int generation)
     // Generate the balance history graph
     std::string graphic_file = this->directory.generic_string() + "/trader_" + std::to_string(generation) + "_" + trader->genome->id + "_test_balance_history.png";
     trader->generate_balance_history_graph(graphic_file);
-
-    // Evaluate the trader with the Monte Carlo simulation
-    int exit_code = this->evaluate_trader_with_monte_carlo_simulation(trader);
 
     // Close the logger
     if (this->debug && trader->logger != nullptr)
@@ -893,6 +901,9 @@ void Training::generate_fitness_report()
     gp << "set title 'Fitness Evolution'\n";
     gp << "set xlabel 'Generation'\n";
     gp << "set ylabel 'Fitness'\n";
+
+    // Log scale for the y-axis
+    gp << "set logscale y\n";
 
     // Plot data for fitness evolution and average fitness
     gp << "plot '-' with lines title 'Best fitness', '-' with lines title 'Average fitness'\n";
