@@ -34,6 +34,11 @@ namespace neat
         Genome(const Config &config, bool crossover = false);
 
         /**
+         * @brief Destructor for the Genome class.
+         */
+        ~Genome();
+
+        /**
          * @brief Fully connects the genome's neural network.
          * @param innovation_history List of connection history for innovation tracking.
          */

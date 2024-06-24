@@ -32,6 +32,11 @@ namespace neat
         ConnectionGene(std::shared_ptr<Node> from, std::shared_ptr<Node> to, double w, int innovation, bool enabled);
 
         /**
+         * @brief Destructor for ConnectionGene.
+         */
+        ~ConnectionGene();
+
+        /**
          * @brief Mutates the connection gene based on the NEAT configuration.
          * @param config Reference to the NEAT configuration.
          */

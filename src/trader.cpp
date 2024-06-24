@@ -111,6 +111,19 @@ Trader::Trader(neat::Genome *genome, Config config, Logger *logger)
 };
 
 /**
+ * @brief Destructor for the Trader class.
+ */
+Trader::~Trader()
+{
+    delete this->genome;
+
+    if (this->logger != nullptr)
+    {
+        delete this->logger;
+    }
+}
+
+/**
  * @brief Get inputs for genome.
  * @param indicators_data Indicator data for all time frames.
  * @param base_currency_conversion_rate Conversion rate when the base asset traded is different from the account currency.

@@ -6,6 +6,12 @@
 
 neat::ConnectionGene::ConnectionGene(std::shared_ptr<Node> from, std::shared_ptr<Node> to, double w, int innovation, bool enabled) : from_node(from), to_node(to), weight(w), innovation_nb(innovation), enabled(enabled) {}
 
+neat::ConnectionGene::~ConnectionGene()
+{
+    from_node.reset();
+    to_node.reset();
+}
+
 void neat::ConnectionGene::mutate(const neat::Config &config)
 {
     // Change the weight of the connection or disable/enable it

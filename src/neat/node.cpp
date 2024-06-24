@@ -10,6 +10,14 @@
 
 neat::Node::Node(int id, ActivationFunction activation_function, int layer) : id(id), input_sum(0), output_value(0), layer(layer), activation_function(activation_function) {}
 
+neat::Node::~Node()
+{
+    for (auto &c : output_connections)
+        c.reset();
+
+    output_connections.clear();
+}
+
 void neat::Node::activate()
 {
     if (layer != 0)

@@ -126,6 +126,22 @@ void neat::Genome::fully_connect(std::vector<std::shared_ptr<ConnectionHistory>>
     connect_nodes();
 }
 
+neat::Genome::~Genome()
+{
+    // Delete all the dynamically allocated nodes
+    for (auto n : nodes)
+        n.reset();
+
+    // Delete all the dynamically allocated connection genes
+    for (auto g : genes)
+        g.reset();
+
+    // Clear the nodes and genes vectors
+    nodes.clear();
+    genes.clear();
+    network.clear();
+}
+
 std::shared_ptr<neat::Node> neat::Genome::get_node(int id)
 {
     for (auto &n : nodes)

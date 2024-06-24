@@ -59,9 +59,27 @@ Training::Training(std::string id, Config &config, bool debug)
 
     // History for statistics
     int generations = config.training.generations;
-    this->traders = {};
-    this->best_traders = {};
     this->best_trader = nullptr;
+    this->best_fitnesses = {};
+    this->average_fitnesses = {};
+}
+
+/**
+ * @brief Destructor for the Training class to ensure proper cleanup.
+ */
+Training::~Training()
+{
+    // Delete the dynamically allocated population
+    delete population;
+
+    // Delete the dynamically allocated cache
+    delete cache;
+
+    // Delete the dynamically allocated best trader overall
+    if (best_trader != nullptr)
+    {
+        delete best_trader;
+    }
 }
 
 /**
@@ -225,6 +243,7 @@ void Training::load_candles(bool display_progress)
     if (progress_bar)
     {
         progress_bar->complete();
+        delete progress_bar;
     }
 }
 
@@ -315,6 +334,7 @@ void Training::load_indicators(bool display_progress)
     if (progress_bar)
     {
         progress_bar->complete();
+        delete progress_bar;
     }
 }
 
@@ -369,6 +389,7 @@ void Training::load_base_currency_conversion_rate(bool display_progress)
         if (progress_bar)
         {
             progress_bar->complete();
+            delete progress_bar;
         }
     }
 }
@@ -430,11 +451,12 @@ void Training::cache_data(bool display_progress)
     }
 
     // Create the file of the cache
-    cache->create();
+    this->cache->create();
 
     if (progress_bar)
     {
         progress_bar->complete();
+        delete progress_bar;
     }
 }
 
@@ -491,55 +513,6 @@ std::vector<TimeFrame> Training::get_all_timeframes() const
 }
 
 /**
- * @brief Update the best trader of all the training and the best trader of a generation.
- * @param generation The current generation number of the training.
- */
-void Training::set_best_traders(int generation)
-{
-    Trader *best_trader = nullptr;
-    double best_fitness = -std::numeric_limits<double>::infinity();
-    double best_score = -std::numeric_limits<double>::infinity();
-
-    for (auto &trader : this->traders[generation])
-    {
-        // if (trader->score > best_score)
-        // {
-        //     best_trader = trader;
-        //     best_score = trader->score;
-        // }
-        if (trader->fitness > best_fitness)
-        {
-            best_trader = trader;
-            best_fitness = trader->fitness;
-        }
-    }
-
-    this->best_traders[generation] = best_trader;
-
-    if (!best_trader)
-    {
-        std::cout << "No best trader found for generation " << generation << std::endl;
-        return;
-    }
-
-    // Update the best trader of all the training
-    if (!this->best_trader || best_trader->fitness > this->best_trader->fitness)
-    {
-        this->best_trader = best_trader;
-    }
-}
-
-/**
- * @brief Get the best trader of a generation.
- * @param generation The generation number to get the best trader.
- * @return The best trader of the specified generation.
- */
-Trader *Training::get_best_trader_of_generation(int generation) const
-{
-    return this->best_traders.at(generation);
-}
-
-/**
  * @brief Evaluate the performance of a trading algorithm for a given genome and generation.
  * @param genome The genome to be evaluated.
  * @param generation The current generation number.
@@ -592,15 +565,6 @@ void Training::evaluate_genome(neat::Genome *genome, int generation)
     trader->calculate_fitness();
     genome->fitness = trader->fitness;
 
-    // Add the list of traders for the generation
-    if (this->traders.find(generation) == this->traders.end())
-    {
-        this->traders[generation] = {};
-    }
-
-    // Add the traders to the history
-    this->traders[generation].push_back(trader);
-
     // Close the logger
     if (this->debug && trader->logger != nullptr)
     {
@@ -625,8 +589,14 @@ int Training::run()
             // Update the progress bar
             progress_bar->update(1);
 
-            // Update the best traders
-            this->set_best_traders(generation);
+            // Set the best genome of the generation
+            this->best_trader = new Trader(population->best_genome->clone(), this->config);
+
+            // Save the best fitness of the generation
+            this->best_fitnesses[generation] = population->best_genome->fitness;
+
+            // Save the average fitness of the generation
+            this->average_fitnesses[generation] = population->average_fitness;
 
             if (this->debug)
             {
@@ -881,28 +851,9 @@ int Training::evaluate_trader_with_monte_carlo_simulation(Trader *trader, int nb
 void Training::generate_fitness_report()
 {
     // Check if there are enough data points to generate the report
-    if (this->best_traders.size() < 2)
+    if (this->best_fitnesses.size() < 2)
     {
         return;
-    }
-
-    std::vector<double> best_fitness = {};
-    for (int i = 0; i < this->best_traders.size(); i++)
-    {
-        best_fitness.push_back(this->best_traders[i]->fitness);
-    }
-
-    // Calculate the average fitness for each generation
-    std::vector<double> average_fitness = {};
-    for (int i = 0; i < best_fitness.size(); i++)
-    {
-        double average = 0.0;
-        for (const auto &trader : this->traders[i])
-        {
-            average += trader->fitness;
-        }
-        average /= this->traders[i].size();
-        average_fitness.push_back(average);
     }
 
     // Generate the fitness report
@@ -928,10 +879,10 @@ void Training::generate_fitness_report()
     // Generate data for the fitness evolution and average fitness
     std::vector<std::pair<int, double>> best_fitness_data;
     std::vector<std::pair<int, double>> average_fitness_data;
-    for (int i = 0; i < best_fitness.size(); i++)
+    for (int i = 0; i < this->best_fitnesses.size(); i++)
     {
-        best_fitness_data.push_back(std::make_pair(i, best_fitness[i]));
-        average_fitness_data.push_back(std::make_pair(i, average_fitness[i]));
+        best_fitness_data.push_back(std::make_pair(i, this->best_fitnesses[i]));
+        average_fitness_data.push_back(std::make_pair(i, this->average_fitnesses[i]));
     }
 
     // Specify terminal type and output file

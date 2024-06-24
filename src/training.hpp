@@ -44,10 +44,10 @@ public:
     std::vector<time_t> training_dates; // Dates used for training period.
     std::vector<time_t> test_dates;     // Dates used for testing period.
 
-    neat::Population *population;                 // NEAT population for evolution.
-    std::map<int, std::vector<Trader *>> traders; // Map of traders for each generation.
-    std::map<int, Trader *> best_traders;         // Map of the best trader for each generation.
-    Trader *best_trader;                          // Best trader overall.
+    neat::Population *population;            // NEAT population for evolution.
+    Trader *best_trader;                     // Best trader overall.
+    std::map<int, double> best_fitnesses;    // Map of the best fitness for each generation.
+    std::map<int, double> average_fitnesses; // Map of the average fitness for each generation.
 
     /**
      * @brief Constructor for the Training class.
@@ -56,6 +56,11 @@ public:
      * @param debug Debug mode flag.
      */
     Training(std::string id, Config &config, bool debug = false);
+
+    /**
+     * @brief Destructor for the Training class to ensure proper cleanup.
+     */
+    ~Training();
 
     /**
      * @brief Prepare the training data by loading candles, calculating indicators, and caching the data.
@@ -103,19 +108,6 @@ public:
      * @return Vector of timeframes.
      */
     std::vector<TimeFrame> get_all_timeframes() const;
-
-    /**
-     * @brief Update the best trader of all the training and the best trader of a generation.
-     * @param generation The current generation number of the training.
-     */
-    void set_best_traders(int generation);
-
-    /**
-     * @brief Get the best trader of a generation.
-     * @param generation The generation number to get the best trader.
-     * @return The best trader of the specified generation.
-     */
-    Trader *get_best_trader_of_generation(int generation) const;
 
     /**
      * @brief Evaluate the performance of a trading algorithm for a given genome and generation.

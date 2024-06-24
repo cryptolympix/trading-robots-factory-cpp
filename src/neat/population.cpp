@@ -24,6 +24,24 @@ neat::Population::Population(const Config &config) : config(config)
     }
 }
 
+neat::Population::~Population()
+{
+    // Delete all the dynamically allocated species
+    for (auto sp : species)
+        delete sp;
+
+    // Delete all the dynamically allocated genomes
+    for (auto g : genomes)
+        delete g;
+
+    // Delete the best genome
+    delete best_genome;
+
+    // Clear the vectors
+    species.clear();
+    genomes.clear();
+}
+
 void neat::Population::set_best_genome()
 {
     Genome *temp_best = species[0]->genomes[0];

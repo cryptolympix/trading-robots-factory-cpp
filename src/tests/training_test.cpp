@@ -302,39 +302,6 @@ TEST_F(TrainingTest, GetAllTimeframes)
     ASSERT_TRUE(std::find(timeframes.begin(), timeframes.end(), TimeFrame::H1) != timeframes.end());
 }
 
-TEST_F(TrainingTest, BestTraders)
-{
-    // Mock best traders
-    neat::Genome *genome = new neat::Genome(config.neat);
-    Trader *best_trader = new Trader(genome, config);
-    best_trader->fitness = 10;
-    best_trader->score = 10;
-    Trader *bad_trader = new Trader(genome, config);
-    best_trader->fitness = 5;
-    best_trader->score = 5;
-
-    // Add traders to the history
-    training->traders[0] = {best_trader, bad_trader};
-
-    // Set the best traders
-    training->set_best_traders(0);
-
-    ASSERT_EQ(training->get_best_trader_of_generation(0), best_trader);
-
-    // Update the best traders
-    Trader *new_best_trader = new Trader(genome, config);
-    new_best_trader->fitness = 15;
-    new_best_trader->score = 15;
-
-    // Add a new best traders
-    training->traders[0].push_back(new_best_trader);
-
-    // Set the best traders
-    training->set_best_traders(0);
-
-    ASSERT_EQ(training->get_best_trader_of_generation(0), new_best_trader);
-}
-
 TEST_F(TrainingTest, Run)
 {
     training->load_candles();
@@ -348,6 +315,9 @@ TEST_F(TrainingTest, Run)
 
         // Asserts that the training went well
         ASSERT_EQ(result, 0);
+        ASSERT_EQ(training->best_fitnesses.size(), training->config.training.generations);
+        ASSERT_EQ(training->average_fitnesses.size(), training->config.training.generations);
+        ASSERT_NE(training->best_trader, nullptr);
     }
 }
 
@@ -376,9 +346,8 @@ TEST_F(TrainingTest, GenerateFitnessReport)
 {
     for (int i = 0; i < 10; ++i)
     {
-        Trader *trader = new Trader(new neat::Genome(), config);
-        trader->fitness = i;
-        training->best_traders[i] = trader;
+        training->best_fitnesses[i] = i;
+        training->average_fitnesses[i] = i / 2;
         training->generate_fitness_report();
     }
 }

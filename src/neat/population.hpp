@@ -35,6 +35,11 @@ namespace neat
         Population(const Config &config);
 
         /**
+         * @brief Destructor for the Population class to ensure proper cleanup.
+         */
+        ~Population();
+
+        /**
          * @brief Sets the best genome based on the current species.
          */
         void set_best_genome();

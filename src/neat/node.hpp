@@ -34,6 +34,11 @@ namespace neat
         Node(int id, ActivationFunction activation_function, int layer);
 
         /**
+         * @brief Destructor for the Node class.
+         */
+        ~Node();
+
+        /**
          * @brief Activate the node using its activation function.
          */
         void activate();

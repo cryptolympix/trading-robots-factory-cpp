@@ -27,6 +27,11 @@ namespace neat
         ConnectionHistory(std::shared_ptr<Node> from_node, std::shared_ptr<Node> to_node, int innovation_nb);
 
         /**
+         * @brief Destructor for ConnectionHistory.
+         */
+        ~ConnectionHistory();
+
+        /**
          * @brief Returns whether the genome matches the original genome and the connection is between the same nodes
          * @param from_node Pointer to the source node.
          * @param to_node Pointer to the target node.
