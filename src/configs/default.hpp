@@ -17,7 +17,7 @@
 #include "../indicators/volume.hpp"
 #include "../indicators/volume_signals.hpp"
 
-std::vector<bool> schedule_working_days = {true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true};
+std::vector<bool> schedule_working_days = {false, false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false};
 std::vector<bool> schedule_rest_days = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
 
 TradingSchedule schedule = {
@@ -32,17 +32,17 @@ TradingSchedule schedule = {
 
 TakeProfitStopLossConfig tpsl_config = {
     .type_stop_loss = TypeTakeProfitStopLoss::POINTS,
-    .stop_loss_in_points = 30,
+    .stop_loss_in_points = 20,
     .stop_loss_in_percent = 0.002,
     .type_take_profit = TypeTakeProfitStopLoss::POINTS,
-    .take_profit_in_points = 30,
+    .take_profit_in_points = 20,
     .take_profit_in_percent = 0.002,
 };
 
 TrailingStopLossConfig tsl_config = {
     .type_trailing_stop_loss = TypeTrailingStopLoss::POINTS,
-    .activation_level_in_points = 20,
-    .trailing_stop_loss_in_points = 10,
+    .activation_level_in_points = 5,
+    .trailing_stop_loss_in_points = 5,
 };
 
 std::tm start_training_date = {
@@ -50,8 +50,8 @@ std::tm start_training_date = {
     .tm_min = 0,
     .tm_hour = 0,
     .tm_mday = 1,
-    .tm_mon = 1,
-    .tm_year = 2022 - 1900,
+    .tm_mon = 3,
+    .tm_year = 2023 - 1900,
 };
 
 std::tm end_training_date = {
@@ -91,7 +91,7 @@ Config __config__ = {
         .leverage = 30,
     },
     .strategy{
-        .timeframe = TimeFrame::H1,
+        .timeframe = TimeFrame::M5,
         .risk_per_trade = 0.05,
         .maximum_trades_per_day = 2,
         .maximum_spread = 8,
@@ -100,7 +100,7 @@ Config __config__ = {
         .can_open_short_trade = true,
         .take_profit_stop_loss_config = tpsl_config,
         .trading_schedule = schedule,
-        .trailing_stop_loss_config = tsl_config,
+        // .trailing_stop_loss_config = tsl_config,
     },
     .training{
         .generations = 1000,
@@ -113,7 +113,7 @@ Config __config__ = {
         .inputs = {
             .indicators = {
                 {
-                    TimeFrame::H1,
+                    TimeFrame::M5,
                     {
                         new Hour(),
                         new Minute(),
@@ -126,6 +126,8 @@ Config __config__ = {
                         new WeekDay("wednesday"),
                         new WeekDay("thursday"),
                         new WeekDay("friday"),
+                        new CandleClose(0),
+                        new CandleVolume(0),
                         new CandlePriceChange(0),
                         new CandlePriceChange(1),
                         new CandlePriceChange(2),
@@ -136,7 +138,6 @@ Config __config__ = {
                         new CandlePriceChange(7),
                         new CandlePriceChange(8),
                         new CandlePriceChange(9),
-                        new AveragePriceChange(10),
                         new CandleBody(0),
                         new CandleBody(1),
                         new CandleBody(2),
@@ -167,18 +168,94 @@ Config __config__ = {
                         new CandleShadowLower(7),
                         new CandleShadowLower(8),
                         new CandleShadowLower(9),
+                        new AveragePriceChange(10),
                         new StandardDeviation(14),
                         new ATR(14),
                         new RSI(14),
                         new MFI(14),
                         new CCI(20),
+                        new ADX(14),
+                        new CMF(20),
+                        new InstitutionalBias(9, 18),
+                        new HighBreakSignal(10),
+                        new LowBreakSignal(10),
+                        new NewHighSignal(10),
+                        new NewLowSignal(10),
+                    },
+                },
+                {
+                    TimeFrame::M30,
+                    {
+                        new Hour(),
+                        new Minute(),
+                        new NFPWeek(),
+                        new MarketSession("new-york"),
+                        new MarketSession("london"),
+                        new MarketSession("tokyo"),
+                        new WeekDay("monday"),
+                        new WeekDay("tuesday"),
+                        new WeekDay("wednesday"),
+                        new WeekDay("thursday"),
+                        new WeekDay("friday"),
+                        new CandleClose(0),
+                        new CandleVolume(0),
+                        new CandlePriceChange(0),
+                        new CandlePriceChange(1),
+                        new CandlePriceChange(2),
+                        new CandlePriceChange(3),
+                        new CandlePriceChange(4),
+                        new CandlePriceChange(5),
+                        new CandlePriceChange(6),
+                        new CandlePriceChange(7),
+                        new CandlePriceChange(8),
+                        new CandlePriceChange(9),
+                        new CandleBody(0),
+                        new CandleBody(1),
+                        new CandleBody(2),
+                        new CandleBody(3),
+                        new CandleBody(4),
+                        new CandleBody(5),
+                        new CandleBody(6),
+                        new CandleBody(7),
+                        new CandleBody(8),
+                        new CandleBody(9),
+                        new CandleShadowUpper(0),
+                        new CandleShadowUpper(1),
+                        new CandleShadowUpper(2),
+                        new CandleShadowUpper(3),
+                        new CandleShadowUpper(4),
+                        new CandleShadowUpper(5),
+                        new CandleShadowUpper(6),
+                        new CandleShadowUpper(7),
+                        new CandleShadowUpper(8),
+                        new CandleShadowUpper(9),
+                        new CandleShadowLower(0),
+                        new CandleShadowLower(1),
+                        new CandleShadowLower(2),
+                        new CandleShadowLower(3),
+                        new CandleShadowLower(4),
+                        new CandleShadowLower(5),
+                        new CandleShadowLower(6),
+                        new CandleShadowLower(7),
+                        new CandleShadowLower(8),
+                        new CandleShadowLower(9),
+                        new AveragePriceChange(10),
+                        new StandardDeviation(14),
+                        new ATR(14),
+                        new RSI(14),
+                        new MFI(14),
+                        new CCI(20),
+                        new ADX(14),
+                        new CMF(20),
+                        new InstitutionalBias(9, 18),
+                        new HighBreakSignal(10),
+                        new LowBreakSignal(10),
+                        new NewHighSignal(10),
+                        new NewLowSignal(10),
                     },
                 },
             },
-            .position = {
-                // PositionInfo::TYPE,
-                // PositionInfo::PNL,
-            },
+            .position = {},
         },
     },
     .evaluation{

@@ -73,10 +73,10 @@ protected:
                 .minimum_duration_before_next_trade = 4,
                 .take_profit_stop_loss_config = {
                     .type_stop_loss = TypeTakeProfitStopLoss::POINTS,
-                    .stop_loss_in_points = 300,
+                    .stop_loss_in_points = 30,
                     .stop_loss_in_percent = 0.01,
                     .type_take_profit = TypeTakeProfitStopLoss::POINTS,
-                    .take_profit_in_points = 300,
+                    .take_profit_in_points = 30,
                     .take_profit_in_percent = 0.01,
                 },
                 .trading_schedule = TradingSchedule{
@@ -318,7 +318,7 @@ TEST_F(TrainingTest, Run)
         ASSERT_EQ(training->best_fitnesses.size(), training->config.training.generations);
         ASSERT_EQ(training->average_fitnesses.size(), training->config.training.generations);
         ASSERT_NE(training->best_trader, nullptr);
-        ASSERT_GT(training->best_trader->fitness, 0);
+        ASSERT_EQ(training->best_trader->fitness, training->population->best_fitness);
 
         for (int i = 0; i < training->config.training.generations; ++i)
         {

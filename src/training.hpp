@@ -44,10 +44,11 @@ public:
     std::vector<time_t> training_dates; // Dates used for training period.
     std::vector<time_t> test_dates;     // Dates used for testing period.
 
-    neat::Population *population;            // NEAT population for evolution.
-    Trader *best_trader;                     // Best trader overall.
-    std::map<int, double> best_fitnesses;    // Map of the best fitness for each generation.
-    std::map<int, double> average_fitnesses; // Map of the average fitness for each generation.
+    neat::Population *population;                     // NEAT population for evolution.
+    Trader *best_trader;                              // Best trader overall.
+    std::vector<Trader *> current_generation_traders; // Map of traders for the current generation.
+    std::map<int, double> best_fitnesses;             // Map of the best fitness for each generation.
+    std::map<int, double> average_fitnesses;          // Map of the average fitness for each generation.
 
     /**
      * @brief Constructor for the Training class.

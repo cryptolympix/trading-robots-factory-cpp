@@ -60,6 +60,7 @@ Training::Training(std::string id, Config &config, bool debug)
     // History for statistics
     int generations = config.training.generations;
     this->best_trader = nullptr;
+    this->current_generation_traders = {};
     this->best_fitnesses = {};
     this->average_fitnesses = {};
 }
@@ -571,19 +572,8 @@ void Training::evaluate_genome(neat::Genome *genome, int generation)
         trader->logger->close();
     }
 
-    // Save the best trader of the generation
-    if (this->best_trader == nullptr || trader->fitness > this->best_trader->fitness)
-    {
-        if (this->best_trader != nullptr)
-        {
-            delete this->best_trader;
-        }
-        this->best_trader = trader;
-    }
-    else
-    {
-        delete trader;
-    }
+    // Save the trader to the current generation
+    this->current_generation_traders.push_back(trader);
 }
 
 /**
@@ -609,6 +599,32 @@ int Training::run()
             // Calculate the average fitness of the generation
             this->average_fitnesses[generation] = population->average_fitness;
 
+            // Find the trader with the best genome of the generation
+            for (const auto &trader : this->current_generation_traders)
+            {
+                if (trader->genome->id == population->best_genome->id)
+                {
+                    this->best_trader = trader;
+                    break;
+                }
+            }
+
+            if (best_trader == nullptr)
+            {
+                std::cerr << "Error: the best trader of the generation not found." << std::endl;
+                std::exit(1);
+            }
+
+            // Reset the traders of the current generation
+            this->current_generation_traders.clear();
+            for (const auto &trader : this->current_generation_traders)
+            {
+                if (trader != this->best_trader)
+                {
+                    delete trader;
+                }
+            }
+
             if (this->debug)
             {
                 // Print the best trader stats
@@ -624,16 +640,16 @@ int Training::run()
             }
 
             // Save the best trader info of the generation
-            std::string genome_save_file = this->directory.generic_string() + "/trader_" + std::to_string(generation) + "_" + best_trader->genome->id + "_genome_save.json";
-            std::string graphic_file = this->directory.generic_string() + "/trader_" + std::to_string(generation) + "_" + best_trader->genome->id + "_training_balance_history.png";
-            std::string report_file = this->directory.generic_string() + "/trader_" + std::to_string(generation) + "_" + best_trader->genome->id + "_training_report.html";
+            std::string genome_save_file = this->directory.generic_string() + "/trader_" + std::to_string(generation) + "_" + this->best_trader->genome->id + "_genome_save.json";
+            std::string graphic_file = this->directory.generic_string() + "/trader_" + std::to_string(generation) + "_" + this->best_trader->genome->id + "_training_balance_history.png";
+            std::string report_file = this->directory.generic_string() + "/trader_" + std::to_string(generation) + "_" + this->best_trader->genome->id + "_training_report.html";
 
             std::cout << std::endl;
-            best_trader->genome->save(genome_save_file);
+            this->best_trader->genome->save(genome_save_file);
             std::cout << "💾 Genome saved to '" << genome_save_file << "'" << std::endl;
-            best_trader->generate_balance_history_graph(graphic_file);
+            this->best_trader->generate_balance_history_graph(graphic_file);
             std::cout << "📈 Balance history graph generated at '" << graphic_file << "'" << std::endl;
-            best_trader->generate_report(report_file, this->config.training.training_start_date, this->config.training.training_end_date);
+            this->best_trader->generate_report(report_file, this->config.training.training_start_date, this->config.training.training_end_date);
             std::cout << "📊 Trader report generated at '" << report_file << "'" << std::endl;
             this->generate_fitness_report();
 
@@ -643,9 +659,11 @@ int Training::run()
             // Display the fitness of the best trader
             std::cout << "🧬 Fitness of the best trader: " << best_trader->fitness << std::endl;
 
-            // Test the trader on a the new period
-            this->test(best_trader->genome, generation);
+            // Test the trader on a the testing period
+            this->test(this->best_trader->genome, generation);
             std::cout << "✅ Testing of the best trader of generation " << generation << " finished!" << std::endl;
+
+            std::cout << std::endl;
         };
 
         std::cout << "🚀 Start the training..." << std::endl;

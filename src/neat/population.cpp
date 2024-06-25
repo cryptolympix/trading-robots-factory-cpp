@@ -76,7 +76,7 @@ void neat::Population::run(std::function<void(Genome *, int)> evaluate_genome, i
         reproduce_species();
         reset_on_extinction();
 
-        // Callback function for each generation
+        // Execute the callback function after each generation and wait for it to finish
         if (callback_generation)
             callback_generation(this, i);
 

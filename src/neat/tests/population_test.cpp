@@ -111,13 +111,18 @@ TEST_F(PopulationTest, SortSpecies)
     p->sort_species();
 
     // Assert species are sorted
-    const auto &speciesList = p->species;
     ASSERT_EQ(p->species.size(), 5);
 
     auto getBestFitness = [](const neat::Species *s)
     { return s->best_fitness; };
-    ASSERT_TRUE(std::is_sorted(speciesList.begin(), speciesList.end(), [&getBestFitness](const neat::Species *s1, const neat::Species *s2)
+    ASSERT_TRUE(std::is_sorted(p->species.begin(), p->species.end(), [&getBestFitness](const neat::Species *s1, const neat::Species *s2)
                                { return getBestFitness(s1) > getBestFitness(s2); }));
+
+    for (auto &s : p->species)
+    {
+        ASSERT_TRUE(std::is_sorted(s->genomes.begin(), s->genomes.end(), [](const neat::Genome *g1, const neat::Genome *g2)
+                                   { return g1->fitness > g2->fitness; }));
+    }
 }
 
 TEST_F(PopulationTest, KillStagnantSpecies)
