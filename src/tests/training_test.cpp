@@ -127,9 +127,11 @@ protected:
 
     void TearDown() override
     {
-        std::filesystem::remove_all(training->directory);
+        std::filesystem::remove_all(training->directory.parent_path().parent_path());
         std::filesystem::remove_all(temp_dir);
         std::filesystem::remove(training->cache_file);
+        std::filesystem::remove(training->training_save_file);
+        std::filesystem::remove(training->population_save_file);
         delete training;
     }
 };
@@ -311,6 +313,10 @@ TEST_F(TrainingTest, Run)
 
     for (int i = 0; i < 10; ++i)
     {
+        // Reset the training
+        training->current_generation = 0;
+
+        // Run the training
         int result = training->run();
 
         // Asserts that the training went well
@@ -319,6 +325,7 @@ TEST_F(TrainingTest, Run)
         ASSERT_EQ(training->average_fitnesses.size(), training->config.training.generations);
         ASSERT_NE(training->best_trader, nullptr);
         ASSERT_EQ(training->best_trader->fitness, training->population->best_fitness);
+        ASSERT_EQ(training->current_generation, training->config.training.generations);
 
         for (int i = 0; i < training->config.training.generations; ++i)
         {
@@ -327,6 +334,26 @@ TEST_F(TrainingTest, Run)
         }
     }
 }
+
+TEST_F(TrainingTest, Resume)
+{
+    training->load_candles();
+    training->load_indicators();
+    training->load_base_currency_conversion_rate();
+    training->cache_data();
+    training->run();
+    training->save();
+
+    training->config.training.generations = 11; // Add more generations
+    Training *training2 = new Training(training->id, training->config, false);
+
+    ASSERT_EQ(training2->id, training->id);
+    ASSERT_EQ(training2->current_generation, training->current_generation);
+    ASSERT_GE(training2->best_fitnesses, training->best_fitnesses);
+    ASSERT_EQ(training2->population->genomes.size(), training->population->genomes.size());
+    ASSERT_EQ(training2->population->best_fitness, training->population->best_fitness);
+    ASSERT_EQ(training2->population->average_fitness, training->population->average_fitness);
+};
 
 TEST_F(TrainingTest, MonteCarloSimulation)
 {
@@ -351,10 +378,14 @@ TEST_F(TrainingTest, MonteCarloSimulation)
 
 TEST_F(TrainingTest, GenerateFitnessReport)
 {
+    std::string fitness_report_file = training->directory.generic_string() + "/fitness_report.png";
+
     for (int i = 0; i < 10; ++i)
     {
         training->best_fitnesses[i] = i;
         training->average_fitnesses[i] = i / 2;
         training->generate_fitness_report();
     }
+
+    ASSERT_TRUE(std::filesystem::exists(fitness_report_file));
 }

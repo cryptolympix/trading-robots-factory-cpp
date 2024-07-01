@@ -8,33 +8,37 @@ neat::ConnectionGene::ConnectionGene(std::shared_ptr<Node> from, std::shared_ptr
 
 neat::ConnectionGene::~ConnectionGene()
 {
-    from_node.reset();
-    to_node.reset();
+    this->from_node.reset();
+    this->to_node.reset();
 }
 
 void neat::ConnectionGene::mutate(const neat::Config &config)
 {
     // Change the weight of the connection or disable/enable it
     if (randrange() < config.weight_replace_rate)
-        weight = uniform(config.weight_min_value, config.weight_max_value);
+    {
+        this->weight = uniform(config.weight_min_value, config.weight_max_value);
+    }
     else if (randrange() < config.weight_mutate_rate)
     {
         // Otherwise, slightly change it
-        weight += normal(config.weight_init_mean, config.weight_init_stdev) / 50;
+        this->weight += normal(config.weight_init_mean, config.weight_init_stdev) / 50;
         // Keep weight between bounds
-        weight = std::min(std::max(weight, config.weight_min_value), config.weight_max_value);
+        this->weight = std::min(std::max(weight, config.weight_min_value), config.weight_max_value);
     }
 
     if (randrange() < config.enabled_mutate_rate)
-        enabled = !enabled;
+    {
+        this->enabled = !this->enabled;
+    }
 }
 
 bool neat::ConnectionGene::is_equal(std::shared_ptr<ConnectionGene> other)
 {
-    return from_node->id == other->from_node->id && to_node->id == other->to_node->id && weight == other->weight && innovation_nb == other->innovation_nb && enabled == other->enabled;
+    return this->from_node->id == other->from_node->id && this->to_node->id == other->to_node->id && this->weight == other->weight && this->innovation_nb == other->innovation_nb && this->enabled == other->enabled;
 }
 
 std::shared_ptr<neat::ConnectionGene> neat::ConnectionGene::clone(std::shared_ptr<Node> from, std::shared_ptr<Node> to)
 {
-    return std::make_shared<ConnectionGene>(from, to, weight, innovation_nb, enabled);
+    return std::make_shared<ConnectionGene>(from, to, this->weight, this->innovation_nb, this->enabled);
 }

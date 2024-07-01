@@ -29,11 +29,16 @@ class Trader;
 class Training
 {
 public:
-    std::string id;                   // Unique identifier for the training process.
-    bool debug;                       // Debug mode flag.
-    Config config;                    // Configuration object.
-    std::filesystem::path directory;  // Directory to save the training results.
-    std::filesystem::path cache_file; // Optional cache file path.
+    std::string id; // Unique identifier for the training process.
+    bool debug;     // Debug mode flag.
+    Config config;  // Configuration object.
+
+    // Files and directories to save the training results.
+    std::filesystem::path directory;            // Directory to save the training results.
+    std::filesystem::path cache_file;           // Optional cache file path.
+    std::filesystem::path fitness_report_file;  // Fitness report file path.
+    std::filesystem::path population_save_file; // Population save file path.
+    std::filesystem::path training_save_file;   // Training state file path.
 
     std::map<time_t, CandlesData> candles;                        // Candle data for all time frames at a specified date.
     std::map<time_t, IndicatorsData> indicators;                  // Indicator data for all time frames at a specified date.
@@ -44,6 +49,7 @@ public:
     std::vector<time_t> training_dates; // Dates used for training period.
     std::vector<time_t> test_dates;     // Dates used for testing period.
 
+    int current_generation;                           // Current generation number.
     neat::Population *population;                     // NEAT population for evolution.
     Trader *best_trader;                              // Best trader overall.
     std::vector<Trader *> current_generation_traders; // Map of traders for the current generation.
@@ -144,6 +150,17 @@ public:
      * @brief Generate a fitness report for the training process.
      */
     void generate_fitness_report();
+
+    /**
+     * @brief Save the training process to a file.
+     */
+    void save();
+
+    /**
+     * @brief Load a training process from a file.
+     * @return The loaded training process.
+     */
+    void load();
 };
 
 #endif // TRAINING_HPP

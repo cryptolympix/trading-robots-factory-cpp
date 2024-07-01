@@ -19,7 +19,7 @@ namespace neat
     class Population
     {
     public:
-        const Config config;                                                // NEAT configuration settings.
+        Config config;                                                      // NEAT configuration settings.
         std::vector<Genome *> genomes;                                      // List of genomes in the population.
         Genome *best_genome;                                                // Best genome in the population.
         int generation;                                                     // Current generation number.
@@ -31,8 +31,9 @@ namespace neat
         /**
          * @brief Constructor for the Population class.
          * @param config NEAT configuration settings.
+         * @param init_genomes Flag to initialize genomes in the population.
          */
-        Population(const Config &config);
+        Population(const Config &config, bool init_genomes = true);
 
         /**
          * @brief Destructor for the Population class to ensure proper cleanup.
@@ -103,6 +104,19 @@ namespace neat
          * @return A copy of this population.
          */
         Population *clone();
+
+        /**
+         * @brief Save the population to a file.
+         * @param filename Name of the file to save the population.
+         */
+        void save(const std::string &filename);
+
+        /**
+         * @brief Load the population from a file.
+         * @param filename Name of the file to load the population.
+         * @param config NEAT configuration settings.
+         */
+        static neat::Population *load(const std::string &filename, const Config &config);
     };
 }
 

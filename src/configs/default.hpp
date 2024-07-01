@@ -50,8 +50,8 @@ std::tm start_training_date = {
     .tm_min = 0,
     .tm_hour = 0,
     .tm_mday = 1,
-    .tm_mon = 3,
-    .tm_year = 2023 - 1900,
+    .tm_mon = 1,
+    .tm_year = 2022 - 1900,
 };
 
 std::tm end_training_date = {
@@ -91,7 +91,7 @@ Config __config__ = {
         .leverage = 30,
     },
     .strategy{
-        .timeframe = TimeFrame::M5,
+        .timeframe = TimeFrame::M15,
         .risk_per_trade = 0.05,
         .maximum_trades_per_day = 2,
         .maximum_spread = 8,
@@ -113,7 +113,7 @@ Config __config__ = {
         .inputs = {
             .indicators = {
                 {
-                    TimeFrame::M5,
+                    TimeFrame::M15,
                     {
                         new Hour(),
                         new Minute(),
@@ -184,19 +184,8 @@ Config __config__ = {
                     },
                 },
                 {
-                    TimeFrame::M30,
+                    TimeFrame::H1,
                     {
-                        new Hour(),
-                        new Minute(),
-                        new NFPWeek(),
-                        new MarketSession("new-york"),
-                        new MarketSession("london"),
-                        new MarketSession("tokyo"),
-                        new WeekDay("monday"),
-                        new WeekDay("tuesday"),
-                        new WeekDay("wednesday"),
-                        new WeekDay("thursday"),
-                        new WeekDay("friday"),
                         new CandleClose(0),
                         new CandleVolume(0),
                         new CandlePriceChange(0),
@@ -259,6 +248,7 @@ Config __config__ = {
         },
     },
     .evaluation{
+        .maximize_nb_trades = false,
         .minimum_nb_trades = 250,
         .maximum_trade_duration = 5,
         // .expected_return_per_day = 0.02,

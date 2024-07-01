@@ -24,38 +24,23 @@ protected:
         genome->genes.emplace_back(std::make_shared<neat::ConnectionGene>(fromNode, toNode, 0.5, 1, true));
         connectionHistory = std::make_shared<neat::ConnectionHistory>(fromNode, toNode, 1);
     }
-
-    void testInit()
-    {
-        ASSERT_EQ(connectionHistory->from_node, fromNode);
-        ASSERT_EQ(connectionHistory->to_node, toNode);
-    }
-
-    void testMatchesWithExistingConnection()
-    {
-        bool result = connectionHistory->matches(fromNode, toNode);
-        ASSERT_TRUE(result);
-    }
-
-    void testMatchesWithNonExistingConnection()
-    {
-        std::shared_ptr<neat::Node> node = std::make_shared<neat::Node>(3, "relu", 2);
-        bool result = connectionHistory->matches(fromNode, node);
-        ASSERT_FALSE(result);
-    }
 };
 
 TEST_F(ConnectionHistoryTest, Init)
 {
-    testInit();
+    ASSERT_EQ(connectionHistory->from_node, fromNode);
+    ASSERT_EQ(connectionHistory->to_node, toNode);
 }
 
 TEST_F(ConnectionHistoryTest, MatchesWithExistingConnection)
 {
-    testMatchesWithExistingConnection();
+    bool result = connectionHistory->matches(fromNode, toNode);
+    ASSERT_TRUE(result);
 }
 
 TEST_F(ConnectionHistoryTest, MatchesWithNonExistingConnection)
 {
-    testMatchesWithNonExistingConnection();
+    std::shared_ptr<neat::Node> node = std::make_shared<neat::Node>(3, "relu", 2);
+    bool result = connectionHistory->matches(fromNode, node);
+    ASSERT_FALSE(result);
 }

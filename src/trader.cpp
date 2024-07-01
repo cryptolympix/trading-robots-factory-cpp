@@ -14,6 +14,7 @@
 #include "utils/math.hpp"
 #include "utils/vectors.hpp"
 #include "utils/date_conversion.hpp"
+#include "libs/json.hpp"
 #include "libs/gnuplot-iostream.hpp"
 #include "neat/genome.hpp"
 #include "trading/trading_schedule.hpp"
@@ -1409,6 +1410,42 @@ void Trader::print_stats_to_console()
     std::cout << "Average trade duration: " << this->stats.average_trade_duration << " candles" << std::endl;
     std::cout << "Sharpe ratio: " << decimal_floor(this->stats.sharpe_ratio, 2) << std::endl;
     std::cout << "Sortino ratio: " << decimal_floor(this->stats.sortino_ratio, 2) << std::endl;
+}
+
+/**
+ * @brief Converts the trader to a JSON object.
+ * @return JSON representation of the trader.
+ */
+nlohmann::json Trader::to_json() const
+{
+    nlohmann::json json;
+    json["fitness"] = this->fitness;
+    json["score"] = this->score;
+    json["generation"] = this->generation;
+    json["genome"] = this->genome->to_json();
+    return json;
+}
+
+/**
+ * @brief Creates a trader from a JSON object.
+ * @param json JSON object representing the trader.
+ * @param config Configuration file.
+ * @param logger Logger of the trader.
+ * @return Trader created from the JSON object.
+ */
+Trader *Trader::from_json(nlohmann::json &json, Config &config, Logger *logger)
+{
+    double fitness = json.at("fitness").get<double>();
+    double score = json.at("score").get<double>();
+    int generation = json.at("generation").get<int>();
+    neat::Genome *genome = neat::Genome::from_json(json.at("genome"));
+
+    Trader *trader = new Trader(genome, config, logger);
+    trader->fitness = fitness;
+    trader->score = score;
+    trader->generation = generation;
+
+    return trader;
 }
 
 /**

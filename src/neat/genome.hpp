@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include "json.hpp"
 #include "config.hpp"
 #include "connection_gene.hpp"
 
@@ -149,6 +150,19 @@ namespace neat
          * @return Cloned genome.
          */
         Genome *clone();
+
+        /**
+         * @brief Converts the genome to a JSON object.
+         * @return JSON representation of the genome.
+         */
+        nlohmann::json to_json() const;
+
+        /**
+         * @brief Creates a genome from a JSON object.
+         * @param json JSON object representing the genome.
+         * @return Genome created from the JSON object.
+         */
+        static Genome *from_json(const nlohmann::json &json);
 
         /**
          * @brief Saves the genome to a binary file.

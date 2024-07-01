@@ -225,7 +225,9 @@ TEST_F(PopulationTest, UpdateSpecies)
     // Mock species
     neat::Species *species = new neat::Species(new neat::Genome(config));
     for (int i = 0; i < 10; ++i)
+    {
         species->add_to_species(new neat::Genome(config));
+    }
     p->species.push_back(species);
 
     // Run updating species
@@ -247,15 +249,69 @@ TEST_F(PopulationTest, Clone)
     // Asserts the clone is valid
 
     for (size_t i = 0; i < clone->genomes.size(); ++i)
+    {
         ASSERT_TRUE(clone->genomes[i]->is_equal(population->genomes[i]));
+    }
 
     for (size_t i = 0; i < clone->species.size(); ++i)
+    {
         ASSERT_TRUE(clone->species[i]->is_equal(population->species[i]));
+    }
 
-    if (population->best_genome != NULL)
+    if (population->best_genome != nullptr)
+    {
         ASSERT_TRUE(clone->best_genome->is_equal(population->best_genome));
+    }
 
     ASSERT_EQ(clone->generation, population->generation);
     ASSERT_EQ(clone->average_fitness, population->average_fitness);
     ASSERT_EQ(clone->best_fitness, population->best_fitness);
+}
+
+TEST_F(PopulationTest, SaveAndLoad)
+{
+    neat::Population *population = new neat::Population(this->config);
+    population->best_genome = new neat::Genome(this->config);
+
+    // Create a temporary directory for testing
+    std::string tempDir = "./temp"; // Replace with the actual path
+    std::string filePath = tempDir + "/test_population.json";
+
+    // Save the population
+    population->save(filePath);
+
+    ASSERT_TRUE(std::filesystem::exists(filePath));
+
+    // Load the saved population
+    neat::Population *loadedPopulation = neat::Population::load(filePath, this->config);
+
+    // Check if the loaded population is valid
+    ASSERT_EQ(typeid(loadedPopulation), typeid(neat::Population *));
+    ASSERT_NE(loadedPopulation, population);
+    ASSERT_EQ(loadedPopulation->average_fitness, population->average_fitness);
+    ASSERT_EQ(loadedPopulation->best_fitness, population->best_fitness);
+    ASSERT_EQ(loadedPopulation->generation, population->generation);
+    ASSERT_EQ(loadedPopulation->genomes.size(), population->genomes.size());
+    ASSERT_EQ(loadedPopulation->species.size(), population->species.size());
+
+    // Check if the loaded best genome is valid
+    if (population->best_genome != nullptr)
+    {
+        ASSERT_TRUE(loadedPopulation->best_genome->is_equal(population->best_genome));
+    }
+
+    // Check if the loaded genomes are valid
+    for (size_t i = 0; i < loadedPopulation->genomes.size(); ++i)
+    {
+        ASSERT_TRUE(loadedPopulation->genomes[i]->is_equal(population->genomes[i]));
+    }
+
+    // Check if the loaded species are valid
+    for (size_t i = 0; i < loadedPopulation->species.size(); ++i)
+    {
+        ASSERT_TRUE(loadedPopulation->species[i]->is_equal(population->species[i]));
+    }
+
+    // Remove the temporary directory
+    std::filesystem::remove_all(tempDir);
 }

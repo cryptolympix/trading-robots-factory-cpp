@@ -21,6 +21,8 @@ namespace neat
         double average_fitness;        //  Average fitness of the genomes in the species.
         int stagnation;                //  Number of generations the species has gone without an improvement.
 
+        Species();
+
         /**
          * @brief Initializes a Species instance.
          * @param genome The initial genome for the species.
@@ -109,6 +111,32 @@ namespace neat
          * @return A copy of this species.
          */
         Species *clone();
+
+        /**
+         * @brief Converts the species to a JSON object.
+         * @return JSON representation of the species.
+         */
+        nlohmann::json to_json() const;
+
+        /**
+         * @brief Creates a species from a JSON object.
+         * @param json JSON object representing the species.
+         * @return Species created from the JSON object.
+         */
+        static Species *from_json(const nlohmann::json &json);
+
+        /**
+         * @brief Save the species to a file.
+         * @param file_path The path to the file.
+         */
+        void save(const std::string &file_path);
+
+        /**
+         * @brief Load the species from a file.
+         * @param file_path The path to the file.
+         * @return The loaded species.
+         */
+        static Species *load(const std::string &file_path);
     };
 }
 

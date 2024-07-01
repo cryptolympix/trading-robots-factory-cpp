@@ -2,9 +2,10 @@
 #define TRADER_HPP
 
 #include <ctime>
+#include "libs/json.hpp"
+#include "neat/genome.hpp"
 #include "utils/logger.hpp"
 #include "types.hpp"
-#include "neat/genome.hpp"
 
 class Trader
 {
@@ -163,6 +164,19 @@ public:
      * @brief Print the statistics of the trader in the console.
      */
     void print_stats_to_console();
+
+    /**
+     * @brief Converts the trader to a JSON object.
+     * @return JSON representation of the trader.
+     */
+    nlohmann::json to_json() const;
+
+    /**
+     * @brief Creates a trader from a JSON object.
+     * @param json JSON object representing the trader.
+     * @return Trader created from the JSON object.
+     */
+    static Trader *from_json(nlohmann::json &json, Config &config, Logger *logger = nullptr);
 
     /**
      * @brief Generate the graph of the balance history.

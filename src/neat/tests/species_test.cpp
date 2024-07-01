@@ -225,7 +225,9 @@ TEST_F(SpeciesTest, KillGenomes)
     // Add some mock genomes to the species
     const int numGenomes = 10;
     for (int i = 0; i < numGenomes; ++i)
+    {
         species->add_to_species(new neat::Genome(config));
+    }
 
     // Call the function to kill genomes
     species->kill_genomes(config);
@@ -260,4 +262,52 @@ TEST_F(SpeciesTest, FitnessSharing)
     ASSERT_DOUBLE_EQ(genomes[0]->fitness, expectedFitness1);
     ASSERT_DOUBLE_EQ(genomes[1]->fitness, expectedFitness2);
     ASSERT_DOUBLE_EQ(genomes[2]->fitness, expectedFitness3);
+}
+
+TEST_F(SpeciesTest, JSON)
+{
+    // Convert the species to JSON
+    nlohmann::json speciesJson = species->to_json();
+
+    // Check if the JSON object is valid
+    ASSERT_TRUE(speciesJson.is_object());
+    ASSERT_TRUE(speciesJson.contains("genomes"));
+    ASSERT_TRUE(speciesJson.contains("champion"));
+    ASSERT_TRUE(speciesJson.contains("best_fitness"));
+    ASSERT_TRUE(speciesJson.contains("average_fitness"));
+    ASSERT_TRUE(speciesJson.contains("stagnation"));
+
+    // Convert the JSON object back to a species
+    neat::Species *newSpecies = neat::Species::from_json(speciesJson);
+
+    // Check if the new genome is valid
+    ASSERT_EQ(typeid(newSpecies), typeid(neat::Species *));
+    ASSERT_NE(newSpecies, species);
+    ASSERT_TRUE(newSpecies->is_equal(species));
+}
+
+TEST_F(SpeciesTest, SaveLoadTest)
+{
+    neat::Genome *genome = new neat::Genome(config);
+    neat::Species *species = new neat::Species(genome);
+
+    // Create a temporary directory for testing
+    std::string tempDir = "./temp"; // Replace with the actual path
+    std::string filePath = tempDir + "/test_species.json";
+
+    // Save the species
+    species->save(filePath);
+
+    ASSERT_TRUE(std::filesystem::exists(filePath));
+
+    // Load the saved species
+    neat::Species *loadedSpecies = neat::Species::load(filePath);
+
+    // Check if the loaded genome is valid
+    ASSERT_EQ(typeid(loadedSpecies), typeid(neat::Species *));
+    ASSERT_NE(loadedSpecies, species);
+    ASSERT_TRUE(loadedSpecies->is_equal(species));
+
+    // Remove the temporary directory
+    std::filesystem::remove_all(tempDir);
 }

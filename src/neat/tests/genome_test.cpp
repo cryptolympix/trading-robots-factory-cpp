@@ -9,7 +9,7 @@
 #include "../connection_gene.hpp"
 #include "../connection_history.hpp"
 
-class TestGenome : public testing::Test
+class GenomeTest : public testing::Test
 {
 protected:
     // Mock NeatConfig
@@ -35,7 +35,7 @@ protected:
     }
 };
 
-TEST_F(TestGenome, Init)
+TEST_F(GenomeTest, Init)
 {
     neat::Genome *genome = new neat::Genome(config);
 
@@ -50,7 +50,7 @@ TEST_F(TestGenome, Init)
     ASSERT_EQ(genome->fitness, 0);
 }
 
-TEST_F(TestGenome, FullyConnect)
+TEST_F(GenomeTest, FullyConnect)
 {
     neat::Genome *genome = new neat::Genome(config);
     genome->fully_connect(connection_history);
@@ -77,7 +77,7 @@ TEST_F(TestGenome, FullyConnect)
     ASSERT_EQ(genome->genes[7]->to_node->id, 5);
 }
 
-TEST_F(TestGenome, GetNode)
+TEST_F(GenomeTest, GetNode)
 {
     neat::Genome *genome = new neat::Genome(config);
     std::shared_ptr<neat::Node> node = genome->get_node(0);
@@ -86,7 +86,7 @@ TEST_F(TestGenome, GetNode)
     ASSERT_EQ(node->id, 0);
 }
 
-TEST_F(TestGenome, ConnectNodes)
+TEST_F(GenomeTest, ConnectNodes)
 {
     neat::Genome *genome = new neat::Genome(config);
     genome->fully_connect(connection_history);
@@ -101,7 +101,7 @@ TEST_F(TestGenome, ConnectNodes)
     ASSERT_EQ(genome->nodes[5]->output_connections.size(), 0);
 }
 
-TEST_F(TestGenome, FeedForward)
+TEST_F(GenomeTest, FeedForward)
 {
     neat::Genome *genome = new neat::Genome(config);
     genome->fully_connect(connection_history);
@@ -115,7 +115,7 @@ TEST_F(TestGenome, FeedForward)
     ASSERT_EQ(outputValues[1], genome->nodes[3]->output_value);
 }
 
-TEST_F(TestGenome, GenerateNetwork)
+TEST_F(GenomeTest, GenerateNetwork)
 {
     neat::Genome *genome = new neat::Genome(config);
     genome->fully_connect(connection_history);
@@ -132,7 +132,7 @@ TEST_F(TestGenome, GenerateNetwork)
     ASSERT_EQ(genome->network[5]->id, 5); // Second output node
 }
 
-TEST_F(TestGenome, AddNode)
+TEST_F(GenomeTest, AddNode)
 {
     neat::Genome *genome = new neat::Genome(config);
     genome->fully_connect(connection_history);
@@ -148,7 +148,7 @@ TEST_F(TestGenome, AddNode)
     ASSERT_EQ(genome->nodes.size(), initialNumNodes + 1);
 }
 
-TEST_F(TestGenome, RemoveNode)
+TEST_F(GenomeTest, RemoveNode)
 {
     neat::Genome *genome = new neat::Genome(config);
     genome->fully_connect(connection_history);
@@ -165,7 +165,7 @@ TEST_F(TestGenome, RemoveNode)
     ASSERT_EQ(genome->nodes.size(), initialNumNodes - 1);
 }
 
-TEST_F(TestGenome, AddConnection)
+TEST_F(GenomeTest, AddConnection)
 {
     neat::Genome *genome = new neat::Genome(config);
     const size_t initialNumGenes = genome->genes.size();
@@ -176,7 +176,7 @@ TEST_F(TestGenome, AddConnection)
     ASSERT_EQ(genome->genes.size(), initialNumGenes + 1);
 }
 
-TEST_F(TestGenome, RemoveConnection)
+TEST_F(GenomeTest, RemoveConnection)
 {
     neat::Genome *genome = new neat::Genome(config);
     genome->fully_connect(connection_history);
@@ -188,7 +188,7 @@ TEST_F(TestGenome, RemoveConnection)
     ASSERT_EQ(genome->genes.size(), initialNumGenes - 1);
 }
 
-TEST_F(TestGenome, NewConnectionWeight)
+TEST_F(GenomeTest, NewConnectionWeight)
 {
     neat::Genome *genome = new neat::Genome(config);
 
@@ -199,7 +199,7 @@ TEST_F(TestGenome, NewConnectionWeight)
     ASSERT_LE(weight, config.weight_max_value);
 }
 
-TEST_F(TestGenome, GetInnovationNumber)
+TEST_F(GenomeTest, GetInnovationNumber)
 {
     neat::Genome *genome = new neat::Genome(config);
     std::shared_ptr<neat::Node> fromNode = std::make_shared<neat::Node>(0, "sigmoid", 0);
@@ -210,7 +210,7 @@ TEST_F(TestGenome, GetInnovationNumber)
     ASSERT_EQ(typeid(innovationNumber), typeid(int));
 }
 
-TEST_F(TestGenome, FullyConnected)
+TEST_F(GenomeTest, FullyConnected)
 {
     neat::Genome *genome = new neat::Genome(config);
     genome->fully_connect(connection_history);
@@ -219,7 +219,7 @@ TEST_F(TestGenome, FullyConnected)
     ASSERT_TRUE(genome->fully_connected());
 }
 
-TEST_F(TestGenome, Mutate)
+TEST_F(GenomeTest, Mutate)
 {
     neat::Genome *genome = new neat::Genome(config);
     int initialNumGenes = genome->genes.size();
@@ -234,7 +234,7 @@ TEST_F(TestGenome, Mutate)
     ASSERT_GE(genome->genes.size(), initialNumNodes);
 }
 
-TEST_F(TestGenome, Crossover)
+TEST_F(GenomeTest, Crossover)
 {
     neat::Genome *parent1 = new neat::Genome(config);
     neat::Genome *parent2 = new neat::Genome(config);
@@ -251,7 +251,7 @@ TEST_F(TestGenome, Crossover)
     ASSERT_NE(&child, &parent2);
 }
 
-TEST_F(TestGenome, MatchingGene)
+TEST_F(GenomeTest, MatchingGene)
 {
     neat::Genome *genome = new neat::Genome(config);
     genome->fully_connect(connection_history);
@@ -265,7 +265,7 @@ TEST_F(TestGenome, MatchingGene)
     ASSERT_EQ(matchingGeneIndex, 0);
 }
 
-TEST_F(TestGenome, CloneTest)
+TEST_F(GenomeTest, CloneTest)
 {
     neat::Genome *genome = new neat::Genome(config);
     genome->fully_connect(connection_history);
@@ -278,17 +278,47 @@ TEST_F(TestGenome, CloneTest)
     ASSERT_EQ(clone->nodes.size(), genome->nodes.size());
 }
 
-TEST_F(TestGenome, SaveLoadTest)
+TEST_F(GenomeTest, JSON)
+{
+    neat::Genome *genome = new neat::Genome(config);
+    genome->fully_connect(connection_history);
+
+    // Convert the genome to a JSON object
+    nlohmann::json genomeJson = genome->to_json();
+
+    // Check if the JSON object is valid
+    ASSERT_TRUE(genomeJson.is_object());
+    ASSERT_TRUE(genomeJson.contains("id"));
+    ASSERT_TRUE(genomeJson.contains("fitness"));
+    ASSERT_TRUE(genomeJson.contains("genes"));
+    ASSERT_TRUE(genomeJson.contains("nodes"));
+    ASSERT_TRUE(genomeJson.contains("inputs"));
+    ASSERT_TRUE(genomeJson.contains("outputs"));
+    ASSERT_TRUE(genomeJson.contains("layers"));
+    ASSERT_TRUE(genomeJson.contains("next_node"));
+
+    // Convert the JSON object back to a genome
+    neat::Genome *newGenome = neat::Genome::from_json(genomeJson);
+
+    // Check if the new genome is valid
+    ASSERT_EQ(typeid(newGenome), typeid(neat::Genome *));
+    ASSERT_NE(newGenome, genome);
+    ASSERT_TRUE(newGenome->is_equal(genome));
+}
+
+TEST_F(GenomeTest, SaveLoadTest)
 {
     neat::Genome *genome = new neat::Genome(config);
     genome->fully_connect(connection_history);
 
     // Create a temporary directory for testing
     std::string tempDir = "./temp"; // Replace with the actual path
-    std::string filePath = tempDir + "/test_genome.pkl";
+    std::string filePath = tempDir + "/test_genome.json";
 
     // Save the genome
     genome->save(filePath);
+
+    ASSERT_TRUE(std::filesystem::exists(filePath));
 
     // Load the saved genome
     neat::Genome *loadedGenome = neat::Genome::load(filePath);

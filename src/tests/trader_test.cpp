@@ -8,6 +8,7 @@
 #include "../neat/genome.hpp"
 #include "../indicators/momentum.hpp"
 #include "../trading/trading_tools.hpp"
+#include "../libs/json.hpp"
 #include "../symbols.hpp"
 #include "../types.hpp"
 #include "../trader.hpp"
@@ -1335,6 +1336,18 @@ TEST_F(TraderTest, CalculateFitness)
 
     // Check if fitness is calculated correctly
     ASSERT_GT(trader->fitness, 0.0);
+}
+
+TEST_F(TraderTest, JSON)
+{
+    nlohmann::json json = trader->to_json();
+    Trader *trader_copy = Trader::from_json(json, config);
+
+    // Check if the trader is correctly serialized and deserialized
+    ASSERT_EQ(trader->fitness, trader_copy->fitness);
+    ASSERT_EQ(trader->score, trader_copy->score);
+    ASSERT_EQ(trader->generation, trader_copy->generation);
+    ASSERT_TRUE(trader->genome->is_equal(trader_copy->genome));
 }
 
 TEST_F(TraderTest, GenerateBalanceHistoryGraph)

@@ -8,8 +8,8 @@ neat::ConnectionHistory::ConnectionHistory(std::shared_ptr<Node> from_node, std:
 
 neat::ConnectionHistory::~ConnectionHistory()
 {
-    from_node.reset();
-    to_node.reset();
+    this->from_node.reset();
+    this->to_node.reset();
 }
 
 bool neat::ConnectionHistory::matches(std::shared_ptr<Node> from_node, std::shared_ptr<Node> to_node)

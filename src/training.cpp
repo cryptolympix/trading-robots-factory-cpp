@@ -22,6 +22,7 @@
 #include "utils/vectors.hpp"
 #include "neat/population.hpp"
 #include "neat/genome.hpp"
+#include "libs/json.hpp"
 #include "libs/gnuplot-iostream.hpp"
 #include "training.hpp"
 #include "symbols.hpp"
@@ -36,9 +37,18 @@
 Training::Training(std::string id, Config &config, bool debug)
     : id(id), config(config), debug(debug)
 {
-    // Create the directory for the training
+    // Create the directory
     this->directory = "reports/" + this->config.general.name + "/" + this->config.general.version + "/" + id;
-    this->cache_file = "cache/" + this->config.general.name + "/" + this->config.general.version + "/data.json";
+    if (!std::filesystem::exists(this->directory))
+    {
+        std::filesystem::create_directories(this->directory);
+    }
+
+    // Set the file paths
+    this->cache_file = "cache/data_" + this->config.general.name + "_" + this->config.general.version + ".json";
+    this->fitness_report_file = this->directory.generic_string() + "/fitness_report.png";
+    this->population_save_file = this->directory.generic_string() + "/population_save.json";
+    this->training_save_file = this->directory.generic_string() + "/training_save.json";
 
     // Set the number of inputs and outputs for the NEAT algorithm
     this->config.neat.num_inputs = this->count_indicators() + this->config.training.inputs.position.size();
@@ -58,11 +68,25 @@ Training::Training(std::string id, Config &config, bool debug)
     this->cache = new Cache(this->cache_file.generic_string());
 
     // History for statistics
+    this->current_generation = 0;
     int generations = config.training.generations;
     this->best_trader = nullptr;
     this->current_generation_traders = {};
     this->best_fitnesses = {};
     this->average_fitnesses = {};
+
+    // Check if the training directory exists
+    if (std::filesystem::exists(this->training_save_file) && std::filesystem::exists(this->population_save_file))
+    {
+        std::cout << "▶️ Continue the training from the last saved state..." << std::endl;
+        this->load();
+
+        if (this->current_generation >= generations)
+        {
+            std::cout << "⚠️ The training is already finished." << std::endl;
+            std::exit(0);
+        }
+    }
 }
 
 /**
@@ -578,10 +602,12 @@ void Training::evaluate_genome(neat::Genome *genome, int generation)
 
 /**
  * @brief Run the NEAT algorithm for training.
+ * @return The exit code of the training process. 0 if successful, 1 otherwise.
  */
 int Training::run()
 {
-    int nb_generations = this->config.training.generations;
+    // Number of generations to train for the current run of the algorithm (remaining generations)
+    int nb_generations = this->config.training.generations - this->current_generation;
 
     // Init the progress bar
     ProgressBar *progress_bar = new ProgressBar(100, nb_generations);
@@ -594,10 +620,10 @@ int Training::run()
             progress_bar->update(1);
 
             // Save the best fitness of the generation
-            this->best_fitnesses[generation] = population->best_fitness;
+            this->best_fitnesses[this->current_generation] = population->best_fitness;
 
             // Calculate the average fitness of the generation
-            this->average_fitnesses[generation] = population->average_fitness;
+            this->average_fitnesses[this->current_generation] = population->average_fitness;
 
             // Find the trader with the best genome of the generation
             for (const auto &trader : this->current_generation_traders)
@@ -640,9 +666,9 @@ int Training::run()
             }
 
             // Save the best trader info of the generation
-            std::string genome_save_file = this->directory.generic_string() + "/trader_" + std::to_string(generation) + "_" + this->best_trader->genome->id + "_genome_save.json";
-            std::string graphic_file = this->directory.generic_string() + "/trader_" + std::to_string(generation) + "_" + this->best_trader->genome->id + "_training_balance_history.png";
-            std::string report_file = this->directory.generic_string() + "/trader_" + std::to_string(generation) + "_" + this->best_trader->genome->id + "_training_report.html";
+            std::string genome_save_file = this->directory.generic_string() + "/trader_" + std::to_string(this->current_generation) + "_" + this->best_trader->genome->id + "_genome_save.json";
+            std::string graphic_file = this->directory.generic_string() + "/trader_" + std::to_string(this->current_generation) + "_" + this->best_trader->genome->id + "_training_balance_history.png";
+            std::string report_file = this->directory.generic_string() + "/trader_" + std::to_string(this->current_generation) + "_" + this->best_trader->genome->id + "_training_report.html";
 
             std::cout << std::endl;
             this->best_trader->genome->save(genome_save_file);
@@ -654,14 +680,20 @@ int Training::run()
             this->generate_fitness_report();
 
             // The training of generation is finished
-            std::cout << "✅ Training of generation " << generation << " finished!" << std::endl;
+            std::cout << "✅ Training of generation " << this->current_generation << " finished!" << std::endl;
 
             // Display the fitness of the best trader
             std::cout << "🧬 Fitness of the best trader: " << best_trader->fitness << std::endl;
 
             // Test the trader on a the testing period
-            this->test(this->best_trader->genome, generation);
-            std::cout << "✅ Testing of the best trader of generation " << generation << " finished!" << std::endl;
+            this->test(this->best_trader->genome, this->current_generation);
+            std::cout << "✅ Testing of the best trader of generation " << this->current_generation << " finished!" << std::endl;
+
+            // Save the training process
+            this->save();
+
+            // Update the current generation
+            this->current_generation++;
 
             std::cout << std::endl;
         };
@@ -882,11 +914,8 @@ void Training::generate_fitness_report()
         return;
     }
 
-    // Generate the fitness report
-    std::string fitness_report_file = this->directory.generic_string() + "/fitness_report.png";
-
     // Check if the directory exists
-    std::filesystem::path dir = std::filesystem::path(fitness_report_file).parent_path();
+    std::filesystem::path dir = std::filesystem::path(this->fitness_report_file).parent_path();
     if (!std::filesystem::exists(dir))
     {
         try
@@ -913,7 +942,7 @@ void Training::generate_fitness_report()
 
     // Specify terminal type and output file
     gp << "set term png\n";
-    gp << "set output '" + fitness_report_file + "'\n";
+    gp << "set output '" + this->fitness_report_file.generic_string() + "'\n";
 
     // Set plot options
     gp << "set title 'Fitness Evolution'\n";
@@ -931,4 +960,86 @@ void Training::generate_fitness_report()
     // Close output and terminate Gnuplot
     gp << "unset output\n";
     gp << "exit\n";
+}
+
+/**
+ * @brief Save the training process to a file.
+ */
+void Training::save()
+{
+    // Save the population
+    this->population->save(this->population_save_file);
+    std::cout << "💾 Population saved to '" << this->population_save_file << "'" << std::endl;
+
+    // Save the training process
+    std::ofstream file(this->training_save_file);
+    if (file.is_open())
+    {
+        nlohmann::json data = {
+            {"id", this->id},
+            {"current_generation", this->current_generation},
+        };
+
+        nlohmann::json best_fitnesses_json;
+        nlohmann::json average_fitnesses_json;
+        for (int i = 0; i < this->best_fitnesses.size(); i++)
+        {
+            best_fitnesses_json[std::to_string(i)] = this->best_fitnesses[i];
+            average_fitnesses_json[std::to_string(i)] = this->average_fitnesses[i];
+        }
+
+        data["best_fitnesses"] = best_fitnesses_json;
+        data["average_fitnesses"] = average_fitnesses_json;
+
+        file << data.dump(4);
+        file.close();
+        std::cout << "💾 Training saved to '" << this->training_save_file << "'" << std::endl;
+    }
+    else
+    {
+        std::cerr << "Error: unable to save the training process to '" << this->training_save_file << "'" << std::endl;
+    }
+}
+
+/**
+ * @brief Load a training process from a file.
+ * @return The loaded training process.
+ */
+void Training::load()
+{
+    // Check if the training process file exists
+    if (!std::filesystem::exists(this->directory))
+    {
+        std::cerr << "Error: the training directory '" << directory << "' does not exist." << std::endl;
+        std::exit(1);
+    }
+
+    if (!std::filesystem::exists(this->training_save_file))
+    {
+        std::cerr << "Error: the training process file '" << this->training_save_file.generic_string() << "' does not exist." << std::endl;
+        std::exit(1);
+    }
+
+    // Load the training process
+    std::ifstream file(this->training_save_file);
+    nlohmann::json data;
+    file >> data;
+    file.close();
+
+    // Load the population
+    this->population = neat::Population::load(this->population_save_file, this->config.neat);
+
+    // Load the training process data
+    this->current_generation = data["current_generation"];
+    for (const auto &[key, value] : data["best_fitnesses"].items())
+    {
+        this->best_fitnesses[std::stoi(key)] = value;
+    }
+    for (const auto &[key, value] : data["average_fitnesses"].items())
+    {
+        this->average_fitnesses[std::stoi(key)] = value;
+    }
+    this->best_trader = new Trader(this->population->best_genome, this->config);
+
+    std::cout << "✅ Training loaded from '" << this->training_save_file << "'" << std::endl;
 }
