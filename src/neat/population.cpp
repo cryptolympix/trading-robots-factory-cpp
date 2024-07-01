@@ -54,7 +54,7 @@ neat::Population::~Population()
         delete g;
     }
 
-    delete this->best_genome;
+    // delete this->best_genome;
 
     // Clear the vectors
     this->species.clear();
