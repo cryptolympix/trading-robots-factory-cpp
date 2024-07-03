@@ -50,6 +50,7 @@ protected:
             .tm_yday = 0,
             .tm_isdst = 0,
         };
+
         time_t end_date = std::mktime(&end_date_tm);
 
         std::vector<bool> working_day = {false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false};
@@ -95,8 +96,8 @@ protected:
                 .inactive_trader_threshold = 500,
                 .training_start_date = start_date,
                 .training_end_date = end_date,
-                .test_start_date = start_date,
-                .test_end_date = end_date,
+                .test_start_date = end_date,
+                .test_end_date = end_date + 86400,
                 .inputs = {
                     .indicators = {
                         {TimeFrame::M15, {new RSI()}},
@@ -306,21 +307,17 @@ TEST_F(TrainingTest, GetAllTimeframes)
 
 TEST_F(TrainingTest, Run)
 {
-    training->load_candles();
-    training->load_indicators();
-    training->load_base_currency_conversion_rate();
-    training->cache_data();
-
     for (int i = 0; i < 10; ++i)
     {
-        // Reset the training
-        training->current_generation = 0;
+        Training *training = new Training("test", config, false);
+        training->prepare();
 
         // Run the training
         int result = training->run();
 
         // Asserts that the training went well
         ASSERT_EQ(result, 0);
+        ASSERT_NE(training->population->best_genome, nullptr);
         ASSERT_EQ(training->best_fitnesses.size(), training->config.training.generations);
         ASSERT_EQ(training->average_fitnesses.size(), training->config.training.generations);
         ASSERT_NE(training->best_trader, nullptr);
@@ -332,28 +329,31 @@ TEST_F(TrainingTest, Run)
             ASSERT_GT(training->best_fitnesses[i], 0);
             ASSERT_GT(training->average_fitnesses[i], 0);
         }
+
+        // Add more generations
+        training->config.training.generations = config.training.generations * 2;
+
+        // Continue the training
+        Training *training2 = new Training(training->id, training->config, false);
+
+        ASSERT_EQ(training2->id, training->id);
+        ASSERT_EQ(training2->current_generation, training->current_generation);
+        ASSERT_EQ(training2->best_fitnesses, training->best_fitnesses);
+        ASSERT_EQ(training2->average_fitnesses, training->average_fitnesses);
+        ASSERT_EQ(training2->population->genomes.size(), training->population->genomes.size());
+
+        training2->prepare();
+        training2->run();
+
+        ASSERT_EQ(training2->current_generation, training->config.training.generations);
+        ASSERT_EQ(training2->population->genomes.size(), training->population->genomes.size());
+        ASSERT_EQ(training2->best_fitnesses.size(), training->config.training.generations);
+        ASSERT_EQ(training2->average_fitnesses.size(), training->config.training.generations);
+
+        // Clean up the files
+        std::filesystem::remove_all(training->directory);
     }
 }
-
-TEST_F(TrainingTest, Resume)
-{
-    training->load_candles();
-    training->load_indicators();
-    training->load_base_currency_conversion_rate();
-    training->cache_data();
-    training->run();
-    training->save();
-
-    training->config.training.generations = 11; // Add more generations
-    Training *training2 = new Training(training->id, training->config, false);
-
-    ASSERT_EQ(training2->id, training->id);
-    ASSERT_EQ(training2->current_generation, training->current_generation);
-    ASSERT_GE(training2->best_fitnesses, training->best_fitnesses);
-    ASSERT_EQ(training2->population->genomes.size(), training->population->genomes.size());
-    ASSERT_EQ(training2->population->best_fitness, training->population->best_fitness);
-    ASSERT_EQ(training2->population->average_fitness, training->population->average_fitness);
-};
 
 TEST_F(TrainingTest, MonteCarloSimulation)
 {

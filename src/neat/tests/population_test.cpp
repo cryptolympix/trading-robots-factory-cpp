@@ -270,7 +270,19 @@ TEST_F(PopulationTest, Clone)
 
 TEST_F(PopulationTest, SaveAndLoad)
 {
+    // Create a new population
     neat::Population *population = new neat::Population(this->config);
+
+    // Add genomes to the loaded population
+    for (size_t i = 0; i < 10; ++i)
+    {
+        population->genomes.push_back(new neat::Genome(this->config));
+    }
+
+    // Add species to the loaded population
+    population->speciate();
+
+    // Set the best genome
     population->best_genome = new neat::Genome(this->config);
 
     // Create a temporary directory for testing

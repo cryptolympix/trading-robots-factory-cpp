@@ -5,6 +5,7 @@ cache/
 
 # Debug
 run_training.dSYM/
+run_tests.dSYM/
 
 # Prerequisites
 *.d

@@ -179,7 +179,8 @@ std::vector<double> neat::Genome::feed_forward(std::vector<double> input_values)
     {
         if (this->inputs != static_cast<int>(input_values.size()))
         {
-            throw std::invalid_argument("The number of inputs must match the number of input nodes.");
+            throw std::invalid_argument("The number of inputs must match the number of input nodes. " +
+                                        std::to_string(this->inputs) + " != " + std::to_string(input_values.size()));
         }
 
         // Set the outputs of the input nodes
@@ -528,6 +529,8 @@ neat::Genome *neat::Genome::crossover(Genome *parent) const
     Genome *child = new Genome(this->config, true);
     child->genes.clear();
     child->nodes.clear();
+    child->inputs = this->inputs;
+    child->outputs = this->outputs;
     child->layers = this->layers;
     child->next_node = this->next_node;
 
@@ -702,6 +705,8 @@ neat::Genome *neat::Genome::clone()
             clone->get_node(gene->to_node->id)));
     }
 
+    clone->inputs = this->inputs;
+    clone->outputs = this->outputs;
     clone->layers = this->layers;
     clone->next_node = this->next_node;
     clone->fitness = this->fitness;
@@ -786,6 +791,7 @@ neat::Genome *neat::Genome::from_json(const nlohmann::json &json)
         genome->genes.push_back(std::make_shared<neat::ConnectionGene>(from_node, to_node, weight, innovation_nb, enabled));
     }
 
+    genome->generate_network();
     return genome;
 }
 

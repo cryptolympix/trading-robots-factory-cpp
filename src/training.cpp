@@ -54,9 +54,6 @@ Training::Training(std::string id, Config &config, bool debug)
     this->config.neat.num_inputs = this->count_indicators() + this->config.training.inputs.position.size();
     this->config.neat.num_outputs = 3; // Buy, Sell, Wait
 
-    // Initialize the population.
-    this->population = new neat::Population(this->config.neat);
-
     // Initialize the data structures
     this->candles = {};
     this->indicators = {};
@@ -78,14 +75,12 @@ Training::Training(std::string id, Config &config, bool debug)
     // Check if the training directory exists
     if (std::filesystem::exists(this->training_save_file) && std::filesystem::exists(this->population_save_file))
     {
-        std::cout << "▶️ Continue the training from the last saved state..." << std::endl;
         this->load();
-
-        if (this->current_generation >= generations)
-        {
-            std::cout << "⚠️ The training is already finished." << std::endl;
-            std::exit(0);
-        }
+    }
+    else
+    {
+        // Initialize the population
+        this->population = new neat::Population(this->config.neat, true);
     }
 }
 
@@ -635,20 +630,10 @@ int Training::run()
                 }
             }
 
-            if (best_trader == nullptr)
+            if (this->best_trader == nullptr)
             {
-                std::cerr << "Error: the best trader of the generation not found." << std::endl;
+                std::cerr << "Error: the genome of the best trader of the generation " << this->current_generation << " is not found." << std::endl;
                 std::exit(1);
-            }
-
-            // Reset the traders of the current generation
-            this->current_generation_traders.clear();
-            for (const auto &trader : this->current_generation_traders)
-            {
-                if (trader != this->best_trader)
-                {
-                    delete trader;
-                }
             }
 
             if (this->debug)
@@ -683,22 +668,37 @@ int Training::run()
             std::cout << "✅ Training of generation " << this->current_generation << " finished!" << std::endl;
 
             // Display the fitness of the best trader
-            std::cout << "🧬 Fitness of the best trader: " << best_trader->fitness << std::endl;
+            std::cout << "🧬 Fitness of the best trader: " << this->best_trader->fitness << std::endl;
 
             // Test the trader on a the testing period
             this->test(this->best_trader->genome, this->current_generation);
             std::cout << "✅ Testing of the best trader of generation " << this->current_generation << " finished!" << std::endl;
 
-            // Save the training process
-            this->save();
-
             // Update the current generation
             this->current_generation++;
+
+            // Reset the traders of the current generation
+            this->current_generation_traders.clear();
+
+            // Save the training process
+            this->save();
 
             std::cout << std::endl;
         };
 
-        std::cout << "🚀 Start the training..." << std::endl;
+        if (nb_generations == this->config.training.generations)
+        {
+            std::cout << "🚀 Start the training..." << std::endl;
+        }
+        else if (nb_generations > 0)
+        {
+            std::cout << "🚀 Continue the training..." << std::endl;
+        }
+        else
+        {
+            std::cout << "🚀 The training is already finished!" << std::endl;
+            return 0;
+        }
 
         // Train the population on the training data
         this->population->run(std::bind(&Training::evaluate_genome, this, std::placeholders::_1, std::placeholders::_2), nb_generations, callback_generation);
@@ -969,7 +969,7 @@ void Training::save()
 {
     // Save the population
     this->population->save(this->population_save_file);
-    std::cout << "💾 Population saved to '" << this->population_save_file << "'" << std::endl;
+    std::cout << "💾 Population saved to '" << this->population_save_file.generic_string() << "'" << std::endl;
 
     // Save the training process
     std::ofstream file(this->training_save_file);
@@ -993,7 +993,7 @@ void Training::save()
 
         file << data.dump(4);
         file.close();
-        std::cout << "💾 Training saved to '" << this->training_save_file << "'" << std::endl;
+        std::cout << "💾 Training saved to '" << this->training_save_file.generic_string() << "'" << std::endl;
     }
     else
     {
@@ -1010,7 +1010,7 @@ void Training::load()
     // Check if the training process file exists
     if (!std::filesystem::exists(this->directory))
     {
-        std::cerr << "Error: the training directory '" << directory << "' does not exist." << std::endl;
+        std::cerr << "Error: the training directory '" << this->directory.generic_string() << "' does not exist." << std::endl;
         std::exit(1);
     }
 
@@ -1041,5 +1041,5 @@ void Training::load()
     }
     this->best_trader = new Trader(this->population->best_genome, this->config);
 
-    std::cout << "✅ Training loaded from '" << this->training_save_file << "'" << std::endl;
+    std::cout << "✅ Training loaded from '" << this->training_save_file.generic_string() << "'" << std::endl;
 }

@@ -48,14 +48,6 @@ neat::Population::~Population()
         delete sp;
     }
 
-    // Delete all the dynamically allocated genomes
-    for (auto g : this->genomes)
-    {
-        delete g;
-    }
-
-    // delete this->best_genome;
-
     // Clear the vectors
     this->species.clear();
     this->genomes.clear();
@@ -161,7 +153,7 @@ void neat::Population::reproduce_species()
     float average_fitness_sum = get_average_fitness_sum();
 
     // Get the target population size from the configuration
-    int population_size = config.population_size;
+    int population_size = this->config.population_size;
 
     // Create a vector to store the new generation of genomes
     std::vector<Genome *> children;
@@ -342,6 +334,12 @@ void neat::Population::save(const std::string &filename)
             std::filesystem::create_directories(dir);
         }
 
+        // Check if the filename is a directory
+        if (std::filesystem::is_directory(filename))
+        {
+            throw std::runtime_error("Invalid filename: " + filename);
+        }
+
         // If the file has no extension, append ".json"
         std::filesystem::path path = filename;
         if (path.extension().empty())
@@ -355,7 +353,7 @@ void neat::Population::save(const std::string &filename)
         json["best_fitness"] = this->best_fitness;
 
         // Save the best genome
-        if (best_genome != nullptr)
+        if (this->best_genome != nullptr)
         {
             json["best_genome"] = this->best_genome->to_json();
         }
@@ -407,7 +405,7 @@ neat::Population *neat::Population::load(const std::string &filename, const Conf
         loadedPopulation->average_fitness = population_json["average_fitness"];
         loadedPopulation->generation = population_json["generation"];
 
-        if (population_json.find("best_genome") != population_json.end())
+        if (population_json.contains("best_genome"))
         {
             // Deserialize the champion genome
             nlohmann::json best_genome_json = population_json["best_genome"];
