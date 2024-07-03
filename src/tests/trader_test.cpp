@@ -1344,10 +1344,70 @@ TEST_F(TraderTest, JSON)
     Trader *trader_copy = Trader::from_json(json, config);
 
     // Check if the trader is correctly serialized and deserialized
+
     ASSERT_EQ(trader->fitness, trader_copy->fitness);
     ASSERT_EQ(trader->score, trader_copy->score);
     ASSERT_EQ(trader->generation, trader_copy->generation);
     ASSERT_TRUE(trader->genome->is_equal(trader_copy->genome));
+
+    ASSERT_EQ(trader->stats.initial_balance, trader_copy->stats.initial_balance);
+    ASSERT_EQ(trader->stats.final_balance, trader_copy->stats.final_balance);
+    ASSERT_EQ(trader->stats.performance, trader_copy->stats.performance);
+    ASSERT_EQ(trader->stats.total_net_profit, trader_copy->stats.total_net_profit);
+    ASSERT_EQ(trader->stats.total_profit, trader_copy->stats.total_profit);
+    ASSERT_EQ(trader->stats.total_loss, trader_copy->stats.total_loss);
+    ASSERT_EQ(trader->stats.total_fees, trader_copy->stats.total_fees);
+    ASSERT_EQ(trader->stats.total_trades, trader_copy->stats.total_trades);
+    ASSERT_EQ(trader->stats.total_long_trades, trader_copy->stats.total_long_trades);
+    ASSERT_EQ(trader->stats.total_short_trades, trader_copy->stats.total_short_trades);
+    ASSERT_EQ(trader->stats.total_winning_trades, trader_copy->stats.total_winning_trades);
+    ASSERT_EQ(trader->stats.total_winning_long_trades, trader_copy->stats.total_winning_long_trades);
+    ASSERT_EQ(trader->stats.total_winning_short_trades, trader_copy->stats.total_winning_short_trades);
+    ASSERT_EQ(trader->stats.total_lost_trades, trader_copy->stats.total_lost_trades);
+    ASSERT_EQ(trader->stats.total_lost_long_trades, trader_copy->stats.total_lost_long_trades);
+    ASSERT_EQ(trader->stats.max_consecutive_winning_trades, trader_copy->stats.max_consecutive_winning_trades);
+    ASSERT_EQ(trader->stats.max_consecutive_lost_trades, trader_copy->stats.max_consecutive_lost_trades);
+    ASSERT_EQ(trader->stats.profit_factor, trader_copy->stats.profit_factor);
+    ASSERT_EQ(trader->stats.max_drawdown, trader_copy->stats.max_drawdown);
+    ASSERT_EQ(trader->stats.win_rate, trader_copy->stats.win_rate);
+    ASSERT_EQ(trader->stats.long_win_rate, trader_copy->stats.long_win_rate);
+    ASSERT_EQ(trader->stats.average_profit, trader_copy->stats.average_profit);
+    ASSERT_EQ(trader->stats.average_loss, trader_copy->stats.average_loss);
+    ASSERT_EQ(trader->stats.max_profit, trader_copy->stats.max_profit);
+    ASSERT_EQ(trader->stats.max_loss, trader_copy->stats.max_loss);
+    ASSERT_EQ(trader->stats.max_consecutive_profit, trader_copy->stats.max_consecutive_profit);
+    ASSERT_EQ(trader->stats.max_consecutive_loss, trader_copy->stats.max_consecutive_loss);
+    ASSERT_EQ(trader->stats.average_trade_duration, trader_copy->stats.average_trade_duration);
+    ASSERT_EQ(trader->stats.sharpe_ratio, trader_copy->stats.sharpe_ratio);
+    ASSERT_EQ(trader->stats.sortino_ratio, trader_copy->stats.sortino_ratio);
+    ASSERT_EQ(trader->stats.monthly_returns.size(), trader_copy->stats.monthly_returns.size());
+    for (const auto &[key, value] : trader->stats.monthly_returns)
+    {
+        ASSERT_EQ(trader_copy->stats.monthly_returns[key], value);
+    }
+
+    ASSERT_EQ(trader->balance_history.size(), trader_copy->balance_history.size());
+    for (size_t i = 0; i < trader->balance_history.size(); ++i)
+    {
+        ASSERT_EQ(trader->balance_history[i], trader_copy->balance_history[i]);
+    }
+
+    ASSERT_EQ(trader->trades_history.size(), trader_copy->trades_history.size());
+    for (size_t i = 0; i < trader->trades_history.size(); ++i)
+    {
+        ASSERT_EQ(trader->trades_history[i].side, trader_copy->trades_history[i].side);
+        ASSERT_EQ(trader->trades_history[i].entry_date, trader_copy->trades_history[i].entry_date);
+        ASSERT_EQ(trader->trades_history[i].exit_date, trader_copy->trades_history[i].exit_date);
+        ASSERT_EQ(trader->trades_history[i].entry_price, trader_copy->trades_history[i].entry_price);
+        ASSERT_EQ(trader->trades_history[i].exit_price, trader_copy->trades_history[i].exit_price);
+        ASSERT_EQ(trader->trades_history[i].size, trader_copy->trades_history[i].size);
+        ASSERT_EQ(trader->trades_history[i].pnl, trader_copy->trades_history[i].pnl);
+        ASSERT_EQ(trader->trades_history[i].pnl_percent, trader_copy->trades_history[i].pnl_percent);
+        ASSERT_EQ(trader->trades_history[i].pnl_net_percent, trader_copy->trades_history[i].pnl_net_percent);
+        ASSERT_EQ(trader->trades_history[i].fees, trader_copy->trades_history[i].fees);
+        ASSERT_EQ(trader->trades_history[i].duration, trader_copy->trades_history[i].duration);
+        ASSERT_EQ(trader->trades_history[i].closed, trader_copy->trades_history[i].closed);
+    }
 }
 
 TEST_F(TraderTest, GenerateBalanceHistoryGraph)

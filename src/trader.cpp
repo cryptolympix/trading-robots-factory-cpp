@@ -1419,10 +1419,79 @@ void Trader::print_stats_to_console()
 nlohmann::json Trader::to_json() const
 {
     nlohmann::json json;
+
+    // Simple attributes
     json["fitness"] = this->fitness;
     json["score"] = this->score;
     json["generation"] = this->generation;
     json["genome"] = this->genome->to_json();
+
+    // Stats
+    nlohmann::json stats_json = {
+        {"initial_balance", this->stats.initial_balance},
+        {"final_balance", this->stats.final_balance},
+        {"performance", this->stats.performance},
+        {"total_net_profit", this->stats.total_net_profit},
+        {"total_profit", this->stats.total_profit},
+        {"total_loss", this->stats.total_loss},
+        {"total_fees", this->stats.total_fees},
+        {"total_trades", this->stats.total_trades},
+        {"total_long_trades", this->stats.total_long_trades},
+        {"total_short_trades", this->stats.total_short_trades},
+        {"total_winning_trades", this->stats.total_winning_trades},
+        {"total_lost_trades", this->stats.total_lost_trades},
+        {"max_consecutive_winning_trades", this->stats.max_consecutive_winning_trades},
+        {"max_consecutive_lost_trades", this->stats.max_consecutive_lost_trades},
+        {"profit_factor", this->stats.profit_factor},
+        {"max_drawdown", this->stats.max_drawdown},
+        {"win_rate", this->stats.win_rate},
+        {"long_win_rate", this->stats.long_win_rate},
+        {"short_win_rate", this->stats.short_win_rate},
+        {"average_profit", this->stats.average_profit},
+        {"average_loss", this->stats.average_loss},
+        {"max_profit", this->stats.max_profit},
+        {"max_loss", this->stats.max_loss},
+        {"max_consecutive_profit", this->stats.max_consecutive_profit},
+        {"max_consecutive_loss", this->stats.max_consecutive_loss},
+        {"average_trade_duration", this->stats.average_trade_duration},
+        {"sharpe_ratio", this->stats.sharpe_ratio},
+        {"sortino_ratio", this->stats.sortino_ratio},
+    };
+
+    // Monthly returns
+    nlohmann::json monthly_returns_json = {};
+    for (const auto &[key, value] : this->stats.monthly_returns)
+    {
+        monthly_returns_json[key] = value;
+    }
+    stats_json["monthly_returns"] = monthly_returns_json;
+
+    json["stats"] = stats_json;
+
+    // Balance history
+    json["balance_history"] = this->balance_history;
+
+    // Trades history
+    nlohmann::json trades_history_json = {};
+    for (const auto &trade : this->trades_history)
+    {
+        trades_history_json.push_back({
+            {"side", trade.side},
+            {"entry_date", trade.entry_date},
+            {"entry_price", trade.entry_price},
+            {"exit_date", trade.exit_date},
+            {"exit_price", trade.exit_price},
+            {"size", trade.size},
+            {"pnl", trade.pnl},
+            {"fees", trade.fees},
+            {"pnl_percent", trade.pnl_percent},
+            {"pnl_net_percent", trade.pnl_net_percent},
+            {"duration", trade.duration},
+            {"closed", trade.closed},
+        });
+    }
+    json["trades_history"] = trades_history_json;
+
     return json;
 }
 
@@ -1435,15 +1504,72 @@ nlohmann::json Trader::to_json() const
  */
 Trader *Trader::from_json(nlohmann::json &json, Config &config, Logger *logger)
 {
-    double fitness = json.at("fitness").get<double>();
-    double score = json.at("score").get<double>();
-    int generation = json.at("generation").get<int>();
     neat::Genome *genome = neat::Genome::from_json(json.at("genome"));
-
     Trader *trader = new Trader(genome, config, logger);
-    trader->fitness = fitness;
-    trader->score = score;
-    trader->generation = generation;
+
+    trader->fitness = json.at("fitness").get<double>();
+    trader->score = json.at("score").get<double>();
+    trader->generation = json.at("generation").get<int>();
+
+    trader->stats = {
+        .initial_balance = json.at("stats").at("initial_balance").get<double>(),
+        .final_balance = json.at("stats").at("final_balance").get<double>(),
+        .performance = json.at("stats").at("performance").get<double>(),
+        .total_net_profit = json.at("stats").at("total_net_profit").get<double>(),
+        .total_profit = json.at("stats").at("total_profit").get<double>(),
+        .total_loss = json.at("stats").at("total_loss").get<double>(),
+        .total_fees = json.at("stats").at("total_fees").get<double>(),
+        .total_trades = json.at("stats").at("total_trades").get<int>(),
+        .total_long_trades = json.at("stats").at("total_long_trades").get<int>(),
+        .total_short_trades = json.at("stats").at("total_short_trades").get<int>(),
+        .total_winning_trades = json.at("stats").at("total_winning_trades").get<int>(),
+        .total_lost_trades = json.at("stats").at("total_lost_trades").get<int>(),
+        .max_consecutive_winning_trades = json.at("stats").at("max_consecutive_winning_trades").get<int>(),
+        .max_consecutive_lost_trades = json.at("stats").at("max_consecutive_lost_trades").get<int>(),
+        .profit_factor = json.at("stats").at("profit_factor").get<double>(),
+        .max_drawdown = json.at("stats").at("max_drawdown").get<double>(),
+        .win_rate = json.at("stats").at("win_rate").get<double>(),
+        .long_win_rate = json.at("stats").at("long_win_rate").get<double>(),
+        .short_win_rate = json.at("stats").at("short_win_rate").get<double>(),
+        .average_profit = json.at("stats").at("average_profit").get<double>(),
+        .average_loss = json.at("stats").at("average_loss").get<double>(),
+        .max_profit = json.at("stats").at("max_profit").get<double>(),
+        .max_loss = json.at("stats").at("max_loss").get<double>(),
+        .max_consecutive_profit = json.at("stats").at("max_consecutive_profit").get<double>(),
+        .max_consecutive_loss = json.at("stats").at("max_consecutive_loss").get<double>(),
+        .average_trade_duration = json.at("stats").at("average_trade_duration").get<double>(),
+        .sharpe_ratio = json.at("stats").at("sharpe_ratio").get<double>(),
+        .sortino_ratio = json.at("stats").at("sortino_ratio").get<double>(),
+        .monthly_returns = {},
+    };
+
+    // Monthly returns
+    for (const auto &[key, value] : json.at("stats").at("monthly_returns").items())
+    {
+        trader->stats.monthly_returns[key] = value.get<double>();
+    }
+
+    trader->balance_history = json.at("balance_history").get<std::vector<double>>();
+
+    trader->trades_history = {};
+    for (const auto &trade_json : json.at("trades_history"))
+    {
+        Trade trade = {
+            .side = trade_json.at("side").get<PositionSide>(),
+            .entry_date = trade_json.at("entry_date").get<time_t>(),
+            .entry_price = trade_json.at("entry_price").get<double>(),
+            .exit_date = trade_json.at("exit_date").get<time_t>(),
+            .exit_price = trade_json.at("exit_price").get<double>(),
+            .size = trade_json.at("size").get<double>(),
+            .pnl = trade_json.at("pnl").get<double>(),
+            .fees = trade_json.at("fees").get<double>(),
+            .pnl_percent = trade_json.at("pnl_percent").get<double>(),
+            .pnl_net_percent = trade_json.at("pnl_net_percent").get<double>(),
+            .duration = trade_json.at("duration").get<int>(),
+            .closed = trade_json.at("closed").get<bool>(),
+        };
+        trader->trades_history.push_back(trade);
+    }
 
     return trader;
 }

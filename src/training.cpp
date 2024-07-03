@@ -975,11 +975,6 @@ void Training::save()
     std::ofstream file(this->training_save_file);
     if (file.is_open())
     {
-        nlohmann::json data = {
-            {"id", this->id},
-            {"current_generation", this->current_generation},
-        };
-
         nlohmann::json best_fitnesses_json;
         nlohmann::json average_fitnesses_json;
         for (int i = 0; i < this->best_fitnesses.size(); i++)
@@ -988,8 +983,13 @@ void Training::save()
             average_fitnesses_json[std::to_string(i)] = this->average_fitnesses[i];
         }
 
-        data["best_fitnesses"] = best_fitnesses_json;
-        data["average_fitnesses"] = average_fitnesses_json;
+        nlohmann::json data = {
+            {"id", this->id},
+            {"current_generation", this->current_generation},
+            {"best_trader", this->best_trader->to_json()},
+            {"best_fitnesses", best_fitnesses_json},
+            {"average_fitnesses", average_fitnesses_json},
+        };
 
         file << data.dump(4);
         file.close();
@@ -1031,15 +1031,18 @@ void Training::load()
 
     // Load the training process data
     this->current_generation = data["current_generation"];
+
     for (const auto &[key, value] : data["best_fitnesses"].items())
     {
         this->best_fitnesses[std::stoi(key)] = value;
     }
+
     for (const auto &[key, value] : data["average_fitnesses"].items())
     {
         this->average_fitnesses[std::stoi(key)] = value;
     }
-    this->best_trader = new Trader(this->population->best_genome, this->config);
+
+    this->best_trader = Trader::from_json(data["best_trader"], this->config);
 
     std::cout << "✅ Training loaded from '" << this->training_save_file.generic_string() << "'" << std::endl;
 }
