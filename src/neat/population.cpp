@@ -430,6 +430,7 @@ neat::Population *neat::Population::load(const std::string &filename, const Conf
         for (const auto &g : genomes_json)
         {
             Genome *genome = Genome::from_json(g);
+            genome->config = config; // Set the configuration settings
             loadedPopulation->genomes.push_back(genome);
         }
 

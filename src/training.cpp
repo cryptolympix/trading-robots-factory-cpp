@@ -993,7 +993,7 @@ void Training::save()
 
         file << data.dump(4);
         file.close();
-        std::cout << "💾 Training saved to '" << this->training_save_file.generic_string() << "'" << std::endl;
+        std::cout << "💾 Training progress saved to '" << this->training_save_file.generic_string() << "'" << std::endl;
     }
     else
     {
