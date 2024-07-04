@@ -2,6 +2,7 @@
 
 #include <ctime>
 #include "../types.hpp"
+#include "../trading/schedule.hpp"
 #include "../neat/config.hpp"
 #include "../indicators/indicator.hpp"
 #include "../indicators/candle.hpp"

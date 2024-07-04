@@ -5,6 +5,7 @@
 #include "libs/json.hpp"
 #include "neat/genome.hpp"
 #include "utils/logger.hpp"
+#include "trading/stats.hpp"
 #include "types.hpp"
 
 class Trader

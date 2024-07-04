@@ -9,7 +9,7 @@
 #include <algorithm>
 #include "../neat/genome.hpp"
 #include "../utils/time_frame.hpp"
-#include "../trading/trading_schedule.hpp"
+#include "../trading/schedule.hpp"
 #include "../indicators/momentum.hpp"
 #include "../symbols.hpp"
 #include "../trader.hpp"

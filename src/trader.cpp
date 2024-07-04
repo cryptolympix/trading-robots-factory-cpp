@@ -17,8 +17,9 @@
 #include "libs/json.hpp"
 #include "libs/gnuplot-iostream.hpp"
 #include "neat/genome.hpp"
-#include "trading/trading_schedule.hpp"
-#include "trading/trading_tools.hpp"
+#include "trading/schedule.hpp"
+#include "trading/tools.hpp"
+#include "trading/stats.hpp"
 #include "indicators/utils.hpp"
 #include "symbols.hpp"
 #include "trader.hpp"
@@ -65,40 +66,7 @@ Trader::Trader(neat::Genome *genome, Config config, Logger *logger)
     this->nb_trades_today = 0;
 
     // Statistics of the trader
-    this->stats = {
-        .initial_balance = config.general.initial_balance,
-        .final_balance = config.general.initial_balance,
-        .performance = 0,
-        .total_net_profit = 0,
-        .total_profit = 0,
-        .total_loss = 0,
-        .total_fees = 0,
-        .total_trades = 0,
-        .total_long_trades = 0,
-        .total_short_trades = 0,
-        .total_winning_trades = 0,
-        .total_winning_long_trades = 0,
-        .total_winning_short_trades = 0,
-        .total_lost_trades = 0,
-        .total_lost_long_trades = 0,
-        .total_lost_short_trades = 0,
-        .max_consecutive_winning_trades = 0,
-        .max_consecutive_lost_trades = 0,
-        .profit_factor = 0,
-        .max_drawdown = 0,
-        .win_rate = 0,
-        .long_win_rate = 0,
-        .short_win_rate = 0,
-        .average_profit = 0,
-        .average_loss = 0,
-        .max_profit = 0,
-        .max_loss = 0,
-        .max_consecutive_profit = 0,
-        .max_consecutive_loss = 0,
-        .average_trade_duration = 0,
-        .sharpe_ratio = 0,
-        .sortino_ratio = 0,
-    };
+    this->stats = Stats(config.general.initial_balance);
 
     // Neat stuffs
     this->generation = 0;
@@ -702,282 +670,7 @@ void Trader::calculate_score()
  */
 void Trader::calculate_stats()
 {
-    // Select only closed trade
-    std::vector<Trade> closed_trades = {};
-    for (const auto &trade : this->trades_history)
-    {
-        if (trade.closed)
-        {
-            closed_trades.push_back(trade);
-        }
-    }
-
-    // Update the total trades
-    this->stats.total_trades = closed_trades.size();
-
-    // Calcualte the number of long/short trades
-    this->stats.total_long_trades = std::count_if(closed_trades.begin(), closed_trades.end(), [](Trade trade)
-                                                  { return trade.side == PositionSide::LONG; });
-    this->stats.total_short_trades = this->stats.total_trades - this->stats.total_long_trades;
-
-    // Update the stats of the trades
-    for (const auto &trade : closed_trades)
-    {
-        if (trade.pnl >= 0)
-        {
-            this->stats.total_profit += trade.pnl;
-            this->stats.total_winning_trades++;
-            this->stats.total_fees += trade.fees;
-            if (trade.side == PositionSide::LONG)
-            {
-                this->stats.total_winning_long_trades++;
-            }
-            else
-            {
-                this->stats.total_winning_short_trades++;
-            }
-        }
-        else
-        {
-            this->stats.total_loss += abs(trade.pnl);
-            this->stats.total_lost_trades++;
-            this->stats.total_fees += trade.fees;
-            if (trade.side == PositionSide::LONG)
-            {
-                this->stats.total_lost_long_trades++;
-            }
-            else
-            {
-                this->stats.total_lost_short_trades++;
-            }
-        }
-    }
-
-    // Calculate the final capital
-    this->stats.final_balance = this->balance;
-
-    // Calculate the performance
-    this->stats.performance = (this->stats.final_balance - this->stats.initial_balance) / this->stats.initial_balance;
-
-    // Calculate the total net profit
-    if (this->stats.total_loss != 0 || this->stats.total_fees != 0)
-    {
-        this->stats.total_net_profit = this->stats.total_profit - this->stats.total_loss - this->stats.total_fees;
-    }
-
-    auto calculate_drawdown = [&](std::vector<double> balance_history)
-    {
-        if (balance_history.empty() || balance_history.size() < 2)
-        {
-            return 0.0; // No drawdown if there are fewer than two data points
-        }
-
-        double peak = balance_history[0];
-        double trough = balance_history[0];
-        double max_drawdown = 0.0;
-
-        for (size_t i = 1; i < balance_history.size(); ++i)
-        {
-            double balance = balance_history[i];
-            if (balance > peak)
-            {
-                peak = balance;
-                trough = balance;
-            }
-            else if (balance < trough)
-            {
-                trough = balance;
-            }
-
-            double drawdown = (peak - trough) / peak;
-            max_drawdown = std::max(max_drawdown, drawdown);
-        }
-
-        return max_drawdown;
-    };
-
-    // Calculate the drawdown
-    this->stats.max_drawdown = calculate_drawdown(this->balance_history);
-
-    // Calculate the winrate
-    if (closed_trades.size() > 0)
-    {
-        this->stats.win_rate = static_cast<double>(this->stats.total_winning_trades) / static_cast<double>(this->trades_history.size());
-    }
-
-    // Calculate the winrate for longs
-    if (this->stats.total_long_trades > 0)
-    {
-        this->stats.long_win_rate = static_cast<double>(this->stats.total_winning_long_trades) / static_cast<double>(this->stats.total_long_trades);
-    }
-
-    // Calculate the winrate for shorts
-    if (this->stats.total_short_trades > 0)
-    {
-        this->stats.short_win_rate = static_cast<double>(this->stats.total_winning_short_trades) / static_cast<double>(this->stats.total_short_trades);
-    }
-
-    // Calculate the average profit per trade
-    if (this->stats.total_winning_trades > 0)
-    {
-        this->stats.average_profit = this->stats.total_profit / static_cast<double>(this->stats.total_winning_trades);
-    }
-
-    // Calculate the average loss per trade
-    if (this->stats.total_lost_trades > 0)
-    {
-        this->stats.average_loss = this->stats.total_loss / static_cast<double>(this->stats.total_lost_trades);
-    }
-
-    // Calculate the profit factor
-    if (this->stats.average_profit != 0 && this->stats.average_loss != 0)
-    {
-        this->stats.profit_factor = (this->stats.win_rate * this->stats.average_profit) / ((1 - this->stats.win_rate) * this->stats.average_loss);
-    }
-
-    // Calculate the maximum profit
-    if (this->stats.total_winning_trades > 0)
-    {
-        this->stats.max_profit = (*std::max_element(closed_trades.begin(), closed_trades.end(), [](Trade a, Trade b)
-                                                    { return a.pnl < b.pnl; }))
-                                     .pnl;
-    }
-
-    // Calculate the maximum loss
-    if (this->stats.total_lost_trades > 0)
-    {
-        this->stats.max_loss = (*std::min_element(closed_trades.begin(), closed_trades.end(), [](Trade a, Trade b)
-                                                  { return a.pnl < b.pnl; }))
-                                   .pnl;
-    }
-
-    // Calculate the maximum consecutive winning trades
-    this->stats.max_consecutive_winning_trades = 0;
-    int current_consecutive_winning_trades = 0;
-    for (const auto &trade : closed_trades)
-    {
-        if (trade.pnl >= 0)
-        {
-            current_consecutive_winning_trades++;
-            this->stats.max_consecutive_winning_trades = std::max(this->stats.max_consecutive_winning_trades, current_consecutive_winning_trades);
-        }
-        else
-        {
-            current_consecutive_winning_trades = 0;
-        }
-    }
-
-    // Calculate the maximum consecutive lost trades
-    this->stats.max_consecutive_lost_trades = 0;
-    int current_consecutive_lost_trades = 0;
-    for (const auto &trade : closed_trades)
-    {
-        if (trade.pnl < 0)
-        {
-            current_consecutive_lost_trades++;
-            this->stats.max_consecutive_lost_trades = std::max(this->stats.max_consecutive_lost_trades, current_consecutive_lost_trades);
-        }
-        else
-        {
-            current_consecutive_lost_trades = 0;
-        }
-    }
-
-    // Calculate the maximum consecutive profit
-    this->stats.max_consecutive_profit = 0;
-    double current_consecutive_profit = 0;
-    for (const auto &trade : closed_trades)
-    {
-        if (trade.pnl >= 0)
-        {
-            current_consecutive_profit += trade.pnl;
-            this->stats.max_consecutive_profit = std::max(this->stats.max_consecutive_profit, current_consecutive_profit);
-        }
-        else
-        {
-            current_consecutive_profit = 0;
-        }
-    }
-
-    // Calculate the maximum consecutive loss
-    this->stats.max_consecutive_loss = 0;
-    double current_consecutive_loss = 0;
-    for (const auto &trade : closed_trades)
-    {
-        if (trade.pnl < 0)
-        {
-            current_consecutive_loss += trade.pnl;
-            this->stats.max_consecutive_loss = std::min(this->stats.max_consecutive_loss, current_consecutive_loss);
-        }
-        else
-        {
-            current_consecutive_loss = 0;
-        }
-    }
-
-    // Calculate the average trade duration
-    if (this->stats.total_trades > 0)
-    {
-        double total_duration = 0;
-        for (auto &trade : closed_trades)
-        {
-            total_duration += trade.duration;
-        }
-        this->stats.average_trade_duration = total_duration / static_cast<double>(this->stats.total_trades);
-    }
-
-    // Calculate the monthly returns
-    for (const auto &trade : closed_trades)
-    {
-        double trade_return = trade.pnl_net_percent;
-        std::string date_key = time_t_to_string(trade.exit_date, "%Y-%m");
-        if (this->stats.monthly_returns.find(date_key) == this->stats.monthly_returns.end())
-        {
-            this->stats.monthly_returns[date_key] = 1.0;
-        }
-        this->stats.monthly_returns[date_key] *= (1.0 + trade_return);
-    }
-    for (const auto &[month, monthly_return] : this->stats.monthly_returns)
-    {
-        this->stats.monthly_returns[month] = decimal_round(monthly_return - 1.0, 4);
-    }
-
-    // Calculate the average investment return
-    double average_investment_return = 0;
-    std::vector<double> monthly_investment_returns = {};
-    if (this->stats.monthly_returns.size() > 0)
-    {
-        for (const auto &[month, performance] : this->stats.monthly_returns)
-        {
-            average_investment_return += performance / static_cast<double>(this->stats.monthly_returns.size());
-            monthly_investment_returns.push_back(performance);
-        }
-    }
-
-    // Calculate the sharpe ratio
-    this->stats.sharpe_ratio = 0;
-    if (monthly_investment_returns.size() > 0)
-    {
-        double std_dev = calculate_standard_deviation(monthly_investment_returns, monthly_investment_returns.size()).back();
-        if (std_dev != 0)
-        {
-            this->stats.sharpe_ratio = (average_investment_return - 0.0) / std_dev;
-        }
-    }
-
-    // Calculate the sortino ratio
-    this->stats.sortino_ratio = 0;
-    std::vector<double> monthly_investment_returns_negative = {};
-    std::copy_if(monthly_investment_returns.begin(), monthly_investment_returns.end(), std::back_inserter(monthly_investment_returns_negative), [](double x)
-                 { return x < 0; });
-    if (monthly_investment_returns_negative.size() > 0)
-    {
-        double std_dev = calculate_standard_deviation(monthly_investment_returns_negative, monthly_investment_returns_negative.size()).back();
-        if (std_dev != 0)
-        {
-            this->stats.sortino_ratio = (average_investment_return - 0.0) / std_dev;
-        }
-    }
+    this->stats.calculate(this->trades_history, this->balance_history);
 }
 
 /**
@@ -1381,35 +1074,7 @@ void Trader::update_trailing_stop_loss()
  */
 void Trader::print_stats_to_console()
 {
-    std::cout << "------------------------------ STATS -----------------------------" << std::endl;
-    std::cout << "Initial balance: " << this->stats.initial_balance << std::endl;
-    std::cout << "Final balance: " << this->stats.final_balance << std::endl;
-    std::cout << "Performance: " << decimal_floor(this->stats.performance * 100, 2) << "%" << std::endl;
-    std::cout << "Total net profit: " << this->stats.total_net_profit << std::endl;
-    std::cout << "Total profit: " << this->stats.total_profit << std::endl;
-    std::cout << "Total loss: " << this->stats.total_loss << std::endl;
-    std::cout << "Total fees: " << this->stats.total_fees << std::endl;
-    std::cout << "Total trades: " << this->stats.total_trades << std::endl;
-    std::cout << "Total long trades: " << this->stats.total_long_trades << std::endl;
-    std::cout << "Total short trades: " << this->stats.total_short_trades << std::endl;
-    std::cout << "Total winning trades: " << this->stats.total_winning_trades << std::endl;
-    std::cout << "Total lost trades: " << this->stats.total_lost_trades << std::endl;
-    std::cout << "Max consecutive winning trades: " << this->stats.max_consecutive_winning_trades << std::endl;
-    std::cout << "Max consecutive lost trades: " << this->stats.max_consecutive_lost_trades << std::endl;
-    std::cout << "Profit factor: " << decimal_floor(this->stats.profit_factor, 2) << std::endl;
-    std::cout << "Max drawdown: " << decimal_floor(-this->stats.max_drawdown * 100, 2) << "%" << std::endl;
-    std::cout << "Win rate: " << decimal_floor(this->stats.win_rate * 100, 2) << "%" << std::endl;
-    std::cout << "Long win rate: " << decimal_floor(this->stats.long_win_rate * 100, 2) << "%" << std::endl;
-    std::cout << "Short win rate: " << decimal_floor(this->stats.short_win_rate * 100, 2) << "%" << std::endl;
-    std::cout << "Average profit: " << this->stats.average_profit << std::endl;
-    std::cout << "Average loss: " << this->stats.average_loss << std::endl;
-    std::cout << "Max profit: " << this->stats.max_profit << std::endl;
-    std::cout << "Max loss: " << this->stats.max_loss << std::endl;
-    std::cout << "Max consecutive profit: " << this->stats.max_consecutive_profit << std::endl;
-    std::cout << "Max consecutive loss: " << this->stats.max_consecutive_loss << std::endl;
-    std::cout << "Average trade duration: " << this->stats.average_trade_duration << " candles" << std::endl;
-    std::cout << "Sharpe ratio: " << decimal_floor(this->stats.sharpe_ratio, 2) << std::endl;
-    std::cout << "Sortino ratio: " << decimal_floor(this->stats.sortino_ratio, 2) << std::endl;
+    this->stats.print();
 }
 
 /**
@@ -1427,46 +1092,7 @@ nlohmann::json Trader::to_json() const
     json["genome"] = this->genome->to_json();
 
     // Stats
-    nlohmann::json stats_json = {
-        {"initial_balance", this->stats.initial_balance},
-        {"final_balance", this->stats.final_balance},
-        {"performance", this->stats.performance},
-        {"total_net_profit", this->stats.total_net_profit},
-        {"total_profit", this->stats.total_profit},
-        {"total_loss", this->stats.total_loss},
-        {"total_fees", this->stats.total_fees},
-        {"total_trades", this->stats.total_trades},
-        {"total_long_trades", this->stats.total_long_trades},
-        {"total_short_trades", this->stats.total_short_trades},
-        {"total_winning_trades", this->stats.total_winning_trades},
-        {"total_lost_trades", this->stats.total_lost_trades},
-        {"max_consecutive_winning_trades", this->stats.max_consecutive_winning_trades},
-        {"max_consecutive_lost_trades", this->stats.max_consecutive_lost_trades},
-        {"profit_factor", this->stats.profit_factor},
-        {"max_drawdown", this->stats.max_drawdown},
-        {"win_rate", this->stats.win_rate},
-        {"long_win_rate", this->stats.long_win_rate},
-        {"short_win_rate", this->stats.short_win_rate},
-        {"average_profit", this->stats.average_profit},
-        {"average_loss", this->stats.average_loss},
-        {"max_profit", this->stats.max_profit},
-        {"max_loss", this->stats.max_loss},
-        {"max_consecutive_profit", this->stats.max_consecutive_profit},
-        {"max_consecutive_loss", this->stats.max_consecutive_loss},
-        {"average_trade_duration", this->stats.average_trade_duration},
-        {"sharpe_ratio", this->stats.sharpe_ratio},
-        {"sortino_ratio", this->stats.sortino_ratio},
-    };
-
-    // Monthly returns
-    nlohmann::json monthly_returns_json = {};
-    for (const auto &[key, value] : this->stats.monthly_returns)
-    {
-        monthly_returns_json[key] = value;
-    }
-    stats_json["monthly_returns"] = monthly_returns_json;
-
-    json["stats"] = stats_json;
+    json["stats"] = this->stats.to_json();
 
     // Balance history
     json["balance_history"] = this->balance_history;
@@ -1507,48 +1133,16 @@ Trader *Trader::from_json(nlohmann::json &json, Config &config, Logger *logger)
     neat::Genome *genome = neat::Genome::from_json(json.at("genome"));
     Trader *trader = new Trader(genome, config, logger);
 
+    if (!json.contains("fitness") || !json.contains("score") || !json.contains("generation") || !json.contains("stats") || !json.contains("balance_history") || !json.contains("trades_history"))
+    {
+        std::cerr << "The JSON object is not a valid trader." << std::endl;
+        std::exit(1);
+    }
+
     trader->fitness = json.at("fitness").get<double>();
     trader->score = json.at("score").get<double>();
     trader->generation = json.at("generation").get<int>();
-
-    trader->stats = {
-        .initial_balance = json.at("stats").at("initial_balance").get<double>(),
-        .final_balance = json.at("stats").at("final_balance").get<double>(),
-        .performance = json.at("stats").at("performance").get<double>(),
-        .total_net_profit = json.at("stats").at("total_net_profit").get<double>(),
-        .total_profit = json.at("stats").at("total_profit").get<double>(),
-        .total_loss = json.at("stats").at("total_loss").get<double>(),
-        .total_fees = json.at("stats").at("total_fees").get<double>(),
-        .total_trades = json.at("stats").at("total_trades").get<int>(),
-        .total_long_trades = json.at("stats").at("total_long_trades").get<int>(),
-        .total_short_trades = json.at("stats").at("total_short_trades").get<int>(),
-        .total_winning_trades = json.at("stats").at("total_winning_trades").get<int>(),
-        .total_lost_trades = json.at("stats").at("total_lost_trades").get<int>(),
-        .max_consecutive_winning_trades = json.at("stats").at("max_consecutive_winning_trades").get<int>(),
-        .max_consecutive_lost_trades = json.at("stats").at("max_consecutive_lost_trades").get<int>(),
-        .profit_factor = json.at("stats").at("profit_factor").get<double>(),
-        .max_drawdown = json.at("stats").at("max_drawdown").get<double>(),
-        .win_rate = json.at("stats").at("win_rate").get<double>(),
-        .long_win_rate = json.at("stats").at("long_win_rate").get<double>(),
-        .short_win_rate = json.at("stats").at("short_win_rate").get<double>(),
-        .average_profit = json.at("stats").at("average_profit").get<double>(),
-        .average_loss = json.at("stats").at("average_loss").get<double>(),
-        .max_profit = json.at("stats").at("max_profit").get<double>(),
-        .max_loss = json.at("stats").at("max_loss").get<double>(),
-        .max_consecutive_profit = json.at("stats").at("max_consecutive_profit").get<double>(),
-        .max_consecutive_loss = json.at("stats").at("max_consecutive_loss").get<double>(),
-        .average_trade_duration = json.at("stats").at("average_trade_duration").get<double>(),
-        .sharpe_ratio = json.at("stats").at("sharpe_ratio").get<double>(),
-        .sortino_ratio = json.at("stats").at("sortino_ratio").get<double>(),
-        .monthly_returns = {},
-    };
-
-    // Monthly returns
-    for (const auto &[key, value] : json.at("stats").at("monthly_returns").items())
-    {
-        trader->stats.monthly_returns[key] = value.get<double>();
-    }
-
+    trader->stats = Stats::from_json(json.at("stats"));
     trader->balance_history = json.at("balance_history").get<std::vector<double>>();
 
     trader->trades_history = {};
@@ -1871,9 +1465,9 @@ void Trader::generate_report(const std::string &filename, time_t start_date, tim
         << this->stats.max_consecutive_winning_trades << R"(</td>
                 </tr>
                 <tr>
-                    <td><b>Max consecutive lost trades:</b></td>
+                    <td><b>Max consecutive losing trades:</b></td>
                     <td>)"
-        << this->stats.max_consecutive_lost_trades << R"(</td>
+        << this->stats.max_consecutive_losing_trades << R"(</td>
                 </tr>
                 <tr>
                     <td><b>Average trade duration:</b></td>
