@@ -39,6 +39,7 @@ public:
     std::filesystem::path fitness_report_file;  // Fitness report file path.
     std::filesystem::path population_save_file; // Population save file path.
     std::filesystem::path training_save_file;   // Training state file path.
+    std::filesystem::path config_file_path;     // Path to the configuration file.
 
     std::map<time_t, CandlesData> candles;                        // Candle data for all time frames at a specified date.
     std::map<time_t, IndicatorsData> indicators;                  // Indicator data for all time frames at a specified date.
@@ -59,10 +60,10 @@ public:
     /**
      * @brief Constructor for the Training class.
      * @param id Unique identifier for the training process.
-     * @param config Configuration object.
+     * @param config_file_path Path to the configuration file.
      * @param debug Debug mode flag.
      */
-    Training(std::string id, Config &config, bool debug = false);
+    Training(std::string id, std::filesystem::path config_file_path, bool debug = false);
 
     /**
      * @brief Destructor for the Training class to ensure proper cleanup.

@@ -2,6 +2,7 @@
 #include <cmath>
 #include "../types.hpp"
 #include "candle_patterns.hpp"
+#include "indicator.hpp"
 
 /**
  * @brief Construct a new DojiCandlePattern object.
@@ -9,7 +10,7 @@
  * @param pattern_name Name of the pattern.
  * @param offset Offset value. Default is 0.
  */
-DojiCandlePattern::DojiCandlePattern(int offset) : Indicator("Doji Candle Pattern", "doji-candle-pattern-" + std::to_string(offset), offset, {0, 4}) {}
+DojiCandlePattern::DojiCandlePattern(int offset) : Indicator("Doji Candle Pattern", "doji-candle-pattern-" + std::to_string(offset), R"(doji-candle-pattern-(\d+))", offset, {0, 4}) {}
 
 /**
  * @brief Calculate the DojiCandlePattern values.
@@ -18,7 +19,8 @@ DojiCandlePattern::DojiCandlePattern(int offset) : Indicator("Doji Candle Patter
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> DojiCandlePattern::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+std::vector<double>
+DojiCandlePattern::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles) -> std::vector<double>
@@ -157,7 +159,7 @@ bool DojiCandlePattern::isGravestoneDoji(const std::vector<Candle> &candles, siz
  *
  * @param offset Offset value. Default is 0.
  */
-SingleCandlePattern::SingleCandlePattern(int offset) : Indicator("Single Candle Pattern", "single-candle-pattern-" + std::to_string(offset), offset, {-4, 4}) {}
+SingleCandlePattern::SingleCandlePattern(int offset) : Indicator("Single Candle Pattern", "single-candle-pattern-" + std::to_string(offset), R"(single-candle-pattern-(\d+))", offset, {-4, 4}) {}
 
 /**
  * @brief Calculate the SingleCandlePattern values.
@@ -475,7 +477,7 @@ bool SingleCandlePattern::isBearishMarubozu(const std::vector<Candle> &candles, 
  *
  * @param offset Offset value. Default is 0.
  */
-DoubleCandlePattern::DoubleCandlePattern(int offset) : Indicator("Double Candle Pattern", "multiple-candle-pattern-" + std::to_string(offset), offset, {-2, 2}) {}
+DoubleCandlePattern::DoubleCandlePattern(int offset) : Indicator("Double Candle Pattern", "multiple-candle-pattern-" + std::to_string(offset), R"(multiple-candle-pattern-(\d+))", offset, {-2, 2}) {}
 
 /**
  * @brief Calculate the DoubleCandlePattern values.
@@ -675,7 +677,7 @@ bool DoubleCandlePattern::isDarkCloudCover(const std::vector<Candle> &candles, s
  *
  * @param offset Offset value. Default is 0.
  */
-TripleCandlePattern::TripleCandlePattern(int offset) : Indicator("Triple Candle Pattern", "triple-candle-pattern-" + std::to_string(offset), offset, {-6, 6}) {}
+TripleCandlePattern::TripleCandlePattern(int offset) : Indicator("Triple Candle Pattern", "triple-candle-pattern-" + std::to_string(offset), R"(triple-candle-pattern-(\d+))", offset, {-6, 6}) {}
 
 /**
  * @brief Calculate the TripleCandlePattern values.
@@ -1127,7 +1129,6 @@ bool TripleCandlePattern::isThreeStarsInTheSouth(const std::vector<Candle> &cand
  */
 bool TripleCandlePattern::isThreeStarsInTheNorth(const std::vector<Candle> &candles, size_t index) const
 {
-
     if (index < 2 || index >= candles.size())
     {
         return false;

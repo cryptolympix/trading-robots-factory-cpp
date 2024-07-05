@@ -981,7 +981,7 @@ void Trader::update_trailing_stop_loss()
     Order *stop_loss_order = &this->open_orders[1];
     double current_price = this->candles[this->config.strategy.timeframe].back().close;
 
-    if (config.type_trailing_stop_loss == TypeTrailingStopLoss::PERCENT)
+    if (config.type == TypeTrailingStopLoss::PERCENT)
     {
         if (!config.trailing_stop_loss_in_percent.has_value())
         {
@@ -1024,7 +1024,7 @@ void Trader::update_trailing_stop_loss()
             }
         }
     }
-    else if (config.type_trailing_stop_loss == TypeTrailingStopLoss::POINTS)
+    else if (config.type == TypeTrailingStopLoss::POINTS)
     {
         if (!config.trailing_stop_loss_in_points.has_value())
         {

@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <random>
 #include "types.hpp"
+#include "configs/serialization.hpp"
 #include "utils/logger.hpp"
 #include "utils/indexer.hpp"
 #include "utils/uid.hpp"
@@ -24,6 +25,7 @@
 #include "neat/genome.hpp"
 #include "libs/json.hpp"
 #include "libs/gnuplot-iostream.hpp"
+#include "indicators/utils.hpp"
 #include "training.hpp"
 #include "symbols.hpp"
 #include "trader.hpp"
@@ -31,28 +33,28 @@
 /**
  * @brief Constructor for the Training class.
  * @param id Unique identifier for the training process.
- * @param config Configuration object.
+ * @param config_file_path Path to the configuration file.
  * @param debug Debug mode flag.
  */
-Training::Training(std::string id, Config &config, bool debug)
-    : id(id), config(config), debug(debug)
+Training::Training(std::string id, std::filesystem::path config_file_path, bool debug)
 {
+    this->id = id;
+    this->debug = debug;
+
     // Create the directory
-    this->directory = "reports/" + this->config.general.name + "/" + this->config.general.version + "/" + id;
+    this->directory = "reports/" + id;
     if (!std::filesystem::exists(this->directory))
     {
+        std::cout << "📂 Create the directory '" << this->directory.generic_string() << "'" << std::endl;
         std::filesystem::create_directories(this->directory);
     }
 
     // Set the file paths
-    this->cache_file = "cache/data_" + this->config.general.name + "_" + this->config.general.version + ".json";
+    this->config_file_path = config_file_path;
+    this->cache_file = "cache/data_" + id + ".json";
     this->fitness_report_file = this->directory.generic_string() + "/fitness_report.png";
     this->population_save_file = this->directory.generic_string() + "/population_save.json";
     this->training_save_file = this->directory.generic_string() + "/training_save.json";
-
-    // Set the number of inputs and outputs for the NEAT algorithm
-    this->config.neat.num_inputs = this->count_indicators() + this->config.training.inputs.position.size();
-    this->config.neat.num_outputs = 3; // Buy, Sell, Wait
 
     // Initialize the data structures
     this->candles = {};
@@ -66,20 +68,40 @@ Training::Training(std::string id, Config &config, bool debug)
 
     // History for statistics
     this->current_generation = 0;
-    int generations = config.training.generations;
     this->best_trader = nullptr;
     this->current_generation_traders = {};
     this->best_fitnesses = {};
     this->average_fitnesses = {};
 
-    // Check if the training directory exists
+    // Check if a training state exists
     if (std::filesystem::exists(this->training_save_file) && std::filesystem::exists(this->population_save_file))
     {
+        std::cout << "⏳ Load the training progress..." << std::endl;
         this->load();
     }
     else
     {
-        // Initialize the population
+        // Import the file of the configuration
+        std::ifstream config_file(this->config_file_path.generic_string());
+        if (std::filesystem::exists(config_file_path.generic_string()) && config_file.is_open())
+        {
+            // Parse the configuration file
+            nlohmann::json config_json;
+            config_file >> config_json;
+            this->config = config_from_json(config_json);
+            std::cout << "📄 Import the configuration file '" << this->config_file_path.generic_string() << "'" << std::endl;
+        }
+        else
+        {
+            std::cerr << "Error: the configuration file '" << this->config_file_path.generic_string() << "' does not exist." << std::endl;
+            std::exit(EXIT_FAILURE);
+        }
+
+        // Set the number of inputs and outputs for the NEAT algorithm
+        this->config.neat.num_inputs = this->count_indicators() + this->config.training.inputs.position.size();
+        this->config.neat.num_outputs = 3; // Buy, Sell, Wait
+
+        std::cout << "⏳ Initialize the population..." << std::endl;
         this->population = new neat::Population(this->config.neat, true);
     }
 }
@@ -985,13 +1007,14 @@ void Training::save()
 
         nlohmann::json data = {
             {"id", this->id},
+            {"config", config_to_json(this->config)},
             {"current_generation", this->current_generation},
             {"best_trader", this->best_trader->to_json()},
             {"best_fitnesses", best_fitnesses_json},
             {"average_fitnesses", average_fitnesses_json},
         };
 
-        file << data.dump(4);
+        file << data.dump();
         file.close();
         std::cout << "💾 Training progress saved to '" << this->training_save_file.generic_string() << "'" << std::endl;
     }
@@ -1026,6 +1049,16 @@ void Training::load()
     file >> data;
     file.close();
 
+    // Load the configuration
+    if (!data.contains("config"))
+    {
+        std::cerr << "Error: the configuration is missing in the training process file." << std::endl;
+        std::exit(1);
+    }
+
+    // Load the configuration
+    this->config = config_from_json(data["config"]);
+
     // Load the population
     this->population = neat::Population::load(this->population_save_file, this->config.neat);
 
@@ -1043,6 +1076,10 @@ void Training::load()
     }
 
     this->best_trader = Trader::from_json(data["best_trader"], this->config);
+    if (this->debug)
+    {
+        this->best_trader->logger = new Logger(this->directory.generic_string() + "/logs/training/trader_" + this->best_trader->genome->id + ".log");
+    }
 
     std::cout << "✅ Training loaded from '" << this->training_save_file.generic_string() << "'" << std::endl;
 }

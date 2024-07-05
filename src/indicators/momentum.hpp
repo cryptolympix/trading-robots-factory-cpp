@@ -1,6 +1,11 @@
 #ifndef MOMENTUM_INDICATORS_HPP
 #define MOMENTUM_INDICATORS_HPP
 
+#include <variant>
+#include <map>
+#include <functional>
+#include <vector>
+#include <string>
 #include "../types.hpp"
 #include "indicator.hpp"
 
@@ -427,7 +432,7 @@ private:
  *
  * The Williams %R oscillates from 0 to -100. When the indicator produces readings from 0 to -20, this indicates overbought market conditions. When readings are -80 to -100, it indicates oversold market conditions.
  */
-class WilliamsPercentR : public Indicator
+class WPR : public Indicator
 {
 public:
     /**
@@ -436,7 +441,7 @@ public:
      * @param period The period for calculating Williams %R. Default to 14.
      * @param offset Offset value. Default is 0.
      */
-    WilliamsPercentR(int period = 14, int offset = 0);
+    WPR(int period = 14, int offset = 0);
 
     /**
      * @brief Calculate the Williams Percent R values.

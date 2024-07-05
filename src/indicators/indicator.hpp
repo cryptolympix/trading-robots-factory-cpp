@@ -5,6 +5,7 @@
 #include <vector>
 #include <functional>
 #include <utility>
+#include <regex>
 #include "../types.hpp"
 
 // Forward declaration
@@ -16,19 +17,22 @@ struct Candle;
 class Indicator
 {
 public:
-    std::string label;
-    std::string id;
-    std::pair<double, double> values_range;
+    std::string label;                      // The label of the indicator.
+    std::string id;                         // The id of the indicator.
+    int offset;                             // The offset of the indicator.
+    std::string id_pattern;                 // The regex pattern to match the ID.
+    std::pair<double, double> values_range; // The range of values.
 
     /**
      * @brief Construct a new Indicator::Indicator object.
      *
      * @param label The label of the indicator.
      * @param id The id of the indicator.
+     * @param id_pattern The id pattern of the indicator.
      * @param offset The offset of the indicator.
      * @param values_range The range of values.
      */
-    Indicator(const std::string &label, const std::string &id, int offset = 0, std::pair<double, double> values_range = std::make_pair(0, 0));
+    Indicator(const std::string &label, const std::string &id, std::string id_pattern, int offset = 0, std::pair<double, double> values_range = std::make_pair(0, 0));
 
     /**
      * @brief Calculate the indicator.
@@ -53,7 +57,6 @@ public:
 
 protected:
     std::vector<double> values;
-    int offset;
 };
 
 #endif // INDICATOR_H

@@ -41,7 +41,7 @@ TakeProfitStopLossConfig tpsl_config = {
 };
 
 TrailingStopLossConfig tsl_config = {
-    .type_trailing_stop_loss = TypeTrailingStopLoss::POINTS,
+    .type = TypeTrailingStopLoss::POINTS,
     .activation_level_in_points = 5,
     .trailing_stop_loss_in_points = 5,
 };
@@ -179,7 +179,7 @@ Config __config__ = {
                         new CMF(20),
                         new TSI(13, 25),
                         new UO(7, 14, 28),
-                        new WilliamsPercentR(14),
+                        new WPR(14),
                         new InstitutionalBias(9, 18),
                         new HighBreakSignal(10),
                         new LowBreakSignal(10),
@@ -242,7 +242,7 @@ Config __config__ = {
                         new CMF(20),
                         new TSI(13, 25),
                         new UO(7, 14, 28),
-                        new WilliamsPercentR(14),
+                        new WPR(14),
                         new InstitutionalBias(9, 18),
                         new HighBreakSignal(10),
                         new LowBreakSignal(10),

@@ -12,7 +12,7 @@
  * @param period Period value. Default is 14.
  * @param offset Offset value. Default is 0.
  */
-ATR::ATR(int period, int offset) : Indicator("Average True Range", "atr-" + std::to_string(period) + "-" + std::to_string(offset), offset), period(period) {}
+ATR::ATR(int period, int offset) : Indicator("Average True Range", "atr-" + std::to_string(period) + "-" + std::to_string(offset), R"(atr-(\d+)-(\d+))", offset), period(period) {}
 
 /**
  * @brief Calculate the Average True Range values.
@@ -90,7 +90,7 @@ std::vector<double> ATR::calculateTrueRange(const std::vector<Candle> &candles) 
  * @param multiplier Multiplier value. Default is 2.0.
  * @param offset Offset value. Default is 0.
  */
-BollingerChannelHighBand::BollingerChannelHighBand(int period, double multiplier, int offset) : Indicator("Bollinger Channel High Band", "bollinger-channel-high-band" + std::to_string(period) + "-" + std::to_string(multiplier) + "-" + std::to_string(offset), offset), period(period), multiplier(multiplier) {}
+BollingerChannelHighBand::BollingerChannelHighBand(int period, double multiplier, int offset) : Indicator("Bollinger Channel High Band", "bollinger-channel-high-band" + std::to_string(period) + "-" + std::to_string(multiplier) + "-" + std::to_string(offset), R"(bollinger-channel-high-band-(\d+)-(\d+.\d+)-(\d+))", offset), period(period), multiplier(multiplier) {}
 
 /**
  * @brief Calculate the Bollinger Channel High Band values.
@@ -133,7 +133,7 @@ std::vector<double> BollingerChannelHighBand::calculate(const std::vector<Candle
  * @param multiplier Multiplier value. Default is 2.0.
  * @param offset Offset value. Default is 0.
  */
-BollingerChannelLowBand::BollingerChannelLowBand(int period, double multiplier, int offset) : Indicator("Bollinger Channel Low Band", "bollinger-channel-low-band" + std::to_string(period) + "-" + std::to_string(multiplier) + "-" + std::to_string(offset), offset), period(period), multiplier(multiplier) {}
+BollingerChannelLowBand::BollingerChannelLowBand(int period, double multiplier, int offset) : Indicator("Bollinger Channel Low Band", "bollinger-channel-low-band" + std::to_string(period) + "-" + std::to_string(multiplier) + "-" + std::to_string(offset), R"(bollinger-channel-low-band-(\d+)-(\d+.\d+)-(\d+))", offset), period(period), multiplier(multiplier) {}
 
 /**
  * @brief Calculate the Bollinger Channel Low Band values.
@@ -175,7 +175,7 @@ std::vector<double> BollingerChannelLowBand::calculate(const std::vector<Candle>
  * @param period Period value. Default is 20.
  * @param offset Offset value. Default is 0.
  */
-BollingerChannelMiddleBand::BollingerChannelMiddleBand(int period, int offset) : Indicator("Bollinger Channel Middle Band", "bollinger-channel-middle-band" + std::to_string(period) + "-" + std::to_string(offset), offset), period(period){};
+BollingerChannelMiddleBand::BollingerChannelMiddleBand(int period, int offset) : Indicator("Bollinger Channel Middle Band", "bollinger-channel-middle-band" + std::to_string(period) + "-" + std::to_string(offset), R"(bollinger-channel-middle-band-(\d+)-(\d+))", offset), period(period){};
 
 /**
  * @brief Calculate the Bollinger Channel Middle Band values.
@@ -217,7 +217,7 @@ std::vector<double> BollingerChannelMiddleBand::calculate(const std::vector<Cand
  * @param multiplier Multiplier value. Default is 2.0.
  * @param offset Offset value. Default is 0.
  */
-BollingerChannelPercentageBand::BollingerChannelPercentageBand(int period, double multiplier, int offset) : Indicator("Bollinger Channel Percentage Band", "bollinger-channel-percentage-band" + std::to_string(period) + "-" + std::to_string(multiplier) + "-" + std::to_string(offset), offset), period(period), multiplier(multiplier) {}
+BollingerChannelPercentageBand::BollingerChannelPercentageBand(int period, double multiplier, int offset) : Indicator("Bollinger Channel Percentage Band", "bollinger-channel-percentage-band-" + std::to_string(period) + "-" + std::to_string(multiplier) + "-" + std::to_string(offset), R"(bollinger-channel-percentage-band-(\d+)-(\d+.\d+)-(\d+))", offset), period(period), multiplier(multiplier) {}
 
 /**
  * @brief Calculate the Bollinger Channel Percentage Band values.
@@ -264,7 +264,7 @@ std::vector<double> BollingerChannelPercentageBand::calculate(const std::vector<
  * @param multiplier Multiplier value. Default is 2.0.
  * @param offset Offset value. Default is 0.
  */
-BollingerChannelWidthBand::BollingerChannelWidthBand(int period, double multiplier, int offset) : Indicator("Bollinger Channel Width Band", "bollinger-channel-width-band" + std::to_string(period) + "-" + std::to_string(multiplier) + "-" + std::to_string(offset), offset), period(period), multiplier(multiplier) {}
+BollingerChannelWidthBand::BollingerChannelWidthBand(int period, double multiplier, int offset) : Indicator("Bollinger Channel Width Band", "bollinger-channel-width-band" + std::to_string(period) + "-" + std::to_string(multiplier) + "-" + std::to_string(offset), R"(bollinger-channel-width-band-(\d+)-(\d+.\d+)-(\d+))", offset), period(period), multiplier(multiplier) {}
 
 /**
  * @brief Calculate the Bollinger Channel Width Band values.
@@ -310,7 +310,7 @@ std::vector<double> BollingerChannelWidthBand::calculate(const std::vector<Candl
  * @param period Period value. Default is 20.
  * @param offset Offset value. Default is 0.
  */
-DonchianChannelHighBand::DonchianChannelHighBand(int period, int offset) : Indicator("Donchian Channel High Band", "donchian-channel-high-band" + std::to_string(period) + "-" + std::to_string(offset), offset), period(period) {}
+DonchianChannelHighBand::DonchianChannelHighBand(int period, int offset) : Indicator("Donchian Channel High Band", "donchian-channel-high-band" + std::to_string(period) + "-" + std::to_string(offset), R"(donchian-channel-high-band-(\d+)-(\d+))", offset), period(period) {}
 
 /**
  * @brief Calculate the Donchian Channel High Band values.
@@ -357,7 +357,7 @@ std::vector<double> DonchianChannelHighBand::calculate(const std::vector<Candle>
  * @param period Period value. Default is 20.
  * @param offset Offset value. Default is 0.
  */
-DonchianChannelLowBand::DonchianChannelLowBand(int period, int offset) : Indicator("Donchian Channel Low Band", "donchian-channel-low-band" + std::to_string(period) + "-" + std::to_string(offset), offset), period(period) {}
+DonchianChannelLowBand::DonchianChannelLowBand(int period, int offset) : Indicator("Donchian Channel Low Band", "donchian-channel-low-band" + std::to_string(period) + "-" + std::to_string(offset), R"(donchian-channel-low-band-(\d+)-(\d+))", offset), period(period) {}
 
 /**
  * @brief Calculate the Donchian Channel Low Band values.
@@ -404,7 +404,7 @@ std::vector<double> DonchianChannelLowBand::calculate(const std::vector<Candle> 
  * @param period Period value. Default is 20.
  * @param offset Offset value. Default is 0.
  */
-DonchianChannelMiddleBand::DonchianChannelMiddleBand(int period, int offset) : Indicator("Donchian Channel Middle Band", "donchian-channel-middle-band" + std::to_string(period) + "-" + std::to_string(offset), offset), period(period) {}
+DonchianChannelMiddleBand::DonchianChannelMiddleBand(int period, int offset) : Indicator("Donchian Channel Middle Band", "donchian-channel-middle-band" + std::to_string(period) + "-" + std::to_string(offset), R"(donchian-channel-middle-band-(\d+)-(\d+))", offset), period(period) {}
 
 /**
  * @brief Calculate the Donchian Channel Middle Band values.
@@ -455,7 +455,7 @@ std::vector<double> DonchianChannelMiddleBand::calculate(const std::vector<Candl
  * @param multiplier Multiplier value. Default is 2.0.
  * @param offset Offset value. Default is 0.
  */
-KeltnerChannelHighBand::KeltnerChannelHighBand(int period, int atr_period, double multiplier, int offset) : Indicator("Keltner Channel High Band", "keltner-channel-high-band" + std::to_string(period) + "-" + std::to_string(atr_period) + "-" + std::to_string(multiplier) + "-" + std::to_string(offset), offset), period(period), atr_period(atr_period), multiplier(multiplier) {}
+KeltnerChannelHighBand::KeltnerChannelHighBand(int period, int atr_period, double multiplier, int offset) : Indicator("Keltner Channel High Band", "keltner-channel-high-band-" + std::to_string(period) + "-" + std::to_string(atr_period) + "-" + std::to_string(multiplier) + "-" + std::to_string(offset), R"(keltner-channel-high-band-(\d+)-(\d+)-(\d+.\d+)-(\d+))", offset), period(period), atr_period(atr_period), multiplier(multiplier) {}
 
 /**
  * @brief Calculate the Keltner Channel High Band values.
@@ -499,7 +499,7 @@ std::vector<double> KeltnerChannelHighBand::calculate(const std::vector<Candle> 
  * @param multiplier Multiplier value. Default is 2.0.
  * @param offset Offset value. Default is 0.
  */
-KeltnerChannelLowBand::KeltnerChannelLowBand(int period, int atr_period, double multiplier, int offset) : Indicator("Keltner Channel Low Band", "keltner-channel-low-band" + std::to_string(period) + "-" + std::to_string(atr_period) + "-" + std::to_string(multiplier) + "-" + std::to_string(offset), offset), period(period), atr_period(atr_period), multiplier(multiplier) {}
+KeltnerChannelLowBand::KeltnerChannelLowBand(int period, int atr_period, double multiplier, int offset) : Indicator("Keltner Channel Low Band", "keltner-channel-low-band" + std::to_string(period) + "-" + std::to_string(atr_period) + "-" + std::to_string(multiplier) + "-" + std::to_string(offset), R"(keltner-channel-low-band-(\d+)-(\d+)-(\d+.\d+)-(\d+))", offset), period(period), atr_period(atr_period), multiplier(multiplier) {}
 
 /**
  * @brief Calculate the Keltner Channel Low Band values.
@@ -541,7 +541,7 @@ std::vector<double> KeltnerChannelLowBand::calculate(const std::vector<Candle> &
  * @param period Period value. Default is 20.
  * @param offset Offset value. Default is 0.
  */
-KeltnerChannelMiddleBand::KeltnerChannelMiddleBand(int period, int offset) : Indicator("Keltner Channel Middle Band", "keltner-channel-middle-band" + std::to_string(period) + "-" + std::to_string(offset), offset), period(period) {}
+KeltnerChannelMiddleBand::KeltnerChannelMiddleBand(int period, int offset) : Indicator("Keltner Channel Middle Band", "keltner-channel-middle-band" + std::to_string(period) + "-" + std::to_string(offset), R"(keltner-channel-middle-band-(\d+)-(\d+))", offset), period(period) {}
 
 /**
  * @brief Calculate the Keltner Channel Middle Band values.
@@ -582,7 +582,7 @@ std::vector<double> KeltnerChannelMiddleBand::calculate(const std::vector<Candle
  * @param period Period value. Default is 14.
  * @param offset Offset value. Default is 0.
  */
-UI::UI(int period, int offset) : Indicator("Ulcer Index", "ui-" + std::to_string(period) + "-" + std::to_string(offset), offset), period(period) {}
+UI::UI(int period, int offset) : Indicator("Ulcer Index", "ui-" + std::to_string(period) + "-" + std::to_string(offset), R"(ui-(\d+)-(\d+))", offset), period(period) {}
 
 /**
  * @brief Calculate the Ulcer Index values.
@@ -646,7 +646,7 @@ std::vector<double> UI::calculate(const std::vector<Candle> &candles, bool norma
  * @param period Period value. Default is 14.
  * @param offset Offset value. Default is 0.
  */
-StandardDeviation::StandardDeviation(int period, int offset) : Indicator("Standard Deviation", "stddev-" + std::to_string(period) + "-" + std::to_string(offset), offset), period(period) {}
+StandardDeviation::StandardDeviation(int period, int offset) : Indicator("Standard Deviation", "stddev-" + std::to_string(period) + "-" + std::to_string(offset), R"(stddev-(\d+)-(\d+))", offset), period(period) {}
 
 /**
  * @brief Calculate the Standard Deviation values.
@@ -682,7 +682,7 @@ std::vector<double> StandardDeviation::calculate(const std::vector<Candle> &cand
  * @param period Period value. Default is 14.
  * @param offset Offset value. Default is 0.
  */
-AveragePriceChange::AveragePriceChange(int period, int offset) : Indicator("Average Price Change", "average-price-change-" + std::to_string(period) + "-" + std::to_string(offset), offset), period(period) {}
+AveragePriceChange::AveragePriceChange(int period, int offset) : Indicator("Average Price Change", "average-price-change-" + std::to_string(period) + "-" + std::to_string(offset), R"(average-price-change-(\d+)-(\d+))", offset), period(period) {}
 
 /**
  * @brief Calculate the Average Price Change values.

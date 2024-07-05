@@ -822,8 +822,8 @@ void neat::Genome::save(const std::string &file_path)
         {
             throw std::runtime_error("Failed to open file for writing: " + file_path);
         }
-        file << genome_json.dump(4); // Pretty-print with 4 spaces
-        file.close();                // Close the file after writing
+        file << genome_json.dump();
+        file.close();
     }
     catch (const std::exception &e)
     {

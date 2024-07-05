@@ -12,7 +12,7 @@
  *
  * @param offset Offset value. Default is 0.
  */
-Hour::Hour(int offset) : Indicator("Hour", "hour-" + std::to_string(offset), offset, {0, 23}) {}
+Hour::Hour(int offset) : Indicator("Hour", "hour-" + std::to_string(offset), R"(hour-(\d+))", offset, {0, 23}) {}
 
 /**
  * @brief Calculate the Hour values.
@@ -46,7 +46,7 @@ std::vector<double> Hour::calculate(const std::vector<Candle> &candles, bool nor
  *
  * @param offset Offset value. Default is 0.
  */
-Minute::Minute(int offset) : Indicator("Minute", "minute-" + std::to_string(offset), offset, {0, 59}) {}
+Minute::Minute(int offset) : Indicator("Minute", "minute-" + std::to_string(offset), R"(minute-(\d+))", offset, {0, 59}) {}
 
 /**
  * @brief Calculate the Minute values.
@@ -80,7 +80,7 @@ std::vector<double> Minute::calculate(const std::vector<Candle> &candles, bool n
  *
  * @param offset Offset value. Default is 0.
  */
-NFPWeek::NFPWeek(int offset) : Indicator("NFP Week", "nfp-week-" + std::to_string(offset), offset, {0, 1}) {}
+NFPWeek::NFPWeek(int offset) : Indicator("NFP Week", "nfp-week-" + std::to_string(offset), R"(nfp-week-(\d+))", offset, {0, 1}) {}
 
 /**
  * @brief Check if the candle is on NFP week.
@@ -119,8 +119,10 @@ std::vector<double> NFPWeek::calculate(const std::vector<Candle> &candles, bool 
 MarketSession::MarketSession(std::string zone, int offset) : Indicator(zone == "new-york" ? "New York Market Session" : zone == "london" ? "London Market Session"
                                                                                                                     : zone == "tokyo"    ? "Tokyo Market Session"
                                                                                                                                          : "unknown",
-                                                                       "market-session-" + zone + "-" + std::to_string(offset), offset, {0, 1}),
-                                                             zone(zone) {}
+                                                                       "market-session-" + zone + "-" + std::to_string(offset), R"(market-session-([a-z]+)-(\d+))", offset, {0, 1}),
+                                                             zone(zone)
+{
+}
 
 /**
  * @brief Check if the candle is on a market session.
@@ -170,7 +172,7 @@ std::vector<double> MarketSession::calculate(const std::vector<Candle> &candles,
  * @param day Week day.
  * @param offset Offset value. Default is 0.
  */
-WeekDay::WeekDay(std::string day, int offset) : Indicator("Week Day (" + day + ")", "week-day-" + day + "-" + std::to_string(offset), offset, {0, 1}), day(day) {}
+WeekDay::WeekDay(std::string day, int offset) : Indicator("Week Day (" + day + ")", "week-day-" + day + "-" + std::to_string(offset), R"(week-day-([a-z]+)-(\d+))", offset, {0, 1}), day(day) {}
 
 /**
  * @brief Get the days of the candle.

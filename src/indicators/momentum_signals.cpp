@@ -9,7 +9,7 @@
  *
  * @param offset Offset value. Default is 0.
  */
-AwesomeOscillatorSignal::AwesomeOscillatorSignal(int offset) : Indicator("Awesome Oscillator Signal", "awesome-indicator-signal-" + std::to_string(offset), offset, {-1, 1}) {}
+AwesomeOscillatorSignal::AwesomeOscillatorSignal(int offset) : Indicator("Awesome Oscillator Signal", "awesome-signal-" + std::to_string(offset), R"(awesome-signal-(\d+))", offset, {-1, 1}) {}
 
 /**
  * @brief Calculate the AwesomeOscillatorSignal values.
@@ -52,7 +52,7 @@ std::vector<double> AwesomeOscillatorSignal::calculate(const std::vector<Candle>
  * @param slowest_sc_period Slowest SC period value. Default is 30.
  * @param offset Offset value. Default is 0.
  */
-KAMASignal::KAMASignal(int er_period, int fastest_sc_period, int slowest_sc_period, int offset) : Indicator("KAMA Signal", "kama-indicator-signal-" + std::to_string(er_period) + "-" + std::to_string(fastest_sc_period) + "-" + std::to_string(slowest_sc_period) + "-" + std::to_string(offset), offset, {-1, 1}), er_period(er_period), fastest_sc_period(fastest_sc_period), slowest_sc_period(slowest_sc_period) {}
+KAMASignal::KAMASignal(int er_period, int fastest_sc_period, int slowest_sc_period, int offset) : Indicator("KAMA Signal", "kama-signal-" + std::to_string(er_period) + "-" + std::to_string(fastest_sc_period) + "-" + std::to_string(slowest_sc_period) + "-" + std::to_string(offset), R"(kama-signal-(\d+)-(\d+)-(\d+)-(\d+))", offset, {-1, 1}), er_period(er_period), fastest_sc_period(fastest_sc_period), slowest_sc_period(slowest_sc_period) {}
 
 /**
  * @brief Calculate the KAMASignal values.
@@ -95,7 +95,7 @@ std::vector<double> KAMASignal::calculate(const std::vector<Candle> &candles, bo
  * @param oversold Oversold value. Default is 20.
  * @param offset Offset value. Default is 0.
  */
-MFISignal::MFISignal(int period, int overbought, int oversold, int offset) : Indicator("Money Flow Index Signal", "mfi-indicator-signal-" + std::to_string(period) + "-" + std::to_string(overbought) + "-" + std::to_string(oversold) + "-" + std::to_string(offset), offset, {-1, 1}), period(period), overbought(overbought), oversold(oversold) {}
+MFISignal::MFISignal(int period, int overbought, int oversold, int offset) : Indicator("Money Flow Index Signal", "mfi-signal-" + std::to_string(period) + "-" + std::to_string(overbought) + "-" + std::to_string(oversold) + "-" + std::to_string(offset), R"(mfi-signal-(\d+)-(\d+)-(\d+)-(\d+))", offset, {-1, 1}), period(period), overbought(overbought), oversold(oversold) {}
 
 /**
  * @brief Calculate the MFISignal values.
@@ -137,7 +137,7 @@ std::vector<double> MFISignal::calculate(const std::vector<Candle> &candles, boo
  * @param long_period Long period value. Default is 26.
  * @param offset Offset value. Default is 0.
  */
-PPOSignal::PPOSignal(int short_period, int long_period, int offset) : Indicator("Percentage Price Oscillator Signal", "ppo-indicator-signal-" + std::to_string(short_period) + "-" + std::to_string(long_period) + "-" + std::to_string(offset), offset, {-1, 1}), short_period(short_period), long_period(long_period) {}
+PPOSignal::PPOSignal(int short_period, int long_period, int offset) : Indicator("Percentage Price Oscillator Signal", "ppo-signal-" + std::to_string(short_period) + "-" + std::to_string(long_period) + "-" + std::to_string(offset), R"(ppo-signal-(\d+)-(\d+)-(\d+))", offset, {-1, 1}), short_period(short_period), long_period(long_period) {}
 
 /**
  * @brief Calculate the PPOSignal values.
@@ -178,7 +178,7 @@ std::vector<double> PPOSignal::calculate(const std::vector<Candle> &candles, boo
  * @param period Period value. Default is 9.
  * @param offset Offset value. Default is 0.
  */
-ROCSignal::ROCSignal(int period, int offset) : Indicator("Rate of Change Signal", "roc-indicator-signal-" + std::to_string(period) + "-" + std::to_string(offset), offset, {-1, 1}), period(period) {}
+ROCSignal::ROCSignal(int period, int offset) : Indicator("Rate of Change Signal", "roc-signal-" + std::to_string(period) + "-" + std::to_string(offset), R"(roc-signal-(\d+)-(\d+))", offset, {-1, 1}), period(period) {}
 
 /**
  * @brief Calculate the ROCSignal values.
@@ -219,7 +219,7 @@ std::vector<double> ROCSignal::calculate(const std::vector<Candle> &candles, boo
  * @param period Period value. Default is 14.
  * @param offset Offset value. Default is 0.
  */
-RSISignal::RSISignal(int period, int overbought, int oversold, int offset) : Indicator("Relative Strength Index Signal", "rsi-indicator-signal-" + std::to_string(period) + "-" + std::to_string(overbought) + "-" + std::to_string(oversold) + "-" + std::to_string(offset), offset, {-1, 1}), period(period) {}
+RSISignal::RSISignal(int period, int overbought, int oversold, int offset) : Indicator("Relative Strength Index Signal", "rsi-signal-" + std::to_string(period) + "-" + std::to_string(overbought) + "-" + std::to_string(oversold) + "-" + std::to_string(offset), R"(rsi-signal-(\d+)-(\d+)-(\d+)-(\d+))", offset, {-1, 1}), period(period) {}
 
 /**
  * @brief Calculate the RSISignal values.
@@ -262,7 +262,7 @@ std::vector<double> RSISignal::calculate(const std::vector<Candle> &candles, boo
  * @param oversold Oversold value. Default is 20.
  * @param offset Offset value. Default is 0.
  */
-StochasticRSISignal::StochasticRSISignal(int period, int overbought, int oversold, int offset) : Indicator("Stochastic RSI Signal", "stoch-rsi-indicator-signal-" + std::to_string(period) + "-" + std::to_string(overbought) + "-" + std::to_string(oversold) + "-" + std::to_string(offset), offset, {-1, 1}), period(period), overbought(overbought), oversold(oversold) {}
+StochasticRSISignal::StochasticRSISignal(int period, int overbought, int oversold, int offset) : Indicator("Stochastic RSI Signal", "stoch-rsi-signal-" + std::to_string(period) + "-" + std::to_string(overbought) + "-" + std::to_string(oversold) + "-" + std::to_string(offset), R"(stoch-rsi-signal-(\d+)-(\d+)-(\d+)-(\d+))", offset, {-1, 1}), period(period), overbought(overbought), oversold(oversold) {}
 
 /**
  * @brief Calculate the StochasticRSISignal values.
@@ -306,7 +306,7 @@ std::vector<double> StochasticRSISignal::calculate(const std::vector<Candle> &ca
  * @param oversold Oversold value. Default is 20.
  * @param offset Offset value. Default is 0.
  */
-StochasticOscillatorSignal::StochasticOscillatorSignal(int k_period, int d_period, int overbought, int oversold, int offset) : Indicator("Stochastic Oscillator Signal", "stoch-indicator-signal-" + std::to_string(k_period) + "-" + std::to_string(d_period) + "-" + std::to_string(overbought) + "-" + std::to_string(oversold) + "-" + std::to_string(offset), offset, {-1, 1}), k_period(k_period), d_period(d_period) {}
+StochasticOscillatorSignal::StochasticOscillatorSignal(int k_period, int d_period, int overbought, int oversold, int offset) : Indicator("Stochastic Oscillator Signal", "stoch-oscillator-signal-" + std::to_string(k_period) + "-" + std::to_string(d_period) + "-" + std::to_string(overbought) + "-" + std::to_string(oversold) + "-" + std::to_string(offset), R"(stoch-oscillator-signal-(\d+)-(\d+)-(\d+)-(\d+)-(\d+))", offset, {-1, 1}), k_period(k_period), d_period(d_period) {}
 
 /**
  * @brief Calculate the StochasticOscillatorSignal values.
@@ -350,7 +350,7 @@ std::vector<double> StochasticOscillatorSignal::calculate(const std::vector<Cand
  * @param oversold Oversold value. Default is -25.
  * @param offset Offset value. Default is 0.
  */
-TSISignal::TSISignal(int short_period, int long_period, int overbought, int oversold, int offset) : Indicator("True Strength Index Signal", "tsi-indicator-signal-" + std::to_string(short_period) + "-" + std::to_string(long_period) + "-" + std::to_string(overbought) + "-" + std::to_string(oversold) + "-" + std::to_string(offset), offset, {-1, 1}), short_period(short_period), long_period(long_period) {}
+TSISignal::TSISignal(int short_period, int long_period, int overbought, int oversold, int offset) : Indicator("True Strength Index Signal", "tsi-signal-" + std::to_string(short_period) + "-" + std::to_string(long_period) + "-" + std::to_string(overbought) + "-" + std::to_string(oversold) + "-" + std::to_string(offset), R"(tsi-signal-(\d+)-(\d+)-(\d+)-(\d+)-(\d+))", offset, {-1, 1}), short_period(short_period), long_period(long_period) {}
 
 /**
  * @brief Calculate the TSISignal values.
@@ -395,7 +395,7 @@ std::vector<double> TSISignal::calculate(const std::vector<Candle> &candles, boo
  * @param oversold Oversold value. Default is 30.
  * @param offset Offset value. Default is 0.
  */
-UOSignal::UOSignal(int short_period, int medium_period, int long_period, int overbought, int oversold, int offset) : Indicator("Ultimate Oscillator Signal", "uo-indicator-signal-" + std::to_string(short_period) + "-" + std::to_string(medium_period) + "-" + std::to_string(long_period) + "-" + std::to_string(overbought) + "-" + std::to_string(oversold) + "-" + std::to_string(offset), offset, {-1, 1}), short_period(short_period), medium_period(medium_period), long_period(long_period) {}
+UOSignal::UOSignal(int short_period, int medium_period, int long_period, int overbought, int oversold, int offset) : Indicator("Ultimate Oscillator Signal", "uo-signal-" + std::to_string(short_period) + "-" + std::to_string(medium_period) + "-" + std::to_string(long_period) + "-" + std::to_string(overbought) + "-" + std::to_string(oversold) + "-" + std::to_string(offset), R"(uo-signal-(\d+)-(\d+)-(\d+)-(\d+)-(\d+)-(\d+))", offset, {-1, 1}), short_period(short_period), medium_period(medium_period), long_period(long_period) {}
 
 /**
  * @brief Calculate the UOSignal values.
@@ -431,29 +431,29 @@ std::vector<double> UOSignal::calculate(const std::vector<Candle> &candles, bool
 // *********************************************************************************************
 
 /**
- * @brief Construct a new WilliamsRSignal object.
+ * @brief Construct a new WPRSignal object.
  *
  * @param period Period value. Default is 14.
  * @param overbought Overbought value. Default is -20.
  * @param oversold Oversold value. Default is -80.
  * @param offset Offset value. Default is 0.
  */
-WilliamsRSignal::WilliamsRSignal(int period, int overbought, int oversold, int offset) : Indicator("Williams %R Signal", "williams-r-indicator-signal-" + std::to_string(period) + "-" + std::to_string(overbought) + "-" + std::to_string(oversold) + "-" + std::to_string(offset), offset, {-1, 1}), period(period), overbought(overbought), oversold(oversold) {}
+WPRSignal::WPRSignal(int period, int overbought, int oversold, int offset) : Indicator("Williams %R Signal", "wpr-signal-" + std::to_string(period) + "-" + std::to_string(overbought) + "-" + std::to_string(oversold) + "-" + std::to_string(offset), R"(wpr-signal-(\d+)-(\d+)-(\d+)-(\d+))", offset, {-1, 1}), period(period), overbought(overbought), oversold(oversold) {}
 
 /**
- * @brief Calculate the WilliamsRSignal values.
+ * @brief Calculate the WPRSignal values.
  *
  * @param candles Vector of Candle data.
  * @param normalize_data Boolean flag indicating whether to normalize data.
  * @return std::vector<double> Vector containing calculated values.
  */
-std::vector<double> WilliamsRSignal::calculate(const std::vector<Candle> &candles, bool normalize_data) const
+std::vector<double> WPRSignal::calculate(const std::vector<Candle> &candles, bool normalize_data) const
 {
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles)
         {
             std::vector<double> result(candles.size(), 0.0);
-            std::vector<double> williams_r_values = WilliamsPercentR(period, offset).calculate(candles, false);
+            std::vector<double> williams_r_values = WPR(period, offset).calculate(candles, false);
 
             for (size_t i = 1; i < williams_r_values.size(); i++)
             {

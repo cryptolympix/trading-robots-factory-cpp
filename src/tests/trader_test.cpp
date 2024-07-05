@@ -885,7 +885,7 @@ TEST_F(TraderTest, UpdateShortPositionPnl)
 TEST_F(TraderTest, TrailingStopLossForLong)
 {
     trader->config.strategy.trailing_stop_loss_config = {
-        .type_trailing_stop_loss = TypeTrailingStopLoss::POINTS,
+        .type = TypeTrailingStopLoss::POINTS,
         .activation_level_in_points = 20,
         .trailing_stop_loss_in_points = 10,
     };
@@ -939,7 +939,7 @@ TEST_F(TraderTest, TrailingStopLossForLong)
 TEST_F(TraderTest, TrailingStopLossForShort)
 {
     trader->config.strategy.trailing_stop_loss_config = {
-        .type_trailing_stop_loss = TypeTrailingStopLoss::PERCENT,
+        .type = TypeTrailingStopLoss::PERCENT,
         .activation_level_in_percent = 0.01,
         .trailing_stop_loss_in_percent = 0.005,
     };

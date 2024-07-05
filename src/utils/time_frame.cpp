@@ -90,3 +90,76 @@ TimeFrame highest_time_frame(const std::vector<TimeFrame> &time_frames)
         return time_frames_copy[0];
     }
 }
+
+/**
+ * @brief Convert a timeframe to a string representation.
+ * @return std::string The string representation of the timeframe.
+ */
+std::string time_frame_to_string(TimeFrame time_frame)
+{
+    switch (time_frame)
+    {
+    case TimeFrame::M1:
+        return "1m";
+    case TimeFrame::M5:
+        return "5m";
+    case TimeFrame::M15:
+        return "15m";
+    case TimeFrame::M30:
+        return "30m";
+    case TimeFrame::H1:
+        return "1h";
+    case TimeFrame::H4:
+        return "4h";
+    case TimeFrame::H12:
+        return "12h";
+    case TimeFrame::D1:
+        return "1d";
+    default:
+        throw std::runtime_error("The time frame is invalid.");
+    }
+}
+
+/**
+ * @brief Convert a string representation of a timeframe to a TimeFrame enum.
+ * @return TimeFrame The TimeFrame enum corresponding to the string representation.
+ */
+TimeFrame string_to_time_frame(const std::string &time_frame)
+{
+    if (time_frame == "1m")
+    {
+        return TimeFrame::M1;
+    }
+    else if (time_frame == "5m")
+    {
+        return TimeFrame::M5;
+    }
+    else if (time_frame == "15m")
+    {
+        return TimeFrame::M15;
+    }
+    else if (time_frame == "30m")
+    {
+        return TimeFrame::M30;
+    }
+    else if (time_frame == "1h")
+    {
+        return TimeFrame::H1;
+    }
+    else if (time_frame == "4h")
+    {
+        return TimeFrame::H4;
+    }
+    else if (time_frame == "12h")
+    {
+        return TimeFrame::H12;
+    }
+    else if (time_frame == "1d")
+    {
+        return TimeFrame::D1;
+    }
+    else
+    {
+        throw std::runtime_error("The time frame is invalid.");
+    }
+}

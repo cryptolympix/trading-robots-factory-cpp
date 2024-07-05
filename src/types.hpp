@@ -223,7 +223,7 @@ struct TakeProfitStopLossConfig
  */
 struct TrailingStopLossConfig
 {
-    TypeTrailingStopLoss type_trailing_stop_loss;        // Type of trailing stop loss configuration (POINTS or PERCENT)
+    TypeTrailingStopLoss type;                           // Type of trailing stop loss configuration (POINTS or PERCENT)
     std::optional<int> activation_level_in_points;       // Activation level in points before trailing stop loss is activated
     std::optional<double> activation_level_in_percent;   // Activation level as a percentage before trailing stop loss is activated
     std::optional<int> trailing_stop_loss_in_points;     // Trailing stop loss in points

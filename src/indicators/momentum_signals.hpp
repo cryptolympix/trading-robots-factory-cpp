@@ -298,21 +298,21 @@ private:
 
 // *********************************************************************************************
 
-class WilliamsRSignal : public Indicator
+class WPRSignal : public Indicator
 {
 public:
     /**
-     * @brief Construct a new WilliamsRSignal object.
+     * @brief Construct a new WPRSignal object.
      *
      * @param period Period value. Default is 14.
      * @param overbought Overbought value. Default is -20.
      * @param oversold Oversold value. Default is -80.
      * @param offset Offset value. Default is 0.
      */
-    WilliamsRSignal(int period = 14, int overbought = -20, int oversold = -80, int offset = 0);
+    WPRSignal(int period = 14, int overbought = -20, int oversold = -80, int offset = 0);
 
     /**
-     * @brief Calculate the WilliamsRSignal values.
+     * @brief Calculate the WPRSignal values.
      *
      * @param candles Vector of Candle data.
      * @param normalize_data Boolean flag indicating whether to normalize data.

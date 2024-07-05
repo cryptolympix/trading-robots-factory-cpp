@@ -1,5 +1,11 @@
 #include <gtest/gtest.h>
 #include <chrono>
+#include <ctime>
+#include <vector>
+#include <functional>
+#include <iostream>
+#include <iomanip>
+#include <string>
 #include "../../types.hpp"
 #include "../indicator.hpp"
 
@@ -46,7 +52,7 @@ protected:
 TEST_F(IndicatorTest, Calculate)
 {
     // Create an instance of the Indicator class
-    Indicator indicator("Test Indicator", "test-indicator", 0);
+    Indicator indicator("Test Indicator", "test-indicator", R"(test-indicator)", 0);
 
     // Define a calculator function (dummy function for testing)
     auto calculator = [](std::vector<Candle> candles) -> std::vector<double>
@@ -76,7 +82,7 @@ TEST_F(IndicatorTest, Calculate)
 TEST_F(IndicatorTest, CalculateWithOffset)
 {
     // Create an instance of the Indicator class with offset
-    Indicator indicator("Test Indicator", "test-indicator", 1);
+    Indicator indicator("Test Indicator", "test-indicator", R"(test-indicator)", 1);
 
     // Define a calculator function (dummy function for testing)
     auto calculator = [](std::vector<Candle> candles) -> std::vector<double>
@@ -100,7 +106,7 @@ TEST_F(IndicatorTest, CalculateWithOffset)
 TEST_F(IndicatorTest, NormalizeData)
 {
     // Create an instance of the Indicator class
-    Indicator indicator("Test Indicator", "test-indicator", 0);
+    Indicator indicator("Test Indicator", "test-indicator", R"(test-indicator)", 0);
 
     // Define a calculator function (dummy function for testing)
     auto calculator = [](std::vector<Candle> candles) -> std::vector<double>

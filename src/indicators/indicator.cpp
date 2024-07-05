@@ -4,15 +4,66 @@
 #include <stdexcept>
 #include <utility>
 #include "../utils/vectors.hpp"
-#include "indicator.hpp"
 #include "../types.hpp"
+#include "indicator.hpp"
+
+#include "candle_patterns.hpp"
+#include "momentum.hpp"
+
+// Template function to convert string to the desired type
+template <typename T>
+T convert(const std::string &str);
+
+// Specializations for int, double, and string
+template <>
+int convert<int>(const std::string &str)
+{
+    return std::stoi(str);
+}
+
+template <>
+double convert<double>(const std::string &str)
+{
+    return std::stod(str);
+}
+
+template <>
+std::string convert<std::string>(const std::string &str)
+{
+    return str;
+}
+
+/**
+ * @brief Check if the ID is valid.
+ * @param id The ID to check.
+ * @param id_pattern The regex pattern to match the ID.
+ * @return True if the ID is valid, false otherwise.
+ */
+bool is_valid_id(const std::string &id, const std::string &id_pattern)
+{
+    std::regex pattern(id_pattern);
+    return std::regex_match(id, pattern);
+}
+
+// *********************************************************************************************************************
 
 /**
  * @brief Construct a new Indicator::Indicator object.
+ *
+ * @param label The label of the indicator.
+ * @param id The id of the indicator.
+ * @param id_pattern The id pattern of the indicator.
+ * @param offset The offset of the indicator.
+ * @param values_range The range of values.
+ * @return Indicator The indicator.
  */
-Indicator::Indicator(const std::string &label, const std::string &id, int offset, std::pair<double, double> values_range)
-    : label(label), id(id), offset(offset), values_range(values_range)
+Indicator::Indicator(const std::string &label, const std::string &id, std::string id_pattern, int offset, std::pair<double, double> values_range)
+    : label(label), id(id), id_pattern(id_pattern), offset(offset), values_range(values_range)
 {
+    if (!is_valid_id(id, id_pattern))
+    {
+        throw std::invalid_argument("Invalid ID format for the indicator " + label + " with pattern " + id_pattern + ": " + id);
+    }
 }
 
 /**

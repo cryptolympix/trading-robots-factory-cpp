@@ -128,9 +128,9 @@ TEST_F(MomentumIndicatorsTest, UO)
     }
 }
 
-TEST_F(MomentumIndicatorsTest, WilliamsPercentR)
+TEST_F(MomentumIndicatorsTest, WPR)
 {
-    WilliamsPercentR williams_r(14);
+    WPR williams_r(14);
     std::vector<double> result_williams_r = williams_r.calculate(mock_candles);
 
     ASSERT_EQ(result_williams_r.size(), mock_candles.size());

@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include "../configs/serialization.hpp"
 #include "../neat/genome.hpp"
 #include "../utils/time_frame.hpp"
 #include "../trading/schedule.hpp"
@@ -21,8 +22,9 @@ class TrainingTest : public ::testing::Test
 protected:
     Training *training;
     SymbolInfo symbol_info;
-    std::filesystem::path temp_dir;
     Config config;
+    std::filesystem::path temp_dir;
+    std::filesystem::path config_file_path;
 
     void SetUp() override
     {
@@ -122,8 +124,17 @@ protected:
             .neat = neat::load_config("src/configs/neat_config.txt"),
         };
         config.neat.population_size = 5;
-        training = new Training("test", config, false);
+
+        // Create the temp directory
         temp_dir = std::filesystem::temp_directory_path() / "training_test";
+        config_file_path = this->temp_dir / "config_test.hpp";
+
+        // Create the config file for the training test
+        std::ofstream config_file(this->config_file_path.generic_string());
+        config_file << config_to_json(config).dump(4);
+
+        // Create the training
+        training = new Training("test", config_file_path.generic_string(), false);
     }
 
     void TearDown() override
@@ -133,6 +144,7 @@ protected:
         std::filesystem::remove(training->cache_file);
         std::filesystem::remove(training->training_save_file);
         std::filesystem::remove(training->population_save_file);
+        std::filesystem::remove(config_file_path);
         delete training;
     }
 };
@@ -309,7 +321,7 @@ TEST_F(TrainingTest, Run)
 {
     for (int i = 0; i < 10; ++i)
     {
-        Training *training = new Training("test", config, false);
+        Training *training = new Training("test", config_file_path, false);
         training->prepare();
 
         // Run the training
@@ -334,7 +346,7 @@ TEST_F(TrainingTest, Run)
         training->config.training.generations = config.training.generations * 2;
 
         // Continue the training
-        Training *training2 = new Training(training->id, training->config, false);
+        Training *training2 = new Training(training->id, training->config_file_path, false);
 
         ASSERT_EQ(training2->id, training->id);
         ASSERT_EQ(training2->current_generation, training->current_generation);
