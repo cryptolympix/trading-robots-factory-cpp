@@ -18,6 +18,10 @@
 class CandleOpen : public Indicator
 {
 public:
+    std::string label = "Candle Open";
+    std::string id = "candle-open";
+    std::string id_pattern = R"(candle-open-(\d+))";
+
     /**
      * @brief Construct a new CandleOpen object.
      *
@@ -41,6 +45,10 @@ public:
 class CandleHigh : public Indicator
 {
 public:
+    std::string label = "Candle High";
+    std::string id = "candle-high";
+    std::string id_pattern = R"(candle-high-(\d+))";
+
     /**
      * @brief Construct a new CandleHigh object.
      *
@@ -64,6 +72,10 @@ public:
 class CandleLow : public Indicator
 {
 public:
+    std::string label = "Candle Low";
+    std::string id = "candle-low";
+    std::string id_pattern = R"(candle-low-(\d+))";
+
     /**
      * @brief Construct a new CandleLow object.
      *
@@ -87,6 +99,10 @@ public:
 class CandleClose : public Indicator
 {
 public:
+    std::string label = "Candle Close";
+    std::string id = "candle-close";
+    std::string id_pattern = R"(candle-close-(\d+))";
+
     /**
      * @brief Construct a new CandleClose object.
      *
@@ -110,6 +126,10 @@ public:
 class CandleTickVolume : public Indicator
 {
 public:
+    std::string label = "Candle Tick Volume";
+    std::string id = "candle-tick-volume";
+    std::string id_pattern = R"(candle-tick-volume-(\d+))";
+
     /**
      * @brief Construct a new CandleTickVolume object.
      *
@@ -133,6 +153,10 @@ public:
 class CandleVolume : public Indicator
 {
 public:
+    std::string label = "Candle Volume";
+    std::string id = "candle-volume";
+    std::string id_pattern = R"(candle-volume-(\d+))";
+
     /**
      * @brief Construct a new CandleVolume object.
      *
@@ -158,6 +182,10 @@ public:
 class WhiteCandle : public Indicator
 {
 public:
+    std::string label = "White Candle";
+    std::string id = "white-candle";
+    std::string id_pattern = R"(white-candle-(\d+))";
+
     /**
      * @brief Construct a new WhiteCandle object.
      *
@@ -183,6 +211,10 @@ public:
 class BlackCandle : public Indicator
 {
 public:
+    std::string label = "Black Candle";
+    std::string id = "black-candle";
+    std::string id_pattern = R"(black-candle-(\d+))";
+
     /**
      * @brief Construct a new BlackCandle object.
      *
@@ -208,6 +240,10 @@ public:
 class CandleBody : public Indicator
 {
 public:
+    std::string label = "Candle Body";
+    std::string id = "candle-body";
+    std::string id_pattern = R"(candle-body-(\d+))";
+
     /**
      * @brief Construct a new CandleBody object.
      *
@@ -233,6 +269,10 @@ public:
 class CandleShadowUpper : public Indicator
 {
 public:
+    std::string label = "Candle Shadow Upper";
+    std::string id = "candle-shadow-upper";
+    std::string id_pattern = R"(candle-shadow-upper-(\d+))";
+
     /**
      * @brief Construct a new CandleShadowUpper object.
      *
@@ -258,6 +298,10 @@ public:
 class CandleShadowLower : public Indicator
 {
 public:
+    std::string label = "Candle Shadow Lower";
+    std::string id = "candle-shadow-lower";
+    std::string id_pattern = R"(candle-shadow-lower-(\d+))";
+
     /**
      * @brief Construct a new CandleShadowLower object.
      *
@@ -281,6 +325,10 @@ public:
 class CandlePriceChange : public Indicator
 {
 public:
+    std::string label = "Candle Price Change";
+    std::string id = "candle-price-change";
+    std::string id_pattern = R"(candle-price-change-(\d+))";
+
     /**
      * @brief Construct a new CandlePriceChange object.
      *
@@ -304,6 +352,10 @@ public:
 class PivotHigh : public Indicator
 {
 public:
+    std::string label = "Pivot High";
+    std::string id = "pivot-high";
+    std::string id_pattern = R"(pivot-high-(\w+)-(\d+)-(\d+)-(\d+))";
+
     /**
      * @brief Construct a new PivotHigh object.
      *
@@ -335,6 +387,10 @@ private:
 class PivotLow : public Indicator
 {
 public:
+    std::string label = "Pivot Low";
+    std::string id = "pivot-low";
+    std::string id_pattern = R"(pivot-low-(\w+)-(\d+)-(\d+)-(\d+))";
+
     /**
      * @brief Construct a new PivotLow object.
      *
@@ -366,6 +422,10 @@ private:
 class PivotHighValue : public Indicator
 {
 public:
+    std::string label = "Pivot High Value";
+    std::string id = "pivot-high-value";
+    std::string id_pattern = R"(pivot-high-value-(\w+)-(\d+)-(\d+)-(\d+))";
+
     /**
      * @brief Construct a new PivotHighValue object.
      *
@@ -397,6 +457,10 @@ private:
 class PivotLowValue : public Indicator
 {
 public:
+    std::string label = "Pivot Low Value";
+    std::string id = "pivot-low-value";
+    std::string id_pattern = R"(pivot-low-value-(\w+)-(\d+)-(\d+)-(\d+))";
+
     /**
      * @brief Construct a new PivotLowValue object.
      *
@@ -428,6 +492,10 @@ private:
 class HighestHigh : public Indicator
 {
 public:
+    std::string label = "Highest High";
+    std::string id = "highest-high";
+    std::string id_pattern = R"(highest-high-(\d+)-(\d+)-(\d+))";
+
     /**
      * @brief Construct a new HighestHigh object.
      *
@@ -457,6 +525,10 @@ private:
 class LowestLow : public Indicator
 {
 public:
+    std::string label = "Lowest Low";
+    std::string id = "lowest-low";
+    std::string id_pattern = R"(lowest-low-(\d+)-(\d+)-(\d+))";
+
     /**
      * @brief Construct a new LowestLow object.
      *
@@ -488,6 +560,10 @@ private:
 class PeakDistance : public Indicator
 {
 public:
+    std::string label = "Peak Distance";
+    std::string id = "peak-distance";
+    std::string id_pattern = R"(peak-distance-(\d+)-(\d+)-(\d+))";
+
     /**
      * @brief Construct a new PeakDistance object.
      *
@@ -519,6 +595,10 @@ private:
 class PeakCandleDistance : public Indicator
 {
 public:
+    std::string label = "Peak Candle Distance";
+    std::string id = "peak-candle-distance";
+    std::string id_pattern = R"(peak-candle-distance-(\d+)-(\d+)-(\d+))";
+
     /**
      * @brief Construct a new PeakCandleDistance object.
      *

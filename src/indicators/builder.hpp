@@ -13,22 +13,20 @@ using IndicatorParams = std::variant<int, double, std::string>;
 
 /**
  * @brief Extract the parameters from the ID.
- * @param id The ID to extract the parameters from.
+ * @param id_params The ID to extract the parameters from.
  * @param id_pattern The regex pattern to match the ID.
- * @param group_number The group number to extract from the matches.
  * @return std::vector<T> The extracted parameters.
  */
 template <typename T>
-std::vector<T> extract_parameters(const std::string &id, const std::string &id_pattern);
+std::vector<T> extract_parameters(const std::string &id_params, const std::string &id_pattern);
 
 /**
  * @brief Build an indicator from the ID.
  *
- * @param id The ID of the indicator.
- * @param id_pattern The regex pattern to match the ID.
+ * @param id_params The ID of the indicator with parameters.
  * @param params The parameters of the indicator.
  * @return Indicator The indicator.
  */
-Indicator *create_indicator_from_id(const std::string &id, const std::string &id_pattern, std::vector<IndicatorParams> params);
+Indicator *create_indicator_from_id(const std::string &id_params, std::vector<IndicatorParams> params);
 
 #endif // INDICATORS_BUILDER_HPP

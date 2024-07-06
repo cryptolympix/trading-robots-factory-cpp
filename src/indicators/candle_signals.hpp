@@ -7,6 +7,9 @@
 class NewHighSignal : public Indicator
 {
 public:
+    std::string label = "New High (Signal)";
+    std::string id = "new-high-signal";
+
     /**
      * @brief Construct a New High Signal object.
      *
@@ -35,6 +38,10 @@ private:
 class NewLowSignal : public Indicator
 {
 public:
+    std::string label = "New Low (Signal)";
+    std::string id = "new-low-signal";
+    std::string id_pattern = R"(new-low-signal-(\d+)-(\d+)-(\d+))";
+
     /**
      * @brief Construct a New Low Signal object.
      *
@@ -63,6 +70,10 @@ private:
 class HighBreakSignal : public Indicator
 {
 public:
+    std::string label = "High Break (Signal)";
+    std::string id = "high-break-signal";
+    std::string id_pattern = R"(high-break-signal-(\d+)-(\d+)-(\d+))";
+
     /**
      * @brief Construct a new High Break Signal object.
      *
@@ -91,6 +102,10 @@ private:
 class LowBreakSignal : public Indicator
 {
 public:
+    std::string label = "Low Break (Signal)";
+    std::string id = "low-break-signal";
+    std::string id_pattern = R"(low-break-signal-(\d+)-(\d+)-(\d+))";
+
     /**
      * @brief Construct a new Low Break Signal object.
      *

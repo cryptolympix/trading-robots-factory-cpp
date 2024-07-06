@@ -7,6 +7,10 @@
 class ADXSignal : public Indicator
 {
 public:
+    std::string label = "Average Directional Index (Signal)";
+    std::string id = "adx-signal";
+    std::string id_pattern = R"(adx-signal-(\d+)-(\d+)-(\d+))";
+
     /**
      * @brief Construct a new ADXSignal object.
      *
@@ -35,6 +39,10 @@ private:
 class AroonSignal : public Indicator
 {
 public:
+    std::string label = "Aroon (Signal)";
+    std::string id = "aroon-signal";
+    std::string id_pattern = R"(aroon-signal-(\d+)-(\d+))";
+
     /**
      * @brief Construct a new AroonSignal object.
      *
@@ -61,6 +69,10 @@ private:
 class CCISignal : public Indicator
 {
 public:
+    std::string label = "Commodity Channel Index (Signal)";
+    std::string id = "cci-signal";
+    std::string id_pattern = R"(cci-signal-(\d+)-(-?\d+)-(-?\d+)-(\d+))";
+
     /**
      * @brief Construct a new CCISignal object.
      *
@@ -91,6 +103,10 @@ private:
 class DPOSignal : public Indicator
 {
 public:
+    std::string label = "Detrended Price Oscillator (Signal)";
+    std::string id = "dpo-signal";
+    std::string id_pattern = R"(dpo-signal-(\d+)-(\d+))";
+
     /**
      * @brief Construct a new DPOSignal object.
      *
@@ -117,6 +133,10 @@ private:
 class EMASignal : public Indicator
 {
 public:
+    std::string label = "Exponential Moving Average (Signal)";
+    std::string id = "ema-signal";
+    std::string id_pattern = R"(ema-signal-(\w+)-(\d+)-(\d+))";
+
     /**
      * @brief Construct a new EMASignal object.
      *
@@ -145,6 +165,10 @@ private:
 class KSTSignal : public Indicator
 {
 public:
+    std::string label = "Know Sure Thing (Signal)";
+    std::string id = "kst-signal";
+    std::string id_pattern = R"(kst-signal-(\d+)-(\d+)-(\d+)-(\d+)-(\d+)-(\d+)-(\d+)-(\d+)-(\d+))";
+
     /**
      * @brief Construct a new KSTSignal object.
      *
@@ -185,6 +209,10 @@ private:
 class MACDSignal : public Indicator
 {
 public:
+    std::string label = "Moving Average Convergence Divergence (Signal)";
+    std::string id = "macd-signal";
+    std::string id_pattern = R"(macd-signal-(\d+)-(\d+)-(\d+)-(\d+))";
+
     /**
      * @brief Construct a new MACDSignal object.
      *
@@ -215,6 +243,10 @@ private:
 class ParabolicSARSignal : public Indicator
 {
 public:
+    std::string label = "Parabolic SAR (Signal)";
+    std::string id = "parabolic-sar-signal";
+    std::string id_pattern = R"(parabolic-sar-signal-(\d+.\d+)-(\d+.\d+)-(\d+))";
+
     /**
      * @brief Construct a new ParabolicSARSignal object.
      *
@@ -243,6 +275,10 @@ private:
 class SMASignal : public Indicator
 {
 public:
+    std::string label = "Simple Moving Average (Signal)";
+    std::string id = "sma-signal";
+    std::string id_pattern = R"(sma-signal-(\w+)-(\d+)-(\d+))";
+
     /**
      * @brief Construct a new SMASignal object.
      *
@@ -271,6 +307,10 @@ private:
 class TRIXSignal : public Indicator
 {
 public:
+    std::string label = "Triple Exponential Average (Signal)";
+    std::string id = "trix-signal";
+    std::string id_pattern = R"(trix-signal-(\d+)-(\d+))";
+
     /**
      * @brief Construct a new TRIXSignal object.
      *
@@ -297,6 +337,10 @@ private:
 class VortexSignal : public Indicator
 {
 public:
+    std::string label = "Vortex (Signal)";
+    std::string id = "vortex-signal";
+    std::string id_pattern = R"(vortex-signal-(\d+)-(\d+))";
+
     /**
      * @brief Construct a new VortexSignal object.
      *
@@ -323,6 +367,10 @@ private:
 class InstitutionalBiasSignal : public Indicator
 {
 public:
+    std::string label = "Institutional Bias (Signal)";
+    std::string id = "institutional-bias-signal";
+    std::string id_pattern = R"(institutional-bias-signal-(\d+)-(\d+)-(\d+))";
+
     /**
      * @brief Construct a new InstitutionalBiasSignal object.
      *
@@ -351,6 +399,10 @@ private:
 class IchimokuCloudSignal : public Indicator
 {
 public:
+    std::string label = "Ichimoku Cloud (Signal)";
+    std::string id = "ichimoku-cloud-signal";
+    std::string id_pattern = R"(ichimoku-cloud-signal-(\d+)-(\d+)-(\d+)-(\d+)-(\d+))";
+
     /**
      * @brief Construct a new IchimokuCloudSignal object.
      *
@@ -383,6 +435,10 @@ private:
 class IchimokuKijunTenkanSignal : public Indicator
 {
 public:
+    std::string label = "Ichimoku Kijun Tenkan (Signal)";
+    std::string id = "ichimoku-kijun-tenkan-signal";
+    std::string id_pattern = R"(ichimoku-kijun-tenkan-signal-(\d+)-(\d+)-(\d+)-(\d+)-(\d+))";
+
     /**
      * @brief Construct a new IchimokuKijunTenkanSignal object.
      *

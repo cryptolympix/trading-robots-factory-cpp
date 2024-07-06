@@ -17,7 +17,7 @@
  * @param adx_period Period value. Default is 14.
  * @param offset Offset value. Default is 0.
  */
-ADX::ADX(int adx_period, int offset) : Indicator("Average Directional Movement Index", "adx-" + std::to_string(adx_period) + "-" + std::to_string(offset), R"(adx-(\d+)-(\d+))", offset, {0, 100}), adx_period(adx_period) {}
+ADX::ADX(int adx_period, int offset) : Indicator(this->id + "-" + std::to_string(adx_period) + "-" + std::to_string(offset), offset, {0, 100}), adx_period(adx_period) {}
 
 /**
  * @brief Calculate the Average Directional Index (ADX).
@@ -171,7 +171,7 @@ std::vector<double> ADX::calculate_adx(const std::vector<double> &dx_values) con
  * @param period Period value. Default is 14.
  * @param offset Offset value. Default is 0.
  */
-AroonUp::AroonUp(int period, int offset) : Indicator("Aroon Up", "aroon-up-" + std::to_string(period) + "-" + std::to_string(offset), R"(aroon-up-(\d+)-(\d+))", offset, {0, 100}), period(period) {}
+AroonUp::AroonUp(int period, int offset) : Indicator(this->id + "-" + std::to_string(period) + "-" + std::to_string(offset), offset, {0, 100}), period(period) {}
 
 /**
  * @brief Calculate the Aroon Up values.
@@ -228,7 +228,7 @@ std::vector<double> AroonUp::calculate(const std::vector<Candle> &candles, bool 
  * @param period Period value. Default is 14.
  * @param offset Offset value. Default is 0.
  */
-AroonDown::AroonDown(int period, int offset) : Indicator("Aroon Down", "aroon-down-" + std::to_string(period) + "-" + std::to_string(offset), R"(aroon-down-(\d+)-(\d+))", offset, {0, 100}), period(period) {}
+AroonDown::AroonDown(int period, int offset) : Indicator(this->id + "-" + std::to_string(period) + "-" + std::to_string(offset), offset, {0, 100}), period(period) {}
 
 /**
  * @brief Calculate the Aroon Down values.
@@ -284,7 +284,7 @@ std::vector<double> AroonDown::calculate(const std::vector<Candle> &candles, boo
  * @param period Period value. Default is 20.
  * @param offset Offset value. Default is 0.
  */
-CCI::CCI(int period, int offset) : Indicator("Commodity Channel Index", "cci-" + std::to_string(period) + "-" + std::to_string(offset), R"(cci-(\d+)-(\d+))", offset), period(period) {}
+CCI::CCI(int period, int offset) : Indicator(this->id + "-" + std::to_string(period) + "-" + std::to_string(offset), offset), period(period) {}
 
 /**
  * @brief Calculate the CCI values.
@@ -364,7 +364,7 @@ std::vector<double> CCI::calculate_mean_deviation(const std::vector<double> &typ
  * @param period Period value. Default is 20.
  * @param offset Offset value. Default is 0.
  */
-DPO::DPO(int period, int offset) : Indicator("Detrended Price Oscillator", "dpo-" + std::to_string(period) + "-" + std::to_string(offset), R"(dpo-(\d+)-(\d+))", offset), period(period) {}
+DPO::DPO(int period, int offset) : Indicator(this->id + "-" + std::to_string(period) + "-" + std::to_string(offset), offset), period(period) {}
 
 /**
  * @brief Calculate the DPO values.
@@ -416,7 +416,7 @@ std::vector<double> DPO::calculate(const std::vector<Candle> &candles, bool norm
  * @param period Period value. Default is 20.
  * @param offset Offset value. Default is 0.
  */
-EMA::EMA(std::string source, int period, int offset) : Indicator("Exponential Moving Average", "ema-" + source + "-" + std::to_string(period) + "-" + std::to_string(offset), R"(ema-([a-z]+)-(\d+)-(\d+))", offset), source(source), period(period) {}
+EMA::EMA(std::string source, int period, int offset) : Indicator(this->id + "-" + source + "-" + std::to_string(period) + "-" + std::to_string(offset), offset), source(source), period(period) {}
 
 /**
  * @brief Calculate the EMA values.
@@ -462,8 +462,7 @@ std::vector<double> EMA::calculate(const std::vector<Candle> &candles, bool norm
 KST::KST(int roc_periods1, int roc_periods2, int roc_periods3, int roc_periods4,
          int sma_periods1, int sma_periods2, int sma_periods3, int sma_periods4,
          int signal_periods, int offset)
-    : Indicator("KST Oscillator", "kst-" + std::to_string(roc_periods1) + "-" + std::to_string(roc_periods2) + "-" + std::to_string(roc_periods3) + "-" + std::to_string(roc_periods4) + "-" + std::to_string(sma_periods1) + "-" + std::to_string(sma_periods2) + "-" + std::to_string(sma_periods3) + "-" + std::to_string(sma_periods4) + "-" + std::to_string(signal_periods) + "-" + std::to_string(offset),
-                R"(kst-(\d+)-(\d+)-(\d+)-(\d+)-(\d+)-(\d+)-(\d+)-(\d+)-(\d+)-(\d+))", offset),
+    : Indicator(this->id + "-" + std::to_string(roc_periods1) + "-" + std::to_string(roc_periods2) + "-" + std::to_string(roc_periods3) + "-" + std::to_string(roc_periods4) + "-" + std::to_string(sma_periods1) + "-" + std::to_string(sma_periods2) + "-" + std::to_string(sma_periods3) + "-" + std::to_string(sma_periods4) + "-" + std::to_string(signal_periods) + "-" + std::to_string(offset), offset),
       roc_periods1(roc_periods1), roc_periods2(roc_periods2), roc_periods3(roc_periods3), roc_periods4(roc_periods4),
       sma_periods1(sma_periods1), sma_periods2(sma_periods2), sma_periods3(sma_periods3), sma_periods4(sma_periods4),
       signal_periods(signal_periods) {}
@@ -517,7 +516,7 @@ std::vector<double> KST::calculate(const std::vector<Candle> &candles, bool norm
  * @param signal_period Signal EMA period. Default is 9.
  * @param offset Offset value. Default is 0.
  */
-MACD::MACD(int short_period, int long_period, int signal_period, int offset) : Indicator("Moving Average Convergence Divergence", "macd-" + std::to_string(short_period) + "-" + std::to_string(long_period) + "-" + std::to_string(signal_period) + "-" + std::to_string(offset), R"(macd-(\d+)-(\d+)-(\d+)-(\d+))", offset),
+MACD::MACD(int short_period, int long_period, int signal_period, int offset) : Indicator(this->id + "-" + std::to_string(short_period) + "-" + std::to_string(long_period) + "-" + std::to_string(signal_period) + "-" + std::to_string(offset), offset),
                                                                                short_period(short_period), long_period(long_period), signal_period(signal_period) {}
 
 /**
@@ -590,7 +589,7 @@ std::vector<double> MACD::calculate_signal_line(const std::vector<double> &macd_
  *
  * @param offset Offset value. Default is 0.
  */
-MI::MI(int offset) : Indicator("Mass Index", "mass-index-" + std::to_string(offset), R"(mass-index-(\d+))", offset) {}
+MI::MI(int offset) : Indicator(this->id + "-" + std::to_string(offset), offset) {}
 
 /**
  * @brief Calculate the Mass Index values.
@@ -649,7 +648,7 @@ std::vector<double> MI::calculate(const std::vector<Candle> &candles, bool norma
  * @param offset Offset value. Default is 0.
  */
 ParabolicSAR::ParabolicSAR(double acceleration_factor_initial, double acceleration_factor_maximum, int offset)
-    : Indicator("Parabolic SAR", "psar-" + std::to_string(acceleration_factor_initial) + "-" + std::to_string(acceleration_factor_maximum) + "-" + std::to_string(offset), R"(psar-(\d+\.\d+)-(\d+\.\d+)-(\d+))", offset), acceleration_factor_initial(acceleration_factor_initial), acceleration_factor_maximum(acceleration_factor_maximum), offset(offset) {}
+    : Indicator(this->id + "-" + std::to_string(acceleration_factor_initial) + "-" + std::to_string(acceleration_factor_maximum) + "-" + std::to_string(offset), offset), acceleration_factor_initial(acceleration_factor_initial), acceleration_factor_maximum(acceleration_factor_maximum), offset(offset) {}
 
 /**
  * @brief Calculate the Parabolic SAR values.
@@ -742,7 +741,7 @@ std::vector<double> ParabolicSAR::calculate(const std::vector<Candle> &candles, 
  * @param period Period for the SMA calculation.
  * @param offset Offset value. Default is 0.
  */
-SMA::SMA(std::string source, int period, int offset) : Indicator("Simple Moving Average", "sma-" + source + "-" + std::to_string(period) + "-" + std::to_string(offset), R"(sma-([a-z]+)-(\d+)-(\d+))", offset), source(source), period(period) {}
+SMA::SMA(std::string source, int period, int offset) : Indicator(this->id + "-" + source + "-" + std::to_string(period) + "-" + std::to_string(offset), offset), source(source), period(period) {}
 
 /**
  * @brief Calculate the Simple Moving Average (SMA).
@@ -765,7 +764,7 @@ std::vector<double> SMA::calculate(const std::vector<Candle> &candles, bool norm
 // *********************************************************************************************
 
 STC::STC(int short_length, int long_length, int cycle_length, int offset)
-    : Indicator("Schaff Trend Cycle", "stc-" + std::to_string(short_length) + "-" + std::to_string(long_length) + "-" + std::to_string(cycle_length) + "-" + std::to_string(offset), R"(stc-(\d+)-(\d+)-(\d+)-(\d+))", offset),
+    : Indicator(this->id + "-" + std::to_string(short_length) + "-" + std::to_string(long_length) + "-" + std::to_string(cycle_length) + "-" + std::to_string(offset), offset),
       short_length(short_length),
       long_length(long_length),
       cycle_length(cycle_length) {}
@@ -840,7 +839,7 @@ std::vector<double> STC::calculate_stochastic_oscillator(const std::vector<doubl
  * @param period Period for TRIX calculation. Default is 15.
  * @param offset Offset value. Default is 0.
  */
-TRIX::TRIX(int period, int offset) : Indicator("TRIX", "trix-" + std::to_string(period) + "-" + std::to_string(offset), R"(trix-(\d+)-(\d+))", offset), period(period) {}
+TRIX::TRIX(int period, int offset) : Indicator(this->id + "-" + std::to_string(period) + "-" + std::to_string(offset), offset), period(period) {}
 
 /**
  * @brief Calculate the TRIX values.
@@ -880,7 +879,7 @@ std::vector<double> TRIX::calculate(const std::vector<Candle> &candles, bool nor
  * @param offset Offset value. Default is 0.
  */
 Vortex::Vortex(int period, int offset)
-    : Indicator("Vortex", "vortex-" + std::to_string(period) + "-" + std::to_string(offset), R"(vortex-(\d+)-(\d+))", offset),
+    : Indicator(this->id + "-" + std::to_string(period) + "-" + std::to_string(offset), offset),
       period(period) {}
 
 /**
@@ -951,7 +950,7 @@ std::vector<double> Vortex::calculate(const std::vector<Candle> &candles, bool n
  * @param long_period Period for long EMA calculation.
  * @param offset Offset value. Default is 0.
  */
-InstitutionalBias::InstitutionalBias(int short_period, int long_period, int offset) : Indicator("Institutional Bias", "institutional-bias-" + std::to_string(short_period) + "-" + std::to_string(long_period) + "-" + std::to_string(offset), R"(institutional-bias-(\d+)-(\d+)-(\d+))", offset, {-1, 1}),
+InstitutionalBias::InstitutionalBias(int short_period, int long_period, int offset) : Indicator(this->id + "-" + std::to_string(short_period) + "-" + std::to_string(long_period) + "-" + std::to_string(offset), offset, {-1, 1}),
                                                                                       short_period(short_period), long_period(long_period) {}
 
 /**
@@ -999,7 +998,7 @@ std::vector<double> InstitutionalBias::calculate(const std::vector<Candle> &cand
  * @param long_period Period for long EMA calculation. Default is 18.
  * @param offset Offset value. Default is 0.
  */
-EMADifference::EMADifference(int short_period, int long_period, int offset) : Indicator("EMA Difference", "ema-difference-" + std::to_string(short_period) + "-" + std::to_string(long_period) + "-" + std::to_string(offset), R"(ema-difference-(\d+)-(\d+)-(\d+))", offset),
+EMADifference::EMADifference(int short_period, int long_period, int offset) : Indicator(this->id + "-" + std::to_string(short_period) + "-" + std::to_string(long_period) + "-" + std::to_string(offset), offset),
                                                                               short_period(short_period), long_period(long_period) {}
 
 /**
@@ -1038,7 +1037,7 @@ std::vector<double> EMADifference::calculate(const std::vector<Candle> &candles,
  * @param period Period value. Default is 14.
  * @param offset Offset value. Default is 0.
  */
-AroonTrend::AroonTrend(int period, int offset) : Indicator("Aroon Trend", "aroon-trend-" + std::to_string(period) + "-" + std::to_string(offset), R"(aroon-trend-(\d+)-(\d+))", offset, {-1, 1}), period(period) {}
+AroonTrend::AroonTrend(int period, int offset) : Indicator(this->id + "-" + std::to_string(period) + "-" + std::to_string(offset), offset, {-1, 1}), period(period) {}
 
 /**
  * @brief Calculate the Aroon Up values.
@@ -1122,7 +1121,7 @@ std::vector<double> AroonTrend::calculate(const std::vector<Candle> &candles, bo
  * @param offset Offset value. Default is 0.
  */
 IchimokuCloudTrend::IchimokuCloudTrend(int conversion_period, int base_period, int lagging_period, int leading_period, int offset)
-    : Indicator("Ichimoku Cloud Trend", "ichimoku-cloud-trend-" + std::to_string(conversion_period) + "-" + std::to_string(base_period) + "-" + std::to_string(lagging_period) + "-" + std::to_string(leading_period) + "-" + std::to_string(offset), R"(ichimoku-cloud-trend-(\d+)-(\d+)-(\d+)-(\d+)-(\d+))", offset, {-1, 1}),
+    : Indicator(this->id + "-" + std::to_string(conversion_period) + "-" + std::to_string(base_period) + "-" + std::to_string(lagging_period) + "-" + std::to_string(leading_period) + "-" + std::to_string(offset), offset, {-1, 1}),
       conversion_period(conversion_period),
       base_period(base_period),
       lagging_period(lagging_period),
@@ -1238,7 +1237,7 @@ std::vector<double> IchimokuCloudTrend::calculate(const std::vector<Candle> &can
  * @param offset Offset value. Default is 0.
  */
 IchimokuKijunTenkanTrend::IchimokuKijunTenkanTrend(int conversion_period, int base_period, int lagging_period, int leading_period, int offset)
-    : Indicator("Ichimoku Kijun Tenkan Trend", "ichimoku-tenkan-kijun-trend-" + std::to_string(conversion_period) + "-" + std::to_string(base_period) + "-" + std::to_string(lagging_period) + "-" + std::to_string(leading_period) + "-" + std::to_string(offset), R"(ichimoku-tenkan-kijun-trend-(\d+)-(\d+)-(\d+)-(\d+)-(\d+))", offset, {-1, 1}),
+    : Indicator(this->id + "-" + std::to_string(conversion_period) + "-" + std::to_string(base_period) + "-" + std::to_string(lagging_period) + "-" + std::to_string(leading_period) + "-" + std::to_string(offset), offset, {-1, 1}),
       conversion_period(conversion_period),
       base_period(base_period),
       lagging_period(lagging_period),
@@ -1322,7 +1321,7 @@ std::vector<double> IchimokuKijunTenkanTrend::calculate(const std::vector<Candle
  * @param offset Offset value. Default is 0.
  */
 SMASlope::SMASlope(int period, std::string source, int offset)
-    : Indicator("Simple Moving Average Slope", "sma-slope-" + std::to_string(period) + "-" + source + "-" + std::to_string(offset), R"(sma-slope-(\d+)-(\[a-z]+)-(\d+))", offset),
+    : Indicator(this->id + "-" + std::to_string(period) + "-" + source + "-" + std::to_string(offset), offset),
       period(period),
       source(source) {}
 
@@ -1365,7 +1364,7 @@ std::vector<double> SMASlope::calculate(const std::vector<Candle> &candles, bool
  * @param offset Offset value. Default is 0.
  */
 EMASlope::EMASlope(int period, std::string source, int offset)
-    : Indicator("Exponential Moving Average Slope", "ema-slope-" + std::to_string(period) + "-" + source + "-" + std::to_string(offset), R"(ema-slope-(\d+)-(\[a-z]+)-(\d+))", offset),
+    : Indicator(this->id + "-" + std::to_string(period) + "-" + source + "-" + std::to_string(offset), offset),
       period(period),
       source(source) {}
 
@@ -1406,7 +1405,7 @@ std::vector<double> EMASlope::calculate(const std::vector<Candle> &candles, bool
  * @param deviation The deviation value for the Zigzag calculation.
  * @param offset Offset value. Default is 0.
  */
-Zigzag::Zigzag(double deviation, int offset) : Indicator("Zigzag", "zigzag-" + std::to_string(deviation) + "-" + std::to_string(offset), R"(zigzag-(\d+\.\d+)-(\d+))", offset), deviation(deviation) {}
+Zigzag::Zigzag(double deviation, int offset) : Indicator(this->id + "-" + std::to_string(deviation) + "-" + std::to_string(offset), offset), deviation(deviation) {}
 
 /**
  * @brief Calculate the Zigzag values.

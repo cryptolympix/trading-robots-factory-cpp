@@ -31,6 +31,10 @@
 class AwesomeOscillator : public Indicator
 {
 public:
+    std::string label = "Awesome Oscillator";
+    std::string id = "awesome-oscillator";
+    std::string id_pattern = R"(awesome-oscillator-(\d+))";
+
     /**
      * @brief Construct a new AwesomeOscillator object.
      *
@@ -61,6 +65,10 @@ private:
     int slowest_sc_period; // Period for the slowest Smoothing Constant (SC)
 
 public:
+    std::string label = "Kaufman's Adaptive Moving Average";
+    std::string id = "kama";
+    std::string id_pattern = R"(kama-(\d+)-(\d+)-(\d+)-(\d+))";
+
     /**
      * @brief Construct a new KAMA object.
      *
@@ -116,6 +124,10 @@ private:
 class MFI : public Indicator
 {
 public:
+    std::string label = "Money Flow Index";
+    std::string id = "mfi";
+    std::string id_pattern = R"(mfi-(\d+)-(\d+))";
+
     /**
      * @brief Construct a new Money Flow Index object.
      *
@@ -147,6 +159,10 @@ private:
 class PPO : public Indicator
 {
 public:
+    std::string label = "Percentage Price Oscillator";
+    std::string id = "ppo";
+    std::string id_pattern = R"(ppo-(\d+)-(\d+)-(\d+))";
+
     /**
      * @brief Construct a new PPO object with a specified short period, long period, and offset.
      *
@@ -180,6 +196,10 @@ private:
 class PVO : public Indicator
 {
 public:
+    std::string label = "Percentage Volume Oscillator";
+    std::string id = "pvo";
+    std::string id_pattern = R"(pvo-(\d+)-(\d+)-(\d+)-(\d+))";
+
     /**
      * @brief Construct a new Percentage Volume Oscillator (PVO) object.
      *
@@ -217,6 +237,10 @@ private:
 class ROC : public Indicator
 {
 public:
+    std::string label = "Rate of Change";
+    std::string id = "roc";
+    std::string id_pattern = R"(roc-(\d+)(\d+))";
+
     /**
      * @brief Construct a new ROC object.
      *
@@ -250,6 +274,10 @@ private:
 class RSI : public Indicator
 {
 public:
+    std::string label = "Relative Strength Index";
+    std::string id = "rsi";
+    std::string id_pattern = R"(rsi-(\d+)-(\d+))";
+
     /**
      * @brief Construct a new RSI object.
      *
@@ -283,6 +311,10 @@ private:
 class StochasticRSI : public Indicator
 {
 public:
+    std::string label = "Stochastic RSI";
+    std::string id = "stochastic-rsi";
+    std::string id_pattern = R"(stochastic-rsi-(\d+)-(\d+)-(\d+))";
+
     /**
      * @brief Construct a new StochasticRSI object.
      *
@@ -318,6 +350,10 @@ private:
 class StochasticOscillator : public Indicator
 {
 public:
+    std::string label = "Stochastic Oscillator";
+    std::string id = "stochastic-oscillator";
+    std::string id_pattern = R"(stochastic-oscillator-(\d+)-(\d+))";
+
     /**
      * @brief Construct a new StochasticOscillator object.
      *
@@ -353,6 +389,10 @@ private:
 class TSI : public Indicator
 {
 public:
+    std::string label = "True Strength Index";
+    std::string id = "tsi";
+    std::string id_pattern = R"(tsi-(\d+)-(\d+)-(\d+))";
+
     /**
      * @brief Construct a new TSI object.
      *
@@ -388,6 +428,10 @@ private:
 class UO : public Indicator
 {
 public:
+    std::string label = "Ultimate Oscillator";
+    std::string id = "uo";
+    std::string id_pattern = R"(uo-(\d+)-(\d+)-(\d+)-(\d+))";
+
     /**
      * @brief Construct a new Ultimate Oscillator object.
      *
@@ -435,6 +479,10 @@ private:
 class WPR : public Indicator
 {
 public:
+    std::string label = "Williams Percent R";
+    std::string id = "wpr";
+    std::string id_pattern = R"(wpr-(\d+)-(\d+))";
+
     /**
      * @brief Construct a new Williams Percent R object.
      *

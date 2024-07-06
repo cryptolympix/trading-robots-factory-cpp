@@ -11,16 +11,15 @@
 // Include the indicators
 #include "momentum.hpp"
 
-// List of indicator identifiers
-const std::vector<std::string> indicator_ids = {
-    "awesome-oscillator",
-};
-
 // Map linking the indicator ID to the constructor function
-const std::map<std::string, std::function<Indicator *(std::vector<IndicatorParams>)>> indicator_constructors_map = {
+const std::map<std::string, std::function<Indicator *(std::vector<IndicatorParams>)>> indicators_map = {
     {"awesome-oscillator", [](std::vector<IndicatorParams> params) -> Indicator *
      {
          return new AwesomeOscillator(std::get<int>(params[0]));
+     }},
+    {"kama", [](std::vector<IndicatorParams> params) -> Indicator *
+     {
+         return new KAMA(std::get<int>(params[0]), std::get<double>(params[1]), std::get<double>(params[2]), std::get<double>(params[3]));
      }},
 };
 
@@ -41,17 +40,17 @@ T convert(const std::string &str)
 
 /**
  * @brief Extract the parameters from the ID.
- * @param id The ID to extract the parameters from.
+ * @param id_params The ID to extract the parameters from.
  * @param id_pattern The regex pattern to match the ID.
  * @return std::vector<T> The extracted parameters.
  */
 template <typename T>
-std::vector<T> extract_parameters(const std::string &id, const std::string &id_pattern)
+std::vector<T> extract_parameters(const std::string &id_params, const std::string &id_pattern)
 {
     std::regex pattern(id_pattern);
     std::smatch matches;
 
-    if (std::regex_search(id, matches, pattern))
+    if (std::regex_search(id_params, matches, pattern))
     {
         std::vector<T> parameters;
         for (size_t i = 1; i < matches.size(); i++)
@@ -69,12 +68,11 @@ std::vector<T> extract_parameters(const std::string &id, const std::string &id_p
 /**
  * @brief Build an indicator from the ID.
  *
- * @param id The ID of the indicator.
- * @param id_pattern The regex pattern to match the ID.
- * @param params The parameters for the indicator.
+ * @param id_params The ID of the indicator with parameters.
+ * @param params The parameters of the indicator.
  * @return Indicator The indicator.
  */
-Indicator *create_indicator_from_id(const std::string &id, const std::string &id_pattern, const std::vector<IndicatorParams> &params)
+Indicator *create_indicator_from_id(const std::string &id_params, const std::vector<IndicatorParams> &params)
 {
     auto starts_with = [](const std::string &str, const std::string &prefix)
     {
@@ -83,16 +81,16 @@ Indicator *create_indicator_from_id(const std::string &id, const std::string &id
 
     try
     {
-        for (const std::string &indicator_id : indicator_ids)
+        for (const auto &[indicator_id, indicator_constructor] : indicators_map)
         {
-            if (starts_with(id, indicator_id))
+            if (starts_with(id_params, indicator_id))
             {
                 // Check if the indicator ID exists in the map
-                auto it = indicator_constructors_map.find(indicator_id);
-                if (it != indicator_constructors_map.end())
+                auto it = indicators_map.find(indicator_id);
+                if (it != indicators_map.end())
                 {
                     // Call the constructor function to create an instance of the indicator
-                    return it->second(params);
+                    return indicator_constructor(params);
                 }
                 else
                 {

@@ -10,7 +10,7 @@
  * @param threshold Threshold for ATR signal.
  * @param offset Offset for ATR signal.
  */
-ATRSignal::ATRSignal(int period, double threshold, int offset) : Indicator("Average True Range Signal", "atr-signal-" + std::to_string(period) + "-" + std::to_string(threshold) + "-" + std::to_string(offset), R"(atr-signal-(\d+)-(\d+\.\d+)-(\d+))", offset, {0, 1}), period(period), threshold(threshold) {}
+ATRSignal::ATRSignal(int period, double threshold, int offset) : Indicator(this->id + "-" + std::to_string(period) + "-" + std::to_string(threshold) + "-" + std::to_string(offset), offset, {0, 1}), period(period), threshold(threshold) {}
 
 /**
  * @brief Calculate the ATRSignal values.
@@ -48,7 +48,7 @@ std::vector<double> ATRSignal::calculate(const std::vector<Candle> &candles, boo
  * @param multiplier Multiplier for Bollinger Channel.
  * @param offset Offset for Bollinger Channel.
  */
-BollingerChannelSignal::BollingerChannelSignal(int period, double multiplier, int offset) : Indicator("Bollinger Channel Signal", "bollinger-channel-signal-" + std::to_string(period) + "-" + std::to_string(multiplier) + "-" + std::to_string(offset), R"(bollinger-channel-signal-(\d+)-(\d+\.\d+)-(\d+))", offset, {-1, 1}), period(period), multiplier(multiplier) {}
+BollingerChannelSignal::BollingerChannelSignal(int period, double multiplier, int offset) : Indicator(this->id + "-" + std::to_string(period) + "-" + std::to_string(multiplier) + "-" + std::to_string(offset), offset, {-1, 1}), period(period), multiplier(multiplier) {}
 
 /**
  * @brief Calculate the BollingerBandsSignal values.
@@ -99,7 +99,7 @@ std::vector<double> BollingerChannelSignal::calculate(const std::vector<Candle> 
  * @param period Period for Donchian Channel calculation.
  * @param offset Offset for Donchian Channel.
  */
-DonchianChannelSignal::DonchianChannelSignal(int period, int offset) : Indicator("Donchian Channel Signal", "donchian-channel-signal-" + std::to_string(period) + "-" + std::to_string(offset), R"(donchian-channel-signal-(\d+)-(\d+))", offset, {-1, 1}), period(period) {}
+DonchianChannelSignal::DonchianChannelSignal(int period, int offset) : Indicator(this->id + "-" + std::to_string(period) + "-" + std::to_string(offset), offset, {-1, 1}), period(period) {}
 
 /**
  * @brief Calculate the DonchianChannelSignal values.
@@ -152,7 +152,7 @@ std::vector<double> DonchianChannelSignal::calculate(const std::vector<Candle> &
  * @param multiplier Multiplier for Keltner Channel.
  * @param offset Offset for Keltner Channel.
  */
-KeltnerChannelSignal::KeltnerChannelSignal(int period, int atr_period, double multiplier, int offset) : Indicator("Keltner Channel Signal", "keltner-channel-signal-" + std::to_string(period) + "-" + std::to_string(atr_period) + "-" + std::to_string(multiplier) + "-" + std::to_string(offset), R"(keltner-channel-signal-(\d+)-(\d+)-(\d+.\d+)-(\d+))", offset, {-1, 1}), period(period), atr_period(atr_period), multiplier(multiplier) {}
+KeltnerChannelSignal::KeltnerChannelSignal(int period, int atr_period, double multiplier, int offset) : Indicator(this->id + "-" + std::to_string(period) + "-" + std::to_string(atr_period) + "-" + std::to_string(multiplier) + "-" + std::to_string(offset), offset, {-1, 1}), period(period), atr_period(atr_period), multiplier(multiplier) {}
 
 /**
  * @brief Calculate the KeltnerChannelSignal values.

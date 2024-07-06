@@ -10,7 +10,7 @@
  *
  * @param offset Offset value. Default is 0.
  */
-ADL::ADL(int offset) : Indicator("Accumulation Distribution Line", "adl-" + std::to_string(offset), R"(adl-(\d+))", offset) {}
+ADL::ADL(int offset) : Indicator(this->id + "-" + std::to_string(offset), offset) {}
 
 /**
  * @brief Calculate the ADL values.
@@ -63,7 +63,7 @@ double ADL::calculate_money_flow_multiplier(const Candle &candle) const
  * @param period Period for the CMF. Default is 20.
  * @param offset Offset value for the indicator. Default is 0.
  */
-CMF::CMF(int period, int offset) : Indicator("Chaikin Money Flow", "cmf-" + std::to_string(period) + "-" + std::to_string(offset), R"(cmf-(\d+)-(\d+))", offset, {-1, 1}), period(period) {}
+CMF::CMF(int period, int offset) : Indicator(this->id + "-" + std::to_string(period) + "-" + std::to_string(offset), offset, {-1, 1}), period(period) {}
 
 /**
  * @brief Calculate the Chaikin Money Flow (CMF) values.
@@ -126,7 +126,7 @@ std::vector<double> CMF::calculate(const std::vector<Candle> &candles, bool norm
  * @param period Period for the Force Index. Default is 13.
  * @param offset Offset value for the indicator. Default is 0.
  */
-FI::FI(int period, int offset) : Indicator("Force Index", "fi-" + std::to_string(period) + "-" + std::to_string(offset), R"(fi-(\d+)-(\d+))", offset), period(period) {}
+FI::FI(int period, int offset) : Indicator(this->id + "-" + std::to_string(period) + "-" + std::to_string(offset), offset), period(period) {}
 
 /**
  * @brief Calculate the Force Index (FI) values.
@@ -165,7 +165,7 @@ std::vector<double> FI::calculate(const std::vector<Candle> &candles, bool norma
  *
  * @param offset Offset value for the indicator. Default is 0.
  */
-NVI::NVI(int offset) : Indicator("Negative Volume Index", "nvi-" + std::to_string(offset), R"(nvi-(\d+))", offset) {}
+NVI::NVI(int offset) : Indicator(this->id + "-" + std::to_string(offset), offset) {}
 
 /**
  * @brief Calculate the Negative Volume Index (NVI) values.
@@ -208,7 +208,7 @@ std::vector<double> NVI::calculate(const std::vector<Candle> &candles, bool norm
  *
  * @param offset Offset value for the indicator. Default is 0.
  */
-OBV::OBV(int offset) : Indicator("On-balance Volume", "obv-" + std::to_string(offset), R"(obv-(\d+))", offset) {}
+OBV::OBV(int offset) : Indicator(this->id + "-" + std::to_string(offset), offset) {}
 
 /**
  * @brief Calculate the On-balance Volume (OBV) values.
@@ -257,7 +257,7 @@ std::vector<double> OBV::calculate(const std::vector<Candle> &candles, bool norm
  * @param range_nb Number of ranges for the volume profile. Default is 10.
  * @param offset Offset value for the indicator. Default is 0.
  */
-POC::POC(int period, int range_nb, int offset) : Indicator("Point of Control", "poc-" + std::to_string(period) + "-" + std::to_string(range_nb) + "-" + std::to_string(offset), R"(poc-(\d+)-(\d+)-(\d+))", offset), period(period), range_nb(range_nb) {}
+POC::POC(int period, int range_nb, int offset) : Indicator(this->id + "-" + std::to_string(period) + "-" + std::to_string(range_nb) + "-" + std::to_string(offset), offset), period(period), range_nb(range_nb) {}
 
 /**
  * @brief Calculate the Point of Control (POC) values.
@@ -342,7 +342,7 @@ std::map<double, double> POC::calculate_volume_profile(const std::vector<Candle>
  *
  * @param offset Offset value for the indicator. Default is 0.
  */
-PVI::PVI(int offset) : Indicator("Positive Volume Index", "pvi-" + std::to_string(offset), R"(pvi-(\d+))", offset)
+PVI::PVI(int offset) : Indicator(this->id + "-" + std::to_string(offset), offset)
 {
 }
 
@@ -387,7 +387,7 @@ std::vector<double> PVI::calculate(const std::vector<Candle> &candles, bool norm
  *
  * @param offset Offset value for the indicator. Default is 0.
  */
-VWAP::VWAP(int offset) : Indicator("Volume Weighted Average Price", "vwap-" + std::to_string(offset), R"(vwap-(\d+))", offset) {}
+VWAP::VWAP(int offset) : Indicator(this->id + "-" + std::to_string(offset), offset) {}
 
 /**
  * @brief Calculate the Volume Weighted Average Price (VWAP) values.

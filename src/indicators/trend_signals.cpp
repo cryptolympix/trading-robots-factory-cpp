@@ -12,7 +12,7 @@
  * @param threshold Threshold value. Default is 25.
  * @param offset Offset value. Default is 0.
  */
-ADXSignal::ADXSignal(int period, int threshold, int offset) : Indicator("Average Directional Movement Index Signal", "adx-signal-" + std::to_string(period) + "-" + std::to_string(threshold) + "-" + std::to_string(offset), R"(adx-signal-(\d+)-(\d+)-(\d+))", offset, {0, 1}), period(period), threshold(threshold) {}
+ADXSignal::ADXSignal(int period, int threshold, int offset) : Indicator(this->id + "-" + std::to_string(period) + "-" + std::to_string(threshold) + "-" + std::to_string(offset), offset, {0, 1}), period(period), threshold(threshold) {}
 
 /**
  * @brief Calculate the ADXSignal values.
@@ -49,7 +49,7 @@ std::vector<double> ADXSignal::calculate(const std::vector<Candle> &candles, boo
  * @param aroon_period Aroon period value. Default is 14.
  * @param offset Offset value. Default is 0.
  */
-AroonSignal::AroonSignal(int period, int offset) : Indicator("Aroon Signal", "aroon-signal-" + std::to_string(period) + "-" + std::to_string(offset), R"(aroon-signal-(\d+)-(\d+))", offset, {-1, 1}), period(period) {}
+AroonSignal::AroonSignal(int period, int offset) : Indicator(this->id + "-" + std::to_string(period) + "-" + std::to_string(offset), offset, {-1, 1}), period(period) {}
 
 /**
  * @brief Calculate the AroonSignal values.
@@ -93,7 +93,7 @@ std::vector<double> AroonSignal::calculate(const std::vector<Candle> &candles, b
  * @param oversold Oversold value. Default is -100.
  * @param offset Offset value. Default is 0.
  */
-CCISignal::CCISignal(int period, int overbought, int oversold, int offset) : Indicator("Commodity Channel Index Signal", "cci-signal-" + std::to_string(period) + "-" + std::to_string(overbought) + "-" + std::to_string(oversold) + "-" + std::to_string(offset), R"(cci-signal-(\d+)-(\d+)-(\d+)-(\d+))", offset, {-1, 1}), period(period), overbought(overbought), oversold(oversold) {}
+CCISignal::CCISignal(int period, int overbought, int oversold, int offset) : Indicator(this->id + "-" + std::to_string(period) + "-" + std::to_string(overbought) + "-" + std::to_string(oversold) + "-" + std::to_string(offset), offset, {-1, 1}), period(period), overbought(overbought), oversold(oversold) {}
 
 /**
  * @brief Calculate the CCISignal values.
@@ -134,7 +134,7 @@ std::vector<double> CCISignal::calculate(const std::vector<Candle> &candles, boo
  * @param period DPO period value. Default is 20.
  * @param offset Offset value. Default is 0.
  */
-DPOSignal::DPOSignal(int period, int offset) : Indicator("Detrended Price Oscillator Signal", "dpo-signal-" + std::to_string(period) + "-" + std::to_string(offset), R"(dpo-signal-(\d+)-(\d+))", offset, {-1, 1}), period(period) {}
+DPOSignal::DPOSignal(int period, int offset) : Indicator(this->id + "-" + std::to_string(period) + "-" + std::to_string(offset), offset, {-1, 1}), period(period) {}
 
 /**
  * @brief Calculate the DPOSignal values.
@@ -176,7 +176,7 @@ std::vector<double> DPOSignal::calculate(const std::vector<Candle> &candles, boo
  * @param period EMA period value. Default is 20.
  * @param offset Offset value. Default is 0.
  */
-EMASignal::EMASignal(std::string source, int period, int offset) : Indicator("Exponential Moving Average Signal", "ema-signal-" + source + "-" + std::to_string(period) + "-" + std::to_string(offset), R"(ema-signal-([a-z]+)-(\d+)-(\d+))", offset, {-1, 1}), source(source), period(period) {}
+EMASignal::EMASignal(std::string source, int period, int offset) : Indicator(this->id + "-" + source + "-" + std::to_string(period) + "-" + std::to_string(offset), offset, {-1, 1}), source(source), period(period) {}
 
 /**
  * @brief Calculate the EMASignal values.
@@ -224,7 +224,7 @@ std::vector<double> EMASignal::calculate(const std::vector<Candle> &candles, boo
  * @param sma_period4 Simple Moving Average period 4 value. Default is 15.
  * @param offset Offset value. Default is 0.
  */
-KSTSignal::KSTSignal(int roc_period1, int roc_period2, int roc_period3, int roc_period4, int sma_period1, int sma_period2, int sma_period3, int sma_period4, int offset) : Indicator("Know Sure Thing Signal", "kst-signal-" + std::to_string(roc_period1) + "-" + std::to_string(roc_period2) + "-" + std::to_string(roc_period3) + "-" + std::to_string(roc_period4) + "-" + std::to_string(sma_period1) + "-" + std::to_string(sma_period2) + "-" + std::to_string(sma_period3) + "-" + std::to_string(sma_period4) + "-" + std::to_string(offset), R"(kst-signal-(\d+)-(\d+)-(\d+)-(\d+)-(\d+)-(\d+)-(\d+)-(\d+)-(\d+))", offset, {-1, 1}), roc_period1(roc_period1), roc_period2(roc_period2), roc_period3(roc_period3), roc_period4(roc_period4), sma_period1(sma_period1), sma_period2(sma_period2), sma_period3(sma_period3), sma_period4(sma_period4) {}
+KSTSignal::KSTSignal(int roc_period1, int roc_period2, int roc_period3, int roc_period4, int sma_period1, int sma_period2, int sma_period3, int sma_period4, int offset) : Indicator(this->id + "-" + std::to_string(roc_period1) + "-" + std::to_string(roc_period2) + "-" + std::to_string(roc_period3) + "-" + std::to_string(roc_period4) + "-" + std::to_string(sma_period1) + "-" + std::to_string(sma_period2) + "-" + std::to_string(sma_period3) + "-" + std::to_string(sma_period4) + "-" + std::to_string(offset), offset, {-1, 1}), roc_period1(roc_period1), roc_period2(roc_period2), roc_period3(roc_period3), roc_period4(roc_period4), sma_period1(sma_period1), sma_period2(sma_period2), sma_period3(sma_period3), sma_period4(sma_period4) {}
 
 /**
  * @brief Calculate the KSTSignal values.
@@ -268,7 +268,7 @@ std::vector<double> KSTSignal::calculate(const std::vector<Candle> &candles, boo
  * @param signal_period Signal EMA period value. Default is 9.
  * @param offset Offset value. Default is 0.
  */
-MACDSignal::MACDSignal(int short_period, int long_period, int signal_period, int offset) : Indicator("Moving Average Convergence Signal", "macd-signal-" + std::to_string(short_period) + "-" + std::to_string(long_period) + "-" + std::to_string(signal_period) + "-" + std::to_string(offset), R"(macd-signal-(\d+)-(\d+)-(\d+)-(\d+))", offset, {-1, 1}), short_period(short_period), long_period(long_period), signal_period(signal_period) {}
+MACDSignal::MACDSignal(int short_period, int long_period, int signal_period, int offset) : Indicator(this->id + "-" + std::to_string(short_period) + "-" + std::to_string(long_period) + "-" + std::to_string(signal_period) + "-" + std::to_string(offset), offset, {-1, 1}), short_period(short_period), long_period(long_period), signal_period(signal_period) {}
 
 /**
  * @brief Calculate the MACDSignal values.
@@ -325,7 +325,7 @@ std::vector<double> MACDSignal::calculate(const std::vector<Candle> &candles, bo
  * @param acceleration_factor_maximum Maximum acceleration factor value. Default is 0.2.
  * @param offset Offset value. Default is 0.
  */
-ParabolicSARSignal::ParabolicSARSignal(double acceleration_factor_initial, double acceleration_factor_maximum, int offset) : Indicator("Parabolic Stop and Reverse Signal", "psar-signal-" + std::to_string(acceleration_factor_initial) + "-" + std::to_string(acceleration_factor_maximum) + "-" + std::to_string(offset), R"(psar-signal-(\d+\.\d+)-(\d+\.\d+)-(\d+))", offset, {-1, 1}), acceleration_factor_initial(acceleration_factor_initial), acceleration_factor_maximum(acceleration_factor_maximum) {}
+ParabolicSARSignal::ParabolicSARSignal(double acceleration_factor_initial, double acceleration_factor_maximum, int offset) : Indicator(this->id + "-" + std::to_string(acceleration_factor_initial) + "-" + std::to_string(acceleration_factor_maximum) + "-" + std::to_string(offset), offset, {-1, 1}), acceleration_factor_initial(acceleration_factor_initial), acceleration_factor_maximum(acceleration_factor_maximum) {}
 
 /**
  * @brief Calculate the ParabolicSARSignal values.
@@ -367,7 +367,7 @@ std::vector<double> ParabolicSARSignal::calculate(const std::vector<Candle> &can
  * @param period SMA period value. Default is 20.
  * @param offset Offset value. Default is 0.
  */
-SMASignal::SMASignal(std::string source, int period, int offset) : Indicator("Simple Moving Average Signal", "sma-signal-" + source + "-" + std::to_string(period) + "-" + std::to_string(offset), R"(sma-signal-([a-z]+)-(\d+)-(\d+))", offset, {-1, 1}), source(source), period(period) {}
+SMASignal::SMASignal(std::string source, int period, int offset) : Indicator(this->id + "-" + source + "-" + std::to_string(period) + "-" + std::to_string(offset), offset, {-1, 1}), source(source), period(period) {}
 
 /**
  * @brief Calculate the SMASignal values.
@@ -408,7 +408,7 @@ std::vector<double> SMASignal::calculate(const std::vector<Candle> &candles, boo
  * @param period TRIX period value. Default is 20.
  * @param offset Offset value. Default is 0.
  */
-TRIXSignal::TRIXSignal(int period, int offset) : Indicator("Triple Exponential Moving Average Signal", "trix-signal-" + std::to_string(period) + "-" + std::to_string(offset), R"(trix-signal-(\d+)-(\d+))", offset, {-1, 1}), period(period) {}
+TRIXSignal::TRIXSignal(int period, int offset) : Indicator(this->id + "-" + std::to_string(period) + "-" + std::to_string(offset), offset, {-1, 1}), period(period) {}
 
 /**
  * @brief Calculate the TRIXSignal values.
@@ -450,7 +450,7 @@ std::vector<double> TRIXSignal::calculate(const std::vector<Candle> &candles, bo
  * @param period Vortex period value. Default is 14.
  * @param offset Offset value. Default is 0.
  */
-VortexSignal::VortexSignal(int period, int offset) : Indicator("Vortex Signal", "vortex-signal-" + std::to_string(period) + "-" + std::to_string(offset), R"(vortex-signal-(\d+)-(\d+))", offset, {-1, 1}), period(period) {}
+VortexSignal::VortexSignal(int period, int offset) : Indicator(this->id + "-" + std::to_string(period) + "-" + std::to_string(offset), offset, {-1, 1}), period(period) {}
 
 /**
  * @brief Calculate the VortexSignal values.
@@ -531,7 +531,7 @@ std::vector<double> VortexSignal::calculate(const std::vector<Candle> &candles, 
  * @param long_period Long period value. Default is 18.
  * @param offset Offset value. Default is 0.
  */
-InstitutionalBiasSignal::InstitutionalBiasSignal(int short_period, int long_period, int offset) : Indicator("Institutional Bias Signal", "institutional-bias-signal-" + std::to_string(short_period) + "-" + std::to_string(long_period) + "-" + std::to_string(offset), R"(institutional-bias-signal-(\d+)-(\d+)-(\d+))", offset, {-1, 1}), short_period(short_period), long_period(long_period) {}
+InstitutionalBiasSignal::InstitutionalBiasSignal(int short_period, int long_period, int offset) : Indicator(this->id + "-" + std::to_string(short_period) + "-" + std::to_string(long_period) + "-" + std::to_string(offset), offset, {-1, 1}), short_period(short_period), long_period(long_period) {}
 
 /**
  * @brief Calculate the InstitutionalBiasSignal values.
@@ -577,7 +577,7 @@ std::vector<double> InstitutionalBiasSignal::calculate(const std::vector<Candle>
  * @param leading_period Leading span period value. Default is 52.
  * @param offset Offset value. Default is 0.
  */
-IchimokuCloudSignal::IchimokuCloudSignal(int conversion_period, int base_period, int lagging_period, int leading_period, int offset) : Indicator("Ichimoku Cloud Signal", "ichimoku-cloud-signal-" + std::to_string(conversion_period) + "-" + std::to_string(base_period) + "-" + std::to_string(lagging_period) + "-" + std::to_string(leading_period) + "-" + std::to_string(offset), R"(ichimoku-cloud-signal-(\d+)-(\d+)-(\d+)-(\d+)-(\d+))", offset, {-1, 1}), conversion_period(conversion_period), base_period(base_period), lagging_period(lagging_period), leading_period(leading_period) {}
+IchimokuCloudSignal::IchimokuCloudSignal(int conversion_period, int base_period, int lagging_period, int leading_period, int offset) : Indicator(this->id + "-" + std::to_string(conversion_period) + "-" + std::to_string(base_period) + "-" + std::to_string(lagging_period) + "-" + std::to_string(leading_period) + "-" + std::to_string(offset), offset, {-1, 1}), conversion_period(conversion_period), base_period(base_period), lagging_period(lagging_period), leading_period(leading_period) {}
 
 /**
  * @brief Calculate the IchimokuCloudSignal values.
@@ -683,7 +683,7 @@ std::vector<double> IchimokuCloudSignal::calculate(const std::vector<Candle> &ca
  * @param leading_period Leading span period value. Default is 52.
  * @param offset Offset value. Default is 0.
  */
-IchimokuKijunTenkanSignal::IchimokuKijunTenkanSignal(int conversion_period, int base_period, int lagging_period, int leading_period, int offset) : Indicator("Ichimoku Kijun-Tenkan Signal", "ichimoku-kijun-tenkan-signal-" + std::to_string(conversion_period) + "-" + std::to_string(base_period) + "-" + std::to_string(lagging_period) + "-" + std::to_string(leading_period) + "-" + std::to_string(offset), R"(ichimoku-kijun-tenkan-signal-(\d+)-(\d+)-(\d+)-(\d+)-(\d+))", offset, {-1, 1}), conversion_period(conversion_period), base_period(base_period), lagging_period(lagging_period), leading_period(leading_period) {}
+IchimokuKijunTenkanSignal::IchimokuKijunTenkanSignal(int conversion_period, int base_period, int lagging_period, int leading_period, int offset) : Indicator(this->id + "-" + std::to_string(conversion_period) + "-" + std::to_string(base_period) + "-" + std::to_string(lagging_period) + "-" + std::to_string(leading_period) + "-" + std::to_string(offset), offset, {-1, 1}), conversion_period(conversion_period), base_period(base_period), lagging_period(lagging_period), leading_period(leading_period) {}
 
 /**
  * @brief Calculate the IchimokuKijunTenkanSignal values.

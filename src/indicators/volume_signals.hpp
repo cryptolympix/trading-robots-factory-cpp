@@ -7,6 +7,10 @@
 class CMFSignal : public Indicator
 {
 public:
+    std::string label = "Chaikin Money Flow (Signal)";
+    std::string id = "cmf-signal";
+    std::string id_pattern = R"(cmf-signal-(\d+)-(-?\d+.\d+)-(-?\d+.\d+)-(\d+))";
+
     /**
      * @brief Construct a new CMFSignal object.
      *

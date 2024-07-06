@@ -7,6 +7,10 @@
 class AwesomeOscillatorSignal : public Indicator
 {
 public:
+    std::string label = "Awesome Oscillator (Signal)";
+    std::string id = "awesome-oscillator-signal";
+    std::string id_pattern = R"(awesome-oscillator-signal-(\d+))";
+
     /**
      * @brief Construct a new AwesomeOscillatorSignal object.
      *
@@ -29,6 +33,10 @@ public:
 class KAMASignal : public Indicator
 {
 public:
+    std::string label = "Kaufmann Adaptive Moving Average (Signal)";
+    std::string id = "kama-signal";
+    std::string id_pattern = R"(kama-signal-(\d+)-(\d+)-(\d+)-(\d+))";
+
     /**
      * @brief Construct a new KAMASignal object.
      *
@@ -59,6 +67,10 @@ private:
 class MFISignal : public Indicator
 {
 public:
+    std::string label = "Money Flow Index (Signal)";
+    std::string id = "mfi-signal";
+    std::string id_pattern = R"(mfi-signal-(\d+)-(\d+)-(\d+)-(\d+))";
+
     /**
      * @brief Construct a new MFISignal object.
      *
@@ -89,6 +101,10 @@ private:
 class PPOSignal : public Indicator
 {
 public:
+    std::string label = "Percentage Price Oscillator (Signal)";
+    std::string id = "ppo-signal";
+    std::string id_pattern = R"(ppo-signal-(\d+)-(\d+)-(\d+))";
+
     /**
      * @brief Construct a new PPOSignal object.
      *
@@ -117,6 +133,10 @@ private:
 class ROCSignal : public Indicator
 {
 public:
+    std::string label = "Rate of Change (Signal)";
+    std::string id = "roc-signal";
+    std::string id_pattern = R"(roc-signal-(\d+)-(\d+))";
+
     /**
      * @brief Construct a new ROCSignal object.
      *
@@ -143,6 +163,10 @@ private:
 class RSISignal : public Indicator
 {
 public:
+    std::string label = "Relative Strength Index (Signal)";
+    std::string id = "rsi-signal";
+    std::string id_pattern = R"(rsi-signal-(\d+)-(\d+)-(\d+)-(\d+))";
+
     /**
      * @brief Construct a new RSISignal object.
      *
@@ -173,6 +197,10 @@ private:
 class StochasticRSISignal : public Indicator
 {
 public:
+    std::string label = "Stochastic RSI (Signal)";
+    std::string id = "stochastic-rsi-signal";
+    std::string id_pattern = R"(stochastic-rsi-signal-(\d+)-(\d+)-(\d+)-(\d+))";
+
     /**
      * @brief Construct a new StochasticRSISignal object.
      *
@@ -203,6 +231,10 @@ private:
 class StochasticOscillatorSignal : public Indicator
 {
 public:
+    std::string label = "Stochastic Oscillator (Signal)";
+    std::string id = "stochastic-oscillator-signal";
+    std::string id_pattern = R"(stochastic-oscillator-signal-(\d+)-(\d+)-(\d+)-(\d+)-(\d+))";
+
     /**
      * @brief Construct a new StochasticOscillatorSignal object.
      *
@@ -235,6 +267,10 @@ private:
 class TSISignal : public Indicator
 {
 public:
+    std::string label = "True Strength Index (Signal)";
+    std::string id = "tsi-signal";
+    std::string id_pattern = R"(tsi-signal-(\d+)-(\d+)-(-?\d+)-(-?\d+)-(\d+))";
+
     /**
      * @brief Construct a new TSISignal object.
      *
@@ -267,6 +303,10 @@ private:
 class UOSignal : public Indicator
 {
 public:
+    std::string label = "Ultimate Oscillator (Signal)";
+    std::string id = "uo-signal";
+    std::string id_pattern = R"(uo-signal-(\d+)-(\d+)-(\d+)-(-?\d+)-(-?\d+)-(\d+))";
+
     /**
      * @brief Construct a new UOSignal object.
      *
@@ -301,6 +341,10 @@ private:
 class WPRSignal : public Indicator
 {
 public:
+    std::string label = "Williams %R (Signal)";
+    std::string id = "wpr-signal";
+    std::string id_pattern = R"(wpr-signal-(\d+)-(-?\d+)-(-?\d+)-(\d+))";
+
     /**
      * @brief Construct a new WPRSignal object.
      *

@@ -10,7 +10,7 @@
 #include "indicator.hpp"
 
 /**
- * Average Directional Movement Index (ADX)
+ * Average Directional Index (ADX)
  *
  * The Plus Directional Indicator (+DI) and Minus Directional Indicator (-DI) are derived from smoothed averages of these differences, and measure trend direction over time. These two indicators are often referred to collectively as the Directional Movement Indicator (DMI).
  *
@@ -21,6 +21,10 @@
 class ADX : public Indicator
 {
 public:
+    std::string label = "Average Directional Index";
+    std::string id = "adx";
+    std::string id_pattern = R"(adx-(\d+)-(\d+))";
+
     /**
      * @brief Construct a new Average Directional Movement Index object.
      *
@@ -86,6 +90,10 @@ private:
 class AroonUp : public Indicator
 {
 public:
+    std::string label = "Aroon Up";
+    std::string id = "aroon-up";
+    std::string id_pattern = R"(aroon-up-(\d+)-(\d+))";
+
     /**
      * @brief Construct a new Aroon Up object.
      *
@@ -117,6 +125,10 @@ private:
 class AroonDown : public Indicator
 {
 public:
+    std::string label = "Aroon Down";
+    std::string id = "aroon-down";
+    std::string id_pattern = R"(aroon-down-(\d+)-(\d+))";
+
     /**
      * @brief Construct a new Aroon Down object.
      *
@@ -186,6 +198,10 @@ private:
 class DPO : public Indicator
 {
 public:
+    std::string label = "Detrended Price Oscillator";
+    std::string id = "dpo";
+    std::string id_pattern = R"(dpo-(\d+)-(\d+))";
+
     /**
      * @brief Construct a new DPO object.
      *
@@ -218,6 +234,10 @@ private:
 class EMA : public Indicator
 {
 public:
+    std::string label = "Exponential Moving Average";
+    std::string id = "ema";
+    std::string id_pattern = R"(ema-(\w+)-(\d+)-(\d+))";
+
     /**
      * @brief Construct a new EMA object.
      *
@@ -251,6 +271,10 @@ private:
 class KST : public Indicator
 {
 public:
+    std::string label = "Know Sure Thing Oscillator";
+    std::string id = "kst";
+    std::string id_pattern = R"(kst-(\d+)-(\d+)-(\d+)-(\d+)-(\d+)-(\d+)-(\d+)-(\d+)-(\d+)-(\d+))";
+
     /**
      * @brief Construct a new KST Oscillator object.
      *
@@ -294,6 +318,10 @@ private:
 class MACD : public Indicator
 {
 public:
+    std::string label = "Moving Average Convergence Divergence";
+    std::string id = "macd";
+    std::string id_pattern = R"(macd-(\d+)-(\d+)-(\d+)-(\d+))";
+
     /**
      * @brief Construct a new MACD object.
      *
@@ -345,6 +373,10 @@ private:
 class MI : public Indicator
 {
 public:
+    std::string label = "Mass Index";
+    std::string id = "mi";
+    std::string id_pattern = R"(mi-(\d+))";
+
     /**
      * @brief Construct a new MassIndex object.
      *
@@ -372,6 +404,10 @@ public:
 class ParabolicSAR : public Indicator
 {
 public:
+    std::string label = "Parabolic Stop and Reverse";
+    std::string id = "psar";
+    std::string id_pattern = R"(psar-(\d+.\d+)-(\d+.\d+)-(\d+))";
+
     /**
      * @brief Construct a new Parabolic SAR object.
      *
@@ -406,6 +442,10 @@ class SMA : public Indicator
 {
 
 public:
+    std::string label = "Simple Moving Average";
+    std::string id = "sma";
+    std::string id_pattern = R"(sma-(\w+)-(\d+)-(\d+))";
+
     /**
      * @brief Construct a new SMA object.
      *
@@ -439,6 +479,10 @@ private:
 class STC : public Indicator
 {
 public:
+    std::string label = "Schaff Trend Cycle";
+    std::string id = "stc";
+    std::string id_pattern = R"(stc-(\d+)-(\d+)-(\d+)-(\d+))";
+
     /**
      * @brief Construct a new STC object.
      *
@@ -486,6 +530,10 @@ private:
     int period;
 
 public:
+    std::string label = "Triple Exponential Average";
+    std::string id = "trix";
+    std::string id_pattern = R"(trix-(\d+)-(\d+))";
+
     /**
      * @brief Construct a new TRIX object.
      *
@@ -509,6 +557,10 @@ public:
 class Vortex : public Indicator
 {
 public:
+    std::string label = "Vortex Indicator";
+    std::string id = "vortex";
+    std::string id_pattern = R"(vortex-(\d+)-(\d+))";
+
     /**
      * @brief Construct a new Vortex Indicator object.
      *
@@ -539,6 +591,10 @@ private:
     size_t long_period;
 
 public:
+    std::string label = "Institutional Bias";
+    std::string id = "institutional-bias";
+    std::string id_pattern = R"(institutional-bias-(\d+)-(\d+)-(\d+))";
+
     /**
      * @brief Construct a new InstitutionalBias object.
      *
@@ -567,6 +623,10 @@ private:
     int long_period;
 
 public:
+    std::string label = "Exponential Moving Average Difference";
+    std::string id = "ema-difference";
+    std::string id_pattern = R"(ema-difference-(\d+)-(\d+)-(\d+))";
+
     /**
      * @brief Construct a new EMADifference object.
      *
@@ -596,6 +656,10 @@ public:
 class AroonTrend : public Indicator
 {
 public:
+    std::string label = "Aroon Trend";
+    std::string id = "aroon-trend";
+    std::string id_pattern = R"(aroon-trend-(\d+)-(\d+))";
+
     /**
      * @brief Construct a new AroonTrend object.
      *
@@ -627,6 +691,10 @@ private:
 class IchimokuCloudTrend : public Indicator
 {
 public:
+    std::string label = "Ichimoku Cloud Trend";
+    std::string id = "ichimoku-cloud-trend";
+    std::string id_pattern = R"(ichimoku-cloud-trend-(\d+)-(\d+)-(\d+)-(\d+)-(\d+))";
+
     /**
      * @brief Construct a new Ichimoku Cloud Trend object.
      *
@@ -664,6 +732,10 @@ private:
 class IchimokuKijunTenkanTrend : public Indicator
 {
 public:
+    std::string label = "Ichimoku Kijun Tenkan Trend";
+    std::string id = "ichimoku-kijun-tenkan-trend";
+    std::string id_pattern = R"(ichimoku-kijun-tenkan-trend-(\d+)-(\d+)-(\d+)-(\d+)-(\d+))";
+
     /**
      * @brief Construct a new Ichimoku Kijun Tenkan Trend object.
      *
@@ -701,6 +773,10 @@ private:
 class SMASlope : public Indicator
 {
 public:
+    std::string label = "Simple Moving Average Slope";
+    std::string id = "sma-slope";
+    std::string id_pattern = R"(sma-slope-(\d+)-(\w+)-(\d+))";
+
     /**
      * @brief Construct a new Simple Moving Average Slope object.
      *
@@ -734,6 +810,10 @@ private:
 class EMASlope : public Indicator
 {
 public:
+    std::string label = "Exponential Moving Average Slope";
+    std::string id = "ema-slope";
+    std::string id_pattern = R"(ema-slope-(\d+)-(\w+)-(\d+))";
+
     /**
      * @brief Construct a new Exponential Moving Average Slope object.
      *
@@ -767,6 +847,10 @@ private:
 class Zigzag : public Indicator
 {
 public:
+    std::string label = "Zigzag";
+    std::string id = "zigzag";
+    std::string id_pattern = R"(zigzag-(\d+.\d+)-(\d+))";
+
     /**
      * @brief Construct a new Zigzag object.
      *

@@ -12,7 +12,7 @@
  * @param bearish_threshold Bearish threshold. Default is -0.1.
  * @param offset Offset value. Default is 0.
  */
-CMFSignal::CMFSignal(int period, double bullish_threshold, double bearish_threshold, int offset) : Indicator("Chaikin Money Flow Signal", "cmf-signal-" + std::to_string(period) + "-" + std::to_string(bullish_threshold) + "-" + std::to_string(bearish_threshold) + "-" + std::to_string(offset), R"(cmf-signal-(\d+)-(\d+.\d+)-(\d+.\d+)-(\d+))", offset, {-1, 1}), period(period), bullish_threshold(bullish_threshold), bearish_threshold(bearish_threshold) {}
+CMFSignal::CMFSignal(int period, double bullish_threshold, double bearish_threshold, int offset) : Indicator(this->id + "-" + std::to_string(period) + "-" + std::to_string(bullish_threshold) + "-" + std::to_string(bearish_threshold) + "-" + std::to_string(offset), offset, {-1, 1}), period(period), bullish_threshold(bullish_threshold), bearish_threshold(bearish_threshold) {}
 
 /**
  * @brief Calculate the CMFSignal values.

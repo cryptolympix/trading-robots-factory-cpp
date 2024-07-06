@@ -7,6 +7,10 @@
 class ATRSignal : public Indicator
 {
 public:
+    std::string label = "Average True Range (Signal)";
+    std::string id = "atr-signal";
+    std::string id_pattern = R"(atr-signal-(\d+)-(\d+.\d+)-(\d+))";
+
     /**
      * @brief Construct a new ATRSignal object.
      *
@@ -35,6 +39,10 @@ private:
 class BollingerChannelSignal : public Indicator
 {
 public:
+    std::string label = "Bollinger Channel (Signal)";
+    std::string id = "bollinger-channel-signal";
+    std::string id_pattern = R"(bollinger-channel-signal-(\d+)-(\d+.\d+)-(\d+))";
+
     /**
      * @brief Construct a new BollingerChannelSignal object.
      *
@@ -63,6 +71,10 @@ private:
 class DonchianChannelSignal : public Indicator
 {
 public:
+    std::string label = "Donchian Channel (Signal)";
+    std::string id = "donchian-channel-signal";
+    std::string id_pattern = R"(donchian-channel-signal-(\d+)-(\d+))";
+
     /**
      * @brief Construct a new DonchianChannelSignal object.
      *
@@ -89,6 +101,10 @@ private:
 class KeltnerChannelSignal : public Indicator
 {
 public:
+    std::string label = "Keltner Channel (Signal)";
+    std::string id = "keltner-channel-signal";
+    std::string id_pattern = R"(keltner-channel-signal-(\d+)-(\d+)-(\d+.\d+)-(\d+))";
+
     /**
      * @brief Construct a new KeltnerChannelSignal object.
      *

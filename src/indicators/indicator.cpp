@@ -50,19 +50,21 @@ bool is_valid_id(const std::string &id, const std::string &id_pattern)
 /**
  * @brief Construct a new Indicator::Indicator object.
  *
- * @param label The label of the indicator.
- * @param id The id of the indicator.
- * @param id_pattern The id pattern of the indicator.
+ * @param id_params The id of the indicator with parameters.
  * @param offset The offset of the indicator.
  * @param values_range The range of values.
- * @return Indicator The indicator.
  */
-Indicator::Indicator(const std::string &label, const std::string &id, std::string id_pattern, int offset, std::pair<double, double> values_range)
-    : label(label), id(id), id_pattern(id_pattern), offset(offset), values_range(values_range)
+Indicator::Indicator(std::string id_params, int offset, std::pair<double, double> values_range)
 {
-    if (!is_valid_id(id, id_pattern))
+    this->id_params = id_params;
+    this->offset = offset;
+    this->values_range = values_range;
+
+    // Check if the ID is valid
+    if (!is_valid_id(this->id_params, this->id_pattern))
     {
-        throw std::invalid_argument("Invalid ID format for the indicator " + label + " with pattern " + id_pattern + ": " + id);
+        std::cerr << "Invalid id format for the indicator" << this->label << ": " << this->id_params << ". Expected format: " << this->id_pattern << std::endl;
+        std::exit(1);
     }
 }
 

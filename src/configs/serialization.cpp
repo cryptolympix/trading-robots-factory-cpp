@@ -134,7 +134,7 @@ nlohmann::json config_to_json(const Config &config)
             for (const auto &indicator : indicators)
             {
                 timeframe_json.push_back({
-                    {"id", indicator->id},
+                    {"id_params", indicator->id_params},
                     {"id_pattern", indicator->id_pattern},
                 });
             }
@@ -146,15 +146,15 @@ nlohmann::json config_to_json(const Config &config)
 
         // Evaluation config
         nlohmann::json evaluation_json = nlohmann::json::object();
-        // add_optional(evaluation_json, "maximize_nb_trades", config.evaluation.maximize_nb_trades);
-        // add_optional(evaluation_json, "minimum_nb_trades", config.evaluation.minimum_nb_trades);
-        // add_optional(evaluation_json, "maximum_trade_duration", config.evaluation.maximum_trade_duration);
-        // add_optional(evaluation_json, "expected_return_per_day", config.evaluation.expected_return_per_day);
-        // add_optional(evaluation_json, "expected_return_per_month", config.evaluation.expected_return_per_month);
-        // add_optional(evaluation_json, "expected_return", config.evaluation.expected_return);
-        // add_optional(evaluation_json, "maximum_drawdown", config.evaluation.maximum_drawdown);
-        // add_optional(evaluation_json, "minimum_winrate", config.evaluation.minimum_winrate);
-        // add_optional(evaluation_json, "minimum_profit_factor", config.evaluation.minimum_profit_factor);
+        add_optional(evaluation_json, "maximize_nb_trades", config.evaluation.maximize_nb_trades);
+        add_optional(evaluation_json, "minimum_nb_trades", config.evaluation.minimum_nb_trades);
+        add_optional(evaluation_json, "maximum_trade_duration", config.evaluation.maximum_trade_duration);
+        add_optional(evaluation_json, "expected_return_per_day", config.evaluation.expected_return_per_day);
+        add_optional(evaluation_json, "expected_return_per_month", config.evaluation.expected_return_per_month);
+        add_optional(evaluation_json, "expected_return", config.evaluation.expected_return);
+        add_optional(evaluation_json, "maximum_drawdown", config.evaluation.maximum_drawdown);
+        add_optional(evaluation_json, "minimum_winrate", config.evaluation.minimum_winrate);
+        add_optional(evaluation_json, "minimum_profit_factor", config.evaluation.minimum_profit_factor);
 
         // NEAT config
         nlohmann::json neat_json = {
@@ -430,20 +430,20 @@ Config config_from_json(const nlohmann::json &json)
         std::vector<Indicator *> indicators_list;
         for (const auto &indicator : indicators_id)
         {
-            if (!indicator.contains("label"))
+            if (!indicator.contains("id_params"))
             {
-                throw std::runtime_error("Missing 'label' key in the JSON object");
+                throw std::runtime_error("Missing 'id_params' key in the JSON object");
             }
 
-            if (!indicator.contains("id"))
+            if (!indicator.contains("id_pattern"))
             {
-                throw std::runtime_error("Missing 'id' key in the JSON object");
+                throw std::runtime_error("Missing 'id_pattern' key in the JSON object");
             }
 
-            const std::string id = indicator["id"];
+            const std::string id_params = indicator["id_params"];
             const std::string id_pattern = indicator["id_pattern"];
-            // const std::vector<IndicatorParams> params = extract_parameters<IndicatorParams>(id, id_pattern);
-            // indicators_list.push_back(create_indicator_from_id(id, id_pattern, params));
+            const std::vector<IndicatorParams> params = extract_parameters<IndicatorParams>(id_params, id_pattern);
+            indicators_list.push_back(create_indicator_from_id(id_params, params));
         }
         indicators[string_to_time_frame(timeframe)] = indicators_list;
     }

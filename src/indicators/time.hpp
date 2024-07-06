@@ -10,6 +10,10 @@
 class Hour : public Indicator
 {
 public:
+    std::string label = "Hour";
+    std::string id = "hour";
+    std::string id_pattern = R"(hour-(\d+))";
+
     /**
      * @brief Construct a new Hour object.
      *
@@ -35,6 +39,10 @@ public:
 class Minute : public Indicator
 {
 public:
+    std::string label = "Minute";
+    std::string id = "minute";
+    std::string id_pattern = R"(minute-(\d+))";
+
     /**
      * @brief Construct a new Minute object.
      *
@@ -57,6 +65,10 @@ public:
 class NFPWeek : public Indicator
 {
 public:
+    std::string label = "NFP Week";
+    std::string id = "nfp-week";
+    std::string id_pattern = R"(nfp-week-(\d+))";
+
     /**
      * @brief Construct a new NFPWeek object.
      *
@@ -78,6 +90,10 @@ public:
 class MarketSession : public Indicator
 {
 public:
+    std::string label = "Market Session";
+    std::string id = "market-session";
+    std::string id_pattern = R"(market-session-(\w+)-(\d+))";
+
     /**
      * @brief Construct a new MarketSession object.
      *
@@ -104,6 +120,10 @@ private:
 class WeekDay : public Indicator
 {
 public:
+    std::string label = "Week Day";
+    std::string id = "week-day";
+    std::string id_pattern = R"(week-day-(\w+)-(\d+))";
+
     /**
      * @brief Construct a new WeekDay object.
      *

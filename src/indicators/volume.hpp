@@ -12,6 +12,10 @@
 class ADL : public Indicator
 {
 public:
+    std::string label = "Accumulation/Distribution Line";
+    std::string id = "adl";
+    std::string id_pattern = R"(adl-(\d+))";
+
     /**
      * @brief Construct a new ADL object.
      *
@@ -51,6 +55,10 @@ private:
 class CMF : public Indicator
 {
 public:
+    std::string label = "Chaikin Money Flow";
+    std::string id = "cmf";
+    std::string id_pattern = R"(cmf-(\d+)-(\d+))";
+
     /**
      * @brief Constructor for ChaikinMoneyFlow class.
      *
@@ -82,6 +90,10 @@ private:
 class FI : public Indicator
 {
 public:
+    std::string label = "Force Index";
+    std::string id = "fi";
+    std::string id_pattern = R"(fi-(\d+)-(\d+))";
+
     /**
      * @brief Constructor for ForceIndex class.
      *
@@ -115,6 +127,10 @@ private:
 class NVI : public Indicator
 {
 public:
+    std::string label = "Negative Volume Index";
+    std::string id = "nvi";
+    std::string id_pattern = R"(nvi-(\d+))";
+
     /**
      * @brief Constructor for NVI class.
      *
@@ -144,6 +160,10 @@ public:
 class OBV : public Indicator
 {
 public:
+    std::string label = "On-balance Volume";
+    std::string id = "obv";
+    std::string id_pattern = R"(obv-(\d+))";
+
     /**
      * @brief Constructor for OBV class.
      *
@@ -171,6 +191,10 @@ public:
 class POC : public Indicator
 {
 public:
+    std::string label = "Point of Control";
+    std::string id = "poc";
+    std::string id_pattern = R"(poc-(\d+)-(\d+)-(\d+))";
+
     /**
      * @brief Constructor for POC class.
      *
@@ -212,6 +236,10 @@ private:
 class PVI : public Indicator
 {
 public:
+    std::string label = "Positive Volume Index";
+    std::string id = "pvi";
+    std::string id_pattern = R"(pvi-(\d+))";
+
     /**
      * @brief Constructor for PVI class.
      *
@@ -240,6 +268,10 @@ public:
 class VWAP : public Indicator
 {
 public:
+    std::string label = "Volume Weighted Average Price";
+    std::string id = "vwap";
+    std::string id_pattern = R"(vwap-(\d+))";
+
     /**
      * @brief Constructor for VWAP class.
      *
