@@ -7,10 +7,6 @@
 class ADXSignal : public Indicator
 {
 public:
-    std::string label = "Average Directional Index (Signal)";
-    std::string id = "adx-signal";
-    std::string id_pattern = R"(adx-signal-(\d+)-(\d+)-(\d+))";
-
     /**
      * @brief Construct a new ADXSignal object.
      *
@@ -28,10 +24,6 @@ public:
      * @return std::vector<double> Vector containing calculated values.
      */
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
-
-private:
-    int period;
-    int threshold;
 };
 
 // *********************************************************************************************
@@ -39,10 +31,6 @@ private:
 class AroonSignal : public Indicator
 {
 public:
-    std::string label = "Aroon (Signal)";
-    std::string id = "aroon-signal";
-    std::string id_pattern = R"(aroon-signal-(\d+)-(\d+))";
-
     /**
      * @brief Construct a new AroonSignal object.
      *
@@ -59,9 +47,6 @@ public:
      * @return std::vector<double> Vector containing calculated values.
      */
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
-
-private:
-    int period;
 };
 
 // *********************************************************************************************
@@ -69,10 +54,6 @@ private:
 class CCISignal : public Indicator
 {
 public:
-    std::string label = "Commodity Channel Index (Signal)";
-    std::string id = "cci-signal";
-    std::string id_pattern = R"(cci-signal-(\d+)-(-?\d+)-(-?\d+)-(\d+))";
-
     /**
      * @brief Construct a new CCISignal object.
      *
@@ -91,11 +72,6 @@ public:
      * @return std::vector<double> Vector containing calculated values.
      */
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
-
-private:
-    int period;
-    int overbought;
-    int oversold;
 };
 
 // *********************************************************************************************
@@ -103,10 +79,6 @@ private:
 class DPOSignal : public Indicator
 {
 public:
-    std::string label = "Detrended Price Oscillator (Signal)";
-    std::string id = "dpo-signal";
-    std::string id_pattern = R"(dpo-signal-(\d+)-(\d+))";
-
     /**
      * @brief Construct a new DPOSignal object.
      *
@@ -123,9 +95,6 @@ public:
      * @return std::vector<double> Vector containing calculated values.
      */
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
-
-private:
-    int period;
 };
 
 // *********************************************************************************************
@@ -133,10 +102,6 @@ private:
 class EMASignal : public Indicator
 {
 public:
-    std::string label = "Exponential Moving Average (Signal)";
-    std::string id = "ema-signal";
-    std::string id_pattern = R"(ema-signal-(\w+)-(\d+)-(\d+))";
-
     /**
      * @brief Construct a new EMASignal object.
      *
@@ -154,10 +119,6 @@ public:
      * @return std::vector<double> Vector containing calculated values.
      */
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
-
-private:
-    std::string source;
-    int period;
 };
 
 // *********************************************************************************************
@@ -165,10 +126,6 @@ private:
 class KSTSignal : public Indicator
 {
 public:
-    std::string label = "Know Sure Thing (Signal)";
-    std::string id = "kst-signal";
-    std::string id_pattern = R"(kst-signal-(\d+)-(\d+)-(\d+)-(\d+)-(\d+)-(\d+)-(\d+)-(\d+)-(\d+))";
-
     /**
      * @brief Construct a new KSTSignal object.
      *
@@ -192,16 +149,6 @@ public:
      * @return std::vector<double> Vector containing calculated values.
      */
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
-
-private:
-    int roc_period1;
-    int roc_period2;
-    int roc_period3;
-    int roc_period4;
-    int sma_period1;
-    int sma_period2;
-    int sma_period3;
-    int sma_period4;
 };
 
 // *********************************************************************************************
@@ -231,11 +178,6 @@ public:
      * @return std::vector<double> Vector containing calculated values.
      */
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
-
-private:
-    int short_period;
-    int long_period;
-    int signal_period;
 };
 
 // *********************************************************************************************
@@ -243,10 +185,6 @@ private:
 class ParabolicSARSignal : public Indicator
 {
 public:
-    std::string label = "Parabolic SAR (Signal)";
-    std::string id = "parabolic-sar-signal";
-    std::string id_pattern = R"(parabolic-sar-signal-(\d+.\d+)-(\d+.\d+)-(\d+))";
-
     /**
      * @brief Construct a new ParabolicSARSignal object.
      *
@@ -264,10 +202,6 @@ public:
      * @return std::vector<double> Vector containing calculated values.
      */
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
-
-private:
-    double acceleration_factor_initial;
-    double acceleration_factor_maximum;
 };
 
 // *********************************************************************************************
@@ -275,10 +209,6 @@ private:
 class SMASignal : public Indicator
 {
 public:
-    std::string label = "Simple Moving Average (Signal)";
-    std::string id = "sma-signal";
-    std::string id_pattern = R"(sma-signal-(\w+)-(\d+)-(\d+))";
-
     /**
      * @brief Construct a new SMASignal object.
      *
@@ -296,10 +226,6 @@ public:
      * @return std::vector<double> Vector containing calculated values.
      */
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
-
-private:
-    std::string source;
-    int period;
 };
 
 // *********************************************************************************************
@@ -307,10 +233,6 @@ private:
 class TRIXSignal : public Indicator
 {
 public:
-    std::string label = "Triple Exponential Average (Signal)";
-    std::string id = "trix-signal";
-    std::string id_pattern = R"(trix-signal-(\d+)-(\d+))";
-
     /**
      * @brief Construct a new TRIXSignal object.
      *
@@ -327,9 +249,6 @@ public:
      * @return std::vector<double> Vector containing calculated values.
      */
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
-
-private:
-    int period;
 };
 
 // *********************************************************************************************
@@ -337,10 +256,6 @@ private:
 class VortexSignal : public Indicator
 {
 public:
-    std::string label = "Vortex (Signal)";
-    std::string id = "vortex-signal";
-    std::string id_pattern = R"(vortex-signal-(\d+)-(\d+))";
-
     /**
      * @brief Construct a new VortexSignal object.
      *
@@ -357,9 +272,6 @@ public:
      * @return std::vector<double> Vector containing calculated values.
      */
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
-
-private:
-    int period;
 };
 
 // *********************************************************************************************
@@ -367,10 +279,6 @@ private:
 class InstitutionalBiasSignal : public Indicator
 {
 public:
-    std::string label = "Institutional Bias (Signal)";
-    std::string id = "institutional-bias-signal";
-    std::string id_pattern = R"(institutional-bias-signal-(\d+)-(\d+)-(\d+))";
-
     /**
      * @brief Construct a new InstitutionalBiasSignal object.
      *
@@ -388,10 +296,6 @@ public:
      * @return std::vector<double> Vector containing calculated values.
      */
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
-
-private:
-    int short_period;
-    int long_period;
 };
 
 // *********************************************************************************************
@@ -399,10 +303,6 @@ private:
 class IchimokuCloudSignal : public Indicator
 {
 public:
-    std::string label = "Ichimoku Cloud (Signal)";
-    std::string id = "ichimoku-cloud-signal";
-    std::string id_pattern = R"(ichimoku-cloud-signal-(\d+)-(\d+)-(\d+)-(\d+)-(\d+))";
-
     /**
      * @brief Construct a new IchimokuCloudSignal object.
      *
@@ -422,12 +322,6 @@ public:
      * @return std::vector<double> Vector containing calculated values.
      */
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
-
-private:
-    int conversion_period;
-    int base_period;
-    int lagging_period;
-    int leading_period;
 };
 
 // *********************************************************************************************
@@ -435,10 +329,6 @@ private:
 class IchimokuKijunTenkanSignal : public Indicator
 {
 public:
-    std::string label = "Ichimoku Kijun Tenkan (Signal)";
-    std::string id = "ichimoku-kijun-tenkan-signal";
-    std::string id_pattern = R"(ichimoku-kijun-tenkan-signal-(\d+)-(\d+)-(\d+)-(\d+)-(\d+))";
-
     /**
      * @brief Construct a new IchimokuKijunTenkanSignal object.
      *
@@ -458,12 +348,6 @@ public:
      * @return std::vector<double> Vector containing calculated values.
      */
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
-
-private:
-    int conversion_period;
-    int base_period;
-    int lagging_period;
-    int leading_period;
 };
 
 #endif // TREND_SIGNALS_HPP

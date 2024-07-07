@@ -52,7 +52,7 @@ protected:
 TEST_F(IndicatorTest, Calculate)
 {
     // Create an instance of the Indicator class
-    Indicator indicator("test-indicator", 0);
+    Indicator indicator("Test Indicator", "test-indicator", {});
 
     // Define a calculator function (dummy function for testing)
     auto calculator = [](std::vector<Candle> candles) -> std::vector<double>
@@ -82,7 +82,7 @@ TEST_F(IndicatorTest, Calculate)
 TEST_F(IndicatorTest, CalculateWithOffset)
 {
     // Create an instance of the Indicator class with offset
-    Indicator indicator("test-indicator", 1);
+    Indicator indicator("Test Indicator", "test-indicator", {{"offset", 1}});
 
     // Define a calculator function (dummy function for testing)
     auto calculator = [](std::vector<Candle> candles) -> std::vector<double>
@@ -106,7 +106,7 @@ TEST_F(IndicatorTest, CalculateWithOffset)
 TEST_F(IndicatorTest, NormalizeData)
 {
     // Create an instance of the Indicator class
-    Indicator indicator("test-indicator", 0);
+    Indicator indicator("Test Indicator", "test-indicator", {});
 
     // Define a calculator function (dummy function for testing)
     auto calculator = [](std::vector<Candle> candles) -> std::vector<double>

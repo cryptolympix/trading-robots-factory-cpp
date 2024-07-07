@@ -11,10 +11,6 @@
 class DojiCandlePattern : public Indicator
 {
 public:
-    std::string label = "Doji Candle Pattern";
-    std::string id = "doji-candle-pattern";
-    std::string id_pattern = R"(doji-candle-pattern-(\d+))";
-
     /**
      * @brief Construct a new DojiCandlePattern object.
      *
@@ -76,10 +72,6 @@ private:
 class SingleCandlePattern : public Indicator
 {
 public:
-    std::string label = "Single Candle Pattern";
-    std::string id = "single-candle-pattern";
-    std::string id_pattern = R"(single-candle-pattern-(\d+))";
-
     /**
      * @brief Construct a new SingleCandlePattern object.
      *
@@ -177,10 +169,6 @@ private:
 class DoubleCandlePattern : public Indicator
 {
 public:
-    std::string label = "Double Candle Pattern";
-    std::string id = "double-candle-pattern";
-    std::string id_pattern = R"(double-candle-pattern-(\d+))";
-
     /**
      * @brief Construct a new DoubleCandlePattern object.
      *
@@ -242,10 +230,6 @@ private:
 class TripleCandlePattern : public Indicator
 {
 public:
-    std::string label = "Triple Candle Pattern";
-    std::string id = "triple-candle-pattern";
-    std::string id_pattern = R"(triple-candle-pattern-(\d+))";
-
     /**
      * @brief Construct a new TripleCandlePattern object.
      *

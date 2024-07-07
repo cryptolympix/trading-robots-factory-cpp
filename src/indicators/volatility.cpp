@@ -12,7 +12,7 @@
  * @param period Period value. Default is 14.
  * @param offset Offset value. Default is 0.
  */
-ATR::ATR(int period, int offset) : Indicator(this->id + "-" + std::to_string(period) + "-" + std::to_string(offset), offset), period(period) {}
+ATR::ATR(int period, int offset) : Indicator("Average True Range", "atr", {{"period", period}, {"offset", offset}}) {}
 
 /**
  * @brief Calculate the Average True Range values.
@@ -26,6 +26,7 @@ std::vector<double> ATR::calculate(const std::vector<Candle> &candles, bool norm
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
+            int period = std::get<int>(this->params.at("period"));
             std::vector<double> atr_values(candles.size(), 0.0);
 
             if (candles.size() < period) {
@@ -90,7 +91,7 @@ std::vector<double> ATR::calculateTrueRange(const std::vector<Candle> &candles) 
  * @param multiplier Multiplier value. Default is 2.0.
  * @param offset Offset value. Default is 0.
  */
-BollingerChannelHighBand::BollingerChannelHighBand(int period, double multiplier, int offset) : Indicator(this->id + "-" + std::to_string(period) + "-" + std::to_string(multiplier) + "-" + std::to_string(offset), offset), period(period), multiplier(multiplier) {}
+BollingerChannelHighBand::BollingerChannelHighBand(int period, double multiplier, int offset) : Indicator("Bollinger Channel High Band", "bollinger-channel-high-band", {{"period", period}, {"multiplier", multiplier}, {"offset", offset}}) {}
 
 /**
  * @brief Calculate the Bollinger Channel High Band values.
@@ -104,6 +105,9 @@ std::vector<double> BollingerChannelHighBand::calculate(const std::vector<Candle
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
+            int period = std::get<int>(this->params.at("period"));
+            double multiplier = std::get<double>(this->params.at("multiplier"));
+
             std::vector<double> bollinger_channel_high_band_values(candles.size(), 0.0);
 
             if (candles.size() < period) {
@@ -133,7 +137,7 @@ std::vector<double> BollingerChannelHighBand::calculate(const std::vector<Candle
  * @param multiplier Multiplier value. Default is 2.0.
  * @param offset Offset value. Default is 0.
  */
-BollingerChannelLowBand::BollingerChannelLowBand(int period, double multiplier, int offset) : Indicator(this->id + "-" + std::to_string(period) + "-" + std::to_string(multiplier) + "-" + std::to_string(offset), offset), period(period), multiplier(multiplier) {}
+BollingerChannelLowBand::BollingerChannelLowBand(int period, double multiplier, int offset) : Indicator("Bollinger Channel Low Band", "bollinger-channel-low-band", {{"period", period}, {"multiplier", multiplier}, {"offset", offset}}) {}
 
 /**
  * @brief Calculate the Bollinger Channel Low Band values.
@@ -147,6 +151,9 @@ std::vector<double> BollingerChannelLowBand::calculate(const std::vector<Candle>
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
+            int period = std::get<int>(this->params.at("period"));
+            double multiplier = std::get<double>(this->params.at("multiplier"));
+
             std::vector<double> bollinger_channel_low_band_values(candles.size(), 0.0);
 
             if (candles.size() < period) {
@@ -175,7 +182,7 @@ std::vector<double> BollingerChannelLowBand::calculate(const std::vector<Candle>
  * @param period Period value. Default is 20.
  * @param offset Offset value. Default is 0.
  */
-BollingerChannelMiddleBand::BollingerChannelMiddleBand(int period, int offset) : Indicator(this->id + "-" + std::to_string(period) + "-" + std::to_string(offset), offset), period(period){};
+BollingerChannelMiddleBand::BollingerChannelMiddleBand(int period, int offset) : Indicator("Bollinger Channel Middle Band", "bollinger-channel-middle-band", {{"period", period}, {"offset", offset}}) {}
 
 /**
  * @brief Calculate the Bollinger Channel Middle Band values.
@@ -189,6 +196,8 @@ std::vector<double> BollingerChannelMiddleBand::calculate(const std::vector<Cand
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
+            int period = std::get<int>(this->params.at("period"));
+
             std::vector<double> bollinger_channel_middle_band_values(candles.size(), 0.0);
 
             if (candles.size() < period) {
@@ -217,7 +226,7 @@ std::vector<double> BollingerChannelMiddleBand::calculate(const std::vector<Cand
  * @param multiplier Multiplier value. Default is 2.0.
  * @param offset Offset value. Default is 0.
  */
-BollingerChannelPercentageBand::BollingerChannelPercentageBand(int period, double multiplier, int offset) : Indicator(this->id + "-" + std::to_string(period) + "-" + std::to_string(multiplier) + "-" + std::to_string(offset), offset), period(period), multiplier(multiplier) {}
+BollingerChannelPercentageBand::BollingerChannelPercentageBand(int period, double multiplier, int offset) : Indicator("Bollinger Channel Percentage Band", "bollinger-channel-percentage-band", {{"period", period}, {"multiplier", multiplier}, {"offset", offset}}) {}
 
 /**
  * @brief Calculate the Bollinger Channel Percentage Band values.
@@ -231,6 +240,9 @@ std::vector<double> BollingerChannelPercentageBand::calculate(const std::vector<
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
+            int period = std::get<int>(this->params.at("period"));
+            double multiplier = std::get<double>(this->params.at("multiplier"));
+
             std::vector<double> bollinger_channel_percentage_band_values(candles.size(), 0.0);
 
             if (candles.size() < period) {
@@ -264,7 +276,7 @@ std::vector<double> BollingerChannelPercentageBand::calculate(const std::vector<
  * @param multiplier Multiplier value. Default is 2.0.
  * @param offset Offset value. Default is 0.
  */
-BollingerChannelWidthBand::BollingerChannelWidthBand(int period, double multiplier, int offset) : Indicator(this->id + "-" + std::to_string(period) + "-" + std::to_string(multiplier) + "-" + std::to_string(offset), offset), period(period), multiplier(multiplier) {}
+BollingerChannelWidthBand::BollingerChannelWidthBand(int period, double multiplier, int offset) : Indicator("Bollinger Channel Width Band", "bollinger-channel-width-band", {{"period", period}, {"multiplier", multiplier}, {"offset", offset}}) {}
 
 /**
  * @brief Calculate the Bollinger Channel Width Band values.
@@ -278,6 +290,9 @@ std::vector<double> BollingerChannelWidthBand::calculate(const std::vector<Candl
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
+            int period = std::get<int>(this->params.at("period"));
+            double multiplier = std::get<double>(this->params.at("multiplier"));
+
             std::vector<double> bollinger_channel_width_band_values(candles.size(), 0.0);
 
             if (candles.size() < period) {
@@ -310,7 +325,7 @@ std::vector<double> BollingerChannelWidthBand::calculate(const std::vector<Candl
  * @param period Period value. Default is 20.
  * @param offset Offset value. Default is 0.
  */
-DonchianChannelHighBand::DonchianChannelHighBand(int period, int offset) : Indicator(this->id + "-" + std::to_string(period) + "-" + std::to_string(offset), offset), period(period) {}
+DonchianChannelHighBand::DonchianChannelHighBand(int period, int offset) : Indicator("Donchian Channel High Band", "donchian-channel-high-band", {{"period", period}, {"offset", offset}}) {}
 
 /**
  * @brief Calculate the Donchian Channel High Band values.
@@ -324,6 +339,8 @@ std::vector<double> DonchianChannelHighBand::calculate(const std::vector<Candle>
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
+            int period = std::get<int>(this->params.at("period"));
+
             std::vector<double> donchian_channel_high_band_values(candles.size(), 0.0);
 
             if (candles.size() < period) {
@@ -357,7 +374,7 @@ std::vector<double> DonchianChannelHighBand::calculate(const std::vector<Candle>
  * @param period Period value. Default is 20.
  * @param offset Offset value. Default is 0.
  */
-DonchianChannelLowBand::DonchianChannelLowBand(int period, int offset) : Indicator(this->id + "-" + std::to_string(period) + "-" + std::to_string(offset), offset), period(period) {}
+DonchianChannelLowBand::DonchianChannelLowBand(int period, int offset) : Indicator("Donchian Channel Low Band", "donchian-channel-low-band", {{"period", period}, {"offset", offset}}) {}
 
 /**
  * @brief Calculate the Donchian Channel Low Band values.
@@ -371,6 +388,8 @@ std::vector<double> DonchianChannelLowBand::calculate(const std::vector<Candle> 
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
+            int period = std::get<int>(this->params.at("period"));
+
             std::vector<double> donchian_channel_low_band_values(candles.size(), 0.0);
 
             if (candles.size() < period) {
@@ -404,7 +423,7 @@ std::vector<double> DonchianChannelLowBand::calculate(const std::vector<Candle> 
  * @param period Period value. Default is 20.
  * @param offset Offset value. Default is 0.
  */
-DonchianChannelMiddleBand::DonchianChannelMiddleBand(int period, int offset) : Indicator(this->id + "-" + std::to_string(period) + "-" + std::to_string(offset), offset), period(period) {}
+DonchianChannelMiddleBand::DonchianChannelMiddleBand(int period, int offset) : Indicator("Donchian Channel Middle Band", "donchian-channel-middle-band", {{"period", period}, {"offset", offset}}) {}
 
 /**
  * @brief Calculate the Donchian Channel Middle Band values.
@@ -418,6 +437,8 @@ std::vector<double> DonchianChannelMiddleBand::calculate(const std::vector<Candl
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
+            int period = std::get<int>(this->params.at("period"));
+
             std::vector<double> donchian_channel_middle_band_values(candles.size(), 0.0);
 
             if (candles.size() < period) {
@@ -455,7 +476,7 @@ std::vector<double> DonchianChannelMiddleBand::calculate(const std::vector<Candl
  * @param multiplier Multiplier value. Default is 2.0.
  * @param offset Offset value. Default is 0.
  */
-KeltnerChannelHighBand::KeltnerChannelHighBand(int period, int atr_period, double multiplier, int offset) : Indicator(this->id + "-" + std::to_string(period) + "-" + std::to_string(atr_period) + "-" + std::to_string(multiplier) + "-" + std::to_string(offset), offset), period(period), atr_period(atr_period), multiplier(multiplier) {}
+KeltnerChannelHighBand::KeltnerChannelHighBand(int period, int atr_period, double multiplier, int offset) : Indicator("Keltner Channel High Band", "keltner-channel-high-band", {{"period", period}, {"atr_period", atr_period}, {"multiplier", multiplier}, {"offset", offset}}) {}
 
 /**
  * @brief Calculate the Keltner Channel High Band values.
@@ -469,6 +490,10 @@ std::vector<double> KeltnerChannelHighBand::calculate(const std::vector<Candle> 
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
+            int period = std::get<int>(this->params.at("period"));
+            int atr_period = std::get<int>(this->params.at("atr_period"));
+            double multiplier = std::get<double>(this->params.at("multiplier"));
+
             std::vector<double> keltner_channel_high_band_values(candles.size(), 0.0);
 
             if (candles.size() < period) {
@@ -499,7 +524,7 @@ std::vector<double> KeltnerChannelHighBand::calculate(const std::vector<Candle> 
  * @param multiplier Multiplier value. Default is 2.0.
  * @param offset Offset value. Default is 0.
  */
-KeltnerChannelLowBand::KeltnerChannelLowBand(int period, int atr_period, double multiplier, int offset) : Indicator(this->id + "-" + std::to_string(period) + "-" + std::to_string(atr_period) + "-" + std::to_string(multiplier) + "-" + std::to_string(offset), offset), period(period), atr_period(atr_period), multiplier(multiplier) {}
+KeltnerChannelLowBand::KeltnerChannelLowBand(int period, int atr_period, double multiplier, int offset) : Indicator("Keltner Channel Low Band", "keltner-channel-low-band", {{"period", period}, {"atr_period", atr_period}, {"multiplier", multiplier}, {"offset", offset}}) {}
 
 /**
  * @brief Calculate the Keltner Channel Low Band values.
@@ -513,6 +538,10 @@ std::vector<double> KeltnerChannelLowBand::calculate(const std::vector<Candle> &
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
+            int period = std::get<int>(this->params.at("period"));
+            int atr_period = std::get<int>(this->params.at("atr_period"));
+            double multiplier = std::get<double>(this->params.at("multiplier"));
+
             std::vector<double> keltner_channel_low_band_values(candles.size(), 0.0);
 
             if (candles.size() < period) {
@@ -541,7 +570,7 @@ std::vector<double> KeltnerChannelLowBand::calculate(const std::vector<Candle> &
  * @param period Period value. Default is 20.
  * @param offset Offset value. Default is 0.
  */
-KeltnerChannelMiddleBand::KeltnerChannelMiddleBand(int period, int offset) : Indicator(this->id + "-" + std::to_string(period) + "-" + std::to_string(offset), offset), period(period) {}
+KeltnerChannelMiddleBand::KeltnerChannelMiddleBand(int period, int offset) : Indicator("Keltner Channel Middle Band", "keltner-channel-middle-band", {{"period", period}, {"offset", offset}}) {}
 
 /**
  * @brief Calculate the Keltner Channel Middle Band values.
@@ -555,6 +584,8 @@ std::vector<double> KeltnerChannelMiddleBand::calculate(const std::vector<Candle
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
+            int period = std::get<int>(this->params.at("period"));
+
             std::vector<double> keltner_channel_middle_band_values(candles.size(), 0.0);
 
             if (candles.size() < period) {
@@ -582,7 +613,7 @@ std::vector<double> KeltnerChannelMiddleBand::calculate(const std::vector<Candle
  * @param period Period value. Default is 14.
  * @param offset Offset value. Default is 0.
  */
-UI::UI(int period, int offset) : Indicator(this->id + "-" + std::to_string(period) + "-" + std::to_string(offset), offset), period(period) {}
+UI::UI(int period, int offset) : Indicator("Ulcer Index", "ui", {{"period", period}, {"offset", offset}}) {}
 
 /**
  * @brief Calculate the Ulcer Index values.
@@ -596,6 +627,8 @@ std::vector<double> UI::calculate(const std::vector<Candle> &candles, bool norma
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
+            int period = std::get<int>(this->params.at("period"));
+
             std::vector<double> ui_values(candles.size(), 0.0);
 
             if (candles.size() < period) {
@@ -646,7 +679,7 @@ std::vector<double> UI::calculate(const std::vector<Candle> &candles, bool norma
  * @param period Period value. Default is 14.
  * @param offset Offset value. Default is 0.
  */
-StandardDeviation::StandardDeviation(int period, int offset) : Indicator(this->id + "-" + std::to_string(period) + "-" + std::to_string(offset), offset), period(period) {}
+StandardDeviation::StandardDeviation(int period, int offset) : Indicator("Standard Deviation", "standard-deviation", {{"period", period}, {"offset", offset}}) {}
 
 /**
  * @brief Calculate the Standard Deviation values.
@@ -660,6 +693,8 @@ std::vector<double> StandardDeviation::calculate(const std::vector<Candle> &cand
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
+            int period = std::get<int>(this->params.at("period"));
+
             std::vector<double> stddev_values(candles.size(), 0.0);
 
             if (candles.size() < period) {
@@ -682,7 +717,7 @@ std::vector<double> StandardDeviation::calculate(const std::vector<Candle> &cand
  * @param period Period value. Default is 14.
  * @param offset Offset value. Default is 0.
  */
-AveragePriceChange::AveragePriceChange(int period, int offset) : Indicator(this->id + "-" + std::to_string(period) + "-" + std::to_string(offset), offset), period(period) {}
+AveragePriceChange::AveragePriceChange(int period, int offset) : Indicator("Average Price Change", "average-price-change", {{"period", period}, {"offset", offset}}) {}
 
 /**
  * @brief Calculate the Average Price Change values.
@@ -696,6 +731,8 @@ std::vector<double> AveragePriceChange::calculate(const std::vector<Candle> &can
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
+            int period = std::get<int>(this->params.at("period"));
+            
             std::vector<double> average_price_change_values(candles.size(), 0.0);
 
             if (candles.size() < period) {

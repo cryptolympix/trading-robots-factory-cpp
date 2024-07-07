@@ -5,20 +5,15 @@
 #include <vector>
 #include <functional>
 #include <map>
-#include <variant>
 #include "indicator.hpp"
-
-// Define IndicatorParams as a variant of int, double, and string
-using IndicatorParams = std::variant<int, double, std::string>;
 
 /**
  * @brief Extract the parameters from the ID.
  * @param id_params The ID to extract the parameters from.
- * @param id_pattern The regex pattern to match the ID.
- * @return std::vector<T> The extracted parameters.
+ * @param id_params_pattern The regex pattern to match the ID.
+ * @return std::vector<IndicatorParam> The extracted parameters.
  */
-template <typename T>
-std::vector<T> extract_parameters(const std::string &id_params, const std::string &id_pattern);
+std::vector<IndicatorParam> extract_parameters(const std::string &id_params, const std::string &id_params_pattern);
 
 /**
  * @brief Build an indicator from the ID.
@@ -27,6 +22,6 @@ std::vector<T> extract_parameters(const std::string &id_params, const std::strin
  * @param params The parameters of the indicator.
  * @return Indicator The indicator.
  */
-Indicator *create_indicator_from_id(const std::string &id_params, std::vector<IndicatorParams> params);
+Indicator *create_indicator_from_id(const std::string &id_params, const std::vector<IndicatorParam> params);
 
 #endif // INDICATORS_BUILDER_HPP

@@ -135,7 +135,7 @@ nlohmann::json config_to_json(const Config &config)
             {
                 timeframe_json.push_back({
                     {"id_params", indicator->id_params},
-                    {"id_pattern", indicator->id_pattern},
+                    {"id_params_pattern", indicator->id_params_pattern},
                 });
             }
         }
@@ -440,10 +440,10 @@ Config config_from_json(const nlohmann::json &json)
                 throw std::runtime_error("Missing 'id_pattern' key in the JSON object");
             }
 
-            const std::string id_params = indicator["id_params"];
+            const std::string id_params_pattern = indicator["id_params_pattern"];
             const std::string id_pattern = indicator["id_pattern"];
-            const std::vector<IndicatorParams> params = extract_parameters<IndicatorParams>(id_params, id_pattern);
-            indicators_list.push_back(create_indicator_from_id(id_params, params));
+            const std::vector<IndicatorParam> params = extract_parameters(id_params_pattern, id_pattern);
+            indicators_list.push_back(create_indicator_from_id(id_params_pattern, params));
         }
         indicators[string_to_time_frame(timeframe)] = indicators_list;
     }

@@ -16,7 +16,7 @@
  *
  * @param offset Offset value. Default is 0.
  */
-CandleOpen::CandleOpen(int offset) : Indicator(this->id + "-" + std::to_string(offset), offset) {}
+CandleOpen::CandleOpen(int offset) : Indicator("Candle Open", "candle-open", {{"offset", offset}}) {}
 
 /**
  * @brief Calculate the CandleOpen values.
@@ -46,7 +46,7 @@ std::vector<double> CandleOpen::calculate(const std::vector<Candle> &candles, bo
  *
  * @param offset Offset value. Default is 0.
  */
-CandleHigh::CandleHigh(int offset) : Indicator(this->id + "-" + std::to_string(offset), offset) {}
+CandleHigh::CandleHigh(int offset) : Indicator("Candle High", "candle-high", {{"offset", offset}}) {}
 
 /**
  * @brief Calculate the CandleHigh values.
@@ -77,7 +77,7 @@ std::vector<double> CandleHigh::calculate(const std::vector<Candle> &candles, bo
  *
  * @param offset Offset value. Default is 0.
  */
-CandleLow::CandleLow(int offset) : Indicator(this->id + "-" + std::to_string(offset), offset) {}
+CandleLow::CandleLow(int offset) : Indicator("Candle Low", "candle-low", {{"offset", offset}}) {}
 
 /**
  * @brief Calculate the CandleLow values.
@@ -108,7 +108,7 @@ std::vector<double> CandleLow::calculate(const std::vector<Candle> &candles, boo
  *
  * @param offset Offset value. Default is 0.
  */
-CandleClose::CandleClose(int offset) : Indicator(this->id + "-" + std::to_string(offset), offset) {}
+CandleClose::CandleClose(int offset) : Indicator("Candle Close", "candle-close", {{"offset", offset}}) {}
 
 /**
  * @brief Calculate the CandleClose values.
@@ -139,7 +139,7 @@ std::vector<double> CandleClose::calculate(const std::vector<Candle> &candles, b
  *
  * @param offset Offset value. Default is 0.
  */
-CandleTickVolume::CandleTickVolume(int offset) : Indicator(this->id + "-" + std::to_string(offset), offset) {}
+CandleTickVolume::CandleTickVolume(int offset) : Indicator("Candle Tick Volume", "candle-tick-volume", {{"offset", offset}}) {}
 
 /**
  * @brief Calculate the CandleTickVolume values.
@@ -170,7 +170,7 @@ std::vector<double> CandleTickVolume::calculate(const std::vector<Candle> &candl
  *
  * @param offset Offset value. Default is 0.
  */
-CandleVolume::CandleVolume(int offset) : Indicator(this->id + "-" + std::to_string(offset), offset) {}
+CandleVolume::CandleVolume(int offset) : Indicator("Candle Volume", "candle-volume", {{"offset", offset}}) {}
 
 /**
  * @brief Calculate the CandleVolume values.
@@ -201,7 +201,7 @@ std::vector<double> CandleVolume::calculate(const std::vector<Candle> &candles, 
  *
  * @param offset Offset value. Default is 0.
  */
-WhiteCandle::WhiteCandle(int offset) : Indicator(this->id + "-" + std::to_string(offset), offset, {0, 1}) {}
+WhiteCandle::WhiteCandle(int offset) : Indicator("White Candle", "white-candle", {{"offset", offset}}) {}
 
 /**
  * @brief Calculate the WhiteCandle values.
@@ -232,7 +232,7 @@ std::vector<double> WhiteCandle::calculate(const std::vector<Candle> &candles, b
  *
  * @param offset Offset value. Default is 0.
  */
-BlackCandle::BlackCandle(int offset) : Indicator(this->id + "-" + std::to_string(offset), offset, {0, 1}) {}
+BlackCandle::BlackCandle(int offset) : Indicator("Black Candle", "black-candle", {{"offset", offset}}) {}
 
 /**
  * @brief Calculate the BlackCandle values.
@@ -263,7 +263,7 @@ std::vector<double> BlackCandle::calculate(const std::vector<Candle> &candles, b
  *
  * @param offset Offset value. Default is 0.
  */
-CandleBody::CandleBody(int offset) : Indicator(this->id + "-" + std::to_string(offset), offset, {0, 1}) {}
+CandleBody::CandleBody(int offset) : Indicator("Candle Body", "candle-body", {{"offset", offset}}, {0, 1}) {}
 
 /**
  * @brief Calculate the CandleBody values.
@@ -300,7 +300,7 @@ std::vector<double> CandleBody::calculate(const std::vector<Candle> &candles, bo
  *
  * @param offset Offset value. Default is 0.
  */
-CandleShadowUpper::CandleShadowUpper(int offset) : Indicator(this->id + "-" + std::to_string(offset), offset, {0, 1}) {}
+CandleShadowUpper::CandleShadowUpper(int offset) : Indicator("Candle Shadow Upper", "candle-shadow-upper", {{"offset", offset}}, {0, 1}) {}
 
 /**
  * @brief Calculate the CandleShadowUpper values.
@@ -335,7 +335,7 @@ std::vector<double> CandleShadowUpper::calculate(const std::vector<Candle> &cand
  *
  * @param offset Offset value. Default is 0.
  */
-CandleShadowLower::CandleShadowLower(int offset) : Indicator(this->id + "-" + std::to_string(offset), offset, {0, 1}) {}
+CandleShadowLower::CandleShadowLower(int offset) : Indicator("Candle Shadow Lower", "candle-shadow-lower", {{"offset", offset}}, {0, 1}) {}
 
 /**
  * @brief Calculate the CandleShadowLower values.
@@ -370,7 +370,7 @@ std::vector<double> CandleShadowLower::calculate(const std::vector<Candle> &cand
  *
  * @param offset Offset value. Default is 0.
  */
-CandlePriceChange::CandlePriceChange(int offset) : Indicator(this->id + "-" + std::to_string(offset), offset) {}
+CandlePriceChange::CandlePriceChange(int offset) : Indicator("Candle Price Change", "candle-price-change", {{"offset", offset}}) {}
 
 /**
  * @brief Calculate the CandlePriceChange values.
@@ -404,8 +404,7 @@ std::vector<double> CandlePriceChange::calculate(const std::vector<Candle> &cand
  * @param right_bars Number of right bars.
  * @param offset Offset value. Default is 0.
  */
-PivotHigh::PivotHigh(std::string source, int left_bars, int right_bars, int offset)
-    : Indicator(this->id + "-" + source + "-" + std::to_string(left_bars) + "-" + std::to_string(right_bars) + "-" + std::to_string(offset), offset, {0, 1}), source(source), left_bars(left_bars), right_bars(right_bars) {}
+PivotHigh::PivotHigh(std::string source, int left_bars, int right_bars, int offset) : Indicator("Pivot High", "pivot-high", {{"source", source}, {"left_bars", left_bars}, {"right_bars", right_bars}, {"offset", offset}}, {0, 1}) {}
 
 /**
  * @brief Calculate the PivotHigh values.
@@ -419,6 +418,10 @@ std::vector<double> PivotHigh::calculate(const std::vector<Candle> &candles, boo
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
+            int left_bars = std::get<int>(this->params.at("left_bars"));
+            int right_bars = std::get<int>(this->params.at("right_bars"));
+            std::string source = std::get<std::string>(this->params.at("source"));
+
             std::vector<double> values(candles.size(), 0); // Initialize values vector with size of candles
             std::vector<double> source_candles = get_candles_with_source(candles, source);
 
@@ -445,8 +448,7 @@ std::vector<double> PivotHigh::calculate(const std::vector<Candle> &candles, boo
  * @param right_bars Number of right bars.
  * @param offset Offset value. Default is 0.
  */
-PivotLow::PivotLow(std::string source, int left_bars, int right_bars, int offset)
-    : Indicator(this->id + "-" + source + "-" + std::to_string(left_bars) + "-" + std::to_string(right_bars) + "-" + std::to_string(offset), offset, {0, 1}), source(source), left_bars(left_bars), right_bars(right_bars) {}
+PivotLow::PivotLow(std::string source, int left_bars, int right_bars, int offset) : Indicator("Pivot Low", "pivot-low", {{"source", source}, {"left_bars", left_bars}, {"right_bars", right_bars}, {"offset", offset}}, {0, 1}) {}
 
 /**
  * @brief Calculate the PivotLow values.
@@ -460,6 +462,10 @@ std::vector<double> PivotLow::calculate(const std::vector<Candle> &candles, bool
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
+            int left_bars = std::get<int>(this->params.at("left_bars"));
+            int right_bars = std::get<int>(this->params.at("right_bars"));
+            std::string source = std::get<std::string>(this->params.at("source"));
+
             std::vector<double> values(candles.size(), 0); // Initialize values vector with size of candles
             std::vector<double> source_candles = get_candles_with_source(candles, source);
 
@@ -487,8 +493,7 @@ std::vector<double> PivotLow::calculate(const std::vector<Candle> &candles, bool
  * @param right_bars Number of right bars.
  * @param offset Offset value. Default is 0.
  */
-PivotHighValue::PivotHighValue(std::string source, int left_bars, int right_bars, int offset)
-    : Indicator(this->id + "-" + source + "-" + std::to_string(left_bars) + "-" + std::to_string(right_bars) + "-" + std::to_string(offset), offset), source(source), left_bars(left_bars), right_bars(right_bars) {}
+PivotHighValue::PivotHighValue(std::string source, int left_bars, int right_bars, int offset) : Indicator("Pivot High Value", "pivot-high-value", {{"source", source}, {"left_bars", left_bars}, {"right_bars", right_bars}, {"offset", offset}}, {0, 1}) {}
 
 /**
  * @brief Calculate the PivotHighValue values.
@@ -502,6 +507,11 @@ std::vector<double> PivotHighValue::calculate(const std::vector<Candle> &candles
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
+            int left_bars = std::get<int>(this->params.at("left_bars"));
+            int right_bars = std::get<int>(this->params.at("right_bars"));
+            std::string source = std::get<std::string>(this->params.at("source"));
+            int offset = std::get<int>(this->params.at("offset"));
+
             std::vector<double> values(candles.size(), 0); // Initialize values vector with size of candles
             std::vector<double> pivots = PivotHigh("high", left_bars, right_bars, offset).calculate(candles, false);
             std::vector<double> source_candles = get_candles_with_source(candles, source);
@@ -541,8 +551,7 @@ std::vector<double> PivotHighValue::calculate(const std::vector<Candle> &candles
  * @param right_bars Number of right bars.
  * @param offset Offset value. Default is 0.
  */
-PivotLowValue::PivotLowValue(std::string source, int left_bars, int right_bars, int offset)
-    : Indicator(this->id + "-" + source + "-" + std::to_string(left_bars) + "-" + std::to_string(right_bars) + "-" + std::to_string(offset), offset), source(source), left_bars(left_bars), right_bars(right_bars) {}
+PivotLowValue::PivotLowValue(std::string source, int left_bars, int right_bars, int offset) : Indicator("Pivot Low Value", "pivot-low-value", {{"source", source}, {"left_bars", left_bars}, {"right_bars", right_bars}, {"offset", offset}}, {0, 1}) {}
 
 /**
  * @brief Calculate the PivotLowValue values.
@@ -556,6 +565,11 @@ std::vector<double> PivotLowValue::calculate(const std::vector<Candle> &candles,
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
+            int left_bars = std::get<int>(this->params.at("left_bars"));
+            int right_bars = std::get<int>(this->params.at("right_bars"));
+            std::string source = std::get<std::string>(this->params.at("source"));
+            int offset = std::get<int>(this->params.at("offset"));
+
             std::vector<double> values(candles.size(), 0); // Initialize values vector with size of candles
             std::vector<double> pivots = PivotLow("low", left_bars, right_bars, offset).calculate(candles, false);
             std::vector<double> source_candles = get_candles_with_source(candles, source);
@@ -594,7 +608,7 @@ std::vector<double> PivotLowValue::calculate(const std::vector<Candle> &candles,
  * @param right_bars Number of right bars.
  * @param offset Offset value. Default is 0.
  */
-HighestHigh::HighestHigh(int left_bars, int right_bars, int offset) : Indicator(this->id + "-" + std::to_string(left_bars) + "-" + std::to_string(right_bars) + "-" + std::to_string(offset), offset), left_bars(left_bars), right_bars(right_bars) {}
+HighestHigh::HighestHigh(int left_bars, int right_bars, int offset) : Indicator("Highest High", "highest-high", {{"left_bars", left_bars}, {"right_bars", right_bars}, {"offset", offset}}) {}
 
 /**
  * @brief Calculate the HighestHigh values.
@@ -608,8 +622,10 @@ std::vector<double> HighestHigh::calculate(const std::vector<Candle> &candles, b
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
-            std::vector<double> values(candles.size(), 0); // Initialize values vector with size of candles
+            int left_bars = std::get<int>(this->params.at("left_bars"));
+            int right_bars = std::get<int>(this->params.at("right_bars"));
 
+            std::vector<double> values(candles.size(), 0); // Initialize values vector with size of candles
             std::vector<double> highs_values = get_candles_with_source(candles, "high");
 
             for (size_t i = 0; i < candles.size(); ++i)
@@ -645,7 +661,7 @@ std::vector<double> HighestHigh::calculate(const std::vector<Candle> &candles, b
  * @param right_bars Number of right bars.
  * @param offset Offset value. Default is 0.
  */
-LowestLow::LowestLow(int left_bars, int right_bars, int offset) : Indicator(this->id + "-" + std::to_string(left_bars) + "-" + std::to_string(right_bars) + "-" + std::to_string(offset), offset), left_bars(left_bars), right_bars(right_bars) {}
+LowestLow::LowestLow(int left_bars, int right_bars, int offset) : Indicator("Lowest Low", "lowest-low", {{"left_bars", left_bars}, {"right_bars", right_bars}, {"offset", offset}}) {}
 
 /**
  * @brief Calculate the LowestLow values.
@@ -659,8 +675,10 @@ std::vector<double> LowestLow::calculate(const std::vector<Candle> &candles, boo
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
-            std::vector<double> values(candles.size(), 0); // Initialize values vector with size of candles
+            int left_bars = std::get<int>(this->params.at("left_bars"));
+            int right_bars = std::get<int>(this->params.at("right_bars"));
 
+            std::vector<double> values(candles.size(), 0); // Initialize values vector with size of candles
             std::vector<double> lows_values = get_candles_with_source(candles, "low");
 
             for (size_t i = 0; i < candles.size(); ++i)
@@ -696,7 +714,7 @@ std::vector<double> LowestLow::calculate(const std::vector<Candle> &candles, boo
  * @param right_bars Number of right bars.
  * @param offset Offset value. Default is 0.
  */
-PeakDistance::PeakDistance(int left_bars, int right_bars, int offset) : Indicator(this->id + "-" + std::to_string(left_bars) + "-" + std::to_string(right_bars) + "-" + std::to_string(offset), offset), left_bars(left_bars), right_bars(right_bars) {}
+PeakDistance::PeakDistance(int left_bars, int right_bars, int offset) : Indicator("Peak Distance", "peak-distance", {{"left_bars", left_bars}, {"right_bars", right_bars}, {"offset", offset}}) {}
 
 /**
  * @brief Calculate the PeakDistance values.
@@ -710,8 +728,11 @@ std::vector<double> PeakDistance::calculate(const std::vector<Candle> &candles, 
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
-            std::vector<double> values(candles.size(), 0); // Initialize values vector with size of candles
+            int left_bars = std::get<int>(this->params.at("left_bars"));
+            int right_bars = std::get<int>(this->params.at("right_bars"));
+            int offset = std::get<int>(this->params.at("offset"));
 
+            std::vector<double> values(candles.size(), 0); // Initialize values vector with size of candles
             std::vector<double> highest_highs = HighestHigh(left_bars, right_bars, offset).calculate(candles, false);
             std::vector<double> lowest_lows = LowestLow(left_bars, right_bars, offset).calculate(candles, false);
 
@@ -735,7 +756,7 @@ std::vector<double> PeakDistance::calculate(const std::vector<Candle> &candles, 
  * @param right_bars Number of right bars.
  * @param offset Offset value. Default is 0.
  */
-PeakCandleDistance::PeakCandleDistance(int left_bars, int right_bars, int offset) : Indicator(this->id + "-" + std::to_string(left_bars) + "-" + std::to_string(right_bars) + "-" + std::to_string(offset), offset, {0, left_bars + right_bars}), left_bars(left_bars), right_bars(right_bars) {}
+PeakCandleDistance::PeakCandleDistance(int left_bars, int right_bars, int offset) : Indicator("Peak Candle Distance", "peak-candle-distance", {{"left_bars", left_bars}, {"right_bars", right_bars}, {"offset", offset}}) {}
 
 /**
  * @brief Calculate the PeakCandleDistance values.
@@ -749,9 +770,11 @@ std::vector<double> PeakCandleDistance::calculate(const std::vector<Candle> &can
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
-            std::vector<double> values(candles.size(), 0); // Initialize values vector with size of candles
+            int left_bars = std::get<int>(this->params.at("left_bars"));
+            int right_bars = std::get<int>(this->params.at("right_bars"));
+            int offset = std::get<int>(this->params.at("offset"));
 
-            // Find the pivots
+            std::vector<double> values(candles.size(), 0); // Initialize values vector with size of candles
             std::vector<double> pivots_high_values = PivotHigh("high", left_bars, right_bars, offset).calculate(candles, false);
             std::vector<double> pivots_low_values = PivotLow("low", left_bars, right_bars, offset).calculate(candles, false);
 

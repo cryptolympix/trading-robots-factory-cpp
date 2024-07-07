@@ -1,3 +1,4 @@
+#include <string>
 #include <vector>
 #include <cmath>
 #include <algorithm>
@@ -17,7 +18,7 @@
  *
  * @param offset Offset value. Default is 0.
  */
-AwesomeOscillator::AwesomeOscillator(int offset) : Indicator(this->id + "-" + std::to_string(offset), offset) {}
+AwesomeOscillator::AwesomeOscillator(int offset) : Indicator("Awesome Oscillator", "awesome-oscillator", {{"offset", 1}}) {}
 
 /**
  * @brief Calculate the AwesomeOscillator values.
@@ -54,7 +55,7 @@ std::vector<double> AwesomeOscillator::calculate(const std::vector<Candle> &cand
  * @param slowest_sc_period Period for the slowest Smoothing Constant (SC). Default is 30.
  * @param offset Offset value. Default is 0.
  */
-KAMA::KAMA(int er_period, int fastest_sc_period, int slowest_sc_period, int offset) : Indicator(this->id + "-" + std::to_string(er_period) + "-" + std::to_string(fastest_sc_period) + "-" + std::to_string(slowest_sc_period) + "-" + std::to_string(offset), offset), er_period(er_period), fastest_sc_period(fastest_sc_period), slowest_sc_period(slowest_sc_period) {}
+KAMA::KAMA(int er_period, int fastest_sc_period, int slowest_sc_period, int offset) : Indicator("Kaufman's Adaptive Moving Average", "kama", {{"er_period", er_period}, {"fastest_sc_period", fastest_sc_period}, {"slowest_sc_period", slowest_sc_period}, {"offset", 1}}) {}
 
 /**
  * @brief Calculate Kaufman's Adaptive Moving Average (KAMA).
@@ -69,6 +70,7 @@ std::vector<double> KAMA::calculate(const std::vector<Candle> &candles, bool nor
         candles, [this](std::vector<Candle> candles)
         {
             std::vector<double> kama_values(candles.size(), 0.0);
+            int slowest_sc_period = std::get<int>(params.at("slowest_sc_period")); 
 
             if (candles.size() < static_cast<size_t>(slowest_sc_period))
             {
@@ -103,6 +105,7 @@ std::vector<double> KAMA::calculate(const std::vector<Candle> &candles, bool nor
 std::vector<double> KAMA::calculate_er(const std::vector<double> &closes) const
 {
     std::vector<double> er_values(closes.size(), 0.0);
+    int er_period = std::get<int>(params.at("er_period"));
 
     for (size_t i = er_period; i < closes.size(); ++i)
     {
@@ -130,6 +133,9 @@ std::vector<double> KAMA::calculate_sc(const std::vector<double> &er_values) con
 {
     std::vector<double> sc_values(er_values.size(), 0.0);
 
+    int fastest_sc_period = std::get<int>(params.at("fastest_sc_period"));
+    int slowest_sc_period = std::get<int>(params.at("slowest_sc_period"));
+
     double fastest_sc = 2.0 / (fastest_sc_period + 1);
     double slowest_sc = 2.0 / (slowest_sc_period + 1);
 
@@ -150,10 +156,13 @@ std::vector<double> KAMA::calculate_sc(const std::vector<double> &er_values) con
 double KAMA::calculate_initial_kama(const std::vector<double> &closes) const
 {
     double sum = 0.0;
+    int slowest_sc_period = std::get<int>(params.at("slowest_sc_period"));
+
     for (int i = 0; i < slowest_sc_period; ++i)
     {
         sum += closes[i];
     }
+
     return sum / slowest_sc_period;
 }
 
@@ -165,7 +174,7 @@ double KAMA::calculate_initial_kama(const std::vector<double> &closes) const
  * @param period The period for calculating Money Flow Index (MFI).
  * @param offset Offset value. Default is 0.
  */
-MFI::MFI(int period, int offset) : Indicator(this->id + "-" + std::to_string(period) + "-" + std::to_string(offset), offset, {0, 100}), period(period) {}
+MFI::MFI(int period, int offset) : Indicator("Money Flow Index", "mfi", {{"period", period}, {"offset", offset}}, {0, 100}) {}
 
 /**
  * @brief Calculate the Money Flow Index (MFI) values.
@@ -178,6 +187,8 @@ std::vector<double> MFI::calculate(const std::vector<Candle> &candles, bool norm
 {
     // Initialize result vector with the same size as input
     std::vector<double> mfi_values(candles.size(), 0.0);
+    int period = std::get<int>(params.at("period"));
+    int offset = std::get<int>(params.at("offset"));
 
     if (candles.size() < static_cast<size_t>(period + offset))
     {
@@ -259,7 +270,9 @@ std::vector<double> MFI::calculate(const std::vector<Candle> &candles, bool norm
  * @param long_period The long period for calculating PPO (default is 26).
  * @param offset The offset value (default is 0).
  */
-PPO::PPO(int short_period, int long_period, int offset) : Indicator(this->id + "-" + std::to_string(short_period) + "-" + std::to_string(long_period) + "-" + std::to_string(offset), offset), short_period(short_period), long_period(long_period) {}
+PPO::PPO(int short_period, int long_period, int offset) : Indicator("Percentage Price Oscillator", "ppo", {{"short_period", short_period}, {"long_period", long_period}, {"offset", offset}})
+{
+}
 
 /**
  * @brief Calculate the Percentage Price Oscillator (PPO) for a given set of candles.
@@ -273,6 +286,9 @@ std::vector<double> PPO::calculate(const std::vector<Candle> &candles, bool norm
     return Indicator::calculate(
         candles, [this](const std::vector<Candle> &candles) -> std::vector<double>
         {
+            int short_period = std::get<int>(params.at("short_period"));
+            int long_period = std::get<int>(params.at("long_period"));
+
             if (candles.size() < static_cast<size_t>(long_period)) {
                 return std::vector<double>(candles.size(), 0.0); // Not enough data
             }
@@ -305,7 +321,7 @@ std::vector<double> PPO::calculate(const std::vector<Candle> &candles, bool norm
  * @param signal_period The signal period used for calculating the PVO signal line. Default is 9.
  * @param offset Offset value. Default is 0.
  */
-PVO::PVO(int fast_period, int slow_period, int signal_period, int offset) : Indicator(this->id + "-" + std::to_string(fast_period) + "-" + std::to_string(slow_period) + "-" + std::to_string(signal_period) + "-" + std::to_string(offset), offset), fast_period(fast_period), slow_period(slow_period), signal_period(signal_period)
+PVO::PVO(int fast_period, int slow_period, int signal_period, int offset) : Indicator("Percentage Volume Oscillator", "pvo", {{"fast_period", fast_period}, {"slow_period", slow_period}, {"signal_period", signal_period}, {"offset", offset}})
 {
 }
 
@@ -323,6 +339,8 @@ std::vector<double> PVO::calculate(const std::vector<Candle> &candles, bool norm
         {
             std::vector<double> volume_values = get_candles_with_source(candles, "volume");
             std::vector<double> pvo_values(candles.size(), 0.0); // Initialize result vector with the same size as input
+            int fast_period = std::get<int>(params.at("fast_period"));
+            int slow_period = std::get<int>(params.at("slow_period"));
 
             if (volume_values.size() < static_cast<size_t>(slow_period)) {
                 return pvo_values;
@@ -360,7 +378,7 @@ std::vector<double> PVO::calculate(const std::vector<Candle> &candles, bool norm
  * @param period Period value.
  * @param offset Offset value. Default is 0.
  */
-ROC::ROC(int period, int offset) : Indicator(this->id + "-" + std::to_string(offset), offset), period(period) {}
+ROC::ROC(int period, int offset) : Indicator("Rate of Change", "roc", {{"period", period}, {"offset", offset}}) {}
 
 /**
  * @brief Calculate the Rate of Change (ROC) values.
@@ -374,6 +392,7 @@ std::vector<double> ROC::calculate(const std::vector<Candle> &candles, bool norm
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles)
         {
+            int period = std::get<int>(params.at("period"));
             std::vector<double> result(candles.size(), 0.0); // Initialize result vector with the same size as input
             result.reserve(candles.size());
 
@@ -403,7 +422,7 @@ std::vector<double> ROC::calculate(const std::vector<Candle> &candles, bool norm
  * @param period Period value. Default is 14.
  * @param offset Offset value. Default is 0.
  */
-RSI::RSI(int period, int offset) : Indicator(this->id + "-" + std::to_string(period) + "-" + std::to_string(offset), offset, {0, 100}), period(period) {}
+RSI::RSI(int period, int offset) : Indicator("Relative Strength Index", "rsi", {{"period", period}, {"offset", offset}}, {0, 100}) {}
 
 /**
  * @brief Calculate the Relative Strength Index (RSI) values.
@@ -417,6 +436,8 @@ std::vector<double> RSI::calculate(const std::vector<Candle> &candles, bool norm
     return Indicator::calculate(
         candles, [this](const std::vector<Candle> &candles) -> std::vector<double>
         {
+            int period = std::get<int>(params.at("period"));
+
             if (candles.size() < static_cast<size_t>(period)) {
                 return std::vector<double>(candles.size(), 0.0); // Not enough data
             }
@@ -477,7 +498,7 @@ std::vector<double> RSI::calculate(const std::vector<Candle> &candles, bool norm
  * @param sma_period SMA Period value. Default is 3.
  * @param offset Offset value. Default is 0.
  */
-StochasticRSI::StochasticRSI(int period, int sma_period, int offset) : Indicator(this->id + "-" + std::to_string(period) + "-" + std::to_string(sma_period) + "-" + std::to_string(offset), offset, {0, 100}), period(period), sma_period(sma_period) {}
+StochasticRSI::StochasticRSI(int period, int sma_period, int offset) : Indicator("Stochastic RSI", "stochastic-rsi", {{"period", period}, {"sma_period", sma_period}, {"offset", offset}}, {0, 100}) {}
 
 /**
  * @brief Calculate the Stochastic Relative Strength Index (Stoch RSI) values.
@@ -491,6 +512,9 @@ std::vector<double> StochasticRSI::calculate(const std::vector<Candle> &candles,
     return Indicator::calculate(
         candles, [this](const std::vector<Candle> &candles) -> std::vector<double>
         {
+            int period = std::get<int>(params.at("period"));
+            int sma_period = std::get<int>(params.at("sma_period"));
+
             if (candles.size() < static_cast<size_t>(period)) {
                 return std::vector<double>(candles.size(), 0.0); // Not enough data
             }
@@ -528,7 +552,7 @@ std::vector<double> StochasticRSI::calculate(const std::vector<Candle> &candles,
  * @param d_period D Period value. Default is 3.
  * @param offset Offset value. Default is 0.
  */
-StochasticOscillator::StochasticOscillator(int k_period, int d_period, int offset) : Indicator(this->id + "-" + std::to_string(k_period) + "-" + std::to_string(d_period) + "-" + std::to_string(offset), offset, {0, 100}), k_period(k_period), d_period(d_period) {}
+StochasticOscillator::StochasticOscillator(int k_period, int d_period, int offset) : Indicator("Stochastic Oscillator", "stochastic-oscillator", {{"k_period", k_period}, {"d_period", d_period}, {"offset", offset}}, {0, 100}) {}
 
 /**
  * @brief Calculate the Stochastic Oscillator values.
@@ -542,6 +566,9 @@ std::vector<double> StochasticOscillator::calculate(const std::vector<Candle> &c
     return Indicator::calculate(
         candles, [this](const std::vector<Candle> &candles) -> std::vector<double>
         {
+            int k_period = std::get<int>(params.at("k_period"));
+            int d_period = std::get<int>(params.at("d_period"));
+
             if (candles.size() < static_cast<size_t>(k_period)) {
                 return std::vector<double>(candles.size(), 0.0); // Not enough data
             }
@@ -589,7 +616,7 @@ std::vector<double> StochasticOscillator::calculate(const std::vector<Candle> &c
  * @param long_period Long period value. Default is 25.
  * @param offset Offset value. Default is 0.
  */
-TSI::TSI(int short_period, int long_period, int offset) : Indicator(this->id + "-" + std::to_string(short_period) + "-" + std::to_string(long_period) + "-" + std::to_string(offset), offset, {-100, 100}), short_period(short_period), long_period(long_period) {}
+TSI::TSI(int short_period, int long_period, int offset) : Indicator("True Strength Index", "tsi", {{"short_period", short_period}, {"long_period", long_period}, {"offset", offset}}, {-100, 100}) {}
 
 /**
  * @brief Calculate the True Strength Index values.
@@ -604,6 +631,8 @@ std::vector<double> TSI::calculate(const std::vector<Candle> &candles, bool norm
         candles, [this](const std::vector<Candle> &candles) -> std::vector<double>
         {
             std::vector<double> result(candles.size(), 0.0);
+            int short_period = std::get<int>(params.at("short_period"));
+            int long_period = std::get<int>(params.at("long_period"));
 
             if (candles.size() < static_cast<size_t>(long_period)) {
                 return result; // Not enough data
@@ -652,7 +681,7 @@ std::vector<double> TSI::calculate(const std::vector<Candle> &candles, bool norm
  * @param period3 Period value for the third time frame. Default is 28.
  * @param offset Offset value. Default is 0.
  */
-UO::UO(int period1, int period2, int period3, int offset) : Indicator(this->id + "-" + std::to_string(period1) + "-" + std::to_string(period2) + std::to_string(period3) + "-" + std::to_string(offset), offset, {0, 100}), period1(period1), period2(period2), period3(period3) {}
+UO::UO(int period1, int period2, int period3, int offset) : Indicator("Ultimate Oscillator", "uo", {{"period1", period1}, {"period2", period2}, {"period3", period3}, {"offset", offset}}, {0, 100}) {}
 
 /**
  * @brief Calculate the Ultimate Oscillator values.
@@ -667,6 +696,9 @@ std::vector<double> UO::calculate(const std::vector<Candle> &candles, bool norma
         candles, [this](const std::vector<Candle> &candles) -> std::vector<double>
         {
             std::vector<double> result(candles.size(), 0.0);
+            int period1 = std::get<int>(params.at("period1"));
+            int period2 = std::get<int>(params.at("period2"));
+            int period3 = std::get<int>(params.at("period3"));
 
             if (candles.size() < static_cast<size_t>(period3)) {
                 return result; // Not enough data
@@ -718,7 +750,7 @@ std::vector<double> UO::calculate(const std::vector<Candle> &candles, bool norma
  * @param period The period for calculating Williams %R.
  * @param offset Offset value. Default is 0.
  */
-WPR::WPR(int period, int offset) : Indicator(this->id + "-" + std::to_string(period) + "-" + std::to_string(offset), offset, {-100, 0}), period(period) {}
+WPR::WPR(int period, int offset) : Indicator("Williams Percent R", "wpr", {{"period", period}, {"offset", offset}}, {-100, 0}) {}
 
 /**
  * @brief Calculate the Williams Percent R values.
@@ -733,6 +765,7 @@ std::vector<double> WPR::calculate(const std::vector<Candle> &candles, bool norm
         candles, [this](const std::vector<Candle> &candles) -> std::vector<double>
         {
             std::vector<double> result(candles.size(), 0.0); // Initialize result vector with the same size as input
+            int period = std::get<int>(params.at("period"));
 
             if (candles.size() < static_cast<size_t>(period)) {
                 return result; // Not enough data

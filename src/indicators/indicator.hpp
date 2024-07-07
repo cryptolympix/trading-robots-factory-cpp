@@ -6,7 +6,12 @@
 #include <functional>
 #include <utility>
 #include <regex>
+#include <variant>
+#include <unordered_map>
 #include "../types.hpp"
+
+// Define IndicatorParam as a variant of int, double, and string
+using IndicatorParam = std::variant<int, double, std::string>;
 
 // Forward declaration
 struct Candle;
@@ -17,21 +22,22 @@ struct Candle;
 class Indicator
 {
 public:
-    std::string label;                      // The label of the indicator.
-    std::string id;                         // The id of the indicator.
-    std::string id_params;                  // The id of the indicator with parameters.
-    int offset;                             // The offset of the indicator.
-    std::string id_pattern;                 // The regex pattern to match the ID.
-    std::pair<double, double> values_range; // The range of values.
+    std::string label;                                      // The label of the indicator.
+    std::string id;                                         // The id of the indicator.
+    std::string id_params;                                  // The id of the indicator with parameters.
+    std::string id_params_pattern;                          // The regex pattern to match the ID with parameters.
+    std::unordered_map<std::string, IndicatorParam> params; // A map of the parameters.
+    std::pair<double, double> values_range;                 // The range of values.
 
     /**
      * @brief Construct a new Indicator::Indicator object.
      *
-     * @param id_params The id of the indicator with parameters.
-     * @param offset The offset of the indicator.
+     * @param label The label of the indicator.
+     * @param id The id of the indicator.
+     * @param params The parameters of the indicator.
      * @param values_range The range of values.
      */
-    Indicator(std::string id_params, int offset = 0, std::pair<double, double> values_range = std::make_pair(0, 0));
+    Indicator(std::string label, std::string id, std::unordered_map<std::string, IndicatorParam> params, std::pair<double, double> values_range = std::make_pair(0, 0));
 
     /**
      * @brief Calculate the indicator.

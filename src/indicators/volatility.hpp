@@ -13,10 +13,6 @@
 class ATR : public Indicator
 {
 public:
-    std::string label = "Average True Range";
-    std::string id = "atr";
-    std::string id_pattern = R"(atr-(\d+)-(\d+))";
-
     /**
      * @brief Construct a new ATR object.
      *
@@ -42,8 +38,6 @@ private:
      * @return std::vector<double> The calculated True Range values.
      */
     std::vector<double> calculateTrueRange(const std::vector<Candle> &candles) const;
-
-    int period;
 };
 
 // *****************************************************************************
@@ -51,10 +45,6 @@ private:
 class BollingerChannelHighBand : public Indicator
 {
 public:
-    std::string label = "Bollinger Channel High Band";
-    std::string id = "bollinger-channel-high-band";
-    std::string id_pattern = R"(bollinger-channel-high-band-(\d+)-(\d+.\d+)-(\d+))";
-
     /**
      * @brief Construct a new BollingerChannelHighBand object.
      *
@@ -72,10 +62,6 @@ public:
      * @return std::vector<double> Vector containing calculated values.
      */
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
-
-private:
-    int period;
-    double multiplier;
 };
 
 // *****************************************************************************
@@ -83,10 +69,6 @@ private:
 class BollingerChannelLowBand : public Indicator
 {
 public:
-    std::string label = "Bollinger Channel Low Band";
-    std::string id = "bollinger-channel-low-band";
-    std::string id_pattern = R"(bollinger-channel-low-band-(\d+)-(\d+.\d+)-(\d+))";
-
     /**
      * @brief Construct a new BollingerChannelLowBand object.
      *
@@ -104,10 +86,6 @@ public:
      * @return std::vector<double> Vector containing calculated values.
      */
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
-
-private:
-    int period;
-    double multiplier;
 };
 
 // *****************************************************************************
@@ -115,10 +93,6 @@ private:
 class BollingerChannelMiddleBand : public Indicator
 {
 public:
-    std::string label = "Bollinger Channel Middle Band";
-    std::string id = "bollinger-channel-middle-band";
-    std::string id_pattern = R"(bollinger-channel-middle-band-(\d+)-(\d+))";
-
     /**
      * @brief Construct a new BollingerChannelMiddleBand object.
      *
@@ -135,9 +109,6 @@ public:
      * @return std::vector<double> Vector containing calculated values.
      */
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
-
-private:
-    int period;
 };
 
 // *****************************************************************************
@@ -156,10 +127,6 @@ private:
 class BollingerChannelPercentageBand : public Indicator
 {
 public:
-    std::string label = "Bollinger Channel Percentage Band";
-    std::string id = "bollinger-channel-percentage-band";
-    std::string id_pattern = R"(bollinger-channel-percentage-band-(\d+)-(\d+.\d+)-(\d+))";
-
     /**
      * @brief Construct a new BollingerChannelPercentageBand object.
      *
@@ -177,10 +144,6 @@ public:
      * @return std::vector<double> Vector containing calculated values.
      */
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
-
-private:
-    int period;
-    double multiplier;
 };
 
 // *****************************************************************************
@@ -188,10 +151,6 @@ private:
 class BollingerChannelWidthBand : public Indicator
 {
 public:
-    std::string label = "Bollinger Channel Width Band";
-    std::string id = "bollinger-channel-width-band";
-    std::string id_pattern = R"(bollinger-channel-width-band-(\d+)-(\d+.\d+)-(\d+))";
-
     /**
      * @brief Construct a new BollingerChannelWidthBand object.
      *
@@ -209,10 +168,6 @@ public:
      * @return std::vector<double> Vector containing calculated values.
      */
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
-
-private:
-    int period;
-    double multiplier;
 };
 
 // *****************************************************************************
@@ -220,10 +175,6 @@ private:
 class DonchianChannelHighBand : public Indicator
 {
 public:
-    std::string label = "Donchian Channel High Band";
-    std::string id = "donchian-channel-high-band";
-    std::string id_pattern = R"(donchian-channel-high-band-(\d+)-(\d+))";
-
     /**
      * @brief Construct a new DonchianChannelHighBand object.
      *
@@ -240,9 +191,6 @@ public:
      * @return std::vector<double> Vector containing calculated values.
      */
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
-
-private:
-    int period;
 };
 
 // *****************************************************************************
@@ -250,10 +198,6 @@ private:
 class DonchianChannelLowBand : public Indicator
 {
 public:
-    std::string label = "Donchian Channel Low Band";
-    std::string id = "donchian-channel-low-band";
-    std::string id_pattern = R"(donchian-channel-low-band-(\d+)-(\d+))";
-
     /**
      * @brief Construct a new DonchianChannelLowBand object.
      *
@@ -270,9 +214,6 @@ public:
      * @return std::vector<double> Vector containing calculated values.
      */
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
-
-private:
-    int period;
 };
 
 // *****************************************************************************
@@ -280,10 +221,6 @@ private:
 class DonchianChannelMiddleBand : public Indicator
 {
 public:
-    std::string label = "Donchian Channel Middle Band";
-    std::string id = "donchian-channel-middle-band";
-    std::string id_pattern = R"(donchian-channel-middle-band-(\d+)-(\d+))";
-
     /**
      * @brief Construct a new DonchianChannelMiddleBand object.
      *
@@ -300,9 +237,6 @@ public:
      * @return std::vector<double> Vector containing calculated values.
      */
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
-
-private:
-    int period;
 };
 
 // *****************************************************************************
@@ -310,10 +244,6 @@ private:
 class KeltnerChannelHighBand : public Indicator
 {
 public:
-    std::string label = "Keltner Channel High Band";
-    std::string id = "keltner-channel-high-band";
-    std::string id_pattern = R"(keltner-channel-high-band-(\d+)-(\d+)-(\d+.\d+)-(\d+))";
-
     /**
      * @brief Construct a new KeltnerChannelHighBand object.
      *
@@ -332,11 +262,6 @@ public:
      * @return std::vector<double> Vector containing calculated values.
      */
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
-
-private:
-    int period;
-    int atr_period;
-    double multiplier;
 };
 
 // *****************************************************************************
@@ -344,10 +269,6 @@ private:
 class KeltnerChannelLowBand : public Indicator
 {
 public:
-    std::string label = "Keltner Channel Low Band";
-    std::string id = "keltner-channel-low-band";
-    std::string id_pattern = R"(keltner-channel-low-band-(\d+)-(\d+)-(\d+.\d+)-(\d+))";
-
     /**
      * @brief Construct a new KeltnerChannelLowBand object.
      *
@@ -366,11 +287,6 @@ public:
      * @return std::vector<double> Vector containing calculated values.
      */
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
-
-private:
-    int period;
-    int atr_period;
-    double multiplier;
 };
 
 // *****************************************************************************
@@ -378,10 +294,6 @@ private:
 class KeltnerChannelMiddleBand : public Indicator
 {
 public:
-    std::string label = "Keltner Channel Middle Band";
-    std::string id = "keltner-channel-middle-band";
-    std::string id_pattern = R"(keltner-channel-middle-band-(\d+)-(\d+))";
-
     /**
      * @brief Construct a new KeltnerChannelMiddleBand object.
      *
@@ -398,9 +310,6 @@ public:
      * @return std::vector<double> Vector containing calculated values.
      */
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
-
-private:
-    int period;
 };
 
 // *****************************************************************************
@@ -411,10 +320,6 @@ private:
 class UI : public Indicator
 {
 public:
-    std::string label = "Ulcer Index";
-    std::string id = "ui";
-    std::string id_pattern = R"(ui-(\d+)-(\d+))";
-
     /**
      * @brief Construct a new Ulcer Index object.
      *
@@ -431,9 +336,6 @@ public:
      * @return std::vector<double> Vector containing calculated values.
      */
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
-
-private:
-    int period;
 };
 
 // *****************************************************************************
@@ -441,10 +343,6 @@ private:
 class StandardDeviation : public Indicator
 {
 public:
-    std::string label = "Standard Deviation";
-    std::string id = "standard-deviation";
-    std::string id_pattern = R"(standard-deviation-(\d+)-(\d+))";
-
     /**
      * @brief Construct a new Standard Deviation object.
      *
@@ -461,9 +359,6 @@ public:
      * @return std::vector<double> Vector containing calculated values.
      */
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
-
-private:
-    int period;
 };
 
 // *****************************************************************************
@@ -471,10 +366,6 @@ private:
 class AveragePriceChange : public Indicator
 {
 public:
-    std::string label = "Average Price Change";
-    std::string id = "average-price-change";
-    std::string id_pattern = R"(average-price-change-(\d+)-(\d+))";
-
     /**
      * @brief Construct a new Average Price Change object.
      *
@@ -491,9 +382,6 @@ public:
      * @return std::vector<double> Vector containing calculated values.
      */
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
-
-private:
-    int period;
 };
 
 #endif // INDICATORS_VOLATILITY_HPP

@@ -10,10 +10,6 @@
 class Hour : public Indicator
 {
 public:
-    std::string label = "Hour";
-    std::string id = "hour";
-    std::string id_pattern = R"(hour-(\d+))";
-
     /**
      * @brief Construct a new Hour object.
      *
@@ -39,10 +35,6 @@ public:
 class Minute : public Indicator
 {
 public:
-    std::string label = "Minute";
-    std::string id = "minute";
-    std::string id_pattern = R"(minute-(\d+))";
-
     /**
      * @brief Construct a new Minute object.
      *
@@ -65,10 +57,6 @@ public:
 class NFPWeek : public Indicator
 {
 public:
-    std::string label = "NFP Week";
-    std::string id = "nfp-week";
-    std::string id_pattern = R"(nfp-week-(\d+))";
-
     /**
      * @brief Construct a new NFPWeek object.
      *
@@ -90,10 +78,6 @@ public:
 class MarketSession : public Indicator
 {
 public:
-    std::string label = "Market Session";
-    std::string id = "market-session";
-    std::string id_pattern = R"(market-session-(\w+)-(\d+))";
-
     /**
      * @brief Construct a new MarketSession object.
      *
@@ -110,9 +94,6 @@ public:
      * @return std::vector<double> Vector containing 1 if the candle is on the market session, 0 otherwise.
      */
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
-
-private:
-    std::string zone; // Market session zone
 };
 
 // *********************************************************************************************
@@ -120,10 +101,6 @@ private:
 class WeekDay : public Indicator
 {
 public:
-    std::string label = "Week Day";
-    std::string id = "week-day";
-    std::string id_pattern = R"(week-day-(\w+)-(\d+))";
-
     /**
      * @brief Construct a new WeekDay object.
      *
@@ -139,9 +116,6 @@ public:
      * @return std::vector<double> Vector containing the number of each candle day (0-6).
      */
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
-
-private:
-    std::string day; // Day of the week (monday, tuesday, wednesday, thursday, friday, saturday, sunday)
 };
 
 #endif // TIME_INDICATORS_HPP

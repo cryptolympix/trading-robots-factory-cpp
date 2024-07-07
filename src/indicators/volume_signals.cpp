@@ -12,7 +12,7 @@
  * @param bearish_threshold Bearish threshold. Default is -0.1.
  * @param offset Offset value. Default is 0.
  */
-CMFSignal::CMFSignal(int period, double bullish_threshold, double bearish_threshold, int offset) : Indicator(this->id + "-" + std::to_string(period) + "-" + std::to_string(bullish_threshold) + "-" + std::to_string(bearish_threshold) + "-" + std::to_string(offset), offset, {-1, 1}), period(period), bullish_threshold(bullish_threshold), bearish_threshold(bearish_threshold) {}
+CMFSignal::CMFSignal(int period, double bullish_threshold, double bearish_threshold, int offset) : Indicator("Chaikin Money Flow (Signal)", "cmf-signal", {{"period", period}, {"bullish_threshold", bullish_threshold}, {"bearish_threshold", bearish_threshold}, {"offset", offset}}, {-1, 1}) {}
 
 /**
  * @brief Calculate the CMFSignal values.
@@ -26,6 +26,11 @@ std::vector<double> CMFSignal::calculate(const std::vector<Candle> &candles, boo
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles)
         {
+            int period = std::get<int>(this->params.at("period"));
+            double bullish_threshold = std::get<double>(this->params.at("bullish_threshold"));
+            double bearish_threshold = std::get<double>(this->params.at("bearish_threshold"));
+            int offset = std::get<int>(this->params.at("offset"));
+            
             std::vector<double> result(candles.size(), 0.0);
             std::vector<double> cmf_values = CMF(period, offset).calculate(candles, false);
 

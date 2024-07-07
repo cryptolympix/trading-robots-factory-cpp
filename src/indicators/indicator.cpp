@@ -3,35 +3,15 @@
 #include <cmath>
 #include <stdexcept>
 #include <utility>
+#include <algorithm>
+#include <functional>
+#include <unordered_map>
 #include "../utils/vectors.hpp"
 #include "../types.hpp"
 #include "indicator.hpp"
 
 #include "candle_patterns.hpp"
 #include "momentum.hpp"
-
-// Template function to convert string to the desired type
-template <typename T>
-T convert(const std::string &str);
-
-// Specializations for int, double, and string
-template <>
-int convert<int>(const std::string &str)
-{
-    return std::stoi(str);
-}
-
-template <>
-double convert<double>(const std::string &str)
-{
-    return std::stod(str);
-}
-
-template <>
-std::string convert<std::string>(const std::string &str)
-{
-    return str;
-}
 
 /**
  * @brief Check if the ID is valid.
@@ -50,21 +30,48 @@ bool is_valid_id(const std::string &id, const std::string &id_pattern)
 /**
  * @brief Construct a new Indicator::Indicator object.
  *
- * @param id_params The id of the indicator with parameters.
- * @param offset The offset of the indicator.
+ * @param label The label of the indicator.
+ * @param id The id of the indicator.
+ * @param params The parameters of the indicator.
  * @param values_range The range of values.
  */
-Indicator::Indicator(std::string id_params, int offset, std::pair<double, double> values_range)
+Indicator::Indicator(std::string label, std::string id, std::unordered_map<std::string, IndicatorParam> params, std::pair<double, double> values_range)
 {
-    this->id_params = id_params;
-    this->offset = offset;
+    this->label = label;
+    this->id = id;
+    this->params = params;
     this->values_range = values_range;
 
-    // Check if the ID is valid
-    if (!is_valid_id(this->id_params, this->id_pattern))
+    // Check if the offset parameter is present, otherwise set it to 0
+    if (this->params.find("offset") == this->params.end())
     {
-        std::cerr << "Invalid id format for the indicator" << this->label << ": " << this->id_params << ". Expected format: " << this->id_pattern << std::endl;
-        std::exit(1);
+        this->params["offset"] = 0;
+    }
+
+    this->id_params = this->id;
+    this->id_params_pattern = this->id;
+    for (const auto &[param_name, param_value] : this->params)
+    {
+        // Detect if the parameter is a string
+        if (std::holds_alternative<std::string>(param_value))
+        {
+            this->id_params += "-" + std::get<std::string>(param_value);
+            this->id_params_pattern += R"(-(\w+))";
+        }
+
+        // Detect if the parameter is an int
+        else if (std::holds_alternative<int>(param_value))
+        {
+            this->id_params += "-" + std::to_string(std::get<int>(param_value));
+            this->id_params_pattern += R"(-(\d+))";
+        }
+
+        // Detect if the parameter is a double
+        else if (std::holds_alternative<double>(param_value))
+        {
+            this->id_params += "-" + std::to_string(std::get<double>(param_value));
+            this->id_params_pattern += R"(-(\d+\.\d+))";
+        }
     }
 }
 
@@ -79,8 +86,9 @@ Indicator::Indicator(std::string id_params, int offset, std::pair<double, double
 std::vector<double> Indicator::calculate(const std::vector<Candle> &candles, std::function<std::vector<double>(std::vector<Candle>)> calculator, bool normalize_data) const
 {
     std::vector<double> values(candles.size(), 0.0);
+    int offset = std::get<int>(this->params.at("offset"));
 
-    if (this->offset < 0)
+    if (offset < 0)
     {
         std::cerr << "Offset cannot be negative." << std::endl;
         return values;
@@ -90,21 +98,21 @@ std::vector<double> Indicator::calculate(const std::vector<Candle> &candles, std
         std::cerr << "Candles data is empty." << std::endl;
         return values;
     }
-    else if (candles.size() < this->offset)
+    else if (candles.size() < offset)
     {
         std::cerr << "Offset is greater than the number of candles." << std::endl;
         return values;
     }
-    else if (candles.size() == this->offset)
+    else if (candles.size() == offset)
     {
         std::cerr << "Offset is equal to the number of candles." << std::endl;
         return values;
     }
 
     // Adjust candles based on the offset
-    if (this->offset > 0)
+    if (offset > 0)
     {
-        std::vector<Candle> adjusted_candles(candles.begin(), candles.end() - this->offset);
+        std::vector<Candle> adjusted_candles(candles.begin(), candles.end() - offset);
         // Calculate the indicator
         values = calculator(adjusted_candles);
 

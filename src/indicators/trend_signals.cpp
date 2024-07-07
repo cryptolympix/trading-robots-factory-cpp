@@ -12,7 +12,7 @@
  * @param threshold Threshold value. Default is 25.
  * @param offset Offset value. Default is 0.
  */
-ADXSignal::ADXSignal(int period, int threshold, int offset) : Indicator(this->id + "-" + std::to_string(period) + "-" + std::to_string(threshold) + "-" + std::to_string(offset), offset, {0, 1}), period(period), threshold(threshold) {}
+ADXSignal::ADXSignal(int period, int threshold, int offset) : Indicator("Average Directional Index (Signal)", "adx-signal", {{"period", period}, {"threshold", threshold}, {"offset", offset}}, {0, 1}) {}
 
 /**
  * @brief Calculate the ADXSignal values.
@@ -26,6 +26,10 @@ std::vector<double> ADXSignal::calculate(const std::vector<Candle> &candles, boo
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles)
         {
+            int period = std::get<int>(this->params.at("period"));
+            int threshold = std::get<int>(this->params.at("threshold"));
+            int offset = std::get<int>(this->params.at("offset"));
+
             std::vector<double> result(candles.size(), 0.0);
             std::vector<double> adx_values = ADX(period, offset).calculate(candles, false);
 
@@ -49,7 +53,7 @@ std::vector<double> ADXSignal::calculate(const std::vector<Candle> &candles, boo
  * @param aroon_period Aroon period value. Default is 14.
  * @param offset Offset value. Default is 0.
  */
-AroonSignal::AroonSignal(int period, int offset) : Indicator(this->id + "-" + std::to_string(period) + "-" + std::to_string(offset), offset, {-1, 1}), period(period) {}
+AroonSignal::AroonSignal(int period, int offset) : Indicator("Aroon (Signal)", "aroon-signal", {{"period", period}, {"offset", offset}}, {-1, 1}) {}
 
 /**
  * @brief Calculate the AroonSignal values.
@@ -63,6 +67,9 @@ std::vector<double> AroonSignal::calculate(const std::vector<Candle> &candles, b
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles)
         {
+            int period = std::get<int>(this->params.at("period"));
+            int offset = std::get<int>(this->params.at("offset"));
+
             std::vector<double> result(candles.size(), 0.0);
             std::vector<double> aroon_up_values = AroonUp(period, offset).calculate(candles, false);
             std::vector<double> aroon_down_values = AroonDown(period, offset).calculate(candles, false);
@@ -93,7 +100,7 @@ std::vector<double> AroonSignal::calculate(const std::vector<Candle> &candles, b
  * @param oversold Oversold value. Default is -100.
  * @param offset Offset value. Default is 0.
  */
-CCISignal::CCISignal(int period, int overbought, int oversold, int offset) : Indicator(this->id + "-" + std::to_string(period) + "-" + std::to_string(overbought) + "-" + std::to_string(oversold) + "-" + std::to_string(offset), offset, {-1, 1}), period(period), overbought(overbought), oversold(oversold) {}
+CCISignal::CCISignal(int period, int overbought, int oversold, int offset) : Indicator("Commodity Channel Index (Signal)", "cci-signal", {{"period", period}, {"overbought", overbought}, {"oversold", oversold}, {"offset", offset}}, {-1, 1}) {}
 
 /**
  * @brief Calculate the CCISignal values.
@@ -107,6 +114,11 @@ std::vector<double> CCISignal::calculate(const std::vector<Candle> &candles, boo
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles)
         {
+            int period = std::get<int>(this->params.at("period"));
+            int overbought = std::get<int>(this->params.at("overbought"));
+            int oversold = std::get<int>(this->params.at("oversold"));
+            int offset = std::get<int>(this->params.at("offset"));
+
             std::vector<double> result(candles.size(), 0.0);
             std::vector<double> cci_values = CCI(period, offset).calculate(candles, false);
 
@@ -134,7 +146,7 @@ std::vector<double> CCISignal::calculate(const std::vector<Candle> &candles, boo
  * @param period DPO period value. Default is 20.
  * @param offset Offset value. Default is 0.
  */
-DPOSignal::DPOSignal(int period, int offset) : Indicator(this->id + "-" + std::to_string(period) + "-" + std::to_string(offset), offset, {-1, 1}), period(period) {}
+DPOSignal::DPOSignal(int period, int offset) : Indicator("Detrended Price Oscillator (Signal)", "dpo-signal", {{"period", period}, {"offset", offset}}, {-1, 1}) {}
 
 /**
  * @brief Calculate the DPOSignal values.
@@ -148,6 +160,9 @@ std::vector<double> DPOSignal::calculate(const std::vector<Candle> &candles, boo
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles)
         {
+            int period = std::get<int>(this->params.at("period"));
+            int offset = std::get<int>(this->params.at("offset"));
+
             std::vector<double> result(candles.size(), 0.0);
             std::vector<double> dpo_values = DPO(period, offset).calculate(candles, false);
 
@@ -176,7 +191,7 @@ std::vector<double> DPOSignal::calculate(const std::vector<Candle> &candles, boo
  * @param period EMA period value. Default is 20.
  * @param offset Offset value. Default is 0.
  */
-EMASignal::EMASignal(std::string source, int period, int offset) : Indicator(this->id + "-" + source + "-" + std::to_string(period) + "-" + std::to_string(offset), offset, {-1, 1}), source(source), period(period) {}
+EMASignal::EMASignal(std::string source, int period, int offset) : Indicator("Exponential Moving Average (Signal)", "ema-signal", {{"source", source}, {"period", period}, {"offset", offset}}, {-1, 1}) {}
 
 /**
  * @brief Calculate the EMASignal values.
@@ -190,6 +205,10 @@ std::vector<double> EMASignal::calculate(const std::vector<Candle> &candles, boo
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles)
         {
+            std::string source = std::get<std::string>(this->params.at("source"));
+            int period = std::get<int>(this->params.at("period"));
+            int offset = std::get<int>(this->params.at("offset"));
+
             std::vector<double> result(candles.size(), 0.0);
             std::vector<double> ema_values = EMA(source, period, offset).calculate(candles, false);
 
@@ -224,7 +243,7 @@ std::vector<double> EMASignal::calculate(const std::vector<Candle> &candles, boo
  * @param sma_period4 Simple Moving Average period 4 value. Default is 15.
  * @param offset Offset value. Default is 0.
  */
-KSTSignal::KSTSignal(int roc_period1, int roc_period2, int roc_period3, int roc_period4, int sma_period1, int sma_period2, int sma_period3, int sma_period4, int offset) : Indicator(this->id + "-" + std::to_string(roc_period1) + "-" + std::to_string(roc_period2) + "-" + std::to_string(roc_period3) + "-" + std::to_string(roc_period4) + "-" + std::to_string(sma_period1) + "-" + std::to_string(sma_period2) + "-" + std::to_string(sma_period3) + "-" + std::to_string(sma_period4) + "-" + std::to_string(offset), offset, {-1, 1}), roc_period1(roc_period1), roc_period2(roc_period2), roc_period3(roc_period3), roc_period4(roc_period4), sma_period1(sma_period1), sma_period2(sma_period2), sma_period3(sma_period3), sma_period4(sma_period4) {}
+KSTSignal::KSTSignal(int roc_period1, int roc_period2, int roc_period3, int roc_period4, int sma_period1, int sma_period2, int sma_period3, int sma_period4, int offset) : Indicator("Know Sure Thing (Signal)", "kst-signal", {{"roc_period1", roc_period1}, {"roc_period2", roc_period2}, {"roc_period3", roc_period3}, {"roc_period4", roc_period4}, {"sma_period1", sma_period1}, {"sma_period2", sma_period2}, {"sma_period3", sma_period3}, {"sma_period4", sma_period4}, {"offset", offset}}, {-1, 1}) {}
 
 /**
  * @brief Calculate the KSTSignal values.
@@ -238,6 +257,16 @@ std::vector<double> KSTSignal::calculate(const std::vector<Candle> &candles, boo
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles)
         {
+            int roc_period1 = std::get<int>(this->params.at("roc_period1"));
+            int roc_period2 = std::get<int>(this->params.at("roc_period2"));
+            int roc_period3 = std::get<int>(this->params.at("roc_period3"));
+            int roc_period4 = std::get<int>(this->params.at("roc_period4"));
+            int sma_period1 = std::get<int>(this->params.at("sma_period1"));
+            int sma_period2 = std::get<int>(this->params.at("sma_period2"));
+            int sma_period3 = std::get<int>(this->params.at("sma_period3"));
+            int sma_period4 = std::get<int>(this->params.at("sma_period4"));
+            int offset = std::get<int>(this->params.at("offset"));
+
             std::vector<double> result(candles.size(), 0.0);
             std::vector<double> kst_values = KST(roc_period1, roc_period2, roc_period3, roc_period4, sma_period1, sma_period2, sma_period3, sma_period4, offset).calculate(candles, false);
             std::vector<double> kst_signal_line = calculate_simple_moving_average(kst_values, 9);
@@ -268,7 +297,7 @@ std::vector<double> KSTSignal::calculate(const std::vector<Candle> &candles, boo
  * @param signal_period Signal EMA period value. Default is 9.
  * @param offset Offset value. Default is 0.
  */
-MACDSignal::MACDSignal(int short_period, int long_period, int signal_period, int offset) : Indicator(this->id + "-" + std::to_string(short_period) + "-" + std::to_string(long_period) + "-" + std::to_string(signal_period) + "-" + std::to_string(offset), offset, {-1, 1}), short_period(short_period), long_period(long_period), signal_period(signal_period) {}
+MACDSignal::MACDSignal(int short_period, int long_period, int signal_period, int offset) : Indicator("Moving Average Convergence Divergence (Signal)", "macd-signal", {{"short_period", short_period}, {"long_period", long_period}, {"signal_period", signal_period}, {"offset", offset}}, {-1, 1}) {}
 
 /**
  * @brief Calculate the MACDSignal values.
@@ -282,6 +311,11 @@ std::vector<double> MACDSignal::calculate(const std::vector<Candle> &candles, bo
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles)
         {
+            int short_period = std::get<int>(this->params.at("short_period"));
+            int long_period = std::get<int>(this->params.at("long_period"));
+            int signal_period = std::get<int>(this->params.at("signal_period"));
+            int offset = std::get<int>(this->params.at("offset"));
+
             std::vector<double> result(candles.size(), 0.0);
             std::vector<double> closes = get_candles_with_source(candles, "close");
 
@@ -325,7 +359,7 @@ std::vector<double> MACDSignal::calculate(const std::vector<Candle> &candles, bo
  * @param acceleration_factor_maximum Maximum acceleration factor value. Default is 0.2.
  * @param offset Offset value. Default is 0.
  */
-ParabolicSARSignal::ParabolicSARSignal(double acceleration_factor_initial, double acceleration_factor_maximum, int offset) : Indicator(this->id + "-" + std::to_string(acceleration_factor_initial) + "-" + std::to_string(acceleration_factor_maximum) + "-" + std::to_string(offset), offset, {-1, 1}), acceleration_factor_initial(acceleration_factor_initial), acceleration_factor_maximum(acceleration_factor_maximum) {}
+ParabolicSARSignal::ParabolicSARSignal(double acceleration_factor_initial, double acceleration_factor_maximum, int offset) : Indicator("Parabolic SAR (Signal)", "parabolic-sar-signal", {{"acceleration_factor_initial", acceleration_factor_initial}, {"acceleration_factor_maximum", acceleration_factor_maximum}, {"offset", offset}}, {-1, 1}) {}
 
 /**
  * @brief Calculate the ParabolicSARSignal values.
@@ -339,6 +373,10 @@ std::vector<double> ParabolicSARSignal::calculate(const std::vector<Candle> &can
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles)
         {
+            double acceleration_factor_initial = std::get<double>(this->params.at("acceleration_factor_initial"));
+            double acceleration_factor_maximum = std::get<double>(this->params.at("acceleration_factor_maximum"));
+            int offset = std::get<int>(this->params.at("offset"));
+
             std::vector<double> result(candles.size(), 0.0);
             std::vector<double> psar_values = ParabolicSAR(acceleration_factor_initial, acceleration_factor_maximum, offset).calculate(candles, false);
 
@@ -367,7 +405,7 @@ std::vector<double> ParabolicSARSignal::calculate(const std::vector<Candle> &can
  * @param period SMA period value. Default is 20.
  * @param offset Offset value. Default is 0.
  */
-SMASignal::SMASignal(std::string source, int period, int offset) : Indicator(this->id + "-" + source + "-" + std::to_string(period) + "-" + std::to_string(offset), offset, {-1, 1}), source(source), period(period) {}
+SMASignal::SMASignal(std::string source, int period, int offset) : Indicator("Simple Moving Average (Signal)", "sma-signal", {{"source", source}, {"period", period}, {"offset", offset}}, {-1, 1}) {}
 
 /**
  * @brief Calculate the SMASignal values.
@@ -381,6 +419,10 @@ std::vector<double> SMASignal::calculate(const std::vector<Candle> &candles, boo
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles)
         {
+            std::string source = std::get<std::string>(this->params.at("source"));
+            int period = std::get<int>(this->params.at("period"));
+            int offset = std::get<int>(this->params.at("offset"));
+
             std::vector<double> result(candles.size(), 0.0);
             std::vector<double> sma_values = SMA(source, period, offset).calculate(candles, false);
 
@@ -408,7 +450,7 @@ std::vector<double> SMASignal::calculate(const std::vector<Candle> &candles, boo
  * @param period TRIX period value. Default is 20.
  * @param offset Offset value. Default is 0.
  */
-TRIXSignal::TRIXSignal(int period, int offset) : Indicator(this->id + "-" + std::to_string(period) + "-" + std::to_string(offset), offset, {-1, 1}), period(period) {}
+TRIXSignal::TRIXSignal(int period, int offset) : Indicator("Triple Exponential Average (Signal)", "trix-signal", {{"period", period}, {"offset", offset}}, {-1, 1}) {}
 
 /**
  * @brief Calculate the TRIXSignal values.
@@ -422,6 +464,9 @@ std::vector<double> TRIXSignal::calculate(const std::vector<Candle> &candles, bo
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles)
         {
+            int period = std::get<int>(this->params.at("period"));
+            int offset = std::get<int>(this->params.at("offset"));
+
             std::vector<double> result(candles.size(), 0.0);
             std::vector<double> trix_values = TRIX(period, offset).calculate(candles, false);
             std::vector<double>trix_signal_line = calculate_simple_moving_average(trix_values, 9);
@@ -450,7 +495,7 @@ std::vector<double> TRIXSignal::calculate(const std::vector<Candle> &candles, bo
  * @param period Vortex period value. Default is 14.
  * @param offset Offset value. Default is 0.
  */
-VortexSignal::VortexSignal(int period, int offset) : Indicator(this->id + "-" + std::to_string(period) + "-" + std::to_string(offset), offset, {-1, 1}), period(period) {}
+VortexSignal::VortexSignal(int period, int offset) : Indicator("Vortex (Signal)", "vortex-signal", {{"period", period}, {"offset", offset}}, {-1, 1}) {}
 
 /**
  * @brief Calculate the VortexSignal values.
@@ -464,8 +509,10 @@ std::vector<double> VortexSignal::calculate(const std::vector<Candle> &candles, 
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles)
         {
-            std::vector<double> result(candles.size(), 0.0);
+            int period = std::get<int>(this->params.at("period"));
+            int offset = std::get<int>(this->params.at("offset"));
 
+            std::vector<double> result(candles.size(), 0.0);
             std::vector<double> positive_trend_movement(candles.size(), 0);
             std::vector<double> negative_trend_movement(candles.size(), 0);
             std::vector<double> true_range(candles.size(), 0);
@@ -531,7 +578,7 @@ std::vector<double> VortexSignal::calculate(const std::vector<Candle> &candles, 
  * @param long_period Long period value. Default is 18.
  * @param offset Offset value. Default is 0.
  */
-InstitutionalBiasSignal::InstitutionalBiasSignal(int short_period, int long_period, int offset) : Indicator(this->id + "-" + std::to_string(short_period) + "-" + std::to_string(long_period) + "-" + std::to_string(offset), offset, {-1, 1}), short_period(short_period), long_period(long_period) {}
+InstitutionalBiasSignal::InstitutionalBiasSignal(int short_period, int long_period, int offset) : Indicator("Institutional Bias (Signal)", "institutional-bias-signal", {{"short_period", short_period}, {"long_period", long_period}, {"offset", offset}}, {-1, 1}) {}
 
 /**
  * @brief Calculate the InstitutionalBiasSignal values.
@@ -545,8 +592,11 @@ std::vector<double> InstitutionalBiasSignal::calculate(const std::vector<Candle>
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles)
         {
-            std::vector<double> result(candles.size(), 0.0);
+            int short_period = std::get<int>(this->params.at("short_period"));
+            int long_period = std::get<int>(this->params.at("long_period"));
+            int offset = std::get<int>(this->params.at("offset"));
 
+            std::vector<double> result(candles.size(), 0.0);
             std::vector<double> short_ema_values = EMA("close", short_period, offset).calculate(candles, false);
             std::vector<double> long_ema_values = EMA("close", long_period, offset).calculate(candles, false);
 
@@ -577,7 +627,7 @@ std::vector<double> InstitutionalBiasSignal::calculate(const std::vector<Candle>
  * @param leading_period Leading span period value. Default is 52.
  * @param offset Offset value. Default is 0.
  */
-IchimokuCloudSignal::IchimokuCloudSignal(int conversion_period, int base_period, int lagging_period, int leading_period, int offset) : Indicator(this->id + "-" + std::to_string(conversion_period) + "-" + std::to_string(base_period) + "-" + std::to_string(lagging_period) + "-" + std::to_string(leading_period) + "-" + std::to_string(offset), offset, {-1, 1}), conversion_period(conversion_period), base_period(base_period), lagging_period(lagging_period), leading_period(leading_period) {}
+IchimokuCloudSignal::IchimokuCloudSignal(int conversion_period, int base_period, int lagging_period, int leading_period, int offset) : Indicator("Ichimoku Cloud (Signal)", "ichimoku-cloud-signal", {{"conversion_period", conversion_period}, {"base_period", base_period}, {"lagging_period", lagging_period}, {"leading_period", leading_period}, {"offset", offset}}, {-1, 1}) {}
 
 /**
  * @brief Calculate the IchimokuCloudSignal values.
@@ -591,6 +641,12 @@ std::vector<double> IchimokuCloudSignal::calculate(const std::vector<Candle> &ca
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles)
         {
+            int conversion_period = std::get<int>(this->params.at("conversion_period"));
+            int base_period = std::get<int>(this->params.at("base_period"));
+            int lagging_period = std::get<int>(this->params.at("lagging_period"));
+            int leading_period = std::get<int>(this->params.at("leading_period"));
+            int offset = std::get<int>(this->params.at("offset"));
+
             std::vector<double> result(candles.size(), 0.0);
 
             std::vector<double> conversion_line(candles.size(), 0.0);
@@ -683,7 +739,7 @@ std::vector<double> IchimokuCloudSignal::calculate(const std::vector<Candle> &ca
  * @param leading_period Leading span period value. Default is 52.
  * @param offset Offset value. Default is 0.
  */
-IchimokuKijunTenkanSignal::IchimokuKijunTenkanSignal(int conversion_period, int base_period, int lagging_period, int leading_period, int offset) : Indicator(this->id + "-" + std::to_string(conversion_period) + "-" + std::to_string(base_period) + "-" + std::to_string(lagging_period) + "-" + std::to_string(leading_period) + "-" + std::to_string(offset), offset, {-1, 1}), conversion_period(conversion_period), base_period(base_period), lagging_period(lagging_period), leading_period(leading_period) {}
+IchimokuKijunTenkanSignal::IchimokuKijunTenkanSignal(int conversion_period, int base_period, int lagging_period, int leading_period, int offset) : Indicator("Ichimoku Kijun Tenkan (Signal)", "ichimoku-kijun-tenkan-signal", {{"conversion_period", conversion_period}, {"base_period", base_period}, {"lagging_period", lagging_period}, {"leading_period", leading_period}, {"offset", offset}}, {-1, 1}) {}
 
 /**
  * @brief Calculate the IchimokuKijunTenkanSignal values.
@@ -697,84 +753,90 @@ std::vector<double> IchimokuKijunTenkanSignal::calculate(const std::vector<Candl
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles)
         {
-        std::vector<double> result(candles.size(), 0.0);
+            int conversion_period = std::get<int>(this->params.at("conversion_period"));
+            int base_period = std::get<int>(this->params.at("base_period"));
+            int lagging_period = std::get<int>(this->params.at("lagging_period"));
+            int leading_period = std::get<int>(this->params.at("leading_period"));
+            int offset = std::get<int>(this->params.at("offset"));
 
-        std::vector<double> conversion_line(candles.size(), 0.0);
-        std::vector<double> base_line(candles.size(), 0.0);
-        std::vector<double> leading_span_a(candles.size(), 0.0);
-        std::vector<double> leading_span_b(candles.size(), 0.0);
-        std::vector<double> lagging_span(candles.size(), 0.0);
+            std::vector<double> result(candles.size(), 0.0);
 
-        // Calculate Conversion Line (Tenkan-sen)
-        for (size_t i = conversion_period - 1; i < candles.size(); ++i)
-        {
-            double high_sum = 0.0;
-            double low_sum = 0.0;
-            for (size_t j = i - (conversion_period - 1); j <= i; ++j)
+            std::vector<double> conversion_line(candles.size(), 0.0);
+            std::vector<double> base_line(candles.size(), 0.0);
+            std::vector<double> leading_span_a(candles.size(), 0.0);
+            std::vector<double> leading_span_b(candles.size(), 0.0);
+            std::vector<double> lagging_span(candles.size(), 0.0);
+
+            // Calculate Conversion Line (Tenkan-sen)
+            for (size_t i = conversion_period - 1; i < candles.size(); ++i)
             {
-                high_sum += candles[j].high;
-                low_sum += candles[j].low;
+                double high_sum = 0.0;
+                double low_sum = 0.0;
+                for (size_t j = i - (conversion_period - 1); j <= i; ++j)
+                {
+                    high_sum += candles[j].high;
+                    low_sum += candles[j].low;
+                }
+                double avg_high = high_sum / conversion_period;
+                double avg_low = low_sum / conversion_period;
+                conversion_line[i] = (avg_high + avg_low) / 2.0;
             }
-            double avg_high = high_sum / conversion_period;
-            double avg_low = low_sum / conversion_period;
-            conversion_line[i] = (avg_high + avg_low) / 2.0;
-        }
 
-        // Calculate Base Line (Kijun-sen)
-        for (size_t i = base_period - 1; i < candles.size(); ++i)
-        {
-            double high_sum = 0.0;
-            double low_sum = 0.0;
-            for (size_t j = i - (base_period - 1); j <= i; ++j)
+            // Calculate Base Line (Kijun-sen)
+            for (size_t i = base_period - 1; i < candles.size(); ++i)
             {
-                high_sum += candles[j].high;
-                low_sum += candles[j].low;
+                double high_sum = 0.0;
+                double low_sum = 0.0;
+                for (size_t j = i - (base_period - 1); j <= i; ++j)
+                {
+                    high_sum += candles[j].high;
+                    low_sum += candles[j].low;
+                }
+                double avg_high = high_sum / base_period;
+                double avg_low = low_sum / base_period;
+                base_line[i] = (avg_high + avg_low) / 2.0;
             }
-            double avg_high = high_sum / base_period;
-            double avg_low = low_sum / base_period;
-            base_line[i] = (avg_high + avg_low) / 2.0;
-        }
 
-        // Calculate Leading Span A (Senkou Span A)
-        for (size_t i = 0; i < candles.size(); ++i)
-        {
-            leading_span_a[i] = (conversion_line[i] + base_line[i]) / 2.0;
-        }
-
-        // Calculate Leading Span B (Senkou Span B)
-        for (size_t i = leading_period - 1; i < candles.size(); ++i)
-        {
-            double high_sum = 0.0;
-            double low_sum = 0.0;
-            for (size_t j = i - (leading_period - 1); j <= i; ++j)
+            // Calculate Leading Span A (Senkou Span A)
+            for (size_t i = 0; i < candles.size(); ++i)
             {
-                high_sum += candles[j].high;
-                low_sum += candles[j].low;
+                leading_span_a[i] = (conversion_line[i] + base_line[i]) / 2.0;
             }
-            double avg_high = high_sum / leading_period;
-            double avg_low = low_sum / leading_period;
-            leading_span_b[i] = (avg_high + avg_low) / 2.0;
-        }
 
-        // Calculate Lagging Span (Chikou Span)
-        for (size_t i = lagging_period; i < candles.size(); ++i)
-        {
-            lagging_span[i] = candles[i - lagging_period].close;
-        }
-
-        for (size_t i = 1; i < candles.size(); ++i)
-        {
-            if (conversion_line[i - 1] < base_line[i - 1] && conversion_line[i] > base_line[i])
+            // Calculate Leading Span B (Senkou Span B)
+            for (size_t i = leading_period - 1; i < candles.size(); ++i)
             {
-                result[i] = 1.0;
+                double high_sum = 0.0;
+                double low_sum = 0.0;
+                for (size_t j = i - (leading_period - 1); j <= i; ++j)
+                {
+                    high_sum += candles[j].high;
+                    low_sum += candles[j].low;
+                }
+                double avg_high = high_sum / leading_period;
+                double avg_low = low_sum / leading_period;
+                leading_span_b[i] = (avg_high + avg_low) / 2.0;
             }
-            else if (conversion_line[i - 1] > base_line[i - 1] && conversion_line[i] < base_line[i])
-            {
-                result[i] = -1.0;
-            }
-        }
 
-        return result; },
+            // Calculate Lagging Span (Chikou Span)
+            for (size_t i = lagging_period; i < candles.size(); ++i)
+            {
+                lagging_span[i] = candles[i - lagging_period].close;
+            }
+
+            for (size_t i = 1; i < candles.size(); ++i)
+            {
+                if (conversion_line[i - 1] < base_line[i - 1] && conversion_line[i] > base_line[i])
+                {
+                    result[i] = 1.0;
+                }
+                else if (conversion_line[i - 1] > base_line[i - 1] && conversion_line[i] < base_line[i])
+                {
+                    result[i] = -1.0;
+                }
+            }
+
+            return result; },
         normalize_data);
 }
 

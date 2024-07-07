@@ -9,7 +9,7 @@
  *
  * @param offset Offset value. Default is 0.
  */
-AwesomeOscillatorSignal::AwesomeOscillatorSignal(int offset) : Indicator(this->id + "-" + std::to_string(offset), offset, {-1, 1}) {}
+AwesomeOscillatorSignal::AwesomeOscillatorSignal(int offset) : Indicator("Awesome Oscillator (Signal)", "awesome-oscillator-signal", {{"offset", offset}}, {-1, 1}) {}
 
 /**
  * @brief Calculate the AwesomeOscillatorSignal values.
@@ -23,6 +23,8 @@ std::vector<double> AwesomeOscillatorSignal::calculate(const std::vector<Candle>
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles)
         {
+            int offset = std::get<int>(this->params.at("offset"));
+
             std::vector<double> result(candles.size(), 0.0);
             std::vector<double> momentum_values = AwesomeOscillator(offset).calculate(candles, false);
 
@@ -52,7 +54,7 @@ std::vector<double> AwesomeOscillatorSignal::calculate(const std::vector<Candle>
  * @param slowest_sc_period Slowest SC period value. Default is 30.
  * @param offset Offset value. Default is 0.
  */
-KAMASignal::KAMASignal(int er_period, int fastest_sc_period, int slowest_sc_period, int offset) : Indicator(this->id + "-" + std::to_string(er_period) + "-" + std::to_string(fastest_sc_period) + "-" + std::to_string(slowest_sc_period) + "-" + std::to_string(offset), offset, {-1, 1}), er_period(er_period), fastest_sc_period(fastest_sc_period), slowest_sc_period(slowest_sc_period) {}
+KAMASignal::KAMASignal(int er_period, int fastest_sc_period, int slowest_sc_period, int offset) : Indicator("Kaufman's Adaptive Moving Average (Signal)", "kama-signal", {{"er_period", er_period}, {"fastest_sc_period", fastest_sc_period}, {"slowest_sc_period", slowest_sc_period}, {"offset", offset}}, {-1, 1}) {}
 
 /**
  * @brief Calculate the KAMASignal values.
@@ -66,6 +68,11 @@ std::vector<double> KAMASignal::calculate(const std::vector<Candle> &candles, bo
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles)
         {
+            int er_period = std::get<int>(this->params.at("er_period"));
+            int fastest_sc_period = std::get<int>(this->params.at("fastest_sc_period"));
+            int slowest_sc_period = std::get<int>(this->params.at("slowest_sc_period"));
+            int offset = std::get<int>(this->params.at("offset"));
+
             std::vector<double> result(candles.size(), 0.0);
             std::vector<double> kama_values = KAMA(er_period, fastest_sc_period, slowest_sc_period, offset).calculate(candles, false);
 
@@ -95,7 +102,7 @@ std::vector<double> KAMASignal::calculate(const std::vector<Candle> &candles, bo
  * @param oversold Oversold value. Default is 20.
  * @param offset Offset value. Default is 0.
  */
-MFISignal::MFISignal(int period, int overbought, int oversold, int offset) : Indicator(this->id + "-" + std::to_string(period) + "-" + std::to_string(overbought) + "-" + std::to_string(oversold) + "-" + std::to_string(offset), offset, {-1, 1}), period(period), overbought(overbought), oversold(oversold) {}
+MFISignal::MFISignal(int period, int overbought, int oversold, int offset) : Indicator("Money Flow Index (Signal)", "mfi-signal", {{"period", period}, {"overbought", overbought}, {"oversold", oversold}, {"offset", offset}}, {-1, 1}) {}
 
 /**
  * @brief Calculate the MFISignal values.
@@ -109,6 +116,11 @@ std::vector<double> MFISignal::calculate(const std::vector<Candle> &candles, boo
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles)
         {
+            int period = std::get<int>(this->params.at("period"));
+            int overbought = std::get<int>(this->params.at("overbought"));
+            int oversold = std::get<int>(this->params.at("oversold"));
+            int offset = std::get<int>(this->params.at("offset"));
+
             std::vector<double> result(candles.size(), 0.0);
             std::vector<double> mfi_values = MFI(period, offset).calculate(candles, false);
 
@@ -137,7 +149,7 @@ std::vector<double> MFISignal::calculate(const std::vector<Candle> &candles, boo
  * @param long_period Long period value. Default is 26.
  * @param offset Offset value. Default is 0.
  */
-PPOSignal::PPOSignal(int short_period, int long_period, int offset) : Indicator(this->id + "-" + std::to_string(short_period) + "-" + std::to_string(long_period) + "-" + std::to_string(offset), offset, {-1, 1}), short_period(short_period), long_period(long_period) {}
+PPOSignal::PPOSignal(int short_period, int long_period, int offset) : Indicator("Percentage Price Oscillator (Signal)", "ppo-signal", {{"short_period", short_period}, {"long_period", long_period}, {"offset", offset}}, {-1, 1}) {}
 
 /**
  * @brief Calculate the PPOSignal values.
@@ -151,6 +163,10 @@ std::vector<double> PPOSignal::calculate(const std::vector<Candle> &candles, boo
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles)
         {
+            int short_period = std::get<int>(this->params.at("short_period"));
+            int long_period = std::get<int>(this->params.at("long_period"));
+            int offset = std::get<int>(this->params.at("offset"));
+
             std::vector<double> result(candles.size(), 0.0);
             std::vector<double> ppo_values = PPO(short_period, long_period, offset).calculate(candles, false);
 
@@ -178,7 +194,7 @@ std::vector<double> PPOSignal::calculate(const std::vector<Candle> &candles, boo
  * @param period Period value. Default is 9.
  * @param offset Offset value. Default is 0.
  */
-ROCSignal::ROCSignal(int period, int offset) : Indicator(this->id + "-" + std::to_string(period) + "-" + std::to_string(offset), offset, {-1, 1}), period(period) {}
+ROCSignal::ROCSignal(int period, int offset) : Indicator("Rate of Change (Signal)", "roc-signal", {{"period", period}, {"offset", offset}}, {-1, 1}) {}
 
 /**
  * @brief Calculate the ROCSignal values.
@@ -192,6 +208,9 @@ std::vector<double> ROCSignal::calculate(const std::vector<Candle> &candles, boo
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles)
         {
+            int period = std::get<int>(this->params.at("period"));
+            int offset = std::get<int>(this->params.at("offset"));
+
             std::vector<double> result(candles.size(), 0.0);
             std::vector<double> roc_values = ROC(period, offset).calculate(candles, false);
 
@@ -219,7 +238,7 @@ std::vector<double> ROCSignal::calculate(const std::vector<Candle> &candles, boo
  * @param period Period value. Default is 14.
  * @param offset Offset value. Default is 0.
  */
-RSISignal::RSISignal(int period, int overbought, int oversold, int offset) : Indicator(this->id + "-" + std::to_string(period) + "-" + std::to_string(overbought) + "-" + std::to_string(oversold) + "-" + std::to_string(offset), offset, {-1, 1}), period(period) {}
+RSISignal::RSISignal(int period, int overbought, int oversold, int offset) : Indicator("Relative Strength Index (Signal)", "rsi-signal", {{"period", period}, {"overbought", overbought}, {"oversold", oversold}, {"offset", offset}}, {-1, 1}) {}
 
 /**
  * @brief Calculate the RSISignal values.
@@ -233,6 +252,11 @@ std::vector<double> RSISignal::calculate(const std::vector<Candle> &candles, boo
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles)
         {
+            int period = std::get<int>(this->params.at("period"));
+            int overbought = std::get<int>(this->params.at("overbought"));
+            int oversold = std::get<int>(this->params.at("oversold"));
+            int offset = std::get<int>(this->params.at("offset"));
+
             std::vector<double> result(candles.size(), 0.0);
             std::vector<double> rsi_values = RSI(period, offset).calculate(candles, false);
 
@@ -262,7 +286,7 @@ std::vector<double> RSISignal::calculate(const std::vector<Candle> &candles, boo
  * @param oversold Oversold value. Default is 20.
  * @param offset Offset value. Default is 0.
  */
-StochasticRSISignal::StochasticRSISignal(int period, int overbought, int oversold, int offset) : Indicator(this->id + "-" + std::to_string(period) + "-" + std::to_string(overbought) + "-" + std::to_string(oversold) + "-" + std::to_string(offset), offset, {-1, 1}), period(period), overbought(overbought), oversold(oversold) {}
+StochasticRSISignal::StochasticRSISignal(int period, int overbought, int oversold, int offset) : Indicator("Stochastic Relative Strength Index (Signal)", "stochastic-rsi-signal", {{"period", period}, {"overbought", overbought}, {"oversold", oversold}, {"offset", offset}}, {-1, 1}) {}
 
 /**
  * @brief Calculate the StochasticRSISignal values.
@@ -276,6 +300,11 @@ std::vector<double> StochasticRSISignal::calculate(const std::vector<Candle> &ca
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles)
         {
+            int period = std::get<int>(this->params.at("period"));
+            int overbought = std::get<int>(this->params.at("overbought"));
+            int oversold = std::get<int>(this->params.at("oversold"));
+            int offset = std::get<int>(this->params.at("offset"));
+
             std::vector<double> result(candles.size(), 0.0);
             std::vector<double> stoch_values = StochasticRSI(period, offset).calculate(candles, false);
 
@@ -306,7 +335,7 @@ std::vector<double> StochasticRSISignal::calculate(const std::vector<Candle> &ca
  * @param oversold Oversold value. Default is 20.
  * @param offset Offset value. Default is 0.
  */
-StochasticOscillatorSignal::StochasticOscillatorSignal(int k_period, int d_period, int overbought, int oversold, int offset) : Indicator(this->id + "-" + std::to_string(k_period) + "-" + std::to_string(d_period) + "-" + std::to_string(overbought) + "-" + std::to_string(oversold) + "-" + std::to_string(offset), offset, {-1, 1}), k_period(k_period), d_period(d_period) {}
+StochasticOscillatorSignal::StochasticOscillatorSignal(int k_period, int d_period, int overbought, int oversold, int offset) : Indicator("Stochastic Oscillator (Signal)", "stochastic-oscillator-signal", {{"k_period", k_period}, {"d_period", d_period}, {"overbought", overbought}, {"oversold", oversold}, {"offset", offset}}, {-1, 1}) {}
 
 /**
  * @brief Calculate the StochasticOscillatorSignal values.
@@ -320,6 +349,12 @@ std::vector<double> StochasticOscillatorSignal::calculate(const std::vector<Cand
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles)
         {
+            int k_period = std::get<int>(this->params.at("k_period"));
+            int d_period = std::get<int>(this->params.at("d_period"));
+            int overbought = std::get<int>(this->params.at("overbought"));
+            int oversold = std::get<int>(this->params.at("oversold"));
+            int offset = std::get<int>(this->params.at("offset"));
+
             std::vector<double> result(candles.size(), 0.0);
             std::vector<double> stoch_values = StochasticOscillator(k_period, d_period, offset).calculate(candles, false);
 
@@ -350,7 +385,7 @@ std::vector<double> StochasticOscillatorSignal::calculate(const std::vector<Cand
  * @param oversold Oversold value. Default is -25.
  * @param offset Offset value. Default is 0.
  */
-TSISignal::TSISignal(int short_period, int long_period, int overbought, int oversold, int offset) : Indicator(this->id + "-" + std::to_string(short_period) + "-" + std::to_string(long_period) + "-" + std::to_string(overbought) + "-" + std::to_string(oversold) + "-" + std::to_string(offset), offset, {-1, 1}), short_period(short_period), long_period(long_period) {}
+TSISignal::TSISignal(int short_period, int long_period, int overbought, int oversold, int offset) : Indicator("True Strength Index (Signal)", "tsi-signal", {{"short_period", short_period}, {"long_period", long_period}, {"overbought", overbought}, {"oversold", oversold}, {"offset", offset}}, {-1, 1}) {}
 
 /**
  * @brief Calculate the TSISignal values.
@@ -364,6 +399,12 @@ std::vector<double> TSISignal::calculate(const std::vector<Candle> &candles, boo
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles)
         {
+            int short_period = std::get<int>(this->params.at("short_period"));
+            int long_period = std::get<int>(this->params.at("long_period"));
+            int overbought = std::get<int>(this->params.at("overbought"));
+            int oversold = std::get<int>(this->params.at("oversold"));
+            int offset = std::get<int>(this->params.at("offset"));
+
             std::vector<double> result(candles.size(), 0.0);
             std::vector<double> tsi_values = TSI(short_period, long_period, offset).calculate(candles, false);
 
@@ -395,7 +436,7 @@ std::vector<double> TSISignal::calculate(const std::vector<Candle> &candles, boo
  * @param oversold Oversold value. Default is 30.
  * @param offset Offset value. Default is 0.
  */
-UOSignal::UOSignal(int short_period, int medium_period, int long_period, int overbought, int oversold, int offset) : Indicator(this->id + "-" + std::to_string(short_period) + "-" + std::to_string(medium_period) + "-" + std::to_string(long_period) + "-" + std::to_string(overbought) + "-" + std::to_string(oversold) + "-" + std::to_string(offset), offset, {-1, 1}), short_period(short_period), medium_period(medium_period), long_period(long_period) {}
+UOSignal::UOSignal(int short_period, int medium_period, int long_period, int overbought, int oversold, int offset) : Indicator("Ultimate Oscillator (Signal)", "uo-signal", {{"short_period", short_period}, {"medium_period", medium_period}, {"long_period", long_period}, {"overbought", overbought}, {"oversold", oversold}, {"offset", offset}}, {-1, 1}) {}
 
 /**
  * @brief Calculate the UOSignal values.
@@ -409,6 +450,13 @@ std::vector<double> UOSignal::calculate(const std::vector<Candle> &candles, bool
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles)
         {
+            int short_period = std::get<int>(this->params.at("short_period"));
+            int medium_period = std::get<int>(this->params.at("medium_period"));
+            int long_period = std::get<int>(this->params.at("long_period"));
+            int overbought = std::get<int>(this->params.at("overbought"));
+            int oversold = std::get<int>(this->params.at("oversold"));
+            int offset = std::get<int>(this->params.at("offset"));
+
             std::vector<double> result(candles.size(), 0.0);
             std::vector<double> uo_values = UO(short_period, medium_period, long_period, offset).calculate(candles, false);
 
@@ -438,7 +486,7 @@ std::vector<double> UOSignal::calculate(const std::vector<Candle> &candles, bool
  * @param oversold Oversold value. Default is -80.
  * @param offset Offset value. Default is 0.
  */
-WPRSignal::WPRSignal(int period, int overbought, int oversold, int offset) : Indicator(this->id + "-" + std::to_string(period) + "-" + std::to_string(overbought) + "-" + std::to_string(oversold) + "-" + std::to_string(offset), offset, {-1, 1}), period(period), overbought(overbought), oversold(oversold) {}
+WPRSignal::WPRSignal(int period, int overbought, int oversold, int offset) : Indicator("Williams %R (Signal)", "wpr-signal", {{"period", period}, {"overbought", overbought}, {"oversold", oversold}, {"offset", offset}}, {-1, 1}) {}
 
 /**
  * @brief Calculate the WPRSignal values.
@@ -452,6 +500,11 @@ std::vector<double> WPRSignal::calculate(const std::vector<Candle> &candles, boo
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles)
         {
+            int period = std::get<int>(this->params.at("period"));
+            int overbought = std::get<int>(this->params.at("overbought"));
+            int oversold = std::get<int>(this->params.at("oversold"));
+            int offset = std::get<int>(this->params.at("offset"));
+
             std::vector<double> result(candles.size(), 0.0);
             std::vector<double> williams_r_values = WPR(period, offset).calculate(candles, false);
 

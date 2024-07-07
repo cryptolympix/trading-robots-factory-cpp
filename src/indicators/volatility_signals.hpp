@@ -7,10 +7,6 @@
 class ATRSignal : public Indicator
 {
 public:
-    std::string label = "Average True Range (Signal)";
-    std::string id = "atr-signal";
-    std::string id_pattern = R"(atr-signal-(\d+)-(\d+.\d+)-(\d+))";
-
     /**
      * @brief Construct a new ATRSignal object.
      *
@@ -28,10 +24,6 @@ public:
      * @return std::vector<double> Vector containing calculated values.
      */
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
-
-private:
-    int period;
-    double threshold;
 };
 
 // *********************************************************************************************
@@ -39,10 +31,6 @@ private:
 class BollingerChannelSignal : public Indicator
 {
 public:
-    std::string label = "Bollinger Channel (Signal)";
-    std::string id = "bollinger-channel-signal";
-    std::string id_pattern = R"(bollinger-channel-signal-(\d+)-(\d+.\d+)-(\d+))";
-
     /**
      * @brief Construct a new BollingerChannelSignal object.
      *
@@ -60,10 +48,6 @@ public:
      * @return std::vector<double> Vector containing calculated values.
      */
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
-
-private:
-    int period;
-    double multiplier;
 };
 
 // *********************************************************************************************
@@ -71,10 +55,6 @@ private:
 class DonchianChannelSignal : public Indicator
 {
 public:
-    std::string label = "Donchian Channel (Signal)";
-    std::string id = "donchian-channel-signal";
-    std::string id_pattern = R"(donchian-channel-signal-(\d+)-(\d+))";
-
     /**
      * @brief Construct a new DonchianChannelSignal object.
      *
@@ -91,9 +71,6 @@ public:
      * @return std::vector<double> Vector containing calculated values.
      */
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
-
-private:
-    int period;
 };
 
 // *********************************************************************************************
@@ -101,10 +78,6 @@ private:
 class KeltnerChannelSignal : public Indicator
 {
 public:
-    std::string label = "Keltner Channel (Signal)";
-    std::string id = "keltner-channel-signal";
-    std::string id_pattern = R"(keltner-channel-signal-(\d+)-(\d+)-(\d+.\d+)-(\d+))";
-
     /**
      * @brief Construct a new KeltnerChannelSignal object.
      *
@@ -123,11 +96,6 @@ public:
      * @return std::vector<double> Vector containing calculated values.
      */
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
-
-private:
-    int period;
-    int atr_period;
-    double multiplier;
 };
 
 // *********************************************************************************************

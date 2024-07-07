@@ -5,58 +5,58 @@
 #include <sstream>
 #include <iostream>
 #include <regex>
-#include <variant>
 #include "builder.hpp"
+#include "indicator.hpp"
 
 // Include the indicators
 #include "momentum.hpp"
 
 // Map linking the indicator ID to the constructor function
-const std::map<std::string, std::function<Indicator *(std::vector<IndicatorParams>)>> indicators_map = {
-    {"awesome-oscillator", [](std::vector<IndicatorParams> params) -> Indicator *
+const std::map<std::string, std::function<Indicator *(std::vector<IndicatorParam>)>> indicators_map = {
+    {"awesome-oscillator", [](std::vector<IndicatorParam> params) -> Indicator *
      {
          return new AwesomeOscillator(std::get<int>(params[0]));
      }},
-    {"kama", [](std::vector<IndicatorParams> params) -> Indicator *
+    {"kama", [](std::vector<IndicatorParam> params) -> Indicator *
      {
          return new KAMA(std::get<int>(params[0]), std::get<double>(params[1]), std::get<double>(params[2]), std::get<double>(params[3]));
      }},
 };
 
 /**
- * @brief Convert a string to a specified type.
- * @tparam T The type to convert the string to.
- * @param str The string to convert.
- * @return T The converted value.
- */
-template <typename T>
-T convert(const std::string &str)
-{
-    std::istringstream iss(str);
-    T value;
-    iss >> value;
-    return value;
-}
-
-/**
  * @brief Extract the parameters from the ID.
  * @param id_params The ID to extract the parameters from.
- * @param id_pattern The regex pattern to match the ID.
+ * @param id_params_pattern The regex pattern to match the ID.
  * @return std::vector<T> The extracted parameters.
  */
-template <typename T>
-std::vector<T> extract_parameters(const std::string &id_params, const std::string &id_pattern)
+std::vector<IndicatorParam> extract_parameters(const std::string &id_params, const std::string &id_params_pattern)
 {
-    std::regex pattern(id_pattern);
+    std::regex pattern(id_params_pattern);
     std::smatch matches;
 
     if (std::regex_search(id_params, matches, pattern))
     {
-        std::vector<T> parameters;
+        std::vector<IndicatorParam> parameters;
+
         for (size_t i = 1; i < matches.size(); i++)
         {
-            parameters.push_back(convert<T>(matches[i].str()));
+            std::regex intRegex("^-?\\d+$");
+            std::regex doubleRegex("^-?\\d*(\\.\\d+)?$");
+
+            if (std::regex_match(matches[i].str(), intRegex))
+            {
+                parameters.push_back(std::stoi(matches[i].str()));
+            }
+            else if (std::regex_match(matches[i].str(), doubleRegex))
+            {
+                parameters.push_back(std::stod(matches[i].str()));
+            }
+            else
+            {
+                parameters.push_back(matches[i].str());
+            }
         }
+
         return parameters;
     }
     else
@@ -72,7 +72,7 @@ std::vector<T> extract_parameters(const std::string &id_params, const std::strin
  * @param params The parameters of the indicator.
  * @return Indicator The indicator.
  */
-Indicator *create_indicator_from_id(const std::string &id_params, const std::vector<IndicatorParams> &params)
+Indicator *create_indicator_from_id(const std::string &id_params, const std::vector<IndicatorParam> params)
 {
     auto starts_with = [](const std::string &str, const std::string &prefix)
     {

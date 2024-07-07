@@ -11,7 +11,7 @@
  * @param right_bars Number of right bars.
  * @param offset Offset value. Default is 0.
  */
-NewHighSignal::NewHighSignal(int left_bars, int right_bars, int offset) : Indicator(this->id + "-" + std::to_string(left_bars) + "-" + std::to_string(right_bars) + "-" + std::to_string(offset), offset, {0, 1}), left_bars(left_bars), right_bars(right_bars) {}
+NewHighSignal::NewHighSignal(int left_bars, int right_bars, int offset) : Indicator("New High (Signal)", "new-high-signal", {{"left_bars", left_bars}, {"right_bars", right_bars}, {"offset", offset}}, {0, 1}) {}
 
 /**
  * @brief Calculate the New High Signal values.
@@ -25,6 +25,9 @@ std::vector<double> NewHighSignal::calculate(const std::vector<Candle> &candles,
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles)
         {
+            int left_bars = std::get<int>(this->params.at("left_bars"));
+            int right_bars = std::get<int>(this->params.at("right_bars"));
+
             std::vector<double> values(candles.size(), 0);
             std::vector<double> highest_highs = PivotHighValue("high", left_bars, right_bars).calculate(candles, false);
             std::vector<double> highs = get_candles_with_source(candles, "high");
@@ -52,7 +55,7 @@ std::vector<double> NewHighSignal::calculate(const std::vector<Candle> &candles,
  * @param right_bars Number of right bars.
  * @param offset Offset value. Default is 0.
  */
-NewLowSignal::NewLowSignal(int left_bars, int right_bars, int offset) : Indicator(this->id + "-" + std::to_string(left_bars) + "-" + std::to_string(right_bars) + "-" + std::to_string(offset), offset, {0, 1}), left_bars(left_bars), right_bars(right_bars) {}
+NewLowSignal::NewLowSignal(int left_bars, int right_bars, int offset) : Indicator("New Low (Signal)", "new-low-signal", {{"left_bars", left_bars}, {"right_bars", right_bars}, {"offset", offset}}, {0, 1}) {}
 
 /**
  * @brief Calculate the New Low Signal values.
@@ -66,6 +69,9 @@ std::vector<double> NewLowSignal::calculate(const std::vector<Candle> &candles, 
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles)
         {
+            int left_bars = std::get<int>(this->params.at("left_bars"));
+            int right_bars = std::get<int>(this->params.at("right_bars"));
+
             std::vector<double> values(candles.size(), 0);
             std::vector<double> lowest_lows = PivotLowValue("low", left_bars, right_bars).calculate(candles, false);
             std::vector<double> lows = get_candles_with_source(candles, "low");
@@ -93,7 +99,7 @@ std::vector<double> NewLowSignal::calculate(const std::vector<Candle> &candles, 
  * @param right_bars Number of right bars.
  * @param offset Offset value. Default is 0.
  */
-HighBreakSignal::HighBreakSignal(int left_bars, int right_bars, int offset) : Indicator(this->id + "-" + std::to_string(left_bars) + "-" + std::to_string(right_bars) + "-" + std::to_string(offset), offset, {0, 1}), left_bars(left_bars), right_bars(right_bars) {}
+HighBreakSignal::HighBreakSignal(int left_bars, int right_bars, int offset) : Indicator("High Break (Signal)", "high-break-signal", {{"left_bars", left_bars}, {"right_bars", right_bars}, {"offset", offset}}, {0, 1}) {}
 
 /**
  * @brief Calculate the High Break Signal values.
@@ -107,6 +113,9 @@ std::vector<double> HighBreakSignal::calculate(const std::vector<Candle> &candle
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles)
         {
+            int left_bars = std::get<int>(this->params.at("left_bars"));
+            int right_bars = std::get<int>(this->params.at("right_bars"));
+
             std::vector<double> values(candles.size(), 0);
             std::vector<double> highest_highs = PivotHighValue("high", left_bars, right_bars).calculate(candles, false);
             std::vector<double> closes = get_candles_with_source(candles, "close");
@@ -133,7 +142,7 @@ std::vector<double> HighBreakSignal::calculate(const std::vector<Candle> &candle
  * @param right_bars Number of right bars.
  * @param offset Offset value. Default is 0.
  */
-LowBreakSignal::LowBreakSignal(int left_bars, int right_bars, int offset) : Indicator(this->id + "-" + std::to_string(left_bars) + "-" + std::to_string(right_bars) + "-" + std::to_string(offset), offset, {0, 1}), left_bars(left_bars), right_bars(right_bars) {}
+LowBreakSignal::LowBreakSignal(int left_bars, int right_bars, int offset) : Indicator("Low Break (Signal)", "low-break-signal", {{"left_bars", left_bars}, {"right_bars", right_bars}, {"offset", offset}}, {0, 1}) {}
 
 /**
  * @brief Calculate the Low Break Signal values.
@@ -147,6 +156,9 @@ std::vector<double> LowBreakSignal::calculate(const std::vector<Candle> &candles
     return Indicator::calculate(
         candles, [this](std::vector<Candle> candles)
         {
+            int left_bars = std::get<int>(this->params.at("left_bars"));
+            int right_bars = std::get<int>(this->params.at("right_bars"));
+
             std::vector<double> values(candles.size(), 0);
             std::vector<double> lowest_lows = PivotLowValue("low", left_bars, right_bars).calculate(candles, false);
             std::vector<double> closes = get_candles_with_source(candles, "close");

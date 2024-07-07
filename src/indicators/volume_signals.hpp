@@ -7,10 +7,6 @@
 class CMFSignal : public Indicator
 {
 public:
-    std::string label = "Chaikin Money Flow (Signal)";
-    std::string id = "cmf-signal";
-    std::string id_pattern = R"(cmf-signal-(\d+)-(-?\d+.\d+)-(-?\d+.\d+)-(\d+))";
-
     /**
      * @brief Construct a new CMFSignal object.
      *
@@ -29,11 +25,6 @@ public:
      * @return std::vector<double> Vector containing calculated values.
      */
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
-
-private:
-    int period;
-    double bullish_threshold;
-    double bearish_threshold;
 };
 
 #endif // VOLUME_SIGNALS_HPP
