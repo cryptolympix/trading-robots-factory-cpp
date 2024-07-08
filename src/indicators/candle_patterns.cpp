@@ -10,7 +10,9 @@
  * @param pattern_name Name of the pattern.
  * @param offset Offset value. Default is 0.
  */
-DojiCandlePattern::DojiCandlePattern(int offset) : Indicator("Doji Candle Pattern", "doji-candle-pattern", {{"offset", offset}}, {0, 4}) {}
+DojiCandlePattern::DojiCandlePattern(int offset) : Indicator("Doji Candle Pattern", "doji-candle-pattern", {{"offset", offset}}, {0, 4})
+{
+}
 
 /**
  * @brief Calculate the DojiCandlePattern values.

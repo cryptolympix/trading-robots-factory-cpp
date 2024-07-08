@@ -2,6 +2,8 @@
 #define CANDLE_PATTERN_HPP
 
 #include <vector>
+#include <unordered_map>
+#include <functional>
 #include "../types.hpp"
 #include "indicator.hpp"
 
@@ -355,6 +357,29 @@ private:
      * @return true if Three Stars in the North pattern is detected, false otherwise.
      */
     bool isThreeStarsInTheNorth(const std::vector<Candle> &candles, size_t index) const;
+};
+
+const std::unordered_map<std::string, std::function<Indicator *(std::vector<IndicatorParam>)>> candle_patterns_indicators_map = {
+    {"doji-candle-pattern", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int offset = std::get<int>(params[0]);
+         return new DojiCandlePattern(offset);
+     }},
+    {"single-candle-pattern", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int offset = std::get<int>(params[0]);
+         return new SingleCandlePattern(offset);
+     }},
+    {"double-candle-pattern", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int offset = std::get<int>(params[0]);
+         return new DoubleCandlePattern(offset);
+     }},
+    {"triple-candle-pattern", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int offset = std::get<int>(params[0]);
+         return new TripleCandlePattern(offset);
+     }},
 };
 
 #endif // CANDLE_PATTERN_HPP

@@ -384,4 +384,105 @@ public:
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 };
 
+const std::unordered_map<std::string, std::function<Indicator *(std::vector<IndicatorParam>)>> volatility_indicators_map = {
+    {"atr", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int period = std::get<int>(params[0]);
+         int offset = std::get<int>(params[1]);
+         return new ATR(period, offset);
+     }},
+    {"bollinger-channel-high-band", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int period = std::get<int>(params[0]);
+         double multiplier = std::get<double>(params[1]);
+         int offset = std::get<int>(params[2]);
+         return new BollingerChannelHighBand(period, multiplier, offset);
+     }},
+    {"bollinger-channel-low-band", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int period = std::get<int>(params[0]);
+         double multiplier = std::get<double>(params[1]);
+         int offset = std::get<int>(params[2]);
+         return new BollingerChannelLowBand(period, multiplier, offset);
+     }},
+    {"bollinger-channel-middle-band", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int period = std::get<int>(params[0]);
+         int offset = std::get<int>(params[1]);
+         return new BollingerChannelMiddleBand(period, offset);
+     }},
+    {"bollinger-channel-percentage-band", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int period = std::get<int>(params[0]);
+         double multiplier = std::get<double>(params[1]);
+         int offset = std::get<int>(params[2]);
+         return new BollingerChannelPercentageBand(period, multiplier, offset);
+     }},
+    {"bollinger-channel-width-band", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int period = std::get<int>(params[0]);
+         double multiplier = std::get<double>(params[1]);
+         int offset = std::get<int>(params[2]);
+         return new BollingerChannelWidthBand(period, multiplier, offset);
+     }},
+    {"donchian-channel-high-band", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int period = std::get<int>(params[0]);
+         int offset = std::get<int>(params[1]);
+         return new DonchianChannelHighBand(period, offset);
+     }},
+    {"donchian-channel-low-band", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int period = std::get<int>(params[0]);
+         int offset = std::get<int>(params[1]);
+         return new DonchianChannelLowBand(period, offset);
+     }},
+    {"donchian-channel-middle-band", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int period = std::get<int>(params[0]);
+         int offset = std::get<int>(params[1]);
+         return new DonchianChannelMiddleBand(period, offset);
+     }},
+    {"keltner-channel-high-band", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int period = std::get<int>(params[0]);
+         int atr_period = std::get<int>(params[1]);
+         double multiplier = std::get<double>(params[2]);
+         int offset = std::get<int>(params[3]);
+         return new KeltnerChannelHighBand(period, atr_period, multiplier, offset);
+     }},
+    {"keltner-channel-low-band", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int period = std::get<int>(params[0]);
+         int atr_period = std::get<int>(params[1]);
+         double multiplier = std::get<double>(params[2]);
+         int offset = std::get<int>(params[3]);
+         return new KeltnerChannelLowBand(period, atr_period, multiplier, offset);
+     }},
+    {"keltner-channel-middle-band", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int period = std::get<int>(params[0]);
+         int offset = std::get<int>(params[1]);
+         return new KeltnerChannelMiddleBand(period, offset);
+     }},
+    {"ui", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int period = std::get<int>(params[0]);
+         int offset = std::get<int>(params[1]);
+         return new UI(period, offset);
+     }},
+    {"standard-deviation", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int period = std::get<int>(params[0]);
+         int offset = std::get<int>(params[1]);
+         return new StandardDeviation(period, offset);
+     }},
+    {"average-price-change", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int period = std::get<int>(params[0]);
+         int offset = std::get<int>(params[1]);
+         return new AveragePriceChange(period, offset);
+     }},
+};
+
 #endif // INDICATORS_VOLATILITY_HPP

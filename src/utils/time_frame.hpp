@@ -43,6 +43,6 @@ std::string time_frame_to_string(TimeFrame time_frame);
  * @brief Convert a string representation of a timeframe to a TimeFrame enum.
  * @return TimeFrame The TimeFrame enum corresponding to the string representation.
  */
-TimeFrame string_to_time_frame(const std::string &time_frame);
+TimeFrame time_frame_from_string(const std::string &time_frame);
 
 #endif /* TIMEFRAME_H */

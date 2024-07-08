@@ -132,3 +132,26 @@ TEST_F(IndicatorTest, NormalizeData)
         ASSERT_LE(value, 1.0); // Check if value is less than or equal to 1
     }
 }
+
+TEST_F(IndicatorTest, IsValidIdWithParams)
+{
+    std::string id_params = "test-indicator-1-2.5-abc";
+    std::string id_params_pattern = "test-indicator-(\\d+)-(\\d+\\.\\d+)-(\\w+)";
+
+    bool result = is_valid_id_with_params(id_params, id_params_pattern);
+
+    // Check if the result is true
+    ASSERT_TRUE(result);
+}
+
+TEST_F(IndicatorTest, IsValidParamsWithIdParamsPattern)
+{
+    std::string id = "test-indicator";
+    std::vector<IndicatorParam> params = {1, 2.5, "abc"};
+    std::string id_params_pattern = "test-indicator-(\\d+)-(\\d+\\.\\d+)-(\\w+)";
+
+    bool result = is_valid_params_with_id_params_pattern(id, params, id_params_pattern);
+
+    // Check if the result is true
+    ASSERT_TRUE(result);
+}

@@ -118,4 +118,34 @@ public:
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 };
 
+const std::unordered_map<std::string, std::function<Indicator *(std::vector<IndicatorParam>)>> time_indicators_map = {
+    {"hour", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int offset = std::get<int>(params[0]);
+         return new Hour(offset);
+     }},
+    {"minute", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int offset = std::get<int>(params[0]);
+         return new Minute(offset);
+     }},
+    {"nfp-week", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int offset = std::get<int>(params[0]);
+         return new NFPWeek(offset);
+     }},
+    {"market-session", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         std::string zone = std::get<std::string>(params[0]);
+         int offset = std::get<int>(params[1]);
+         return new MarketSession(zone, offset);
+     }},
+    {"weekday", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         std::string day = std::get<std::string>(params[0]);
+         int offset = std::get<int>(params[1]);
+         return new WeekDay(day, offset);
+     }},
+};
+
 #endif // TIME_INDICATORS_HPP

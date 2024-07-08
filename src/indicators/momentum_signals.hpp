@@ -275,4 +275,93 @@ public:
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 };
 
+const std::unordered_map<std::string, std::function<Indicator *(std::vector<IndicatorParam>)>> momentum_signals_indicators_map = {
+    {"awesome-oscillator-signal", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int offset = std::get<int>(params[0]);
+         return new AwesomeOscillatorSignal(offset);
+     }},
+    {"kama-signal", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int er_period = std::get<int>(params[0]);
+         int fastest_sc_period = std::get<int>(params[1]);
+         int slowest_sc_period = std::get<int>(params[2]);
+         int offset = std::get<int>(params[3]);
+         return new KAMASignal(er_period, fastest_sc_period, slowest_sc_period, offset);
+     }},
+    {"mfi-signal", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int period = std::get<int>(params[0]);
+         int overbought = std::get<int>(params[1]);
+         int oversold = std::get<int>(params[2]);
+         int offset = std::get<int>(params[3]);
+         return new MFISignal(period, overbought, oversold, offset);
+     }},
+    {"ppo-signal", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int short_period = std::get<int>(params[0]);
+         int long_period = std::get<int>(params[1]);
+         int offset = std::get<int>(params[2]);
+         return new PPOSignal(short_period, long_period, offset);
+     }},
+    {"roc-signal", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int period = std::get<int>(params[0]);
+         int offset = std::get<int>(params[1]);
+         return new ROCSignal(period, offset);
+     }},
+    {"rsi-signal", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int period = std::get<int>(params[0]);
+         int overbought = std::get<int>(params[1]);
+         int oversold = std::get<int>(params[2]);
+         int offset = std::get<int>(params[3]);
+         return new RSISignal(period, overbought, oversold, offset);
+     }},
+    {"stochastic-rsi-signal", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int period = std::get<int>(params[0]);
+         int overbought = std::get<int>(params[1]);
+         int oversold = std::get<int>(params[2]);
+         int offset = std::get<int>(params[3]);
+         return new StochasticRSISignal(period, overbought, oversold, offset);
+     }},
+    {"stochastic-oscillator-signal", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int k_period = std::get<int>(params[0]);
+         int d_period = std::get<int>(params[1]);
+         int overbought = std::get<int>(params[2]);
+         int oversold = std::get<int>(params[3]);
+         int offset = std::get<int>(params[4]);
+         return new StochasticOscillatorSignal(k_period, d_period, overbought, oversold, offset);
+     }},
+    {"tsi-signal", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int short_period = std::get<int>(params[0]);
+         int long_period = std::get<int>(params[1]);
+         int overbought = std::get<int>(params[2]);
+         int oversold = std::get<int>(params[3]);
+         int offset = std::get<int>(params[4]);
+         return new TSISignal(short_period, long_period, overbought, oversold, offset);
+     }},
+    {"uo-signal", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int short_period = std::get<int>(params[0]);
+         int medium_period = std::get<int>(params[1]);
+         int long_period = std::get<int>(params[2]);
+         int overbought = std::get<int>(params[3]);
+         int oversold = std::get<int>(params[4]);
+         int offset = std::get<int>(params[5]);
+         return new UOSignal(short_period, medium_period, long_period, overbought, oversold, offset);
+     }},
+    {"wpr-signal", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int period = std::get<int>(params[0]);
+         int overbought = std::get<int>(params[1]);
+         int oversold = std::get<int>(params[2]);
+         int offset = std::get<int>(params[3]);
+         return new WPRSignal(period, overbought, oversold, offset);
+     }},
+};
+
 #endif // MOMENTUM_SIGNALS_INDICATORS_H

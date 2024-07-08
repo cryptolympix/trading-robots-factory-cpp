@@ -17,6 +17,25 @@ using IndicatorParam = std::variant<int, double, std::string>;
 struct Candle;
 
 /**
+ * @brief Check if the ID with parameters is valid.
+ *
+ * @param id_params The ID with parameters.
+ * @param id_params_pattern The regex pattern to match the ID with parameters.
+ * @return true If the ID with parameters is valid.
+ */
+bool is_valid_id_with_params(const std::string &id_params, const std::string &id_params_pattern);
+
+/**
+ * @brief Check if the parameters are valid with the ID pattern.
+ *
+ * @param id The ID.
+ * @param params The parameters.
+ * @param id_params_pattern The regex pattern to match the ID with parameters.
+ * @return true If the parameters are valid with the ID pattern.
+ */
+bool is_valid_params_with_id_params_pattern(const std::string &id, const std::vector<IndicatorParam> &params, const std::string &id_params_pattern);
+
+/**
  * @brief Class for Indicator.
  */
 class Indicator

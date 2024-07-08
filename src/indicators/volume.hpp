@@ -248,4 +248,51 @@ public:
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 };
 
+const std::unordered_map<std::string, std::function<Indicator *(std::vector<IndicatorParam>)>> volume_indicators_map = {
+    {"adl", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int offset = std::get<int>(params[0]);
+         return new ADL(offset);
+     }},
+    {"cmf", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int period = std::get<int>(params[0]);
+         int offset = std::get<int>(params[1]);
+         return new CMF(period, offset);
+     }},
+    {"fi", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int period = std::get<int>(params[0]);
+         int offset = std::get<int>(params[1]);
+         return new FI(period, offset);
+     }},
+    {"nvi", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int offset = std::get<int>(params[0]);
+         return new NVI(offset);
+     }},
+    {"obv", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int offset = std::get<int>(params[0]);
+         return new OBV(offset);
+     }},
+    {"poc", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int period = std::get<int>(params[0]);
+         int range_nb = std::get<int>(params[1]);
+         int offset = std::get<int>(params[2]);
+         return new POC(period, range_nb, offset);
+     }},
+    {"pvi", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int offset = std::get<int>(params[0]);
+         return new PVI(offset);
+     }},
+    {"vwap", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int offset = std::get<int>(params[0]);
+         return new VWAP(offset);
+     }},
+};
+
 #endif // INDICATORS_VOLUME_HPP

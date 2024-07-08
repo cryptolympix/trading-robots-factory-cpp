@@ -709,4 +709,164 @@ public:
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 };
 
+const std::unordered_map<std::string, std::function<Indicator *(std::vector<IndicatorParam>)>> trend_indicators_map = {
+    {"adx", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int period = std::get<int>(params[0]);
+         int offset = std::get<int>(params[1]);
+         return new ADX(period, offset);
+     }},
+    {"aroon_up", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int period = std::get<int>(params[0]);
+         int offset = std::get<int>(params[1]);
+         return new AroonUp(period, offset);
+     }},
+    {"aroon_down", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int period = std::get<int>(params[0]);
+         int offset = std::get<int>(params[1]);
+         return new AroonDown(period, offset);
+     }},
+    {"cci", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int period = std::get<int>(params[0]);
+         int offset = std::get<int>(params[1]);
+         return new CCI(period, offset);
+     }},
+    {"dpo", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int period = std::get<int>(params[0]);
+         int offset = std::get<int>(params[1]);
+         return new DPO(period, offset);
+     }},
+    {"ema", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         std::string source = std::get<std::string>(params[0]);
+         int period = std::get<int>(params[1]);
+         int offset = std::get<int>(params[2]);
+         return new EMA(source, period, offset);
+     }},
+    {"kst", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int roc_periods1 = std::get<int>(params[0]);
+         int roc_periods2 = std::get<int>(params[1]);
+         int roc_periods3 = std::get<int>(params[2]);
+         int roc_periods4 = std::get<int>(params[3]);
+         int sma_periods1 = std::get<int>(params[4]);
+         int sma_periods2 = std::get<int>(params[5]);
+         int sma_periods3 = std::get<int>(params[6]);
+         int sma_periods4 = std::get<int>(params[7]);
+         int signal_periods = std::get<int>(params[8]);
+         int offset = std::get<int>(params[9]);
+         return new KST(roc_periods1, roc_periods2, roc_periods3, roc_periods4, sma_periods1, sma_periods2, sma_periods3, sma_periods4, signal_periods, offset);
+     }},
+    {"macd", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int short_period = std::get<int>(params[0]);
+         int long_period = std::get<int>(params[1]);
+         int signal_period = std::get<int>(params[2]);
+         int offset = std::get<int>(params[3]);
+         return new MACD(short_period, long_period, signal_period, offset);
+     }},
+    {"mi", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int offset = std::get<int>(params[0]);
+         return new MI(offset);
+     }},
+    {"psar", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         double acceleration_factor_initial = std::get<double>(params[0]);
+         double acceleration_factor_maximum = std::get<double>(params[1]);
+         int offset = std::get<int>(params[2]);
+         return new ParabolicSAR(acceleration_factor_initial, acceleration_factor_maximum, offset);
+     }},
+    {"sma", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         std::string source = std::get<std::string>(params[0]);
+         int period = std::get<int>(params[1]);
+         int offset = std::get<int>(params[2]);
+         return new SMA(source, period, offset);
+     }},
+    {"stc", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int short_length = std::get<int>(params[0]);
+         int long_length = std::get<int>(params[1]);
+         int cycle_length = std::get<int>(params[2]);
+         int offset = std::get<int>(params[3]);
+         return new STC(short_length, long_length, cycle_length, offset);
+     }},
+    {"trix", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int period = std::get<int>(params[0]);
+         int offset = std::get<int>(params[1]);
+         return new TRIX(period, offset);
+     }},
+    {"vortex", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int period = std::get<int>(params[0]);
+         int offset = std::get<int>(params[1]);
+         return new Vortex(period, offset);
+     }},
+    {"institutional_bias", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int short_period = std::get<int>(params[0]);
+         int long_period = std::get<int>(params[1]);
+         int offset = std::get<int>(params[2]);
+         return new InstitutionalBias(short_period, long_period, offset);
+     }},
+    {"ema_difference", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int short_period = std::get<int>(params[0]);
+         int long_period = std::get<int>(params[1]);
+         int offset = std::get<int>(params[2]);
+         return new EMADifference(short_period, long_period, offset);
+     }},
+    {"aroon-trend", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int period = std::get<int>(params[0]);
+         int offset = std::get<int>(params[1]);
+         return new AroonTrend(period, offset);
+     }},
+    {"ichimoku-cloud-trend", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int conversion_period = std::get<int>(params[0]);
+         int base_period = std::get<int>(params[1]);
+         int lagging_period = std::get<int>(params[2]);
+         int leading_period = std::get<int>(params[3]);
+         int offset = std::get<int>(params[4]);
+         return new IchimokuCloudTrend(conversion_period, base_period, lagging_period, leading_period, offset);
+     }},
+    {"ichimoku-kijun-tenkan-trend", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int conversion_period = std::get<int>(params[0]);
+         int base_period = std::get<int>(params[1]);
+         int lagging_period = std::get<int>(params[2]);
+         int leading_period = std::get<int>(params[3]);
+         int offset = std::get<int>(params[4]);
+         return new IchimokuKijunTenkanTrend(conversion_period, base_period, lagging_period, leading_period, offset);
+     }},
+    {"sma_slope", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int period = std::get<int>(params[0]);
+         std::string source = std::get<std::string>(params[1]);
+         int offset = std::get<int>(params[2]);
+         return new SMASlope(period, source, offset);
+     }},
+    {"ema_slope", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int period = std::get<int>(params[0]);
+         std::string source = std::get<std::string>(params[1]);
+         int offset = std::get<int>(params[2]);
+         return new EMASlope(period, source, offset);
+     }},
+    {"zigzag", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         double deviation = std::get<double>(params[0]);
+         int offset = std::get<int>(params[1]);
+         return new Zigzag(deviation, offset);
+     }},
+
+};
+
 #endif // TREND_INDICATORS_HPP

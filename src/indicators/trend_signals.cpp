@@ -359,7 +359,7 @@ std::vector<double> MACDSignal::calculate(const std::vector<Candle> &candles, bo
  * @param acceleration_factor_maximum Maximum acceleration factor value. Default is 0.2.
  * @param offset Offset value. Default is 0.
  */
-ParabolicSARSignal::ParabolicSARSignal(double acceleration_factor_initial, double acceleration_factor_maximum, int offset) : Indicator("Parabolic SAR (Signal)", "parabolic-sar-signal", {{"acceleration_factor_initial", acceleration_factor_initial}, {"acceleration_factor_maximum", acceleration_factor_maximum}, {"offset", offset}}, {-1, 1}) {}
+ParabolicSARSignal::ParabolicSARSignal(double acceleration_factor_initial, double acceleration_factor_maximum, int offset) : Indicator("Parabolic SAR (Signal)", "psar-signal", {{"acceleration_factor_initial", acceleration_factor_initial}, {"acceleration_factor_maximum", acceleration_factor_maximum}, {"offset", offset}}, {-1, 1}) {}
 
 /**
  * @brief Calculate the ParabolicSARSignal values.

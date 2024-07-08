@@ -100,4 +100,35 @@ public:
 
 // *********************************************************************************************
 
+const std::unordered_map<std::string, std::function<Indicator *(std::vector<IndicatorParam>)>> volatility_signals_indicators_map = {
+    {"atr-signal", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int period = std::get<int>(params[0]);
+         double threshold = std::get<double>(params[1]);
+         int offset = std::get<int>(params[2]);
+         return new ATRSignal(period, threshold, offset);
+     }},
+    {"bollinger-channel-signal", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int period = std::get<int>(params[0]);
+         double multiplier = std::get<double>(params[1]);
+         int offset = std::get<int>(params[2]);
+         return new BollingerChannelSignal(period, multiplier, offset);
+     }},
+    {"donchian-channel-signal", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int period = std::get<int>(params[0]);
+         int offset = std::get<int>(params[1]);
+         return new DonchianChannelSignal(period, offset);
+     }},
+    {"keltner-channel-signal", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int period = std::get<int>(params[0]);
+         int atr_period = std::get<int>(params[1]);
+         double multiplier = std::get<double>(params[2]);
+         int offset = std::get<int>(params[3]);
+         return new KeltnerChannelSignal(period, atr_period, multiplier, offset);
+     }},
+};
+
 #endif // VOLATILITY_SIGNALS_HPP

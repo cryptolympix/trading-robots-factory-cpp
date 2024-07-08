@@ -1,6 +1,8 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <stdexcept>
+#include <iostream>
 #include "../libs/json.hpp"
 #include "../utils/time_frame.hpp"
 #include "../types.hpp"
@@ -53,7 +55,7 @@ nlohmann::json config_to_json(const Config &config)
 
         // Strategy config
         nlohmann::json strategy_json = {
-            {"timeframe", config.strategy.timeframe},
+            {"timeframe", time_frame_to_string(config.strategy.timeframe)},
             {"risk_per_trade", config.strategy.risk_per_trade},
         };
         add_optional(strategy_json, "maximum_trades_per_day", config.strategy.maximum_trades_per_day);
@@ -126,7 +128,7 @@ nlohmann::json config_to_json(const Config &config)
         add_optional(training_json, "inactive_trader_threshold", config.training.inactive_trader_threshold);
         add_optional(training_json, "decision_threshold", config.training.decision_threshold);
 
-        // Training inputs
+        // Training indicator inputs
         nlohmann::json indicators_json = nlohmann::json::object();
         for (const auto &[timeframe, indicators] : config.training.inputs.indicators)
         {
@@ -138,10 +140,34 @@ nlohmann::json config_to_json(const Config &config)
                     {"id_params_pattern", indicator->id_params_pattern},
                 });
             }
+            indicators_json[time_frame_to_string(timeframe)] = timeframe_json;
         }
+
+        // Training position inputs
+        nlohmann::json position_json = nlohmann::json::array();
+        for (const auto &pos : config.training.inputs.position)
+        {
+            if (pos == PositionInfo::TYPE)
+            {
+                position_json.push_back("TYPE");
+            }
+            else if (pos == PositionInfo::PNL)
+            {
+                position_json.push_back("PNL");
+            }
+            else if (pos == PositionInfo::DURATION)
+            {
+                position_json.push_back("DURATION");
+            }
+            else
+            {
+                throw std::runtime_error("Invalid position info");
+            }
+        }
+
         training_json["inputs"] = {
             {"indicators", indicators_json},
-            {"position", config.training.inputs.position},
+            {"position", position_json},
         };
 
         // Evaluation config
@@ -189,15 +215,18 @@ nlohmann::json config_to_json(const Config &config)
             {"survival_threshold", config.neat.survival_threshold},
             {"min_species_size", config.neat.min_species_size},
             {"compatibility_threshold", config.neat.compatibility_threshold},
-            {"bad_species_threshold", config.neat.bad_species_threshold}};
+            {"bad_species_threshold", config.neat.bad_species_threshold},
+        };
 
-        return {
+        nlohmann::json config_json = {
             {"general", general_json},
             {"strategy", strategy_json},
             {"training", training_json},
             {"evaluation", evaluation_json},
             {"neat", neat_json},
         };
+
+        return config_json;
     }
     catch (const std::exception &e)
     {
@@ -285,7 +314,7 @@ Config config_from_json(const nlohmann::json &json)
     config.general.account_currency = json["general"]["account_currency"];
 
     // Parse strategy config data
-    config.strategy.timeframe = json["strategy"]["timeframe"];
+    config.strategy.timeframe = time_frame_from_string(json["strategy"]["timeframe"]);
     config.strategy.risk_per_trade = json["strategy"]["risk_per_trade"];
     if (json["strategy"].contains("maximum_trades_per_day"))
     {
@@ -424,6 +453,8 @@ Config config_from_json(const nlohmann::json &json)
     // Parse training inputs data
     const auto &inputs_json = json["training"]["inputs"];
     const auto &indicators_json = inputs_json["indicators"];
+    const auto &position_json = inputs_json["position"];
+
     std::map<TimeFrame, std::vector<Indicator *>> indicators;
     for (const auto &[timeframe, indicators_id] : indicators_json.items())
     {
@@ -435,22 +466,43 @@ Config config_from_json(const nlohmann::json &json)
                 throw std::runtime_error("Missing 'id_params' key in the JSON object");
             }
 
-            if (!indicator.contains("id_pattern"))
+            if (!indicator.contains("id_params_pattern"))
             {
-                throw std::runtime_error("Missing 'id_pattern' key in the JSON object");
+                throw std::runtime_error("Missing 'id_params_pattern' key in the JSON object");
             }
 
+            const std::string id_params = indicator["id_params"];
             const std::string id_params_pattern = indicator["id_params_pattern"];
-            const std::string id_pattern = indicator["id_pattern"];
-            const std::vector<IndicatorParam> params = extract_parameters(id_params_pattern, id_pattern);
-            indicators_list.push_back(create_indicator_from_id(id_params_pattern, params));
+            const std::vector<IndicatorParam> params = extract_parameters(id_params, id_params_pattern);
+            indicators_list.push_back(create_indicator_from_id(id_params, params));
         }
-        indicators[string_to_time_frame(timeframe)] = indicators_list;
+        indicators[time_frame_from_string(timeframe)] = indicators_list;
+    }
+
+    std::vector<PositionInfo> position_info;
+    for (const auto &pos : position_json)
+    {
+        if (pos == "TYPE")
+        {
+            position_info.push_back(PositionInfo::TYPE);
+        }
+        else if (pos == "PNL")
+        {
+            position_info.push_back(PositionInfo::PNL);
+        }
+        else if (pos == "DURATION")
+        {
+            position_info.push_back(PositionInfo::DURATION);
+        }
+        else
+        {
+            throw std::runtime_error("Invalid position info");
+        }
     }
 
     config.training.inputs = NeuralNetworkInputs{
         .indicators = indicators,
-        .position = inputs_json["position"],
+        .position = position_info,
     };
 
     // Parse evaluation config data
@@ -524,4 +576,145 @@ Config config_from_json(const nlohmann::json &json)
     config.neat.min_species_size = json["neat"]["min_species_size"];
 
     return config;
+}
+
+/**
+ * @brief Check if two Config objects are the same
+ * @return True if the Config objects are the same, false otherwise
+ */
+bool is_same_config(const Config &config1, const Config &config2)
+{
+    bool is_same_general_config = config1.general.account_currency == config2.general.account_currency &&
+                                  config1.general.initial_balance == config2.general.initial_balance &&
+                                  config1.general.leverage == config2.general.leverage &&
+                                  config1.general.name == config2.general.name &&
+                                  config1.general.symbol == config2.general.symbol &&
+                                  config1.general.version == config2.general.version;
+
+    if (!is_same_general_config)
+    {
+        std::cout << "General config is different" << std::endl;
+        return false;
+    }
+
+    bool is_same_strategy_config = config1.strategy.timeframe == config2.strategy.timeframe &&
+                                   config1.strategy.risk_per_trade == config2.strategy.risk_per_trade &&
+                                   config1.strategy.maximum_trades_per_day.value_or(0) == config2.strategy.maximum_trades_per_day.value_or(0) &&
+                                   config1.strategy.maximum_spread.value_or(0) == config2.strategy.maximum_spread.value_or(0) &&
+                                   config1.strategy.minimum_trade_duration.value_or(0) == config2.strategy.minimum_trade_duration.value_or(0) &&
+                                   config1.strategy.maximum_trade_duration.value_or(0) == config2.strategy.maximum_trade_duration.value_or(0) &&
+                                   config1.strategy.minimum_duration_before_next_trade.value_or(0) == config2.strategy.minimum_duration_before_next_trade.value_or(0) &&
+                                   config1.strategy.can_close_trade.value_or(true) == config2.strategy.can_close_trade.value_or(true) &&
+                                   config1.strategy.can_open_long_trade.value_or(true) == config2.strategy.can_open_long_trade.value_or(true) &&
+                                   config1.strategy.can_open_short_trade.value_or(true) == config2.strategy.can_open_short_trade.value_or(true) &&
+                                   config1.strategy.take_profit_stop_loss_config.type_stop_loss == config2.strategy.take_profit_stop_loss_config.type_stop_loss &&
+                                   config1.strategy.take_profit_stop_loss_config.type_take_profit == config2.strategy.take_profit_stop_loss_config.type_take_profit &&
+                                   config1.strategy.take_profit_stop_loss_config.stop_loss_in_points.value_or(0) == config2.strategy.take_profit_stop_loss_config.stop_loss_in_points.value_or(0) &&
+                                   config1.strategy.take_profit_stop_loss_config.stop_loss_in_percent.value_or(0) == config2.strategy.take_profit_stop_loss_config.stop_loss_in_percent.value_or(0) &&
+                                   config1.strategy.take_profit_stop_loss_config.stop_loss_extremum_period.value_or(0) == config2.strategy.take_profit_stop_loss_config.stop_loss_extremum_period.value_or(0) &&
+                                   config1.strategy.take_profit_stop_loss_config.stop_loss_atr_period.value_or(0) == config2.strategy.take_profit_stop_loss_config.stop_loss_atr_period.value_or(0) &&
+                                   config1.strategy.take_profit_stop_loss_config.stop_loss_atr_multiplier.value_or(0) == config2.strategy.take_profit_stop_loss_config.stop_loss_atr_multiplier.value_or(0) &&
+                                   config1.strategy.take_profit_stop_loss_config.take_profit_in_points.value_or(0) == config2.strategy.take_profit_stop_loss_config.take_profit_in_points.value_or(0) &&
+                                   config1.strategy.take_profit_stop_loss_config.take_profit_in_percent.value_or(0) == config2.strategy.take_profit_stop_loss_config.take_profit_in_percent.value_or(0) &&
+                                   config1.strategy.take_profit_stop_loss_config.take_profit_extremum_period.value_or(0) == config2.strategy.take_profit_stop_loss_config.take_profit_extremum_period.value_or(0) &&
+                                   config1.strategy.take_profit_stop_loss_config.take_profit_atr_period.value_or(0) == config2.strategy.take_profit_stop_loss_config.take_profit_atr_period.value_or(0) &&
+                                   config1.strategy.take_profit_stop_loss_config.take_profit_atr_multiplier.value_or(0) == config2.strategy.take_profit_stop_loss_config.take_profit_atr_multiplier.value_or(0) &&
+                                   config1.strategy.trading_schedule.has_value() == config2.strategy.trading_schedule.has_value() &&
+                                   config1.strategy.trading_schedule.value().monday == config2.strategy.trading_schedule.value().monday &&
+                                   config1.strategy.trading_schedule.value().tuesday == config2.strategy.trading_schedule.value().tuesday &&
+                                   config1.strategy.trading_schedule.value().wednesday == config2.strategy.trading_schedule.value().wednesday &&
+                                   config1.strategy.trading_schedule.value().thursday == config2.strategy.trading_schedule.value().thursday &&
+                                   config1.strategy.trading_schedule.value().friday == config2.strategy.trading_schedule.value().friday &&
+                                   config1.strategy.trading_schedule.value().saturday == config2.strategy.trading_schedule.value().saturday &&
+                                   config1.strategy.trading_schedule.value().sunday == config2.strategy.trading_schedule.value().sunday &&
+                                   config1.strategy.trailing_stop_loss_config.has_value() == config2.strategy.trailing_stop_loss_config.has_value() &&
+                                   config1.strategy.trailing_stop_loss_config.value().type == config2.strategy.trailing_stop_loss_config.value().type &&
+                                   config1.strategy.trailing_stop_loss_config.value().activation_level_in_points.value_or(0) == config2.strategy.trailing_stop_loss_config.value().activation_level_in_points.value_or(0) &&
+                                   config1.strategy.trailing_stop_loss_config.value().activation_level_in_percent.value_or(0) == config2.strategy.trailing_stop_loss_config.value().activation_level_in_percent.value_or(0) &&
+                                   config1.strategy.trailing_stop_loss_config.value().trailing_stop_loss_in_points.value_or(0) == config2.strategy.trailing_stop_loss_config.value().trailing_stop_loss_in_points.value_or(0) &&
+                                   config1.strategy.trailing_stop_loss_config.value().trailing_stop_loss_in_percent.value_or(0) == config2.strategy.trailing_stop_loss_config.value().trailing_stop_loss_in_percent.value_or(0);
+
+    return true;
+
+    if (!is_same_strategy_config)
+    {
+        std::cout << "Strategy config is different" << std::endl;
+        return false;
+    }
+
+    bool is_same_training_config = config1.training.generations == config2.training.generations &&
+                                   config1.training.training_start_date == config2.training.training_start_date &&
+                                   config1.training.training_end_date == config2.training.training_end_date &&
+                                   config1.training.test_start_date == config2.training.test_start_date &&
+                                   config1.training.test_end_date == config2.training.test_end_date &&
+                                   config1.training.bad_trader_threshold.value_or(0) == config2.training.bad_trader_threshold.value_or(0) &&
+                                   config1.training.inactive_trader_threshold.value_or(0) == config2.training.inactive_trader_threshold.value_or(0) &&
+                                   config1.training.decision_threshold.value_or(0) == config2.training.decision_threshold.value_or(0) &&
+                                   config1.training.inputs.indicators.size() == config2.training.inputs.indicators.size() &&
+                                   config1.training.inputs.position.size() == config2.training.inputs.position.size() &&
+                                   std::equal(config1.training.inputs.position.begin(), config1.training.inputs.position.end(), config2.training.inputs.position.begin()) &&
+                                   std::equal(config1.training.inputs.indicators.begin(), config1.training.inputs.indicators.end(), config2.training.inputs.indicators.begin());
+
+    if (!is_same_training_config)
+    {
+        std::cout << "Training config is different" << std::endl;
+        return false;
+    }
+
+    bool is_same_evaluation_config = config1.evaluation.maximize_nb_trades.value_or(0) == config2.evaluation.maximize_nb_trades.value_or(0) &&
+                                     config1.evaluation.minimum_nb_trades.value_or(0) == config2.evaluation.minimum_nb_trades.value_or(0) &&
+                                     config1.evaluation.maximum_trade_duration.value_or(0) == config2.evaluation.maximum_trade_duration.value_or(0) &&
+                                     config1.evaluation.expected_return_per_day.value_or(0) == config2.evaluation.expected_return_per_day.value_or(0) &&
+                                     config1.evaluation.expected_return_per_month.value_or(0) == config2.evaluation.expected_return_per_month.value_or(0) &&
+                                     config1.evaluation.expected_return.value_or(0) == config2.evaluation.expected_return.value_or(0) &&
+                                     config1.evaluation.maximum_drawdown.value_or(0) == config2.evaluation.maximum_drawdown.value_or(0) &&
+                                     config1.evaluation.minimum_winrate.value_or(0) == config2.evaluation.minimum_winrate.value_or(0) &&
+                                     config1.evaluation.minimum_profit_factor.value_or(0) == config2.evaluation.minimum_profit_factor.value_or(0);
+
+    if (!is_same_evaluation_config)
+    {
+        std::cout << "Evaluation config is different" << std::endl;
+        return false;
+    }
+
+    bool is_same_neat_config = config1.neat.population_size == config2.neat.population_size &&
+                               config1.neat.fitness_threshold == config2.neat.fitness_threshold &&
+                               config1.neat.no_fitness_termination == config2.neat.no_fitness_termination &&
+                               config1.neat.reset_on_extinction == config2.neat.reset_on_extinction &&
+                               config1.neat.activation_default == config2.neat.activation_default &&
+                               config1.neat.activation_mutate_rate == config2.neat.activation_mutate_rate &&
+                               config1.neat.num_inputs == config2.neat.num_inputs &&
+                               config1.neat.num_outputs == config2.neat.num_outputs &&
+                               config1.neat.num_hidden_layers == config2.neat.num_hidden_layers &&
+                               config1.neat.compatibility_disjoint_coefficient == config2.neat.compatibility_disjoint_coefficient &&
+                               config1.neat.compatibility_weight_coefficient == config2.neat.compatibility_weight_coefficient &&
+                               config1.neat.conn_add_prob == config2.neat.conn_add_prob &&
+                               config1.neat.conn_delete_prob == config2.neat.conn_delete_prob &&
+                               config1.neat.enabled_default == config2.neat.enabled_default &&
+                               config1.neat.enabled_mutate_rate == config2.neat.enabled_mutate_rate &&
+                               config1.neat.initial_connections == config2.neat.initial_connections &&
+                               config1.neat.node_add_prob == config2.neat.node_add_prob &&
+                               config1.neat.node_delete_prob == config2.neat.node_delete_prob &&
+                               config1.neat.weight_init_mean == config2.neat.weight_init_mean &&
+                               config1.neat.weight_init_stdev == config2.neat.weight_init_stdev &&
+                               config1.neat.weight_init_type == config2.neat.weight_init_type &&
+                               config1.neat.weight_max_value == config2.neat.weight_max_value &&
+                               config1.neat.weight_min_value == config2.neat.weight_min_value &&
+                               config1.neat.weight_mutate_rate == config2.neat.weight_mutate_rate &&
+                               config1.neat.weight_replace_rate == config2.neat.weight_replace_rate &&
+                               config1.neat.max_stagnation == config2.neat.max_stagnation &&
+                               config1.neat.species_elitism == config2.neat.species_elitism &&
+                               config1.neat.elitism == config2.neat.elitism &&
+                               config1.neat.survival_threshold == config2.neat.survival_threshold &&
+                               config1.neat.min_species_size == config2.neat.min_species_size &&
+                               config1.neat.compatibility_threshold == config2.neat.compatibility_threshold &&
+                               config1.neat.bad_species_threshold == config2.neat.bad_species_threshold;
+
+    if (!is_same_neat_config)
+    {
+        std::cout << "NEAT config is different" << std::endl;
+        return false;
+    }
+
+    return true;
 }

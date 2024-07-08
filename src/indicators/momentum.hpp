@@ -413,4 +413,94 @@ public:
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 };
 
+const std::unordered_map<std::string, std::function<Indicator *(std::vector<IndicatorParam>)>> momentum_indicators_map = {
+    {"awesome-oscillator", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int offset = std::get<int>(params[0]);
+         return new AwesomeOscillator(offset);
+     }},
+    {"kama", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int er_period = std::get<int>(params[0]);
+         int fastest_sc_period = std::get<int>(params[1]);
+         int slowest_sc_period = std::get<int>(params[2]);
+         int offset = std::get<int>(params[3]);
+         return new KAMA(er_period, fastest_sc_period, slowest_sc_period, offset);
+     }},
+    {"rsi", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int period = std::get<int>(params[0]);
+         int offset = std::get<int>(params[1]);
+         return new RSI(period, offset);
+     }},
+    {"mfi", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int period = std::get<int>(params[0]);
+         int offset = std::get<int>(params[1]);
+         return new MFI(period, offset);
+     }},
+    {"ppo", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int short_period = std::get<int>(params[0]);
+         int long_period = std::get<int>(params[1]);
+         int offset = std::get<int>(params[2]);
+         return new PPO(short_period, long_period, offset);
+     }},
+    {"pvo", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int fast_period = std::get<int>(params[0]);
+         int slow_period = std::get<int>(params[1]);
+         int signal_period = std::get<int>(params[2]);
+         int offset = std::get<int>(params[3]);
+         return new PVO(fast_period, slow_period, signal_period, offset);
+     }},
+    {"roc", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int period = std::get<int>(params[0]);
+         int offset = std::get<int>(params[1]);
+         return new ROC(period, offset);
+     }},
+    {"rsi", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int period = std::get<int>(params[0]);
+         int offset = std::get<int>(params[1]);
+         return new RSI(period, offset);
+     }},
+    {"stochastic-rsi", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int period = std::get<int>(params[0]);
+         int sma_period = std::get<int>(params[1]);
+         int offset = std::get<int>(params[2]);
+         return new StochasticRSI(period, sma_period, offset);
+     }},
+    {"stochastic-oscillator", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int k_period = std::get<int>(params[0]);
+         int d_period = std::get<int>(params[1]);
+         int offset = std::get<int>(params[2]);
+         return new StochasticOscillator(k_period, d_period, offset);
+     }},
+    {"tsi", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int short_period = std::get<int>(params[0]);
+         int long_period = std::get<int>(params[1]);
+         int offset = std::get<int>(params[2]);
+         return new TSI(short_period, long_period, offset);
+     }},
+    {"uo", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int period1 = std::get<int>(params[0]);
+         int period2 = std::get<int>(params[1]);
+         int period3 = std::get<int>(params[2]);
+         int offset = std::get<int>(params[3]);
+         return new UO(period1, period2, period3, offset);
+     }},
+    {"wpr", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int period = std::get<int>(params[0]);
+         int offset = std::get<int>(params[1]);
+         return new WPR(period, offset);
+     }},
+};
+
 #endif /* MOMENTUM_INDICATORS_HPP */

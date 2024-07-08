@@ -1473,8 +1473,8 @@ std::vector<double> Zigzag::calculate(const std::vector<Candle> &candles, bool n
     return Indicator::calculate(
         candles, [this](const std::vector<Candle> &candles) -> std::vector<double>
         {
-            int period = std::get<int>(this->params.at("period"));
             double deviation = std::get<double>(this->params.at("deviation"));
+            int offset = std::get<int>(this->params.at("offset"));
 
             std::vector<double> zigzag_values(candles.size(), 0.0);
 

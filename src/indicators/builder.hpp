@@ -4,8 +4,14 @@
 #include <string>
 #include <vector>
 #include <functional>
-#include <map>
+#include <unordered_map>
 #include "indicator.hpp"
+
+/**
+ * @brief Get the indicators map.
+ * @return std::map<std::string, std::function<Indicator *(std::vector<IndicatorParam>)>> The indicators map.
+ */
+std::unordered_map<std::string, std::function<Indicator *(std::vector<IndicatorParam>)>> get_indicators_map();
 
 /**
  * @brief Extract the parameters from the ID.

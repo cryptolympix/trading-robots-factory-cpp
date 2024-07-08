@@ -506,4 +506,127 @@ public:
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 };
 
+const std::unordered_map<std::string, std::function<Indicator *(std::vector<IndicatorParam>)>> candle_indicators_map = {
+    {"candle-open", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int offset = std::get<int>(params[0]);
+         return new CandleOpen(offset);
+     }},
+    {"candle-high", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int offset = std::get<int>(params[0]);
+         return new CandleHigh(offset);
+     }},
+    {"candle-low", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int offset = std::get<int>(params[0]);
+         return new CandleLow(offset);
+     }},
+    {"candle-close", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int offset = std::get<int>(params[0]);
+         return new CandleClose(offset);
+     }},
+    {"candle-tick-volume", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int offset = std::get<int>(params[0]);
+         return new CandleTickVolume(offset);
+     }},
+    {"candle-volume", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int offset = std::get<int>(params[0]);
+         return new CandleVolume(offset);
+     }},
+    {"white-candle", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int offset = std::get<int>(params[0]);
+         return new WhiteCandle(offset);
+     }},
+    {"black-candle", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int offset = std::get<int>(params[0]);
+         return new BlackCandle(offset);
+     }},
+    {"candle-body", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int offset = std::get<int>(params[0]);
+         return new CandleBody(offset);
+     }},
+    {"candle-shadow-upper", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int offset = std::get<int>(params[0]);
+         return new CandleShadowUpper(offset);
+     }},
+    {"candle-shadow-lower", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int offset = std::get<int>(params[0]);
+         return new CandleShadowLower(offset);
+     }},
+    {"candle-price-change", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int offset = std::get<int>(params[0]);
+         return new CandlePriceChange(offset);
+     }},
+    {"pivot-high", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         std::string source = std::get<std::string>(params[0]);
+         int left_bars = std::get<int>(params[1]);
+         int right_bars = std::get<int>(params[2]);
+         int offset = std::get<int>(params[3]);
+         return new PivotHigh(source, left_bars, right_bars, offset);
+     }},
+    {"pivot-low", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         std::string source = std::get<std::string>(params[0]);
+         int left_bars = std::get<int>(params[1]);
+         int right_bars = std::get<int>(params[2]);
+         int offset = std::get<int>(params[3]);
+         return new PivotLow(source, left_bars, right_bars, offset);
+     }},
+    {"pivot-high-value", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         std::string source = std::get<std::string>(params[0]);
+         int left_bars = std::get<int>(params[1]);
+         int right_bars = std::get<int>(params[2]);
+         int offset = std::get<int>(params[3]);
+         return new PivotHighValue(source, left_bars, right_bars, offset);
+     }},
+    {"pivot-low-value", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         std::string source = std::get<std::string>(params[0]);
+         int left_bars = std::get<int>(params[1]);
+         int right_bars = std::get<int>(params[2]);
+         int offset = std::get<int>(params[3]);
+         return new PivotLowValue(source, left_bars, right_bars, offset);
+     }},
+    {"highest-high", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int left_bars = std::get<int>(params[0]);
+         int right_bars = std::get<int>(params[1]);
+         int offset = std::get<int>(params[2]);
+         return new HighestHigh(left_bars, right_bars, offset);
+     }},
+    {"lowest-low", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int left_bars = std::get<int>(params[0]);
+         int right_bars = std::get<int>(params[1]);
+         int offset = std::get<int>(params[2]);
+         return new LowestLow(left_bars, right_bars, offset);
+     }},
+    {"peak-distance", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int left_bars = std::get<int>(params[0]);
+         int right_bars = std::get<int>(params[1]);
+         int offset = std::get<int>(params[2]);
+         return new PeakDistance(left_bars, right_bars, offset);
+     }},
+    {"peak-candle-distance", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int left_bars = std::get<int>(params[0]);
+         int right_bars = std::get<int>(params[1]);
+         int offset = std::get<int>(params[2]);
+         return new PeakCandleDistance(left_bars, right_bars, offset);
+     }},
+};
+
 #endif /* CANDLE_INDICATORS_H */

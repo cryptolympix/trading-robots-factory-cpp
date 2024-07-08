@@ -14,15 +14,51 @@
 #include "momentum.hpp"
 
 /**
- * @brief Check if the ID is valid.
- * @param id The ID to check.
- * @param id_pattern The regex pattern to match the ID.
- * @return True if the ID is valid, false otherwise.
+ * @brief Check if the ID with parameters is valid.
+ *
+ * @param id_params The ID with parameters.
+ * @param id_params_pattern The regex pattern to match the ID with parameters.
+ * @return true If the ID with parameters is valid.
  */
-bool is_valid_id(const std::string &id, const std::string &id_pattern)
+bool is_valid_id_with_params(const std::string &id_params, const std::string &id_params_pattern)
 {
-    std::regex pattern(id_pattern);
-    return std::regex_match(id, pattern);
+    std::regex pattern(id_params_pattern);
+    return std::regex_match(id_params, pattern);
+}
+
+/**
+ * @brief Check if the parameters are valid with the ID pattern.
+ *
+ * @param id The ID.
+ * @param params The parameters.
+ * @param id_params_pattern The regex pattern to match the ID with parameters.
+ * @return true If the parameters are valid with the ID pattern.
+ */
+bool is_valid_params_with_id_params_pattern(const std::string &id, const std::vector<IndicatorParam> &params, const std::string &id_params_pattern)
+{
+    std::string id_params = id;
+    for (const auto &param : params)
+    {
+        // Detect if the parameter is a string
+        if (std::holds_alternative<std::string>(param))
+        {
+            id_params += "-" + std::get<std::string>(param);
+        }
+
+        // Detect if the parameter is an int
+        else if (std::holds_alternative<int>(param))
+        {
+            id_params += "-" + std::to_string(std::get<int>(param));
+        }
+
+        // Detect if the parameter is a double
+        else if (std::holds_alternative<double>(param))
+        {
+            id_params += "-" + std::to_string(std::get<double>(param));
+        }
+    }
+
+    return is_valid_id_with_params(id_params, id_params_pattern);
 }
 
 // *********************************************************************************************************************

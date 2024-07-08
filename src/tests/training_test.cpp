@@ -127,11 +127,13 @@ protected:
 
         // Create the temp directory
         temp_dir = std::filesystem::temp_directory_path() / "training_test";
-        config_file_path = this->temp_dir / "config_test.hpp";
+        std::filesystem::create_directories(temp_dir);
+        config_file_path = temp_dir / "config_test.hpp";
 
         // Create the config file for the training test
-        std::ofstream config_file(this->config_file_path.generic_string());
+        std::ofstream config_file(this->config_file_path);
         config_file << config_to_json(config).dump(4);
+        config_file.close();
 
         // Create the training
         training = new Training("test", config_file_path.generic_string(), false);
@@ -344,6 +346,7 @@ TEST_F(TrainingTest, Run)
 
         // Add more generations
         training->config.training.generations = config.training.generations * 2;
+        training->save(); // Update the training state in the file
 
         // Continue the training
         Training *training2 = new Training(training->id, training->config_file_path, false);

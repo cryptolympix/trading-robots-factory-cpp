@@ -98,4 +98,35 @@ public:
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 };
 
+const std::unordered_map<std::string, std::function<Indicator *(std::vector<IndicatorParam>)>> candle_signals_indicators_map = {
+    {"new-high-signal", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int left_bars = std::get<int>(params[0]);
+         int right_bars = std::get<int>(params[1]);
+         int offset = std::get<int>(params[2]);
+         return new NewHighSignal(left_bars, right_bars, offset);
+     }},
+    {"new-low-signal", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int left_bars = std::get<int>(params[0]);
+         int right_bars = std::get<int>(params[1]);
+         int offset = std::get<int>(params[2]);
+         return new NewLowSignal(left_bars, right_bars, offset);
+     }},
+    {"high-break-signal", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int left_bars = std::get<int>(params[0]);
+         int right_bars = std::get<int>(params[1]);
+         int offset = std::get<int>(params[2]);
+         return new HighBreakSignal(left_bars, right_bars, offset);
+     }},
+    {"low-break-signal", [](std::vector<IndicatorParam> params) -> Indicator *
+     {
+         int left_bars = std::get<int>(params[0]);
+         int right_bars = std::get<int>(params[1]);
+         int offset = std::get<int>(params[2]);
+         return new LowBreakSignal(left_bars, right_bars, offset);
+     }},
+};
+
 #endif // CANDLE_SIGNALS_INDICATORS_HPP

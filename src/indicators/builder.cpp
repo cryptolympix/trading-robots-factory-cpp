@@ -1,27 +1,52 @@
 #include <string>
 #include <vector>
 #include <functional>
-#include <map>
+#include <unordered_map>
 #include <sstream>
 #include <iostream>
 #include <regex>
+#include <stdexcept>
 #include "builder.hpp"
 #include "indicator.hpp"
 
 // Include the indicators
+#include "candle_patterns.hpp"
+#include "candle_signals.hpp"
+#include "candle.hpp"
+#include "momentum_signals.hpp"
 #include "momentum.hpp"
+#include "time.hpp"
+#include "trend_signals.hpp"
+#include "trend.hpp"
+#include "volatility_signals.hpp"
+#include "volatility.hpp"
+#include "volume_signals.hpp"
+#include "volume.hpp"
 
-// Map linking the indicator ID to the constructor function
-const std::map<std::string, std::function<Indicator *(std::vector<IndicatorParam>)>> indicators_map = {
-    {"awesome-oscillator", [](std::vector<IndicatorParam> params) -> Indicator *
-     {
-         return new AwesomeOscillator(std::get<int>(params[0]));
-     }},
-    {"kama", [](std::vector<IndicatorParam> params) -> Indicator *
-     {
-         return new KAMA(std::get<int>(params[0]), std::get<double>(params[1]), std::get<double>(params[2]), std::get<double>(params[3]));
-     }},
-};
+/**
+ * @brief Get the indicators map.
+ * @return std::map<std::string, std::function<Indicator *(std::vector<IndicatorParam>)>> The indicators map.
+ */
+std::unordered_map<std::string, std::function<Indicator *(std::vector<IndicatorParam>)>> get_indicators_map()
+{
+    // Map linking the indicator ID to the constructor function
+    std::unordered_map<std::string, std::function<Indicator *(std::vector<IndicatorParam>)>> indicators_map = {};
+
+    indicators_map.insert(candle_patterns_indicators_map.begin(), candle_patterns_indicators_map.end());
+    indicators_map.insert(candle_signals_indicators_map.begin(), candle_signals_indicators_map.end());
+    indicators_map.insert(candle_indicators_map.begin(), candle_indicators_map.end());
+    indicators_map.insert(momentum_signals_indicators_map.begin(), momentum_signals_indicators_map.end());
+    indicators_map.insert(momentum_indicators_map.begin(), momentum_indicators_map.end());
+    indicators_map.insert(time_indicators_map.begin(), time_indicators_map.end());
+    indicators_map.insert(trend_signals_indicators_map.begin(), trend_signals_indicators_map.end());
+    indicators_map.insert(trend_indicators_map.begin(), trend_indicators_map.end());
+    indicators_map.insert(volatility_signals_indicators_map.begin(), volatility_signals_indicators_map.end());
+    indicators_map.insert(volatility_indicators_map.begin(), volatility_indicators_map.end());
+    indicators_map.insert(volume_signals_indicators_map.begin(), volume_signals_indicators_map.end());
+    indicators_map.insert(volume_indicators_map.begin(), volume_indicators_map.end());
+
+    return indicators_map;
+}
 
 /**
  * @brief Extract the parameters from the ID.
@@ -29,7 +54,8 @@ const std::map<std::string, std::function<Indicator *(std::vector<IndicatorParam
  * @param id_params_pattern The regex pattern to match the ID.
  * @return std::vector<T> The extracted parameters.
  */
-std::vector<IndicatorParam> extract_parameters(const std::string &id_params, const std::string &id_params_pattern)
+std::vector<IndicatorParam>
+extract_parameters(const std::string &id_params, const std::string &id_params_pattern)
 {
     std::regex pattern(id_params_pattern);
     std::smatch matches;
@@ -81,6 +107,9 @@ Indicator *create_indicator_from_id(const std::string &id_params, const std::vec
 
     try
     {
+        // Get the indicators map
+        std::unordered_map<std::string, std::function<Indicator *(std::vector<IndicatorParam>)>> indicators_map = get_indicators_map();
+
         for (const auto &[indicator_id, indicator_constructor] : indicators_map)
         {
             if (starts_with(id_params, indicator_id))
@@ -98,6 +127,8 @@ Indicator *create_indicator_from_id(const std::string &id_params, const std::vec
                 }
             }
         }
+
+        throw std::invalid_argument("No indicator found for ID: " + id_params);
     }
     catch (const std::invalid_argument &e)
     {
