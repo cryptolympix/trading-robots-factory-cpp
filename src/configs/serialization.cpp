@@ -99,6 +99,14 @@ nlohmann::json config_to_json(const Config &config)
                 {"sunday", schedule.sunday},
             };
             strategy_json["trading_schedule"] = schedule_json;
+
+            for (const auto &day : {"monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"})
+            {
+                if (schedule_json[day].size() != 24)
+                {
+                    throw std::runtime_error("Invalid trading schedule format for '" + std::string(day) + "': the array must contain 24 elements");
+                }
+            }
         }
 
         // Trailing stop loss config
@@ -396,6 +404,24 @@ Config config_from_json(const nlohmann::json &json)
     // Parse trading schedule data
     if (json["strategy"].contains("trading_schedule"))
     {
+        // Check trading schedule format
+        for (const auto &day : {"monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"})
+        {
+            if (!json["strategy"]["trading_schedule"].contains(day))
+            {
+                throw std::runtime_error("Missing '" + std::string(day) + "' key in the JSON object");
+            }
+            if (!json["strategy"]["trading_schedule"][day].is_array())
+            {
+                throw std::runtime_error("Invalid trading schedule format: the value must be an array");
+            }
+
+            if (json["strategy"]["trading_schedule"][day].size() != 24)
+            {
+                throw std::runtime_error("Invalid trading schedule format: the array must contain 24 elements");
+            }
+        }
+
         const auto &schedule_json = json["strategy"]["trading_schedule"];
         config.strategy.trading_schedule = TradingSchedule{
             .monday = schedule_json["monday"],
@@ -404,7 +430,17 @@ Config config_from_json(const nlohmann::json &json)
             .thursday = schedule_json["thursday"],
             .friday = schedule_json["friday"],
             .saturday = schedule_json["saturday"],
-            .sunday = schedule_json["sunday"]};
+            .sunday = schedule_json["sunday"],
+        };
+
+        if (config.strategy.trading_schedule.has_value())
+        {
+            const auto &schedule = config.strategy.trading_schedule.value();
+            if (schedule.monday.size() != 24 || schedule.tuesday.size() != 24 || schedule.wednesday.size() != 24 || schedule.thursday.size() != 24 || schedule.friday.size() != 24 || schedule.saturday.size() != 24 || schedule.sunday.size() != 24)
+            {
+                throw std::runtime_error("Invalid trading schedule format: the array must contain 24 elements");
+            }
+        }
     }
 
     // Parse trailing stop loss config data
@@ -574,6 +610,8 @@ Config config_from_json(const nlohmann::json &json)
     config.neat.elitism = json["neat"]["elitism"];
     config.neat.survival_threshold = json["neat"]["survival_threshold"];
     config.neat.min_species_size = json["neat"]["min_species_size"];
+    config.neat.compatibility_threshold = json["neat"]["compatibility_threshold"];
+    config.neat.bad_species_threshold = json["neat"]["bad_species_threshold"];
 
     return config;
 }
@@ -618,27 +656,49 @@ bool is_same_config(const Config &config1, const Config &config2)
                                    config1.strategy.take_profit_stop_loss_config.take_profit_in_percent.value_or(0) == config2.strategy.take_profit_stop_loss_config.take_profit_in_percent.value_or(0) &&
                                    config1.strategy.take_profit_stop_loss_config.take_profit_extremum_period.value_or(0) == config2.strategy.take_profit_stop_loss_config.take_profit_extremum_period.value_or(0) &&
                                    config1.strategy.take_profit_stop_loss_config.take_profit_atr_period.value_or(0) == config2.strategy.take_profit_stop_loss_config.take_profit_atr_period.value_or(0) &&
-                                   config1.strategy.take_profit_stop_loss_config.take_profit_atr_multiplier.value_or(0) == config2.strategy.take_profit_stop_loss_config.take_profit_atr_multiplier.value_or(0) &&
-                                   config1.strategy.trading_schedule.has_value() == config2.strategy.trading_schedule.has_value() &&
-                                   config1.strategy.trading_schedule.value().monday == config2.strategy.trading_schedule.value().monday &&
-                                   config1.strategy.trading_schedule.value().tuesday == config2.strategy.trading_schedule.value().tuesday &&
-                                   config1.strategy.trading_schedule.value().wednesday == config2.strategy.trading_schedule.value().wednesday &&
-                                   config1.strategy.trading_schedule.value().thursday == config2.strategy.trading_schedule.value().thursday &&
-                                   config1.strategy.trading_schedule.value().friday == config2.strategy.trading_schedule.value().friday &&
-                                   config1.strategy.trading_schedule.value().saturday == config2.strategy.trading_schedule.value().saturday &&
-                                   config1.strategy.trading_schedule.value().sunday == config2.strategy.trading_schedule.value().sunday &&
-                                   config1.strategy.trailing_stop_loss_config.has_value() == config2.strategy.trailing_stop_loss_config.has_value() &&
-                                   config1.strategy.trailing_stop_loss_config.value().type == config2.strategy.trailing_stop_loss_config.value().type &&
-                                   config1.strategy.trailing_stop_loss_config.value().activation_level_in_points.value_or(0) == config2.strategy.trailing_stop_loss_config.value().activation_level_in_points.value_or(0) &&
-                                   config1.strategy.trailing_stop_loss_config.value().activation_level_in_percent.value_or(0) == config2.strategy.trailing_stop_loss_config.value().activation_level_in_percent.value_or(0) &&
-                                   config1.strategy.trailing_stop_loss_config.value().trailing_stop_loss_in_points.value_or(0) == config2.strategy.trailing_stop_loss_config.value().trailing_stop_loss_in_points.value_or(0) &&
-                                   config1.strategy.trailing_stop_loss_config.value().trailing_stop_loss_in_percent.value_or(0) == config2.strategy.trailing_stop_loss_config.value().trailing_stop_loss_in_percent.value_or(0);
-
-    return true;
+                                   config1.strategy.take_profit_stop_loss_config.take_profit_atr_multiplier.value_or(0) == config2.strategy.take_profit_stop_loss_config.take_profit_atr_multiplier.value_or(0);
 
     if (!is_same_strategy_config)
     {
         std::cout << "Strategy config is different" << std::endl;
+        return false;
+    }
+
+    bool is_same_trading_schedule_config = config1.strategy.trading_schedule.has_value() == config2.strategy.trading_schedule.has_value();
+    if (config1.strategy.trading_schedule.has_value() && config2.strategy.trading_schedule.has_value())
+    {
+        const auto &schedule1 = config1.strategy.trading_schedule.value();
+        const auto &schedule2 = config2.strategy.trading_schedule.value();
+        is_same_trading_schedule_config = schedule1.monday == schedule2.monday &&
+                                          schedule1.tuesday == schedule2.tuesday &&
+                                          schedule1.wednesday == schedule2.wednesday &&
+                                          schedule1.thursday == schedule2.thursday &&
+                                          schedule1.friday == schedule2.friday &&
+                                          schedule1.saturday == schedule2.saturday &&
+                                          schedule1.sunday == schedule2.sunday;
+    }
+
+    if (!is_same_trading_schedule_config)
+    {
+        std::cout << "Trading schedule config is different" << std::endl;
+        return false;
+    }
+
+    bool is_same_trailing_stop_loss_config = config1.strategy.trailing_stop_loss_config.has_value() == config2.strategy.trailing_stop_loss_config.has_value();
+    if (config1.strategy.trailing_stop_loss_config.has_value() && config2.strategy.trailing_stop_loss_config.has_value())
+    {
+        const auto &tsl1 = config1.strategy.trailing_stop_loss_config.value();
+        const auto &tsl2 = config2.strategy.trailing_stop_loss_config.value();
+        is_same_trailing_stop_loss_config = tsl1.type == tsl2.type &&
+                                            tsl1.activation_level_in_points.value_or(0) == tsl2.activation_level_in_points.value_or(0) &&
+                                            tsl1.activation_level_in_percent.value_or(0) == tsl2.activation_level_in_percent.value_or(0) &&
+                                            tsl1.trailing_stop_loss_in_points.value_or(0) == tsl2.trailing_stop_loss_in_points.value_or(0) &&
+                                            tsl1.trailing_stop_loss_in_percent.value_or(0) == tsl2.trailing_stop_loss_in_percent.value_or(0);
+    }
+
+    if (!is_same_trailing_stop_loss_config)
+    {
+        std::cout << "Trailing stop loss config is different" << std::endl;
         return false;
     }
 
