@@ -2,6 +2,7 @@
 build/
 reports/
 cache/
+configs/
 
 # Debug
 run_training.dSYM/

@@ -128,7 +128,7 @@ protected:
         // Create the temp directory
         temp_dir = std::filesystem::temp_directory_path() / "training_test";
         std::filesystem::create_directories(temp_dir);
-        config_file_path = temp_dir / "config_test.hpp";
+        config_file_path = temp_dir / "config_test.json";
 
         // Create the config file for the training test
         std::ofstream config_file(this->config_file_path);

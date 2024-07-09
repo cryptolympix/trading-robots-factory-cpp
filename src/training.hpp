@@ -82,12 +82,6 @@ public:
     void load_candles(bool display_progress = false);
 
     /**
-     * @brief Generate the candles window for all time frames and dates.
-     * @param display_progress Flag to show the progress bar. Default is false.
-     */
-    void load_candles_window(bool display_progress = false);
-
-    /**
      * @brief Calculate and store all indicator values to the cache.
      * @param display_progress Flag to show the progress bar. Default is false.
      */

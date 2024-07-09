@@ -85,11 +85,25 @@ Training::Training(std::string id, std::filesystem::path config_file_path, bool 
         std::ifstream config_file(this->config_file_path.generic_string());
         if (std::filesystem::exists(config_file_path.generic_string()) && config_file.is_open())
         {
-            // Parse the configuration file
-            nlohmann::json config_json;
-            config_file >> config_json;
-            this->config = config_from_json(config_json);
-            std::cout << "📄 Import the configuration file '" << this->config_file_path.generic_string() << "'" << std::endl;
+            // If it's a json file
+            if (config_file_path.extension() == ".json")
+            {
+                // Parse the configuration file
+                nlohmann::json config_json;
+                config_file >> config_json;
+                this->config = config_from_json(config_json);
+                std::cout << "📄 Import the configuration file '" << this->config_file_path.generic_string() << "'" << std::endl;
+            }
+            else if (config_file_path.extension() == ".hpp" || config_file_path.extension() == ".h")
+            {
+                std::cerr << "Error: you need to generate the JSON configuration file from the C++ header file." << std::endl;
+                std::exit(EXIT_FAILURE);
+            }
+            else
+            {
+                std::cerr << "Error: the configuration file '" << this->config_file_path.generic_string() << "' has an unsupported extension." << std::endl;
+                std::exit(EXIT_FAILURE);
+            }
         }
         else
         {
