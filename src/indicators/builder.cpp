@@ -132,7 +132,7 @@ Indicator *create_indicator_from_id(const std::string &id_params, const std::vec
     }
     catch (const std::invalid_argument &e)
     {
-        std::cerr << e.what() << std::endl;
+        std::cerr << "The indicator with ID " << id_params << " could not be created: " << e.what() << std::endl;
         return nullptr;
     }
 }

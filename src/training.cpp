@@ -698,7 +698,7 @@ int Training::run()
             std::cout << "📈 Balance history graph generated at '" << graphic_file << "'" << std::endl;
             this->best_trader->generate_report(report_file, this->config.training.training_start_date, this->config.training.training_end_date);
             std::cout << "📊 Trader report generated at '" << report_file << "'" << std::endl;
-            this->generate_fitness_report();
+            this->generate_fitness_report(this->fitness_report_file);
 
             // The training of generation is finished
             std::cout << "✅ Training of generation " << this->current_generation << " finished!" << std::endl;
@@ -941,8 +941,9 @@ int Training::evaluate_trader_with_monte_carlo_simulation(Trader *trader, int nb
 
 /**
  * @brief Generate a fitness report for the training process.
+ * @param file_path The file path to save the fitness report. Default is 'fitness_report.png'.
  */
-void Training::generate_fitness_report()
+void Training::generate_fitness_report(std::string file_path)
 {
     // Check if there are enough data points to generate the report
     if (this->best_fitnesses.size() < 2)
@@ -951,7 +952,7 @@ void Training::generate_fitness_report()
     }
 
     // Check if the directory exists
-    std::filesystem::path dir = std::filesystem::path(this->fitness_report_file).parent_path();
+    std::filesystem::path dir = std::filesystem::path(file_path).parent_path();
     if (!std::filesystem::exists(dir))
     {
         try
@@ -978,7 +979,7 @@ void Training::generate_fitness_report()
 
     // Specify terminal type and output file
     gp << "set term png\n";
-    gp << "set output '" + this->fitness_report_file.generic_string() + "'\n";
+    gp << "set output '" + file_path + "'\n";
 
     // Set plot options
     gp << "set title 'Fitness Evolution'\n";

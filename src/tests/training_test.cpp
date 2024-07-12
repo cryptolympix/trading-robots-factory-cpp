@@ -25,6 +25,7 @@ protected:
     Config config;
     std::filesystem::path temp_dir;
     std::filesystem::path config_file_path;
+    std::filesystem::path fitness_report_file;
 
     void SetUp() override
     {
@@ -129,6 +130,7 @@ protected:
         temp_dir = std::filesystem::temp_directory_path() / "training_test";
         std::filesystem::create_directories(temp_dir);
         config_file_path = temp_dir / "config_test.json";
+        fitness_report_file = temp_dir / "fitness_report.png";
 
         // Create the config file for the training test
         std::ofstream config_file(this->config_file_path);
@@ -393,13 +395,11 @@ TEST_F(TrainingTest, MonteCarloSimulation)
 
 TEST_F(TrainingTest, GenerateFitnessReport)
 {
-    std::string fitness_report_file = training->directory.generic_string() + "/fitness_report.png";
-
     for (int i = 0; i < 10; ++i)
     {
         training->best_fitnesses[i] = i;
         training->average_fitnesses[i] = i / 2;
-        training->generate_fitness_report();
+        training->generate_fitness_report(fitness_report_file);
     }
 
     ASSERT_TRUE(std::filesystem::exists(fitness_report_file));

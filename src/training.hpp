@@ -143,8 +143,9 @@ public:
 
     /**
      * @brief Generate a fitness report for the training process.
+     * @param file_path The file path to save the fitness report. Default is empty.
      */
-    void generate_fitness_report();
+    void generate_fitness_report(std::string file_path);
 
     /**
      * @brief Save the training process to a file.

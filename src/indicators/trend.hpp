@@ -716,13 +716,13 @@ const std::unordered_map<std::string, std::function<Indicator *(std::vector<Indi
          int offset = std::get<int>(params[1]);
          return new ADX(period, offset);
      }},
-    {"aroon_up", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"aroon-up", [](std::vector<IndicatorParam> params) -> Indicator *
      {
          int period = std::get<int>(params[0]);
          int offset = std::get<int>(params[1]);
          return new AroonUp(period, offset);
      }},
-    {"aroon_down", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"aroon-down", [](std::vector<IndicatorParam> params) -> Indicator *
      {
          int period = std::get<int>(params[0]);
          int offset = std::get<int>(params[1]);
@@ -808,7 +808,7 @@ const std::unordered_map<std::string, std::function<Indicator *(std::vector<Indi
          int offset = std::get<int>(params[1]);
          return new Vortex(period, offset);
      }},
-    {"institutional_bias", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"institutional-bias", [](std::vector<IndicatorParam> params) -> Indicator *
      {
          int short_period = std::get<int>(params[0]);
          int long_period = std::get<int>(params[1]);
@@ -846,14 +846,14 @@ const std::unordered_map<std::string, std::function<Indicator *(std::vector<Indi
          int offset = std::get<int>(params[4]);
          return new IchimokuKijunTenkanTrend(conversion_period, base_period, lagging_period, leading_period, offset);
      }},
-    {"sma_slope", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"sma-slope", [](std::vector<IndicatorParam> params) -> Indicator *
      {
          int period = std::get<int>(params[0]);
          std::string source = std::get<std::string>(params[1]);
          int offset = std::get<int>(params[2]);
          return new SMASlope(period, source, offset);
      }},
-    {"ema_slope", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"ema-slope", [](std::vector<IndicatorParam> params) -> Indicator *
      {
          int period = std::get<int>(params[0]);
          std::string source = std::get<std::string>(params[1]);

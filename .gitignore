@@ -1,8 +1,8 @@
 # Folders
-build/
-reports/
-cache/
-configs/
+build
+reports
+cache
+configs
 
 # Debug
 run_training.dSYM/

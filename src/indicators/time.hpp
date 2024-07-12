@@ -136,14 +136,14 @@ const std::unordered_map<std::string, std::function<Indicator *(std::vector<Indi
      }},
     {"market-session", [](std::vector<IndicatorParam> params) -> Indicator *
      {
-         std::string zone = std::get<std::string>(params[0]);
-         int offset = std::get<int>(params[1]);
+         int offset = std::get<int>(params[0]);
+         std::string zone = std::get<std::string>(params[1]);
          return new MarketSession(zone, offset);
      }},
-    {"weekday", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"week-day", [](std::vector<IndicatorParam> params) -> Indicator *
      {
-         std::string day = std::get<std::string>(params[0]);
-         int offset = std::get<int>(params[1]);
+         int offset = std::get<int>(params[0]);
+         std::string day = std::get<std::string>(params[1]);
          return new WeekDay(day, offset);
      }},
 };
