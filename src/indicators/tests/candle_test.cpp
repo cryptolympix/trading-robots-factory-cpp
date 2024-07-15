@@ -5,6 +5,7 @@
 #include <chrono>
 #include "../candle.hpp"
 #include "../../types.hpp"
+#include "../builder.hpp"
 
 class CandleIndicatorsTest : public ::testing::Test
 {
@@ -51,11 +52,21 @@ TEST_F(CandleIndicatorsTest, Price)
     std::vector<double> expected_open = {10, 15, 9, 12, 6, 8, 17, 14, 11, 4, 20};
     ASSERT_EQ(result_open, expected_open);
 
+    CandleOpen *created_open_indicator = static_cast<CandleOpen *>(create_indicator_from_id(open_indicator.id, open_indicator.params));
+    std::vector<double> result_created_open_indicator = created_open_indicator->calculate(mock_candles);
+    ASSERT_NE(created_open_indicator, nullptr);
+    ASSERT_EQ(result_created_open_indicator, expected_open);
+
     // CandleHigh
     CandleHigh high_indicator;
     std::vector<double> result_high = high_indicator.calculate(mock_candles);
     std::vector<double> expected_high = {12, 16, 10, 13, 7, 17, 18, 15, 12, 21, 20};
     ASSERT_EQ(result_high, expected_high);
+
+    CandleHigh *created_high_indicator = static_cast<CandleHigh *>(create_indicator_from_id(high_indicator.id, high_indicator.params));
+    std::vector<double> result_created_high_indicator = created_high_indicator->calculate(mock_candles);
+    ASSERT_NE(created_high_indicator, nullptr);
+    ASSERT_EQ(result_created_high_indicator, expected_high);
 
     // CandleLow
     CandleLow low_indicator;
@@ -63,17 +74,33 @@ TEST_F(CandleIndicatorsTest, Price)
     std::vector<double> expected_low = {8, 8, 6, 8, 5, 5, 6, 8, 2, 8, 5};
     ASSERT_EQ(result_low, expected_low);
 
+    CandleLow *created_low_indicator = static_cast<CandleLow *>(create_indicator_from_id(low_indicator.id, low_indicator.params));
+    std::vector<double> result_created_low_indicator = created_low_indicator->calculate(mock_candles);
+    ASSERT_NE(created_low_indicator, nullptr);
+    ASSERT_EQ(result_created_low_indicator, expected_low);
+
     // CandleClose
     CandleClose close_indicator;
     std::vector<double> result_close = close_indicator.calculate(mock_candles);
     std::vector<double> expected_close = {15, 9, 12, 6, 5, 17, 14, 11, 4, 20, 18};
     ASSERT_EQ(result_close, expected_close);
 
+    CandleClose *created_close_indicator = static_cast<CandleClose *>(create_indicator_from_id(close_indicator.id, close_indicator.params));
+    std::vector<double> result_created_close_indicator = created_close_indicator->calculate(mock_candles);
+    ASSERT_NE(created_close_indicator, nullptr);
+    ASSERT_EQ(result_created_close_indicator, expected_close);
+
     // CandleVolume
     CandleVolume volume_indicator;
     std::vector<double> result_volume = volume_indicator.calculate(mock_candles);
     std::vector<double> expected_volume = {10, 10, 15, 20, 10, 5, 10, 13, 11, 10, 12};
     ASSERT_EQ(result_volume, expected_volume);
+
+    std::unordered_map<std::string, IndicatorParam> params_volume = extract_parameters(volume_indicator.id_params, volume_indicator.id_params_pattern);
+    CandleVolume *created_volume_indicator = static_cast<CandleVolume *>(create_indicator_from_id(volume_indicator.id, volume_indicator.params));
+    std::vector<double> result_created_volume_indicator = created_volume_indicator->calculate(mock_candles);
+    ASSERT_NE(created_volume_indicator, nullptr);
+    ASSERT_EQ(result_created_volume_indicator, expected_volume);
 }
 
 TEST_F(CandleIndicatorsTest, PriceWithOffset)
@@ -82,41 +109,42 @@ TEST_F(CandleIndicatorsTest, PriceWithOffset)
     CandleOpen open_indicator(1);
     std::vector<double> result_open = open_indicator.calculate(mock_candles);
     std::vector<double> expected_open = {0, 10, 15, 9, 12, 6, 8, 17, 14, 11, 4};
-    ASSERT_EQ(result_open.size(), expected_open.size());
-    for (size_t i = 0; i < result_open.size(); ++i)
-    {
-        ASSERT_DOUBLE_EQ(result_open[i], expected_open[i]);
-    }
+    ASSERT_EQ(result_open, expected_open);
+
+    CandleOpen *created_open_indicator = static_cast<CandleOpen *>(create_indicator_from_id(open_indicator.id, open_indicator.params));
+    ASSERT_NE(created_open_indicator, nullptr);
+    ASSERT_EQ(created_open_indicator->calculate(mock_candles), expected_open);
 
     // Offset 1
     CandleHigh high_indicator(1);
     std::vector<double> result_high = high_indicator.calculate(mock_candles);
     std::vector<double> expected_high = {0, 12, 16, 10, 13, 7, 17, 18, 15, 12, 21};
-    ASSERT_EQ(result_high.size(), expected_high.size());
-    for (size_t i = 0; i < result_high.size(); ++i)
-    {
-        ASSERT_DOUBLE_EQ(result_high[i], expected_high[i]);
-    }
+    ASSERT_EQ(result_high, expected_high);
+
+    CandleHigh *created_high_indicator = static_cast<CandleHigh *>(create_indicator_from_id(high_indicator.id, high_indicator.params));
+    std::vector<double> result_created_high_indicator = created_high_indicator->calculate(mock_candles);
 
     // Offset 1
     CandleLow low_indicator(1);
     std::vector<double> result_low = low_indicator.calculate(mock_candles);
     std::vector<double> expected_low = {0, 8, 8, 6, 8, 5, 5, 6, 8, 2, 8};
-    ASSERT_EQ(result_low.size(), expected_low.size());
-    for (size_t i = 0; i < result_low.size(); ++i)
-    {
-        ASSERT_DOUBLE_EQ(result_low[i], expected_low[i]);
-    }
+    ASSERT_EQ(result_low, expected_low);
+
+    CandleLow *created_low_indicator = static_cast<CandleLow *>(create_indicator_from_id(low_indicator.id, low_indicator.params));
+    std::vector<double> result_created_low_indicator = created_low_indicator->calculate(mock_candles);
+    ASSERT_NE(created_low_indicator, nullptr);
+    ASSERT_EQ(result_low, result_created_low_indicator);
 
     // Offset 1
     CandleClose close_indicator(1);
     std::vector<double> result_close = close_indicator.calculate(mock_candles);
     std::vector<double> expected_close = {0, 15, 9, 12, 6, 5, 17, 14, 11, 4, 20};
-    ASSERT_EQ(result_close.size(), expected_close.size());
-    for (size_t i = 0; i < result_close.size(); ++i)
-    {
-        ASSERT_DOUBLE_EQ(result_close[i], expected_close[i]);
-    }
+    ASSERT_EQ(result_close, expected_close);
+
+    CandleClose *created_close_indicator = static_cast<CandleClose *>(create_indicator_from_id(close_indicator.id, close_indicator.params));
+    std::vector<double> result_created_close_indicator = created_close_indicator->calculate(mock_candles);
+    ASSERT_NE(created_close_indicator, nullptr);
+    ASSERT_EQ(result_close, result_created_close_indicator);
 }
 
 TEST_F(CandleIndicatorsTest, WhiteCandle)
@@ -125,6 +153,11 @@ TEST_F(CandleIndicatorsTest, WhiteCandle)
     std::vector<double> result = white_indicator.calculate(mock_candles);
     std::vector<double> expected = {1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0};
     ASSERT_EQ(result, expected);
+
+    WhiteCandle *created_indicator = static_cast<WhiteCandle *>(create_indicator_from_id(white_indicator.id, white_indicator.params));
+    std::vector<double> result_created_indicator = created_indicator->calculate(mock_candles);
+    ASSERT_NE(created_indicator, nullptr);
+    ASSERT_EQ(result, result_created_indicator);
 }
 
 TEST_F(CandleIndicatorsTest, BlackCandle)
@@ -133,6 +166,11 @@ TEST_F(CandleIndicatorsTest, BlackCandle)
     std::vector<double> result = black_indicator.calculate(mock_candles);
     std::vector<double> expected = {0, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1};
     ASSERT_EQ(result, expected);
+
+    BlackCandle *created_indicator = static_cast<BlackCandle *>(create_indicator_from_id(black_indicator.id, black_indicator.params));
+    std::vector<double> result_created_indicator = created_indicator->calculate(mock_candles);
+    ASSERT_NE(created_indicator, nullptr);
+    ASSERT_EQ(result, result_created_indicator);
 }
 
 TEST_F(CandleIndicatorsTest, CandleBody)
@@ -141,6 +179,11 @@ TEST_F(CandleIndicatorsTest, CandleBody)
     std::vector<double> result = body_indicator.calculate(mock_candles);
     std::vector<double> expected = {1.25, 0.75, 0.75, 1.2, 0.5, 0.75, 0.25, 0.42857142857142855, 0.7, 1.2307692307692308, 0.13333333333333333};
     ASSERT_EQ(result, expected);
+
+    CandleBody *created_indicator = static_cast<CandleBody *>(create_indicator_from_id(body_indicator.id, body_indicator.params));
+    std::vector<double> result_created_indicator = created_indicator->calculate(mock_candles);
+    ASSERT_NE(created_indicator, nullptr);
+    ASSERT_EQ(result, result_created_indicator);
 }
 
 TEST_F(CandleIndicatorsTest, CandleShadowUpper)
@@ -149,6 +192,11 @@ TEST_F(CandleIndicatorsTest, CandleShadowUpper)
     std::vector<double> result = shadow_upper_indicator.calculate(mock_candles);
     std::vector<double> expected = {-0.75, 0.125, -0.5, 0.2, 0.5, 0, 0.083333333333333329, 0.14285714285714285, 0.1, 0.076923076923076927, 0};
     ASSERT_EQ(result, expected);
+
+    CandleShadowUpper *created_indicator = static_cast<CandleShadowUpper *>(create_indicator_from_id(shadow_upper_indicator.id, shadow_upper_indicator.params));
+    std::vector<double> result_created_indicator = created_indicator->calculate(mock_candles);
+    ASSERT_NE(created_indicator, nullptr);
+    ASSERT_EQ(result, result_created_indicator);
 }
 
 TEST_F(CandleIndicatorsTest, CandleShadowLower)
@@ -157,6 +205,11 @@ TEST_F(CandleIndicatorsTest, CandleShadowLower)
     std::vector<double> result = shadow_lower_indicator.calculate(mock_candles);
     std::vector<double> expected = {0.5, 0.125, 0.75, -0.4, 0, 0.25, 0.66666666666666663, 0.42857142857142855, 0.2, -0.30769230769230771, 0.8666666666666667};
     ASSERT_EQ(result, expected);
+
+    CandleShadowLower *created_indicator = static_cast<CandleShadowLower *>(create_indicator_from_id(shadow_lower_indicator.id, shadow_lower_indicator.params));
+    std::vector<double> result_created_indicator = created_indicator->calculate(mock_candles);
+    ASSERT_NE(created_indicator, nullptr);
+    ASSERT_EQ(result, result_created_indicator);
 }
 
 TEST_F(CandleIndicatorsTest, CandlePriceChange)
@@ -166,6 +219,11 @@ TEST_F(CandleIndicatorsTest, CandlePriceChange)
     std::vector<double> expected = {0.5, -0.4, 0.3333333333333333, -0.5, -0.16666666666666666, 1.125,
                                     -0.17647058823529413, -0.21428571428571427, -0.6363636363636364, 4.0, -0.1};
     ASSERT_EQ(result, expected);
+
+    CandlePriceChange *created_indicator = static_cast<CandlePriceChange *>(create_indicator_from_id(indicator.id, indicator.params));
+    std::vector<double> result_created_indicator = created_indicator->calculate(mock_candles);
+    ASSERT_NE(created_indicator, nullptr);
+    ASSERT_EQ(result, result_created_indicator);
 }
 
 TEST_F(CandleIndicatorsTest, PivotHigh)
@@ -176,11 +234,21 @@ TEST_F(CandleIndicatorsTest, PivotHigh)
     std::vector<double> expected = {1, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0};
     ASSERT_EQ(result, expected);
 
+    PivotHigh *created_indicator = static_cast<PivotHigh *>(create_indicator_from_id(pivot_high_indicator.id, pivot_high_indicator.params));
+    std::vector<double> result_created_indicator = created_indicator->calculate(mock_candles);
+    ASSERT_NE(created_indicator, nullptr);
+    ASSERT_EQ(result, result_created_indicator);
+
     // PivotHigh with left_bars=2, right_bars=2
     PivotHigh pivot_high_indicator2("high", 2, 2);
     std::vector<double> result2 = pivot_high_indicator2.calculate(mock_candles);
     std::vector<double> expected2 = {0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0};
     ASSERT_EQ(result2, expected2);
+
+    PivotHigh *created_indicator2 = static_cast<PivotHigh *>(create_indicator_from_id(pivot_high_indicator2.id, pivot_high_indicator2.params));
+    std ::vector<double> result_created_indicator2 = created_indicator2->calculate(mock_candles);
+    ASSERT_NE(created_indicator2, nullptr);
+    ASSERT_EQ(result2, result_created_indicator2);
 }
 
 TEST_F(CandleIndicatorsTest, PivotLow)
@@ -191,11 +259,21 @@ TEST_F(CandleIndicatorsTest, PivotLow)
     std::vector<double> expected = {1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0};
     ASSERT_EQ(result, expected);
 
+    PivotLow *created_indicator = static_cast<PivotLow *>(create_indicator_from_id(pivot_low_indicator.id, pivot_low_indicator.params));
+    std::vector<double> result_created_indicator = created_indicator->calculate(mock_candles);
+    ASSERT_NE(created_indicator, nullptr);
+    ASSERT_EQ(result, result_created_indicator);
+
     // PivotLow with left_bars=2, right_bars=2
     PivotLow pivot_low_indicator2("low", 2, 2);
     std::vector<double> result2 = pivot_low_indicator2.calculate(mock_candles);
     std::vector<double> expected2 = {0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0};
     ASSERT_EQ(result2, expected2);
+
+    PivotLow *created_indicator2 = static_cast<PivotLow *>(create_indicator_from_id(pivot_low_indicator2.id, pivot_low_indicator2.params));
+    std::vector<double> result_created_indicator2 = created_indicator2->calculate(mock_candles);
+    ASSERT_NE(created_indicator2, nullptr);
+    ASSERT_EQ(result2, result_created_indicator2);
 }
 
 TEST_F(CandleIndicatorsTest, PivotHighValue)
@@ -206,11 +284,21 @@ TEST_F(CandleIndicatorsTest, PivotHighValue)
     std::vector<double> expected = {12, 16, 16, 16, 16, 17, 18, 18, 18, 21, 21};
     ASSERT_EQ(result, expected);
 
+    PivotHighValue *created_indicator = static_cast<PivotHighValue *>(create_indicator_from_id(pivot_high_value.id, pivot_high_value.params));
+    std::vector<double> result_created_indicator = created_indicator->calculate(mock_candles);
+    ASSERT_NE(created_indicator, nullptr);
+    ASSERT_EQ(result, result_created_indicator);
+
     // with left_bars=2, right_bars=2
     PivotHighValue highest_indicator2("high", 2, 2);
     std::vector<double> result2 = highest_indicator2.calculate(mock_candles);
     std::vector<double> expected2 = {12, 16, 16, 16, 16, 16, 16, 16, 18, 18, 18};
     ASSERT_EQ(result2, expected2);
+
+    PivotHighValue *created_indicator2 = static_cast<PivotHighValue *>(create_indicator_from_id(highest_indicator2.id, highest_indicator2.params));
+    std::vector<double> result_created_indicator2 = created_indicator2->calculate(mock_candles);
+    ASSERT_NE(created_indicator2, nullptr);
+    ASSERT_EQ(result2, result_created_indicator2);
 }
 
 TEST_F(CandleIndicatorsTest, PivotLowValue)
@@ -221,11 +309,21 @@ TEST_F(CandleIndicatorsTest, PivotLowValue)
     std::vector<double> expected = {8, 8, 6, 6, 5, 5, 5, 5, 2, 2, 2};
     ASSERT_EQ(result, expected);
 
+    PivotLowValue *created_indicator = static_cast<PivotLowValue *>(create_indicator_from_id(lowest_indicator.id, lowest_indicator.params));
+    std::vector<double> result_created_indicator = created_indicator->calculate(mock_candles);
+    ASSERT_NE(created_indicator, nullptr);
+    ASSERT_EQ(result, result_created_indicator);
+
     // with left_bars=2, right_bars=2
     PivotLowValue lowest_indicator2("low", 2, 2);
     std::vector<double> result2 = lowest_indicator2.calculate(mock_candles);
     std::vector<double> expected2 = {8, 8, 8, 8, 8, 8, 5, 5, 5, 5, 2};
     ASSERT_EQ(result2, expected2);
+
+    PivotLowValue *created_indicator2 = static_cast<PivotLowValue *>(create_indicator_from_id(lowest_indicator2.id, lowest_indicator2.params));
+    std::vector<double> result_created_indicator2 = created_indicator2->calculate(mock_candles);
+    ASSERT_NE(created_indicator2, nullptr);
+    ASSERT_EQ(result2, result_created_indicator2);
 }
 
 TEST_F(CandleIndicatorsTest, HighestHigh)
@@ -236,11 +334,21 @@ TEST_F(CandleIndicatorsTest, HighestHigh)
     std::vector<double> expected = {12, 16, 16, 16, 13, 17, 18, 18, 18, 21, 21};
     ASSERT_EQ(result, expected);
 
+    HighestHigh *created_indicator = static_cast<HighestHigh *>(create_indicator_from_id(highest_indicator.id, highest_indicator.params));
+    std::vector<double> result_created_indicator = created_indicator->calculate(mock_candles);
+    ASSERT_NE(created_indicator, nullptr);
+    ASSERT_EQ(result, result_created_indicator);
+
     // with left_bars=2, right_bars=2
     HighestHigh highest_indicator2(2, 2);
     std::vector<double> result2 = highest_indicator2.calculate(mock_candles);
     std::vector<double> expected2 = {16, 16, 16, 17, 18, 18, 18, 21, 21, 21, 21};
     ASSERT_EQ(result2, expected2);
+
+    HighestHigh *created_indicator2 = static_cast<HighestHigh *>(create_indicator_from_id(highest_indicator2.id, highest_indicator2.params));
+    std::vector<double> result_created_indicator2 = created_indicator2->calculate(mock_candles);
+    ASSERT_NE(created_indicator2, nullptr);
+    ASSERT_EQ(result2, result_created_indicator2);
 }
 
 TEST_F(CandleIndicatorsTest, LowestLow)
@@ -251,11 +359,21 @@ TEST_F(CandleIndicatorsTest, LowestLow)
     std::vector<double> expected = {8, 8, 6, 6, 5, 5, 5, 5, 2, 2, 2};
     ASSERT_EQ(result, expected);
 
+    LowestLow *created_indicator = static_cast<LowestLow *>(create_indicator_from_id(lowest_indicator.id, lowest_indicator.params));
+    std::vector<double> result_created_indicator = created_indicator->calculate(mock_candles);
+    ASSERT_NE(created_indicator, nullptr);
+    ASSERT_EQ(result, result_created_indicator);
+
     // with left_bars=2, right_bars=2
     LowestLow lowest_indicator2(2, 2);
     std::vector<double> result2 = lowest_indicator2.calculate(mock_candles);
     std::vector<double> expected2 = {6, 6, 5, 5, 5, 5, 2, 2, 2, 2, 2};
     ASSERT_EQ(result2, expected2);
+
+    LowestLow *created_indicator2 = static_cast<LowestLow *>(create_indicator_from_id(lowest_indicator2.id, lowest_indicator2.params));
+    std::vector<double> result_created_indicator2 = created_indicator2->calculate(mock_candles);
+    ASSERT_NE(created_indicator2, nullptr);
+    ASSERT_EQ(result2, result_created_indicator2);
 }
 
 TEST_F(CandleIndicatorsTest, PeakDistance)
@@ -266,11 +384,21 @@ TEST_F(CandleIndicatorsTest, PeakDistance)
     std::vector<double> expected = {1.5, 2, 2.6666666666666665, 2.6666666666666665, 2.6, 3.4, 3.6, 3.6, 9, 10.5, 10.5};
     ASSERT_EQ(result, expected);
 
+    PeakDistance *created_indicator = static_cast<PeakDistance *>(create_indicator_from_id(peak_distance_indicator.id, peak_distance_indicator.params));
+    std::vector<double> result_created_indicator = peak_distance_indicator.calculate(mock_candles);
+    ASSERT_NE(created_indicator, nullptr);
+    ASSERT_EQ(result, result_created_indicator);
+
     // with left_bars=2, right_bars=2
     PeakDistance peak_distance_indicator2(2, 2);
     std::vector<double> result2 = peak_distance_indicator2.calculate(mock_candles);
     std::vector<double> expected2 = {2.6666666666666665, 2.6666666666666665, 3.2, 3.4, 3.6, 3.6, 9, 10.5, 10.5, 10.5, 10.5};
     ASSERT_EQ(result2, expected2);
+
+    PeakDistance *created_indicator2 = static_cast<PeakDistance *>(create_indicator_from_id(peak_distance_indicator2.id, peak_distance_indicator2.params));
+    std::vector<double> result_created_indicator2 = peak_distance_indicator2.calculate(mock_candles);
+    ASSERT_NE(created_indicator2, nullptr);
+    ASSERT_EQ(result2, result_created_indicator2);
 }
 
 TEST_F(CandleIndicatorsTest, PeakCandleDistance)
@@ -281,9 +409,19 @@ TEST_F(CandleIndicatorsTest, PeakCandleDistance)
     std::vector<double> expected = {0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1};
     ASSERT_EQ(result, expected);
 
+    PeakCandleDistance *created_indicator = static_cast<PeakCandleDistance *>(create_indicator_from_id(peak_candle_distance_indicator.id, peak_candle_distance_indicator.params));
+    std::vector<double> result_created_indicator = peak_candle_distance_indicator.calculate(mock_candles);
+    ASSERT_NE(created_indicator, nullptr);
+    ASSERT_EQ(result, result_created_indicator);
+
     // with left_bars=2, right_bars=2
     PeakCandleDistance peak_candle_distance_indicator2(2, 2);
     std::vector<double> result2 = peak_candle_distance_indicator2.calculate(mock_candles);
     std::vector<double> expected2 = {1, 0, 1, 2, 0, 1, 0, 1, 0, 1, 2};
     ASSERT_EQ(result2, expected2);
+
+    PeakCandleDistance *created_indicator2 = static_cast<PeakCandleDistance *>(create_indicator_from_id(peak_candle_distance_indicator2.id, peak_candle_distance_indicator2.params));
+    std::vector<double> result_created_indicator2 = peak_candle_distance_indicator2.calculate(mock_candles);
+    ASSERT_NE(created_indicator2, nullptr);
+    ASSERT_EQ(result2, result_created_indicator2);
 }

@@ -1,7 +1,14 @@
 #ifndef CANDLE_SIGNALS_INDICATORS_HPP
 #define CANDLE_SIGNALS_INDICATORS_HPP
 
+#include <string>
+#include <vector>
+#include <functional>
+#include <unordered_map>
+#include <stdexcept>
+#include <iostream>
 #include "../types.hpp"
+#include "builder.hpp"
 #include "indicator.hpp"
 
 class NewHighSignal : public Indicator
@@ -98,34 +105,86 @@ public:
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 };
 
-const std::unordered_map<std::string, std::function<Indicator *(std::vector<IndicatorParam>)>> candle_signals_indicators_map = {
-    {"new-high-signal", [](std::vector<IndicatorParam> params) -> Indicator *
+const std::unordered_map<std::string, std::function<Indicator *(std::unordered_map<std::string, IndicatorParam>)>> candle_signals_indicators_map = {
+    {"new-high-signal", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int left_bars = std::get<int>(params[0]);
-         int right_bars = std::get<int>(params[1]);
-         int offset = std::get<int>(params[2]);
-         return new NewHighSignal(left_bars, right_bars, offset);
+         try
+         {
+             if (check_params(params, {{"left_bars", typeid(int)}, {"right_bars", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 int left_bars = std::get<int>(params["left_bars"]);
+                 int right_bars = std::get<int>(params["right_bars"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new NewHighSignal(left_bars, right_bars, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating NewHighSignal: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"new-low-signal", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"new-low-signal", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int left_bars = std::get<int>(params[0]);
-         int right_bars = std::get<int>(params[1]);
-         int offset = std::get<int>(params[2]);
-         return new NewLowSignal(left_bars, right_bars, offset);
+         try
+         {
+             if (check_params(params, {{"left_bars", typeid(int)}, {"right_bars", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 int left_bars = std::get<int>(params["left_bars"]);
+                 int right_bars = std::get<int>(params["right_bars"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new NewLowSignal(left_bars, right_bars, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating NewLowSignal: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"high-break-signal", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"high-break-signal", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int left_bars = std::get<int>(params[0]);
-         int right_bars = std::get<int>(params[1]);
-         int offset = std::get<int>(params[2]);
-         return new HighBreakSignal(left_bars, right_bars, offset);
+         try
+         {
+             if (check_params(params, {{"left_bars", typeid(int)}, {"right_bars", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 int left_bars = std::get<int>(params["left_bars"]);
+                 int right_bars = std::get<int>(params["right_bars"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new HighBreakSignal(left_bars, right_bars, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating HighBreakSignal: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"low-break-signal", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"low-break-signal", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int left_bars = std::get<int>(params[0]);
-         int right_bars = std::get<int>(params[1]);
-         int offset = std::get<int>(params[2]);
-         return new LowBreakSignal(left_bars, right_bars, offset);
+         try
+         {
+             if (check_params(params, {{"left_bars", typeid(int)}, {"right_bars", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 int left_bars = std::get<int>(params["left_bars"]);
+                 int right_bars = std::get<int>(params["right_bars"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new LowBreakSignal(left_bars, right_bars, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating LowBreakSignal: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
 };
 

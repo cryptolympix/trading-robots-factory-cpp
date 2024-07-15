@@ -14,10 +14,10 @@
 /**
  * @brief Construct a new Average Directional Movement Index object.
  *
- * @param adx_period Period value. Default is 14.
+ * @param period Period value. Default is 14.
  * @param offset Offset value. Default is 0.
  */
-ADX::ADX(int adx_period, int offset) : Indicator("Average Directional Index", "adx", {{"adx_period", adx_period}, {"offset", offset}}, {0, 100}) {}
+ADX::ADX(int period, int offset) : Indicator("Average Directional Index", "adx", {{"period", period}, {"offset", offset}}, {0, 100}) {}
 
 /**
  * @brief Calculate the Average Directional Index (ADX).
@@ -32,9 +32,9 @@ std::vector<double> ADX::calculate(const std::vector<Candle> &candles, bool norm
         candles, [this](std::vector<Candle> candles) -> std::vector<double>
         {
             std::vector<double> adx_values(candles.size(), 0.0); // Initialize adx_values with the same size as input vectors
-            int adx_period = std::get<int>(this->params.at("adx_period"));
+            int period = std::get<int>(this->params.at("period"));
 
-            if (candles.size() < static_cast<size_t>(adx_period))
+            if (candles.size() < static_cast<size_t>(period))
             {
                 std::cerr << "Insufficient data to calculate ADX." << std::endl;
                 return adx_values; // Return an empty vector if there are not enough candles
@@ -85,7 +85,7 @@ std::vector<double> ADX::calculate(const std::vector<Candle> &candles, bool norm
 std::vector<double> ADX::calculate_smoothed(const std::vector<double> &values) const
 {
     std::vector<double> smoothed_values(values.size(), 0.0);
-    int adx_period = std::get<int>(this->params.at("adx_period"));
+    int adx_period = std::get<int>(this->params.at("period"));
 
     double sum = 0.0;
     for (size_t i = 0; i < adx_period; ++i)
@@ -149,7 +149,7 @@ std::vector<double> ADX::calculate_dx(const std::vector<double> &di_plus, const 
 std::vector<double> ADX::calculate_adx(const std::vector<double> &dx_values) const
 {
     std::vector<double> adx_values(dx_values.size());
-    int adx_period = std::get<int>(this->params.at("adx_period"));
+    int adx_period = std::get<int>(this->params.at("period"));
 
     double sum_dx = 0.0;
     for (size_t i = 0; i < adx_period; ++i)

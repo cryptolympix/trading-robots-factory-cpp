@@ -6,6 +6,7 @@
 #include <iostream>
 #include <regex>
 #include <stdexcept>
+#include <typeindex>
 #include "builder.hpp"
 #include "indicator.hpp"
 
@@ -27,10 +28,10 @@
  * @brief Get the indicators map.
  * @return std::map<std::string, std::function<Indicator *(std::vector<IndicatorParam>)>> The indicators map.
  */
-std::unordered_map<std::string, std::function<Indicator *(std::vector<IndicatorParam>)>> get_indicators_map()
+std::unordered_map<std::string, std::function<Indicator *(std::unordered_map<std::string, IndicatorParam>)>> get_indicators_map()
 {
     // Map linking the indicator ID to the constructor function
-    std::unordered_map<std::string, std::function<Indicator *(std::vector<IndicatorParam>)>> indicators_map = {};
+    std::unordered_map<std::string, std::function<Indicator *(std::unordered_map<std::string, IndicatorParam>)>> indicators_map = {};
 
     indicators_map.insert(candle_patterns_indicators_map.begin(), candle_patterns_indicators_map.end());
     indicators_map.insert(candle_signals_indicators_map.begin(), candle_signals_indicators_map.end());
@@ -52,34 +53,36 @@ std::unordered_map<std::string, std::function<Indicator *(std::vector<IndicatorP
  * @brief Extract the parameters from the ID.
  * @param id_params The ID to extract the parameters from.
  * @param id_params_pattern The regex pattern to match the ID.
- * @return std::vector<T> The extracted parameters.
+ * @return std::unordered_map<std::string, IndicatorParam> The extracted parameters.
  */
-std::vector<IndicatorParam>
-extract_parameters(const std::string &id_params, const std::string &id_params_pattern)
+std::unordered_map<std::string, IndicatorParam> extract_parameters(const std::string &id_params, const std::string &id_params_pattern)
 {
     std::regex pattern(id_params_pattern);
     std::smatch matches;
 
     if (std::regex_search(id_params, matches, pattern))
     {
-        std::vector<IndicatorParam> parameters;
+        std::unordered_map<std::string, IndicatorParam> parameters;
 
-        for (size_t i = 1; i < matches.size(); i++)
+        for (size_t i = 1; i < matches.size(); i += 2)
         {
+            std::string parameter_name = matches[i].str();
+            std::string parameter_value = matches[i + 1].str();
+
             std::regex intRegex("^-?\\d+$");
             std::regex doubleRegex("^-?\\d*(\\.\\d+)?$");
 
-            if (std::regex_match(matches[i].str(), intRegex))
+            if (std::regex_match(parameter_value, intRegex))
             {
-                parameters.push_back(std::stoi(matches[i].str()));
+                parameters[parameter_name] = std::stoi(parameter_value);
             }
-            else if (std::regex_match(matches[i].str(), doubleRegex))
+            else if (std::regex_match(parameter_value, doubleRegex))
             {
-                parameters.push_back(std::stod(matches[i].str()));
+                parameters[parameter_name] = std::stod(parameter_value);
             }
             else
             {
-                parameters.push_back(matches[i].str());
+                parameters[parameter_name] = parameter_value;
             }
         }
 
@@ -87,32 +90,63 @@ extract_parameters(const std::string &id_params, const std::string &id_params_pa
     }
     else
     {
-        throw std::invalid_argument("Invalid ID format");
+        throw std::invalid_argument("Invalid ID format: " + id_params);
     }
+}
+
+/**
+ * @brief Check if the parameters are valid with the ID pattern.
+ *
+ * @param params The parameters.
+ * @param required_params The required parameters with their types.
+ *
+ * @return true If the parameters are valid with the ID pattern.
+ */
+bool check_params(const std::unordered_map<std::string, IndicatorParam> &params, const std::unordered_map<std::string, std::type_index> &required_params)
+{
+    for (const auto &[param_name, param_type] : required_params)
+    {
+        if (params.find(param_name) == params.end())
+        {
+            throw std::invalid_argument("Missing parameter " + param_name);
+        }
+
+        if (param_type == typeid(int) && !std::holds_alternative<int>(params.at(param_name)))
+        {
+            throw std::invalid_argument("Invalid type for parameter " + param_name);
+        }
+
+        if (param_type == typeid(double) && !std::holds_alternative<double>(params.at(param_name)))
+        {
+            throw std::invalid_argument("Invalid type for parameter " + param_name);
+        }
+
+        if (param_type == typeid(std::string) && !std::holds_alternative<std::string>(params.at(param_name)))
+        {
+            throw std::invalid_argument("Invalid type for parameter " + param_name);
+        }
+    }
+
+    return true;
 }
 
 /**
  * @brief Build an indicator from the ID.
  *
- * @param id_params The ID of the indicator with parameters.
+ * @param id The ID of the indicator.
  * @param params The parameters of the indicator.
  * @return Indicator The indicator.
  */
-Indicator *create_indicator_from_id(const std::string &id_params, const std::vector<IndicatorParam> params)
+Indicator *create_indicator_from_id(const std::string &id, const std::unordered_map<std::string, IndicatorParam> params)
 {
-    auto starts_with = [](const std::string &str, const std::string &prefix)
-    {
-        return str.find(prefix) == 0;
-    };
-
     try
     {
         // Get the indicators map
-        std::unordered_map<std::string, std::function<Indicator *(std::vector<IndicatorParam>)>> indicators_map = get_indicators_map();
+        std::unordered_map<std::string, std::function<Indicator *(std::unordered_map<std::string, IndicatorParam>)>> indicators_map = get_indicators_map();
 
         for (const auto &[indicator_id, indicator_constructor] : indicators_map)
         {
-            if (starts_with(id_params, indicator_id))
+            if (id == indicator_id)
             {
                 // Check if the indicator ID exists in the map
                 auto it = indicators_map.find(indicator_id);
@@ -128,11 +162,11 @@ Indicator *create_indicator_from_id(const std::string &id_params, const std::vec
             }
         }
 
-        throw std::invalid_argument("No indicator found for ID: " + id_params);
+        throw std::invalid_argument("No indicator found for ID: " + id);
     }
     catch (const std::invalid_argument &e)
     {
-        std::cerr << "The indicator with ID " << id_params << " could not be created: " << e.what() << std::endl;
+        std::cerr << "The indicator with ID " << id << " could not be created: " << e.what() << std::endl;
         return nullptr;
     }
 }

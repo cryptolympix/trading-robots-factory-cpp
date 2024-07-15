@@ -91,22 +91,22 @@ Indicator::Indicator(std::string label, std::string id, std::unordered_map<std::
         // Detect if the parameter is a string
         if (std::holds_alternative<std::string>(param_value))
         {
-            this->id_params += "-" + std::get<std::string>(param_value);
-            this->id_params_pattern += R"(-(\w+))";
+            this->id_params += "-" + param_name + "=" + std::get<std::string>(param_value);
+            this->id_params_pattern += R"(-(\w+)=(\w+))";
         }
 
         // Detect if the parameter is an int
         else if (std::holds_alternative<int>(param_value))
         {
-            this->id_params += "-" + std::to_string(std::get<int>(param_value));
-            this->id_params_pattern += R"(-(\d+))";
+            this->id_params += "-" + param_name + "=" + std::to_string(std::get<int>(param_value));
+            this->id_params_pattern += R"(-(\w+)=(\d+))";
         }
 
         // Detect if the parameter is a double
         else if (std::holds_alternative<double>(param_value))
         {
-            this->id_params += "-" + std::to_string(std::get<double>(param_value));
-            this->id_params_pattern += R"(-(\d+\.\d+))";
+            this->id_params += "-" + param_name + "=" + std::to_string(std::get<double>(param_value));
+            this->id_params_pattern += R"(-(\w+)=(\d+.\d+))";
         }
     }
 }

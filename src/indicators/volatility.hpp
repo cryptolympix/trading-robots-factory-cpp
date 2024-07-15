@@ -1,6 +1,12 @@
 #ifndef INDICATORS_VOLATILITY_HPP
 #define INDICATORS_VOLATILITY_HPP
 
+#include <vector>
+#include <functional>
+#include <unordered_map>
+#include <stdexcept>
+#include <iostream>
+#include "builder.hpp"
 #include "indicator.hpp"
 
 /**
@@ -384,104 +390,299 @@ public:
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 };
 
-const std::unordered_map<std::string, std::function<Indicator *(std::vector<IndicatorParam>)>> volatility_indicators_map = {
-    {"atr", [](std::vector<IndicatorParam> params) -> Indicator *
+const std::unordered_map<std::string, std::function<Indicator *(std::unordered_map<std::string, IndicatorParam>)>> volatility_indicators_map = {
+    {"atr", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int period = std::get<int>(params[0]);
-         int offset = std::get<int>(params[1]);
-         return new ATR(period, offset);
+         try
+         {
+             if (check_params(params, {{"period", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 int period = std::get<int>(params["period"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new ATR(period, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating WPR: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"bollinger-channel-high-band", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"bollinger-channel-high-band", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int period = std::get<int>(params[0]);
-         double multiplier = std::get<double>(params[1]);
-         int offset = std::get<int>(params[2]);
-         return new BollingerChannelHighBand(period, multiplier, offset);
+         try
+         {
+             if (check_params(params, {{"period", typeid(int)}, {"multiplier", typeid(double)}, {"offset", typeid(int)}}))
+             {
+                 int period = std::get<int>(params["period"]);
+                 double multiplier = std::get<double>(params["multiplier"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new BollingerChannelHighBand(period, multiplier, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating BollingerChannelHighBand: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"bollinger-channel-low-band", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"bollinger-channel-low-band", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int period = std::get<int>(params[0]);
-         double multiplier = std::get<double>(params[1]);
-         int offset = std::get<int>(params[2]);
-         return new BollingerChannelLowBand(period, multiplier, offset);
+         try
+         {
+             if (check_params(params, {{"period", typeid(int)}, {"multiplier", typeid(double)}, {"offset", typeid(int)}}))
+             {
+                 int period = std::get<int>(params["period"]);
+                 double multiplier = std::get<double>(params["multiplier"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new BollingerChannelLowBand(period, multiplier, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating BollingerChannelLowBand: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"bollinger-channel-middle-band", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"bollinger-channel-middle-band", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int period = std::get<int>(params[0]);
-         int offset = std::get<int>(params[1]);
-         return new BollingerChannelMiddleBand(period, offset);
+         try
+         {
+             if (check_params(params, {{"period", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 int period = std::get<int>(params["period"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new BollingerChannelMiddleBand(period, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating BollingerChannelMiddleBand: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"bollinger-channel-percentage-band", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"bollinger-channel-percentage-band", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int period = std::get<int>(params[0]);
-         double multiplier = std::get<double>(params[1]);
-         int offset = std::get<int>(params[2]);
-         return new BollingerChannelPercentageBand(period, multiplier, offset);
+         try
+         {
+             if (check_params(params, {{"period", typeid(int)}, {"multiplier", typeid(double)}, {"offset", typeid(int)}}))
+             {
+                 int period = std::get<int>(params["period"]);
+                 double multiplier = std::get<double>(params["multiplier"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new BollingerChannelPercentageBand(period, multiplier, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating BollingerChannelPercentageBand: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"bollinger-channel-width-band", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"bollinger-channel-width-band", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int period = std::get<int>(params[0]);
-         double multiplier = std::get<double>(params[1]);
-         int offset = std::get<int>(params[2]);
-         return new BollingerChannelWidthBand(period, multiplier, offset);
+         try
+         {
+             if (check_params(params, {{"period", typeid(int)}, {"multiplier", typeid(double)}, {"offset", typeid(int)}}))
+             {
+                 int period = std::get<int>(params["period"]);
+                 double multiplier = std::get<double>(params["multiplier"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new BollingerChannelWidthBand(period, multiplier, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating BollingerChannelWidthBand: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"donchian-channel-high-band", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"donchian-channel-high-band", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int period = std::get<int>(params[0]);
-         int offset = std::get<int>(params[1]);
-         return new DonchianChannelHighBand(period, offset);
+         try
+         {
+             if (check_params(params, {{"period", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 int period = std::get<int>(params["period"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new DonchianChannelHighBand(period, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating DonchianChannelHighBand: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"donchian-channel-low-band", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"donchian-channel-low-band", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int period = std::get<int>(params[0]);
-         int offset = std::get<int>(params[1]);
-         return new DonchianChannelLowBand(period, offset);
+         try
+         {
+             if (check_params(params, {{"period", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 int period = std::get<int>(params["period"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new DonchianChannelLowBand(period, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating DonchianChannelLowBand: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"donchian-channel-middle-band", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"donchian-channel-middle-band", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int period = std::get<int>(params[0]);
-         int offset = std::get<int>(params[1]);
-         return new DonchianChannelMiddleBand(period, offset);
+         try
+         {
+             if (check_params(params, {{"period", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 int period = std::get<int>(params["period"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new DonchianChannelMiddleBand(period, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating DonchianChannelMiddleBand: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"keltner-channel-high-band", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"keltner-channel-high-band", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int period = std::get<int>(params[0]);
-         int atr_period = std::get<int>(params[1]);
-         double multiplier = std::get<double>(params[2]);
-         int offset = std::get<int>(params[3]);
-         return new KeltnerChannelHighBand(period, atr_period, multiplier, offset);
+         try
+         {
+             if (check_params(params, {{"period", typeid(int)}, {"atr_period", typeid(int)}, {"multiplier", typeid(double)}, {"offset", typeid(int)}}))
+             {
+                 int period = std::get<int>(params["period"]);
+                 int atr_period = std::get<int>(params["atr_period"]);
+                 double multiplier = std::get<double>(params["multiplier"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new KeltnerChannelHighBand(period, atr_period, multiplier, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating KeltnerChannelHighBand: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"keltner-channel-low-band", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"keltner-channel-low-band", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int period = std::get<int>(params[0]);
-         int atr_period = std::get<int>(params[1]);
-         double multiplier = std::get<double>(params[2]);
-         int offset = std::get<int>(params[3]);
-         return new KeltnerChannelLowBand(period, atr_period, multiplier, offset);
+         try
+         {
+             if (check_params(params, {{"period", typeid(int)}, {"atr_period", typeid(int)}, {"multiplier", typeid(double)}, {"offset", typeid(int)}}))
+             {
+                 int period = std::get<int>(params["period"]);
+                 int atr_period = std::get<int>(params["atr_period"]);
+                 double multiplier = std::get<double>(params["multiplier"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new KeltnerChannelLowBand(period, atr_period, multiplier, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating KeltnerChannelLowBand: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"keltner-channel-middle-band", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"keltner-channel-middle-band", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int period = std::get<int>(params[0]);
-         int offset = std::get<int>(params[1]);
-         return new KeltnerChannelMiddleBand(period, offset);
+         try
+         {
+             if (check_params(params, {{"period", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 int period = std::get<int>(params["period"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new KeltnerChannelMiddleBand(period, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating KeltnerChannelMiddleBand: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"ui", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"ui", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int period = std::get<int>(params[0]);
-         int offset = std::get<int>(params[1]);
-         return new UI(period, offset);
+         try
+         {
+             if (check_params(params, {{"period", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 int period = std::get<int>(params["period"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new UI(period, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating UI: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"standard-deviation", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"standard-deviation", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int period = std::get<int>(params[0]);
-         int offset = std::get<int>(params[1]);
-         return new StandardDeviation(period, offset);
+         try
+         {
+             if (check_params(params, {{"period", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 int period = std::get<int>(params["period"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new StandardDeviation(period, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating StandardDeviation: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"average-price-change", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"average-price-change", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int period = std::get<int>(params[0]);
-         int offset = std::get<int>(params[1]);
-         return new AveragePriceChange(period, offset);
+         try
+         {
+             if (check_params(params, {{"period", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 int period = std::get<int>(params["period"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new AveragePriceChange(period, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating AveragePriceChange: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
 };
 

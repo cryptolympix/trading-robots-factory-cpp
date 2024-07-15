@@ -2,6 +2,11 @@
 #define MOMENTUM_SIGNALS_INDICATORS_H
 
 #include <vector>
+#include <functional>
+#include <unordered_map>
+#include <stdexcept>
+#include <iostream>
+#include "builder.hpp"
 #include "indicator.hpp"
 
 class AwesomeOscillatorSignal : public Indicator
@@ -275,92 +280,235 @@ public:
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 };
 
-const std::unordered_map<std::string, std::function<Indicator *(std::vector<IndicatorParam>)>> momentum_signals_indicators_map = {
-    {"awesome-oscillator-signal", [](std::vector<IndicatorParam> params) -> Indicator *
+const std::unordered_map<std::string, std::function<Indicator *(std::unordered_map<std::string, IndicatorParam>)>> momentum_signals_indicators_map = {
+    {"awesome-oscillator-signal", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int offset = std::get<int>(params[0]);
-         return new AwesomeOscillatorSignal(offset);
+         try
+         {
+             if (check_params(params, {{"offset", typeid(int)}}))
+             {
+                 int offset = std::get<int>(params["offset"]);
+                 return new AwesomeOscillatorSignal(offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating PeakCandleDistance: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"kama-signal", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"kama-signal", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int er_period = std::get<int>(params[0]);
-         int fastest_sc_period = std::get<int>(params[1]);
-         int slowest_sc_period = std::get<int>(params[2]);
-         int offset = std::get<int>(params[3]);
-         return new KAMASignal(er_period, fastest_sc_period, slowest_sc_period, offset);
+         try
+         {
+             if (check_params(params, {{"er_period", typeid(int)}, {"fastest_sc_period", typeid(int)}, {"slowest_sc_period", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 int er_period = std::get<int>(params["er_period"]);
+                 int fastest_sc_period = std::get<int>(params["fastest_sc_period"]);
+                 int slowest_sc_period = std::get<int>(params["slowest_sc_period"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new KAMASignal(er_period, fastest_sc_period, slowest_sc_period, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating KAMASignal: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"mfi-signal", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"mfi-signal", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int period = std::get<int>(params[0]);
-         int overbought = std::get<int>(params[1]);
-         int oversold = std::get<int>(params[2]);
-         int offset = std::get<int>(params[3]);
-         return new MFISignal(period, overbought, oversold, offset);
+         try
+         {
+             if (check_params(params, {{"period", typeid(int)}, {"overbought", typeid(int)}, {"oversold", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 int period = std::get<int>(params["period"]);
+                 int overbought = std::get<int>(params["overbought"]);
+                 int oversold = std::get<int>(params["oversold"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new MFISignal(period, overbought, oversold, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating MFISignal: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"ppo-signal", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"ppo-signal", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int short_period = std::get<int>(params[0]);
-         int long_period = std::get<int>(params[1]);
-         int offset = std::get<int>(params[2]);
-         return new PPOSignal(short_period, long_period, offset);
+         try
+         {
+             if (check_params(params, {{"short_period", typeid(int)}, {"long_period", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 int short_period = std::get<int>(params["short_period"]);
+                 int long_period = std::get<int>(params["long_period"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new PPOSignal(short_period, long_period, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating PPOSignal: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"roc-signal", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"roc-signal", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int period = std::get<int>(params[0]);
-         int offset = std::get<int>(params[1]);
-         return new ROCSignal(period, offset);
+         try
+         {
+             if (check_params(params, {{"period", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 int period = std::get<int>(params["period"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new ROCSignal(period, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating ROCSignal: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"rsi-signal", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"rsi-signal", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int period = std::get<int>(params[0]);
-         int overbought = std::get<int>(params[1]);
-         int oversold = std::get<int>(params[2]);
-         int offset = std::get<int>(params[3]);
-         return new RSISignal(period, overbought, oversold, offset);
+         try
+         {
+             if (check_params(params, {{"period", typeid(int)}, {"overbought", typeid(int)}, {"oversold", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 int period = std::get<int>(params["period"]);
+                 int overbought = std::get<int>(params["overbought"]);
+                 int oversold = std::get<int>(params["oversold"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new RSISignal(period, overbought, oversold, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating RSISignal: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"stochastic-rsi-signal", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"stochastic-rsi-signal", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int period = std::get<int>(params[0]);
-         int overbought = std::get<int>(params[1]);
-         int oversold = std::get<int>(params[2]);
-         int offset = std::get<int>(params[3]);
-         return new StochasticRSISignal(period, overbought, oversold, offset);
+         try
+         {
+             if (check_params(params, {{"period", typeid(int)}, {"overbought", typeid(int)}, {"oversold", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 int period = std::get<int>(params["period"]);
+                 int overbought = std::get<int>(params["overbought"]);
+                 int oversold = std::get<int>(params["oversold"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new StochasticRSISignal(period, overbought, oversold, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating StochasticRSISignal: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"stochastic-oscillator-signal", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"stochastic-oscillator-signal", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int k_period = std::get<int>(params[0]);
-         int d_period = std::get<int>(params[1]);
-         int overbought = std::get<int>(params[2]);
-         int oversold = std::get<int>(params[3]);
-         int offset = std::get<int>(params[4]);
-         return new StochasticOscillatorSignal(k_period, d_period, overbought, oversold, offset);
+         try
+         {
+             if (check_params(params, {{"k_period", typeid(int)}, {"d_period", typeid(int)}, {"overbought", typeid(int)}, {"oversold", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 int k_period = std::get<int>(params["k_period"]);
+                 int d_period = std::get<int>(params["d_period"]);
+                 int overbought = std::get<int>(params["overbought"]);
+                 int oversold = std::get<int>(params["oversold"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new StochasticOscillatorSignal(k_period, d_period, overbought, oversold, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating StochasticOscillatorSignal: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"tsi-signal", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"tsi-signal", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int short_period = std::get<int>(params[0]);
-         int long_period = std::get<int>(params[1]);
-         int overbought = std::get<int>(params[2]);
-         int oversold = std::get<int>(params[3]);
-         int offset = std::get<int>(params[4]);
-         return new TSISignal(short_period, long_period, overbought, oversold, offset);
+         try
+         {
+             if (check_params(params, {{"short_period", typeid(int)}, {"long_period", typeid(int)}, {"overbought", typeid(int)}, {"oversold", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 int short_period = std::get<int>(params["short_period"]);
+                 int long_period = std::get<int>(params["long_period"]);
+                 int overbought = std::get<int>(params["overbought"]);
+                 int oversold = std::get<int>(params["oversold"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new TSISignal(short_period, long_period, overbought, oversold, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating TSISignal: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"uo-signal", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"uo-signal", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int short_period = std::get<int>(params[0]);
-         int medium_period = std::get<int>(params[1]);
-         int long_period = std::get<int>(params[2]);
-         int overbought = std::get<int>(params[3]);
-         int oversold = std::get<int>(params[4]);
-         int offset = std::get<int>(params[5]);
-         return new UOSignal(short_period, medium_period, long_period, overbought, oversold, offset);
+         try
+         {
+             if (check_params(params, {{"short_period", typeid(int)}, {"medium_period", typeid(int)}, {"long_period", typeid(int)}, {"overbought", typeid(int)}, {"oversold", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 int short_period = std::get<int>(params["short_period"]);
+                 int medium_period = std::get<int>(params["medium_period"]);
+                 int long_period = std::get<int>(params["long_period"]);
+                 int overbought = std::get<int>(params["overbought"]);
+                 int oversold = std::get<int>(params["oversold"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new UOSignal(short_period, medium_period, long_period, overbought, oversold, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating UOSignal: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"wpr-signal", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"wpr-signal", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int period = std::get<int>(params[0]);
-         int overbought = std::get<int>(params[1]);
-         int oversold = std::get<int>(params[2]);
-         int offset = std::get<int>(params[3]);
-         return new WPRSignal(period, overbought, oversold, offset);
+         try
+         {
+             if (check_params(params, {{"period", typeid(int)}, {"overbought", typeid(int)}, {"oversold", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 int period = std::get<int>(params["period"]);
+                 int overbought = std::get<int>(params["overbought"]);
+                 int oversold = std::get<int>(params["oversold"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new WPRSignal(period, overbought, oversold, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating WPRSignal: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
 };
 

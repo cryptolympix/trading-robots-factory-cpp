@@ -1,6 +1,12 @@
 #ifndef INDICATORS_VOLUME_HPP
 #define INDICATORS_VOLUME_HPP
 
+#include <vector>
+#include <functional>
+#include <unordered_map>
+#include <stdexcept>
+#include <iostream>
+#include "builder.hpp"
 #include "../types.hpp"
 #include "indicator.hpp"
 
@@ -248,50 +254,154 @@ public:
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 };
 
-const std::unordered_map<std::string, std::function<Indicator *(std::vector<IndicatorParam>)>> volume_indicators_map = {
-    {"adl", [](std::vector<IndicatorParam> params) -> Indicator *
+const std::unordered_map<std::string, std::function<Indicator *(std::unordered_map<std::string, IndicatorParam>)>> volume_indicators_map = {
+    {"adl", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int offset = std::get<int>(params[0]);
-         return new ADL(offset);
+         try
+         {
+             if (check_params(params, {{"offset", typeid(int)}}))
+             {
+                 int offset = std::get<int>(params["offset"]);
+                 return new ADL(offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating ADL: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"cmf", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"cmf", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int period = std::get<int>(params[0]);
-         int offset = std::get<int>(params[1]);
-         return new CMF(period, offset);
+         try
+         {
+             if (check_params(params, {{"period", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 int period = std::get<int>(params["period"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new CMF(period, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating CMF: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"fi", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"fi", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int period = std::get<int>(params[0]);
-         int offset = std::get<int>(params[1]);
-         return new FI(period, offset);
+         try
+         {
+             if (check_params(params, {{"period", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 int period = std::get<int>(params["period"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new FI(period, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating FI: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"nvi", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"nvi", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int offset = std::get<int>(params[0]);
-         return new NVI(offset);
+         try
+         {
+             if (check_params(params, {{"offset", typeid(int)}}))
+             {
+                 int offset = std::get<int>(params["offset"]);
+                 return new NVI(offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating NVI: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"obv", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"obv", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int offset = std::get<int>(params[0]);
-         return new OBV(offset);
+         try
+         {
+             if (check_params(params, {{"offset", typeid(int)}}))
+             {
+                 int offset = std::get<int>(params["offset"]);
+                 return new OBV(offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating OBV: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"poc", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"poc", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int period = std::get<int>(params[0]);
-         int range_nb = std::get<int>(params[1]);
-         int offset = std::get<int>(params[2]);
-         return new POC(period, range_nb, offset);
+         try
+         {
+             if (check_params(params, {{"period", typeid(int)}, {"range_nb", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 int period = std::get<int>(params["period"]);
+                 int range_nb = std::get<int>(params["range_nb"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new POC(period, range_nb, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating POC: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"pvi", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"pvi", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int offset = std::get<int>(params[0]);
-         return new PVI(offset);
+         try
+         {
+             if (check_params(params, {{"offset", typeid(int)}}))
+             {
+                 int offset = std::get<int>(params["offset"]);
+                 return new PVI(offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating PVI: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"vwap", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"vwap", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int offset = std::get<int>(params[0]);
-         return new VWAP(offset);
+         try
+         {
+             if (check_params(params, {{"offset", typeid(int)}}))
+             {
+                 int offset = std::get<int>(params["offset"]);
+                 return new VWAP(offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating VWAP: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
 };
 

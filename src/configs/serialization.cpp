@@ -3,6 +3,7 @@
 #include <map>
 #include <stdexcept>
 #include <iostream>
+#include <unordered_map>
 #include "../libs/json.hpp"
 #include "../utils/time_frame.hpp"
 #include "../types.hpp"
@@ -144,6 +145,7 @@ nlohmann::json config_to_json(const Config &config)
             for (const auto &indicator : indicators)
             {
                 timeframe_json.push_back({
+                    {"id", indicator->id},
                     {"id_params", indicator->id_params},
                     {"id_params_pattern", indicator->id_params_pattern},
                 });
@@ -497,6 +499,11 @@ Config config_from_json(const nlohmann::json &json)
         std::vector<Indicator *> indicators_list;
         for (const auto &indicator : indicators_id)
         {
+            if (!indicator.contains("id"))
+            {
+                throw std::runtime_error("Missing 'id' key in the JSON object");
+            }
+
             if (!indicator.contains("id_params"))
             {
                 throw std::runtime_error("Missing 'id_params' key in the JSON object");
@@ -507,10 +514,11 @@ Config config_from_json(const nlohmann::json &json)
                 throw std::runtime_error("Missing 'id_params_pattern' key in the JSON object");
             }
 
+            const std::string id = indicator["id"];
             const std::string id_params = indicator["id_params"];
             const std::string id_params_pattern = indicator["id_params_pattern"];
-            const std::vector<IndicatorParam> params = extract_parameters(id_params, id_params_pattern);
-            indicators_list.push_back(create_indicator_from_id(id_params, params));
+            const std::unordered_map<std::string, IndicatorParam> params = extract_parameters(id_params, id_params_pattern);
+            indicators_list.push_back(create_indicator_from_id(id, params));
         }
         indicators[time_frame_from_string(timeframe)] = indicators_list;
     }

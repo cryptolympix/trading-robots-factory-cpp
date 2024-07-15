@@ -3,6 +3,10 @@
 
 #include <vector>
 #include <stdexcept>
+#include <functional>
+#include <unordered_map>
+#include <string>
+#include <iostream>
 #include "../types.hpp"
 #include "../utils/math.hpp"
 #include "../utils/candles_source.hpp"
@@ -24,10 +28,10 @@ public:
     /**
      * @brief Construct a new Average Directional Movement Index object.
      *
-     * @param adx_period Period value. Default is 14.
+     * @param period Period value. Default is 14.
      * @param offset Offset value. Default is 0.
      */
-    ADX(int adx_period = 14, int offset = 0);
+    ADX(int period = 14, int offset = 0);
 
     /**
      * @brief Calculate the Average Directional Movement Index values.
@@ -709,162 +713,448 @@ public:
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 };
 
-const std::unordered_map<std::string, std::function<Indicator *(std::vector<IndicatorParam>)>> trend_indicators_map = {
-    {"adx", [](std::vector<IndicatorParam> params) -> Indicator *
+const std::unordered_map<std::string, std::function<Indicator *(std::unordered_map<std::string, IndicatorParam>)>> trend_indicators_map = {
+    {"adx", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int period = std::get<int>(params[0]);
-         int offset = std::get<int>(params[1]);
-         return new ADX(period, offset);
+         try
+         {
+             if (check_params(params, {{"period", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 int period = std::get<int>(params["period"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new ADX(period, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating ADX: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"aroon-up", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"aroon-up", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int period = std::get<int>(params[0]);
-         int offset = std::get<int>(params[1]);
-         return new AroonUp(period, offset);
+         try
+         {
+             if (check_params(params, {{"period", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 int period = std::get<int>(params["period"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new AroonUp(period, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating AroonUp: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"aroon-down", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"aroon-down", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int period = std::get<int>(params[0]);
-         int offset = std::get<int>(params[1]);
-         return new AroonDown(period, offset);
+         try
+         {
+             if (check_params(params, {{"period", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 int period = std::get<int>(params["period"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new AroonDown(period, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating AroonDown: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"cci", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"cci", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int period = std::get<int>(params[0]);
-         int offset = std::get<int>(params[1]);
-         return new CCI(period, offset);
+         try
+         {
+             if (check_params(params, {{"period", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 int period = std::get<int>(params["period"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new CCI(period, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating CCI: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"dpo", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"dpo", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int period = std::get<int>(params[0]);
-         int offset = std::get<int>(params[1]);
-         return new DPO(period, offset);
+         try
+         {
+             if (check_params(params, {{"period", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 int period = std::get<int>(params["period"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new DPO(period, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating DPO: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"ema", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"ema", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         std::string source = std::get<std::string>(params[0]);
-         int period = std::get<int>(params[1]);
-         int offset = std::get<int>(params[2]);
-         return new EMA(source, period, offset);
+         try
+         {
+             if (check_params(params, {{"source", typeid(std::string)}, {"period", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 std::string source = std::get<std::string>(params["source"]);
+                 int period = std::get<int>(params["period"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new EMA(source, period, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating EMA: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"kst", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"kst", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int roc_periods1 = std::get<int>(params[0]);
-         int roc_periods2 = std::get<int>(params[1]);
-         int roc_periods3 = std::get<int>(params[2]);
-         int roc_periods4 = std::get<int>(params[3]);
-         int sma_periods1 = std::get<int>(params[4]);
-         int sma_periods2 = std::get<int>(params[5]);
-         int sma_periods3 = std::get<int>(params[6]);
-         int sma_periods4 = std::get<int>(params[7]);
-         int signal_periods = std::get<int>(params[8]);
-         int offset = std::get<int>(params[9]);
-         return new KST(roc_periods1, roc_periods2, roc_periods3, roc_periods4, sma_periods1, sma_periods2, sma_periods3, sma_periods4, signal_periods, offset);
+         try
+         {
+             if (check_params(params, {{"roc_periods1", typeid(int)}, {"roc_periods2", typeid(int)}, {"roc_periods3", typeid(int)}, {"roc_periods4", typeid(int)}, {"sma_periods1", typeid(int)}, {"sma_periods2", typeid(int)}, {"sma_periods3", typeid(int)}, {"sma_periods4", typeid(int)}, {"signal_periods", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 int roc_periods1 = std::get<int>(params["roc_periods1"]);
+                 int roc_periods2 = std::get<int>(params["roc_periods2"]);
+                 int roc_periods3 = std::get<int>(params["roc_periods3"]);
+                 int roc_periods4 = std::get<int>(params["roc_periods4"]);
+                 int sma_periods1 = std::get<int>(params["sma_periods1"]);
+                 int sma_periods2 = std::get<int>(params["sma_periods2"]);
+                 int sma_periods3 = std::get<int>(params["sma_periods3"]);
+                 int sma_periods4 = std::get<int>(params["sma_periods4"]);
+                 int signal_periods = std::get<int>(params["signal_periods"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new KST(roc_periods1, roc_periods2, roc_periods3, roc_periods4, sma_periods1, sma_periods2, sma_periods3, sma_periods4, signal_periods, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating KST: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"macd", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"macd", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int short_period = std::get<int>(params[0]);
-         int long_period = std::get<int>(params[1]);
-         int signal_period = std::get<int>(params[2]);
-         int offset = std::get<int>(params[3]);
-         return new MACD(short_period, long_period, signal_period, offset);
+         try
+         {
+             if (check_params(params, {{"short_period", typeid(int)}, {"long_period", typeid(int)}, {"signal_period", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 int short_period = std::get<int>(params["short_period"]);
+                 int long_period = std::get<int>(params["long_period"]);
+                 int signal_period = std::get<int>(params["signal_period"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new MACD(short_period, long_period, signal_period, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating MACD: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"mi", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"mi", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int offset = std::get<int>(params[0]);
-         return new MI(offset);
+         try
+         {
+             if (check_params(params, {{"offset", typeid(int)}}))
+             {
+                 int offset = std::get<int>(params["offset"]);
+                 return new MI(offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating MI: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"psar", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"psar", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         double acceleration_factor_initial = std::get<double>(params[0]);
-         double acceleration_factor_maximum = std::get<double>(params[1]);
-         int offset = std::get<int>(params[2]);
-         return new ParabolicSAR(acceleration_factor_initial, acceleration_factor_maximum, offset);
+         try
+         {
+             if (check_params(params, {{"acceleration_factor_initial", typeid(double)}, {"acceleration_factor_maximum", typeid(double)}, {"offset", typeid(int)}}))
+             {
+                 double acceleration_factor_initial = std::get<double>(params["acceleration_factor_initial"]);
+                 double acceleration_factor_maximum = std::get<double>(params["acceleration_factor_maximum"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new ParabolicSAR(acceleration_factor_initial, acceleration_factor_maximum, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating ParabolicSAR: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"sma", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"sma", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         std::string source = std::get<std::string>(params[0]);
-         int period = std::get<int>(params[1]);
-         int offset = std::get<int>(params[2]);
-         return new SMA(source, period, offset);
+         try
+         {
+             if (check_params(params, {{"source", typeid(std::string)}, {"period", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 std::string source = std::get<std::string>(params["source"]);
+                 int period = std::get<int>(params["period"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new SMA(source, period, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating SMA: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"stc", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"stc", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int short_length = std::get<int>(params[0]);
-         int long_length = std::get<int>(params[1]);
-         int cycle_length = std::get<int>(params[2]);
-         int offset = std::get<int>(params[3]);
-         return new STC(short_length, long_length, cycle_length, offset);
+         try
+         {
+             if (check_params(params, {{"short_length", typeid(int)}, {"long_length", typeid(int)}, {"cycle_length", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 int short_length = std::get<int>(params["short_length"]);
+                 int long_length = std::get<int>(params["long_length"]);
+                 int cycle_length = std::get<int>(params["cycle_length"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new STC(short_length, long_length, cycle_length, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating STC: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"trix", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"trix", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int period = std::get<int>(params[0]);
-         int offset = std::get<int>(params[1]);
-         return new TRIX(period, offset);
+         try
+         {
+             if (check_params(params, {{"period", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 int period = std::get<int>(params["period"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new TRIX(period, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating TRIX: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"vortex", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"vortex", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int period = std::get<int>(params[0]);
-         int offset = std::get<int>(params[1]);
-         return new Vortex(period, offset);
+         try
+         {
+             if (check_params(params, {{"period", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 int period = std::get<int>(params["period"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new Vortex(period, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating Vortex: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"institutional-bias", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"institutional-bias", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int short_period = std::get<int>(params[0]);
-         int long_period = std::get<int>(params[1]);
-         int offset = std::get<int>(params[2]);
-         return new InstitutionalBias(short_period, long_period, offset);
+         try
+         {
+             if (check_params(params, {{"short_period", typeid(int)}, {"long_period", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 int short_period = std::get<int>(params["short_period"]);
+                 int long_period = std::get<int>(params["long_period"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new InstitutionalBias(short_period, long_period, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating InstitutionalBias: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"ema_difference", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"ema-difference", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int short_period = std::get<int>(params[0]);
-         int long_period = std::get<int>(params[1]);
-         int offset = std::get<int>(params[2]);
-         return new EMADifference(short_period, long_period, offset);
+         try
+         {
+             if (check_params(params, {{"short_period", typeid(int)}, {"long_period", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 int short_period = std::get<int>(params["short_period"]);
+                 int long_period = std::get<int>(params["long_period"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new EMADifference(short_period, long_period, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating EMADifference: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"aroon-trend", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"aroon-trend", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int period = std::get<int>(params[0]);
-         int offset = std::get<int>(params[1]);
-         return new AroonTrend(period, offset);
+         try
+         {
+             if (check_params(params, {{"period", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 int period = std::get<int>(params["period"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new AroonTrend(period, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating AroonTrend: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"ichimoku-cloud-trend", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"ichimoku-cloud-trend", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int conversion_period = std::get<int>(params[0]);
-         int base_period = std::get<int>(params[1]);
-         int lagging_period = std::get<int>(params[2]);
-         int leading_period = std::get<int>(params[3]);
-         int offset = std::get<int>(params[4]);
-         return new IchimokuCloudTrend(conversion_period, base_period, lagging_period, leading_period, offset);
+         try
+         {
+             if (check_params(params, {{"conversion_period", typeid(int)}, {"base_period", typeid(int)}, {"lagging_period", typeid(int)}, {"leading_period", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 int conversion_period = std::get<int>(params["conversion_period"]);
+                 int base_period = std::get<int>(params["base_period"]);
+                 int lagging_period = std::get<int>(params["lagging_period"]);
+                 int leading_period = std::get<int>(params["leading_period"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new IchimokuCloudTrend(conversion_period, base_period, lagging_period, leading_period, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating IchimokuCloudTrend: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"ichimoku-kijun-tenkan-trend", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"ichimoku-kijun-tenkan-trend", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int conversion_period = std::get<int>(params[0]);
-         int base_period = std::get<int>(params[1]);
-         int lagging_period = std::get<int>(params[2]);
-         int leading_period = std::get<int>(params[3]);
-         int offset = std::get<int>(params[4]);
-         return new IchimokuKijunTenkanTrend(conversion_period, base_period, lagging_period, leading_period, offset);
+         try
+         {
+             if (check_params(params, {{"conversion_period", typeid(int)}, {"base_period", typeid(int)}, {"lagging_period", typeid(int)}, {"leading_period", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 int conversion_period = std::get<int>(params["conversion_period"]);
+                 int base_period = std::get<int>(params["base_period"]);
+                 int lagging_period = std::get<int>(params["lagging_period"]);
+                 int leading_period = std::get<int>(params["leading_period"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new IchimokuKijunTenkanTrend(conversion_period, base_period, lagging_period, leading_period, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating IchimokuKijunTenkanTrend: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"sma-slope", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"sma-slope", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int period = std::get<int>(params[0]);
-         std::string source = std::get<std::string>(params[1]);
-         int offset = std::get<int>(params[2]);
-         return new SMASlope(period, source, offset);
+         try
+         {
+             if (check_params(params, {{"period", typeid(int)}, {"source", typeid(std::string)}, {"offset", typeid(int)}}))
+             {
+                 int period = std::get<int>(params["period"]);
+                 std::string source = std::get<std::string>(params["source"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new SMASlope(period, source, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating SMASlope: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"ema-slope", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"ema-slope", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int period = std::get<int>(params[0]);
-         std::string source = std::get<std::string>(params[1]);
-         int offset = std::get<int>(params[2]);
-         return new EMASlope(period, source, offset);
+         try
+         {
+             if (check_params(params, {{"period", typeid(int)}, {"source", typeid(std::string)}, {"offset", typeid(int)}}))
+             {
+                 int period = std::get<int>(params["period"]);
+                 std::string source = std::get<std::string>(params["source"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new EMASlope(period, source, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating EMASlope: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"zigzag", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"zigzag", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         double deviation = std::get<double>(params[0]);
-         int offset = std::get<int>(params[1]);
-         return new Zigzag(deviation, offset);
+         try
+         {
+             if (check_params(params, {{"deviation", typeid(double)}, {"offset", typeid(int)}}))
+             {
+                 double deviation = std::get<double>(params["deviation"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new Zigzag(deviation, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating Zigzag: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
 
 };

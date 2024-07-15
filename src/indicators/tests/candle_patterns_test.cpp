@@ -1,6 +1,9 @@
 #include <gtest/gtest.h>
 #include <vector>
+#include <unordered_map>
+#include <string>
 #include "../candle_patterns.hpp"
+#include "../builder.hpp"
 
 TEST(CandlePatternsTest, DojiCandlePatternPattern)
 {
@@ -16,6 +19,11 @@ TEST(CandlePatternsTest, DojiCandlePatternPattern)
     std::vector<double> expected = {1, 2, 3, 4};
 
     ASSERT_EQ(result, expected);
+
+    DojiCandlePattern *created_indicator = static_cast<DojiCandlePattern *>(create_indicator_from_id(pattern.id, pattern.params));
+
+    ASSERT_NE(created_indicator, nullptr);
+    ASSERT_EQ(created_indicator->calculate(candles), expected);
 }
 
 TEST(CandlePatternsTest, SingleCandlePattern)
@@ -44,6 +52,11 @@ TEST(CandlePatternsTest, SingleCandlePattern)
     std::vector<double> expected = {1, 2, -1, -2, 3, -3, 4, -4};
 
     ASSERT_EQ(result, expected);
+
+    SingleCandlePattern *created_indicator = static_cast<SingleCandlePattern *>(create_indicator_from_id(pattern.id, pattern.params));
+
+    ASSERT_NE(created_indicator, nullptr);
+    ASSERT_EQ(created_indicator->calculate(candles), expected);
 }
 
 TEST(CandlePatternsTest, DoubleCandlePattern)
@@ -68,6 +81,11 @@ TEST(CandlePatternsTest, DoubleCandlePattern)
     std::vector<double> expected = {0, 1, 0, -1, 0, 2, 0, -2};
 
     ASSERT_EQ(result, expected);
+
+    DoubleCandlePattern *created_indicator = static_cast<DoubleCandlePattern *>(create_indicator_from_id(pattern.id, pattern.params));
+
+    ASSERT_NE(created_indicator, nullptr);
+    ASSERT_EQ(created_indicator->calculate(candles), expected);
 }
 
 TEST(CandlePatternsTest, TripleCandlePattern)
@@ -75,6 +93,8 @@ TEST(CandlePatternsTest, TripleCandlePattern)
     TripleCandlePattern pattern;
     std::vector<double> result;
     std::vector<double> expected;
+
+    TripleCandlePattern *created_indicator = static_cast<TripleCandlePattern *>(create_indicator_from_id(pattern.id, pattern.params));
 
     std::vector<Candle> candles = {
         // three inside down
@@ -90,6 +110,7 @@ TEST(CandlePatternsTest, TripleCandlePattern)
     result = pattern.calculate(three_white_soldiers);
     expected = {0, 0, 1};
     ASSERT_EQ(result, expected);
+    ASSERT_EQ(created_indicator->calculate(three_white_soldiers), expected);
 
     std::vector<Candle> three_black_crows = {
         {.open = 5.0, .high = 6.0, .low = 4.5, .close = 4.5},
@@ -98,6 +119,7 @@ TEST(CandlePatternsTest, TripleCandlePattern)
     result = pattern.calculate(three_black_crows);
     expected = {0, 0, -1};
     ASSERT_EQ(result, expected);
+    ASSERT_EQ(created_indicator->calculate(three_black_crows), expected);
 
     std::vector<Candle> morning_star = {
         {.open = 12.0, .high = 14.0, .low = 10.0, .close = 11.8},
@@ -106,6 +128,7 @@ TEST(CandlePatternsTest, TripleCandlePattern)
     result = pattern.calculate(morning_star);
     expected = {0, 0, 2};
     ASSERT_EQ(result, expected);
+    ASSERT_EQ(created_indicator->calculate(morning_star), expected);
 
     std::vector<Candle> evening_star = {
         {.open = 10.0, .high = 12.0, .low = 9.5, .close = 11.5},
@@ -114,6 +137,7 @@ TEST(CandlePatternsTest, TripleCandlePattern)
     result = pattern.calculate(evening_star);
     expected = {0, 0, -2};
     ASSERT_EQ(result, expected);
+    ASSERT_EQ(created_indicator->calculate(evening_star), expected);
 
     std::vector<Candle> morning_doji_star = {
         {.open = 12.0, .high = 14.0, .low = 10.0, .close = 11.5},
@@ -122,6 +146,7 @@ TEST(CandlePatternsTest, TripleCandlePattern)
     result = pattern.calculate(morning_doji_star);
     expected = {0, 0, 3};
     ASSERT_EQ(result, expected);
+    ASSERT_EQ(created_indicator->calculate(morning_doji_star), expected);
 
     std::vector<Candle> evening_doji_star = {
         {.open = 11.5, .high = 14.0, .low = 10.0, .close = 12.5},
@@ -130,6 +155,7 @@ TEST(CandlePatternsTest, TripleCandlePattern)
     result = pattern.calculate(evening_doji_star);
     expected = {0, 0, -3};
     ASSERT_EQ(result, expected);
+    ASSERT_EQ(created_indicator->calculate(evening_doji_star), expected);
 
     std::vector<Candle> three_inside_up = {
         {.open = 14.0, .high = 14.2, .low = 13.0, .close = 13.0},
@@ -138,6 +164,7 @@ TEST(CandlePatternsTest, TripleCandlePattern)
     result = pattern.calculate(three_inside_up);
     expected = {0, 0, 4};
     ASSERT_EQ(result, expected);
+    ASSERT_EQ(created_indicator->calculate(three_inside_up), expected);
 
     std::vector<Candle> three_inside_down = {
         {.open = 12.0, .high = 13.5, .low = 11.9, .close = 13.2},
@@ -146,6 +173,7 @@ TEST(CandlePatternsTest, TripleCandlePattern)
     result = pattern.calculate(three_inside_down);
     expected = {0, 0, -4};
     ASSERT_EQ(result, expected);
+    ASSERT_EQ(created_indicator->calculate(three_inside_down), expected);
 
     std::vector<Candle> three_outside_up = {
         {.open = 14.0, .high = 14.2, .low = 13.0, .close = 13.0},
@@ -154,6 +182,7 @@ TEST(CandlePatternsTest, TripleCandlePattern)
     result = pattern.calculate(three_outside_up);
     expected = {0, 0, 5};
     ASSERT_EQ(result, expected);
+    ASSERT_EQ(created_indicator->calculate(three_outside_up), expected);
 
     std::vector<Candle> three_outside_down = {
         {.open = 12.0, .high = 13.5, .low = 11.9, .close = 13.2},
@@ -162,6 +191,7 @@ TEST(CandlePatternsTest, TripleCandlePattern)
     result = pattern.calculate(three_outside_down);
     expected = {0, 0, -5};
     ASSERT_EQ(result, expected);
+    ASSERT_EQ(created_indicator->calculate(three_outside_down), expected);
 
     std::vector<Candle> three_stars_in_the_south = {
         {.open = 10.0, .high = 10.0, .low = 7.0, .close = 9.0},
@@ -170,6 +200,7 @@ TEST(CandlePatternsTest, TripleCandlePattern)
     result = pattern.calculate(three_stars_in_the_south);
     expected = {0, 0, 6};
     ASSERT_EQ(result, expected);
+    ASSERT_EQ(created_indicator->calculate(three_stars_in_the_south), expected);
 
     std::vector<Candle> three_stars_in_the_north = {
         {.open = 14.0, .high = 17.0, .low = 14.0, .close = 15.0},
@@ -178,4 +209,5 @@ TEST(CandlePatternsTest, TripleCandlePattern)
     result = pattern.calculate(three_stars_in_the_north);
     expected = {0, 0, -6};
     ASSERT_EQ(result, expected);
+    ASSERT_EQ(created_indicator->calculate(three_stars_in_the_north), expected);
 }

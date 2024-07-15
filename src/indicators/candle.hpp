@@ -7,6 +7,10 @@
 #include <unordered_map>
 #include <ctime>
 #include <cmath>
+#include <functional>
+#include <stdexcept>
+#include <iostream>
+#include "builder.hpp"
 #include "../types.hpp"
 #include "../utils/math.hpp"
 #include "../utils/candles_source.hpp"
@@ -506,126 +510,386 @@ public:
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 };
 
-const std::unordered_map<std::string, std::function<Indicator *(std::vector<IndicatorParam>)>> candle_indicators_map = {
-    {"candle-open", [](std::vector<IndicatorParam> params) -> Indicator *
+const std::unordered_map<std::string, std::function<Indicator *(std::unordered_map<std::string, IndicatorParam>)>> candle_indicators_map = {
+    {"candle-open", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int offset = std::get<int>(params[0]);
-         return new CandleOpen(offset);
+         try
+         {
+             if (check_params(params, {{"offset", typeid(int)}}))
+             {
+                 int offset = std::get<int>(params["offset"]);
+                 return new CandleOpen(offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating CandleOpen: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"candle-high", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"candle-high", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int offset = std::get<int>(params[0]);
-         return new CandleHigh(offset);
+         try
+         {
+             if (check_params(params, {{"offset", typeid(int)}}))
+             {
+                 int offset = std::get<int>(params["offset"]);
+                 return new CandleHigh(offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating CandleHigh: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"candle-low", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"candle-low", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int offset = std::get<int>(params[0]);
-         return new CandleLow(offset);
+         try
+         {
+             if (check_params(params, {{"offset", typeid(int)}}))
+             {
+                 int offset = std::get<int>(params["offset"]);
+                 return new CandleLow(offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating CandleLow: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"candle-close", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"candle-close", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int offset = std::get<int>(params[0]);
-         return new CandleClose(offset);
+         try
+         {
+             if (check_params(params, {{"offset", typeid(int)}}))
+             {
+                 int offset = std::get<int>(params["offset"]);
+                 return new CandleClose(offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating CandleClose: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"candle-tick-volume", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"candle-tick-volume", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int offset = std::get<int>(params[0]);
-         return new CandleTickVolume(offset);
+         try
+         {
+             if (check_params(params, {{"offset", typeid(int)}}))
+             {
+                 int offset = std::get<int>(params["offset"]);
+                 return new CandleTickVolume(offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating CandleTickVolume: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"candle-volume", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"candle-volume", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int offset = std::get<int>(params[0]);
-         return new CandleVolume(offset);
+         try
+         {
+             if (check_params(params, {{"offset", typeid(int)}}))
+             {
+                 int offset = std::get<int>(params["offset"]);
+                 return new CandleVolume(offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating CandleVolume: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"white-candle", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"white-candle", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int offset = std::get<int>(params[0]);
-         return new WhiteCandle(offset);
+         try
+         {
+             if (check_params(params, {{"offset", typeid(int)}}))
+             {
+                 int offset = std::get<int>(params["offset"]);
+                 return new WhiteCandle(offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating WhiteCandle: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"black-candle", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"black-candle", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int offset = std::get<int>(params[0]);
-         return new BlackCandle(offset);
+         try
+         {
+             if (check_params(params, {{"offset", typeid(int)}}))
+             {
+                 int offset = std::get<int>(params["offset"]);
+                 return new BlackCandle(offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating BlackCandle: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"candle-body", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"candle-body", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int offset = std::get<int>(params[0]);
-         return new CandleBody(offset);
+         try
+         {
+             if (check_params(params, {{"offset", typeid(int)}}))
+             {
+                 int offset = std::get<int>(params["offset"]);
+                 return new CandleBody(offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating CandleBody: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"candle-shadow-upper", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"candle-shadow-upper", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int offset = std::get<int>(params[0]);
-         return new CandleShadowUpper(offset);
+         try
+         {
+             if (check_params(params, {{"offset", typeid(int)}}))
+             {
+                 int offset = std::get<int>(params["offset"]);
+                 return new CandleShadowUpper(offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating CandleShadowUpper: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"candle-shadow-lower", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"candle-shadow-lower", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int offset = std::get<int>(params[0]);
-         return new CandleShadowLower(offset);
+         try
+         {
+             if (check_params(params, {{"offset", typeid(int)}}))
+             {
+                 int offset = std::get<int>(params["offset"]);
+                 return new CandleShadowLower(offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating CandleShadowLower: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"candle-price-change", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"candle-price-change", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int offset = std::get<int>(params[0]);
-         return new CandlePriceChange(offset);
+         try
+         {
+             if (check_params(params, {{"offset", typeid(int)}}))
+             {
+                 int offset = std::get<int>(params["offset"]);
+                 return new CandlePriceChange(offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating CandlePriceChange: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"pivot-high", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"pivot-high", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         std::string source = std::get<std::string>(params[0]);
-         int left_bars = std::get<int>(params[1]);
-         int right_bars = std::get<int>(params[2]);
-         int offset = std::get<int>(params[3]);
-         return new PivotHigh(source, left_bars, right_bars, offset);
+         try
+         {
+             if (check_params(params, {{"source", typeid(std::string)}, {"left_bars", typeid(int)}, {"right_bars", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 std::string source = std::get<std::string>(params["source"]);
+                 int left_bars = std::get<int>(params["left_bars"]);
+                 int right_bars = std::get<int>(params["right_bars"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new PivotHigh(source, left_bars, right_bars, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating PivotHigh: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"pivot-low", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"pivot-low", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         std::string source = std::get<std::string>(params[0]);
-         int left_bars = std::get<int>(params[1]);
-         int right_bars = std::get<int>(params[2]);
-         int offset = std::get<int>(params[3]);
-         return new PivotLow(source, left_bars, right_bars, offset);
+         try
+         {
+             if (check_params(params, {{"source", typeid(std::string)}, {"left_bars", typeid(int)}, {"right_bars", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 std::string source = std::get<std::string>(params["source"]);
+                 int left_bars = std::get<int>(params["left_bars"]);
+                 int right_bars = std::get<int>(params["right_bars"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new PivotLow(source, left_bars, right_bars, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating PivotLow: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"pivot-high-value", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"pivot-high-value", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         std::string source = std::get<std::string>(params[0]);
-         int left_bars = std::get<int>(params[1]);
-         int right_bars = std::get<int>(params[2]);
-         int offset = std::get<int>(params[3]);
-         return new PivotHighValue(source, left_bars, right_bars, offset);
+         try
+         {
+             if (check_params(params, {{"source", typeid(std::string)}, {"left_bars", typeid(int)}, {"right_bars", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 std::string source = std::get<std::string>(params["source"]);
+                 int left_bars = std::get<int>(params["left_bars"]);
+                 int right_bars = std::get<int>(params["right_bars"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new PivotHighValue(source, left_bars, right_bars, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating PivotHighValue: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"pivot-low-value", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"pivot-low-value", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         std::string source = std::get<std::string>(params[0]);
-         int left_bars = std::get<int>(params[1]);
-         int right_bars = std::get<int>(params[2]);
-         int offset = std::get<int>(params[3]);
-         return new PivotLowValue(source, left_bars, right_bars, offset);
+         try
+         {
+             if (check_params(params, {{"source", typeid(std::string)}, {"left_bars", typeid(int)}, {"right_bars", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 std::string source = std::get<std::string>(params["source"]);
+                 int left_bars = std::get<int>(params["left_bars"]);
+                 int right_bars = std::get<int>(params["right_bars"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new PivotLowValue(source, left_bars, right_bars, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating PivotLowValue: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"highest-high", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"highest-high", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int left_bars = std::get<int>(params[0]);
-         int right_bars = std::get<int>(params[1]);
-         int offset = std::get<int>(params[2]);
-         return new HighestHigh(left_bars, right_bars, offset);
+         try
+         {
+             if (check_params(params, {{"left_bars", typeid(int)}, {"right_bars", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 int left_bars = std::get<int>(params["left_bars"]);
+                 int right_bars = std::get<int>(params["right_bars"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new HighestHigh(left_bars, right_bars, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating HighestHigh: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"lowest-low", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"lowest-low", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int left_bars = std::get<int>(params[0]);
-         int right_bars = std::get<int>(params[1]);
-         int offset = std::get<int>(params[2]);
-         return new LowestLow(left_bars, right_bars, offset);
+         try
+         {
+             if (check_params(params, {{"left_bars", typeid(int)}, {"right_bars", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 int left_bars = std::get<int>(params["left_bars"]);
+                 int right_bars = std::get<int>(params["right_bars"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new LowestLow(left_bars, right_bars, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating LowestLow: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"peak-distance", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"peak-distance", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int left_bars = std::get<int>(params[0]);
-         int right_bars = std::get<int>(params[1]);
-         int offset = std::get<int>(params[2]);
-         return new PeakDistance(left_bars, right_bars, offset);
+         try
+         {
+             if (check_params(params, {{"left_bars", typeid(int)}, {"right_bars", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 int left_bars = std::get<int>(params["left_bars"]);
+                 int right_bars = std::get<int>(params["right_bars"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new PeakDistance(left_bars, right_bars, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating PeakDistance: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"peak-candle-distance", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"peak-candle-distance", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int left_bars = std::get<int>(params[0]);
-         int right_bars = std::get<int>(params[1]);
-         int offset = std::get<int>(params[2]);
-         return new PeakCandleDistance(left_bars, right_bars, offset);
+         try
+         {
+             if (check_params(params, {{"left_bars", typeid(int)}, {"right_bars", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 int left_bars = std::get<int>(params["left_bars"]);
+                 int right_bars = std::get<int>(params["right_bars"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new PeakCandleDistance(left_bars, right_bars, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating PeakCandleDistance: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
 };
 

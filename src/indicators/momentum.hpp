@@ -2,10 +2,13 @@
 #define MOMENTUM_INDICATORS_HPP
 
 #include <variant>
-#include <map>
 #include <functional>
 #include <vector>
 #include <string>
+#include <unordered_map>
+#include <stdexcept>
+#include <iostream>
+#include "builder.hpp"
 #include "../types.hpp"
 #include "indicator.hpp"
 
@@ -413,93 +416,262 @@ public:
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 };
 
-const std::unordered_map<std::string, std::function<Indicator *(std::vector<IndicatorParam>)>> momentum_indicators_map = {
-    {"awesome-oscillator", [](std::vector<IndicatorParam> params) -> Indicator *
+const std::unordered_map<std::string, std::function<Indicator *(std::unordered_map<std::string, IndicatorParam>)>> momentum_indicators_map = {
+    {"awesome-oscillator", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int offset = std::get<int>(params[0]);
-         return new AwesomeOscillator(offset);
+         try
+         {
+             if (check_params(params, {{"offset", typeid(int)}}))
+             {
+                 int offset = std::get<int>(params["offset"]);
+                 return new AwesomeOscillator(offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating AwesomeOscillator: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"kama", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"kama", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int er_period = std::get<int>(params[0]);
-         int fastest_sc_period = std::get<int>(params[1]);
-         int slowest_sc_period = std::get<int>(params[2]);
-         int offset = std::get<int>(params[3]);
-         return new KAMA(er_period, fastest_sc_period, slowest_sc_period, offset);
+         try
+         {
+             if (check_params(params, {{"er_period", typeid(int)}, {"fastest_sc_period", typeid(int)}, {"slowest_sc_period", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 int er_period = std::get<int>(params["er_period"]);
+                 int fastest_sc_period = std::get<int>(params["fastest_sc_period"]);
+                 int slowest_sc_period = std::get<int>(params["slowest_sc_period"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new KAMA(er_period, fastest_sc_period, slowest_sc_period, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating KAMA: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"rsi", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"rsi", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int period = std::get<int>(params[0]);
-         int offset = std::get<int>(params[1]);
-         return new RSI(period, offset);
+         try
+         {
+             if (check_params(params, {{"period", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 int period = std::get<int>(params["period"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new RSI(period, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating RSI: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"mfi", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"mfi", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int period = std::get<int>(params[0]);
-         int offset = std::get<int>(params[1]);
-         return new MFI(period, offset);
+         try
+         {
+             if (check_params(params, {{"period", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 int period = std::get<int>(params["period"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new MFI(period, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating MFI: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"ppo", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"ppo", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int short_period = std::get<int>(params[0]);
-         int long_period = std::get<int>(params[1]);
-         int offset = std::get<int>(params[2]);
-         return new PPO(short_period, long_period, offset);
+         try
+         {
+             if (check_params(params, {{"short_period", typeid(int)}, {"long_period", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 int short_period = std::get<int>(params["short_period"]);
+                 int long_period = std::get<int>(params["long_period"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new PPO(short_period, long_period, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating PPO: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"pvo", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"pvo", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int fast_period = std::get<int>(params[0]);
-         int slow_period = std::get<int>(params[1]);
-         int signal_period = std::get<int>(params[2]);
-         int offset = std::get<int>(params[3]);
-         return new PVO(fast_period, slow_period, signal_period, offset);
+         try
+         {
+             if (check_params(params, {{"fast_period", typeid(int)}, {"slow_period", typeid(int)}, {"signal_period", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 int fast_period = std::get<int>(params["fast_period"]);
+                 int slow_period = std::get<int>(params["slow_period"]);
+                 int signal_period = std::get<int>(params["signal_period"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new PVO(fast_period, slow_period, signal_period, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating PVO: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"roc", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"roc", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int period = std::get<int>(params[0]);
-         int offset = std::get<int>(params[1]);
-         return new ROC(period, offset);
+         try
+         {
+             if (check_params(params, {{"period", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 int period = std::get<int>(params["period"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new ROC(period, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating ROC: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"rsi", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"rsi", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int period = std::get<int>(params[0]);
-         int offset = std::get<int>(params[1]);
-         return new RSI(period, offset);
+         try
+         {
+             if (check_params(params, {{"period", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 int period = std::get<int>(params["period"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new RSI(period, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating RSI: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"stochastic-rsi", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"stochastic-rsi", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int period = std::get<int>(params[0]);
-         int sma_period = std::get<int>(params[1]);
-         int offset = std::get<int>(params[2]);
-         return new StochasticRSI(period, sma_period, offset);
+         try
+         {
+             if (check_params(params, {{"period", typeid(int)}, {"sma_period", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 int period = std::get<int>(params["period"]);
+                 int sma_period = std::get<int>(params["sma_period"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new StochasticRSI(period, sma_period, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating StochasticRSI: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"stochastic-oscillator", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"stochastic-oscillator", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int k_period = std::get<int>(params[0]);
-         int d_period = std::get<int>(params[1]);
-         int offset = std::get<int>(params[2]);
-         return new StochasticOscillator(k_period, d_period, offset);
+         try
+         {
+             if (check_params(params, {{"k_period", typeid(int)}, {"d_period", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 int k_period = std::get<int>(params["k_period"]);
+                 int d_period = std::get<int>(params["d_period"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new StochasticOscillator(k_period, d_period, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating StochasticOscillator: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"tsi", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"tsi", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int short_period = std::get<int>(params[0]);
-         int long_period = std::get<int>(params[1]);
-         int offset = std::get<int>(params[2]);
-         return new TSI(short_period, long_period, offset);
+         try
+         {
+             if (check_params(params, {{"short_period", typeid(int)}, {"long_period", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 int short_period = std::get<int>(params["short_period"]);
+                 int long_period = std::get<int>(params["long_period"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new TSI(short_period, long_period, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating TSI: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"uo", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"uo", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int period1 = std::get<int>(params[0]);
-         int period2 = std::get<int>(params[1]);
-         int period3 = std::get<int>(params[2]);
-         int offset = std::get<int>(params[3]);
-         return new UO(period1, period2, period3, offset);
+         try
+         {
+             if (check_params(params, {{"period1", typeid(int)}, {"period2", typeid(int)}, {"period3", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 int period1 = std::get<int>(params["period1"]);
+                 int period2 = std::get<int>(params["period2"]);
+                 int period3 = std::get<int>(params["period3"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new UO(period1, period2, period3, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating UO: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"wpr", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"wpr", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int period = std::get<int>(params[0]);
-         int offset = std::get<int>(params[1]);
-         return new WPR(period, offset);
+         try
+         {
+             if (check_params(params, {{"period", typeid(int)}, {"offset", typeid(int)}}))
+             {
+                 int period = std::get<int>(params["period"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new WPR(period, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating WPR: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
 };
 

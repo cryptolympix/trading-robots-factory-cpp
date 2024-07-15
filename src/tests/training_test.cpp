@@ -155,7 +155,6 @@ protected:
 
 TEST_F(TrainingTest, CountIndicators)
 {
-
     training->config.strategy.can_open_long_trade = true;
     training->config.strategy.can_open_short_trade = false;
     training->config.strategy.can_close_trade = false;

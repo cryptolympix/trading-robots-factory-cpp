@@ -1,6 +1,13 @@
 #ifndef TIME_INDICATORS_HPP
 #define TIME_INDICATORS_HPP
 
+#include <string>
+#include <vector>
+#include <unordered_map>
+#include <functional>
+#include <stdexcept>
+#include <iostream>
+#include "builder.hpp"
 #include "../types.hpp"
 #include "indicator.hpp"
 
@@ -118,33 +125,98 @@ public:
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 };
 
-const std::unordered_map<std::string, std::function<Indicator *(std::vector<IndicatorParam>)>> time_indicators_map = {
-    {"hour", [](std::vector<IndicatorParam> params) -> Indicator *
+const std::unordered_map<std::string, std::function<Indicator *(std::unordered_map<std::string, IndicatorParam>)>> time_indicators_map = {
+    {"hour", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int offset = std::get<int>(params[0]);
-         return new Hour(offset);
+         try
+         {
+             if (check_params(params, {{"offset", typeid(int)}}))
+             {
+                 int offset = std::get<int>(params["offset"]);
+                 return new Hour(offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating Hour: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"minute", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"minute", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int offset = std::get<int>(params[0]);
-         return new Minute(offset);
+         try
+         {
+             if (check_params(params, {{"offset", typeid(int)}}))
+             {
+                 int offset = std::get<int>(params["offset"]);
+                 return new Minute(offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating Minute: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"nfp-week", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"nfp-week", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int offset = std::get<int>(params[0]);
-         return new NFPWeek(offset);
+         try
+         {
+             if (check_params(params, {{"offset", typeid(int)}}))
+             {
+                 int offset = std::get<int>(params["offset"]);
+                 return new NFPWeek(offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating NFPWeek: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"market-session", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"market-session", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int offset = std::get<int>(params[0]);
-         std::string zone = std::get<std::string>(params[1]);
-         return new MarketSession(zone, offset);
+         try
+         {
+             if (check_params(params, {{"offset", typeid(int)}, {"zone", typeid(std::string)}}))
+             {
+                 int offset = std::get<int>(params["offset"]);
+                 std::string zone = std::get<std::string>(params["zone"]);
+                 return new MarketSession(zone, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating MarketSession: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"week-day", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"week-day", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int offset = std::get<int>(params[0]);
-         std::string day = std::get<std::string>(params[1]);
-         return new WeekDay(day, offset);
+         try
+         {
+             if (check_params(params, {{"offset", typeid(int)}, {"day", typeid(std::string)}}))
+             {
+                 int offset = std::get<int>(params["offset"]);
+                 std::string day = std::get<std::string>(params["day"]);
+                 return new WeekDay(day, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating WeekDay: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
 };
 

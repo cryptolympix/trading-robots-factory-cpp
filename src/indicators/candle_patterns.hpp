@@ -4,7 +4,10 @@
 #include <vector>
 #include <unordered_map>
 #include <functional>
+#include <stdexcept>
+#include <iostream>
 #include "../types.hpp"
+#include "builder.hpp"
 #include "indicator.hpp"
 
 /**
@@ -359,26 +362,78 @@ private:
     bool isThreeStarsInTheNorth(const std::vector<Candle> &candles, size_t index) const;
 };
 
-const std::unordered_map<std::string, std::function<Indicator *(std::vector<IndicatorParam>)>> candle_patterns_indicators_map = {
-    {"doji-candle-pattern", [](std::vector<IndicatorParam> params) -> Indicator *
+const std::unordered_map<std::string, std::function<Indicator *(std::unordered_map<std::string, IndicatorParam>)>> candle_patterns_indicators_map = {
+    {"doji-candle-pattern", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int offset = std::get<int>(params[0]);
-         return new DojiCandlePattern(offset);
+         try
+         {
+             if (check_params(params, {{"offset", typeid(int)}}))
+             {
+                 int offset = std::get<int>(params["offset"]);
+                 return new DojiCandlePattern(offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating DojiCandlePattern: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"single-candle-pattern", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"single-candle-pattern", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int offset = std::get<int>(params[0]);
-         return new SingleCandlePattern(offset);
+         try
+         {
+             if (check_params(params, {{"offset", typeid(int)}}))
+             {
+                 int offset = std::get<int>(params["offset"]);
+                 return new SingleCandlePattern(offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating SingleCandlePattern: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"double-candle-pattern", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"double-candle-pattern", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int offset = std::get<int>(params[0]);
-         return new DoubleCandlePattern(offset);
+         try
+         {
+             if (check_params(params, {{"offset", typeid(int)}}))
+             {
+                 int offset = std::get<int>(params["offset"]);
+                 return new DoubleCandlePattern(offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating DoubleCandlePattern: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
-    {"triple-candle-pattern", [](std::vector<IndicatorParam> params) -> Indicator *
+    {"triple-candle-pattern", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int offset = std::get<int>(params[0]);
-         return new TripleCandlePattern(offset);
+         try
+         {
+             if (check_params(params, {{"offset", typeid(int)}}))
+             {
+                 int offset = std::get<int>(params["offset"]);
+                 return new TripleCandlePattern(offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating TripleCandlePattern: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
 };
 

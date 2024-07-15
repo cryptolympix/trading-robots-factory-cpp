@@ -2,6 +2,11 @@
 #define VOLUME_SIGNALS_HPP
 
 #include <vector>
+#include <functional>
+#include <unordered_map>
+#include <stdexcept>
+#include <iostream>
+#include "builder.hpp"
 #include "indicator.hpp"
 
 class CMFSignal : public Indicator
@@ -27,14 +32,27 @@ public:
     std::vector<double> calculate(const std::vector<Candle> &candles, bool normalize_data = false) const override;
 };
 
-const std::unordered_map<std::string, std::function<Indicator *(std::vector<IndicatorParam>)>> volume_signals_indicators_map = {
-    {"cmf-signal", [](std::vector<IndicatorParam> params) -> Indicator *
+const std::unordered_map<std::string, std::function<Indicator *(std::unordered_map<std::string, IndicatorParam>)>> volume_signals_indicators_map = {
+    {"cmf-signal", [](std::unordered_map<std::string, IndicatorParam> params) -> Indicator *
      {
-         int period = std::get<int>(params[0]);
-         double bullish_threshold = std::get<double>(params[1]);
-         double bearish_threshold = std::get<double>(params[2]);
-         int offset = std::get<int>(params[3]);
-         return new CMFSignal(period, bullish_threshold, bearish_threshold, offset);
+         try
+         {
+             if (check_params(params, {{"period", typeid(int)}, {"bullish_threshold", typeid(double)}, {"bearish_threshold", typeid(double)}, {"offset", typeid(int)}}))
+             {
+                 int period = std::get<int>(params["period"]);
+                 double bullish_threshold = std::get<double>(params["bullish_threshold"]);
+                 double bearish_threshold = std::get<double>(params["bearish_threshold"]);
+                 int offset = std::get<int>(params["offset"]);
+                 return new CMFSignal(period, bullish_threshold, bearish_threshold, offset);
+             }
+         }
+         catch (const std::exception &e)
+         {
+             std::cerr << "Error creating CMFSignal: " << e.what() << std::endl;
+             std::exit(1);
+         }
+
+         return nullptr;
      }},
 };
 
