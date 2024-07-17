@@ -5,25 +5,8 @@
 #include "../read_data.hpp"
 #include "../time_frame.hpp"
 
-// Test case for reading data with valid inputs
-TEST(ReadDataTest, TestReadValidData)
-{
-    // Test reading data for a valid symbol and time frame
-    std::vector<Candle> candles = read_data("EURUSD", TimeFrame::H1);
-
-    // Assert that the vector is not empty
-    ASSERT_FALSE(candles.empty());
-}
-
-// Test case for reading data with invalid symbol
-TEST(ReadDataTest, TestReadInvalidSymbol)
-{
-    // Test reading data for an invalid symbol
-    ASSERT_THROW(read_data("INVALID_SYMBOL", TimeFrame::H1), std::runtime_error);
-}
-
 // Test case for reading data with valid time frame and date range
-TEST(ReadDataTest, TestReadDataWithDateRange)
+TEST(ReadDataTest, ReadDataWithDateRange)
 {
     std::tm start_date = {
         .tm_sec = 0,

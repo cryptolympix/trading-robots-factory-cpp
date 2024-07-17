@@ -98,3 +98,17 @@ TEST(TimeFrameTest, HighestTimeFrame)
     EXPECT_EQ(highest_time_frame({TimeFrame::M30, TimeFrame::H1, TimeFrame::M5}), TimeFrame::H1);
     EXPECT_EQ(highest_time_frame({TimeFrame::D1, TimeFrame::M15, TimeFrame::M30}), TimeFrame::D1);
 }
+
+TEST(TimeFrameTest, LowestTimeFrame)
+{
+    // Test with an empty vector (should throw runtime_error)
+    EXPECT_THROW(lowest_time_frame({}), std::runtime_error);
+
+    // Test with a single time frame (should return the same time frame)
+    EXPECT_EQ(lowest_time_frame({TimeFrame::H1}), TimeFrame::H1);
+
+    // Test with multiple time frames
+    EXPECT_EQ(lowest_time_frame({TimeFrame::M1, TimeFrame::H4, TimeFrame::M15}), TimeFrame::M1);
+    EXPECT_EQ(lowest_time_frame({TimeFrame::M30, TimeFrame::H1, TimeFrame::M5}), TimeFrame::M5);
+    EXPECT_EQ(lowest_time_frame({TimeFrame::D1, TimeFrame::M15, TimeFrame::M30}), TimeFrame::M15);
+}

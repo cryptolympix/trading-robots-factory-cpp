@@ -34,6 +34,14 @@ bool match_time_frame(const std::string &time, TimeFrame time_frame);
 TimeFrame highest_time_frame(const std::vector<TimeFrame> &time_frames);
 
 /**
+ * @brief Determine the lowest (minimum) timeframe from the given list.
+ *
+ * @param time_frames The list of timeframes to evaluate.
+ * @return TimeFrame The lowest timeframe from the list.
+ */
+TimeFrame lowest_time_frame(const std::vector<TimeFrame> &time_frames);
+
+/**
  * @brief Convert a timeframe to a string representation.
  * @return std::string The string representation of the timeframe.
  */

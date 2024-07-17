@@ -92,6 +92,31 @@ TimeFrame highest_time_frame(const std::vector<TimeFrame> &time_frames)
 }
 
 /**
+ * @brief Determine the lowest (minimum) timeframe from the given list.
+ *
+ * @param time_frames The list of timeframes to evaluate.
+ * @return TimeFrame The lowest timeframe from the list.
+ */
+TimeFrame lowest_time_frame(const std::vector<TimeFrame> &time_frames)
+{
+    std::vector<TimeFrame> time_frames_copy = time_frames;
+    if (time_frames_copy.empty())
+    {
+        throw std::runtime_error("At least one time frame must be passed to the arguments.");
+    }
+    else if (time_frames_copy.size() == 1)
+    {
+        return time_frames_copy[0];
+    }
+    else
+    {
+        std::sort(time_frames_copy.begin(), time_frames_copy.end(), [](TimeFrame a, TimeFrame b)
+                  { return get_time_frame_in_minutes(a) < get_time_frame_in_minutes(b); });
+        return time_frames_copy[0];
+    }
+}
+
+/**
  * @brief Convert a timeframe to a string representation.
  * @return std::string The string representation of the timeframe.
  */
@@ -99,35 +124,35 @@ std::string time_frame_to_string(TimeFrame time_frame)
 {
     if (time_frame == TimeFrame::M1)
     {
-        return "1m";
+        return "M1";
     }
     else if (time_frame == TimeFrame::M5)
     {
-        return "5m";
+        return "M5";
     }
     else if (time_frame == TimeFrame::M15)
     {
-        return "15m";
+        return "M15";
     }
     else if (time_frame == TimeFrame::M30)
     {
-        return "30m";
+        return "M30";
     }
     else if (time_frame == TimeFrame::H1)
     {
-        return "1h";
+        return "H1";
     }
     else if (time_frame == TimeFrame::H4)
     {
-        return "4h";
+        return "H4";
     }
     else if (time_frame == TimeFrame::H12)
     {
-        return "12h";
+        return "H12";
     }
     else if (time_frame == TimeFrame::D1)
     {
-        return "1d";
+        return "D1";
     }
     else
     {
@@ -141,35 +166,35 @@ std::string time_frame_to_string(TimeFrame time_frame)
  */
 TimeFrame time_frame_from_string(const std::string &time_frame)
 {
-    if (time_frame == "1m")
+    if (time_frame == "M1")
     {
         return TimeFrame::M1;
     }
-    else if (time_frame == "5m")
+    else if (time_frame == "M5")
     {
         return TimeFrame::M5;
     }
-    else if (time_frame == "15m")
+    else if (time_frame == "M15")
     {
         return TimeFrame::M15;
     }
-    else if (time_frame == "30m")
+    else if (time_frame == "M30")
     {
         return TimeFrame::M30;
     }
-    else if (time_frame == "1h")
+    else if (time_frame == "H1")
     {
         return TimeFrame::H1;
     }
-    else if (time_frame == "4h")
+    else if (time_frame == "H4")
     {
         return TimeFrame::H4;
     }
-    else if (time_frame == "12h")
+    else if (time_frame == "H12")
     {
         return TimeFrame::H12;
     }
-    else if (time_frame == "1d")
+    else if (time_frame == "D1")
     {
         return TimeFrame::D1;
     }

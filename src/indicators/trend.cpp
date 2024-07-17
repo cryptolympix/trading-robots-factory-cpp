@@ -967,8 +967,8 @@ std::vector<double> Vortex::calculate(const std::vector<Candle> &candles, bool n
             std::vector<double> negative_vi_14(candles.size(), 0);
             for (size_t i = period; i < candles.size(); ++i)
             {
-                positive_vi_14[i] = positive_vm_14[i] / tr_14[i];
-                negative_vi_14[i] = negative_vm_14[i] / tr_14[i];
+                positive_vi_14[i] = tr_14[i] != 0 ? positive_vm_14[i] / tr_14[i] : 0;
+                negative_vi_14[i] = tr_14[i] != 0 ? negative_vm_14[i] / tr_14[i] : 0;
             }
 
             // // Normalize data if required

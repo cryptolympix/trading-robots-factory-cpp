@@ -307,6 +307,12 @@ void Training::load_candles(bool display_progress)
         progress_bar->complete();
         delete progress_bar;
     }
+
+    if (this->candles.empty())
+    {
+        std::cerr << "Error: no candles loaded for the training." << std::endl;
+        std::exit(1);
+    }
 }
 
 /**

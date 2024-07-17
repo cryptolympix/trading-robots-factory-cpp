@@ -110,7 +110,7 @@ void neat::Genome::fully_connect(std::vector<std::shared_ptr<ConnectionHistory>>
                     int connection_innovation_nb = this->get_innovation_number(
                         innovation_history,
                         this->nodes[current_layer * this->inputs + i],
-                        this->nodes[next_layer * this->inputs + j]);
+                        this->nodes[next_layer * this->outputs + j]);
 
                     genes.push_back(
                         std::make_shared<ConnectionGene>(
