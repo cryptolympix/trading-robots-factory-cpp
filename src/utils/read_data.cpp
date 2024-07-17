@@ -64,10 +64,21 @@ std::vector<Candle> read_data(const std::string &symbol, TimeFrame time_frame, t
     }
 
     std::string line;
-    std::getline(csv_file, line); // Ignore the first line (headers)
+    std::string header = "<DATE>\t<TIME>\t<OPEN>\t<HIGH>\t<LOW>\t<CLOSE>\t<TICKVOL>\t<VOL>\t<SPREAD>";
 
     while (std::getline(csv_file, line))
     {
+
+        if (line.empty())
+        {
+            continue;
+        }
+
+        if (line == header)
+        {
+            continue;
+        }
+
         std::istringstream ss(line);
         std::string token;
         Candle candle;
@@ -98,12 +109,28 @@ std::vector<Candle> read_data(const std::string &symbol, TimeFrame time_frame, t
         std::getline(ss, token, '\t'); // TICK_VOLUME
         candle.tick_volume = std::stod(token);
 
-        std::getline(ss, token, '\t'); // VOLUME
-        // candle.volume = std::stod(token);
-        candle.volume = candle.tick_volume; // Use tick volume instead of real volume for the forex
+        // Check if the volume is available in the data
+        if (ss.eof())
+        {
+            candle.volume = candle.tick_volume;
+            candle.spread = 0;
+        }
+        else
+        {
+            std::getline(ss, token, '\t'); // VOLUME
+            // If the value is equals to zero, use the tick volume instead
+            if (std::stod(token) == 0)
+            {
+                candle.volume = candle.tick_volume;
+            }
+            else
+            {
+                candle.volume = std::stod(token);
+            }
 
-        std::getline(ss, token, '\t'); // SPREAD
-        candle.spread = std::stod(token);
+            std::getline(ss, token, '\t'); // SPREAD
+            candle.spread = std::stod(token);
+        }
 
         // Filter candles by date
         time_t candle_date = candle.date;

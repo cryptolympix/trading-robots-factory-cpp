@@ -279,13 +279,19 @@ void Training::load_candles(bool display_progress)
 
             if (current_candles[tf].size() < CANDLES_WINDOW)
             {
-                std::cerr << "Error: not enough candles for the date " << time_t_to_string(date) << ", have only " << current_candles[tf].size() << " candles" << std::endl;
-                std::exit(1);
+                // Remove the date from the list
+                this->dates.erase(std::remove(this->dates.begin(), this->dates.end(), date), this->dates.end());
+                this->training_dates.erase(std::remove(this->training_dates.begin(), this->training_dates.end(), date), this->training_dates.end());
+                this->test_dates.erase(std::remove(this->test_dates.begin(), this->test_dates.end(), date), this->test_dates.end());
             }
         }
 
-        // Save the candles
-        this->candles[date] = current_candles;
+        // If the date is in the list of dates (with at least CANDLES_WINDOW candles for each timeframe)
+        if (std::find(this->dates.begin(), this->dates.end(), date) != this->dates.end())
+        {
+            // Save the candles for the current date
+            this->candles[date] = current_candles;
+        }
 
         // Free the indexer
         delete indexer;
@@ -321,14 +327,14 @@ void Training::load_indicators(bool display_progress)
     {
         for (const auto &indicator : indicators)
         {
-            if (std::find(check_indicators[tf].begin(), check_indicators[tf].end(), indicator->id) != check_indicators[tf].end())
+            if (std::find(check_indicators[tf].begin(), check_indicators[tf].end(), indicator->id_params) != check_indicators[tf].end())
             {
-                std::cerr << "Error: the indicator '" << indicator->id << "' is duplicated." << std::endl;
+                std::cerr << "Error: the indicator '" << indicator->id_params << "' is duplicated." << std::endl;
                 std::exit(1);
             }
             else
             {
-                check_indicators[tf].push_back(indicator->id);
+                check_indicators[tf].push_back(indicator->id_params);
             }
         }
     }

@@ -9,7 +9,7 @@
 
 namespace fs = std::filesystem;
 
-int main()
+int main(int argc, char *argv[])
 {
     std::string config_directory = "./configs/";
 
@@ -31,8 +31,16 @@ int main()
         // Convert the Config object to a JSON object.
         nlohmann::json json_config = config_to_json(config);
 
-        // Create the JSON configuration to a file.
+        // Path to the configuration file.
         std::string config_file_path = config_directory + config.general.name + "_" + config.general.version + ".json";
+
+        if (fs::exists(config_file_path))
+        {
+            std::cerr << "Configuration file " << config_file_path << " already exists" << std::endl;
+            return 1;
+        }
+
+        // Create the JSON configuration to a file.
         std::ofstream file(config_file_path);
 
         if (!file)
