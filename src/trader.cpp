@@ -497,33 +497,38 @@ void Trader::calculate_fitness()
     if (goals.minimum_nb_trades.has_value())
     {
         double diff = std::max(0, goals.minimum_nb_trades.value() - (int)closed_trades.size());
-        minimum_nb_trades_eval = minimum_nb_trades_weight / (minimum_nb_trades_weight + (diff / 10));
+        minimum_nb_trades_eval = minimum_nb_trades_weight / (minimum_nb_trades_weight + diff / 10);
+        // minimum_nb_trades_eval = minimum_nb_trades_weight / std::exp(diff);
     }
 
     if (goals.maximum_trade_duration.has_value())
     {
         for (const auto &trade : closed_trades)
         {
-            double diff = 10 * std::max(0, goals.maximum_trade_duration.value() - trade.duration);
+            double diff = std::max(0, trade.duration - goals.maximum_trade_duration.value());
+            // max_trade_duration_eval += max_trade_duration_weight / (closed_trades.size() * (max_trade_duration_weight + diff / 10));
             max_trade_duration_eval += max_trade_duration_weight / (closed_trades.size() * std::exp(diff));
         }
     }
 
     if (goals.maximum_drawdown.has_value())
     {
-        double diff = 10 * std::max(0.0, stats.max_drawdown - goals.maximum_drawdown.value());
+        double diff = std::max(0.0, stats.max_drawdown - goals.maximum_drawdown.value());
+        // max_drawdown_eval = max_drawdown_weight / (max_drawdown_weight + diff / 10);
         max_drawdown_eval = max_drawdown_weight / std::exp(diff);
     }
 
     if (goals.minimum_profit_factor.has_value())
     {
-        double diff = 10 * std::max(0.0, goals.minimum_profit_factor.value() - stats.profit_factor);
+        double diff = std::max(0.0, goals.minimum_profit_factor.value() - stats.profit_factor);
+        // profit_factor_eval = profit_factor_weight / (profit_factor_weight + diff / 10);
         profit_factor_eval = profit_factor_weight / std::exp(diff);
     }
 
     if (goals.minimum_winrate.has_value())
     {
-        double diff = 10 * std::max(0.0, goals.minimum_winrate.value() - stats.win_rate);
+        double diff = std::max(0.0, goals.minimum_winrate.value() - stats.win_rate);
+        // win_rate_eval = win_rate_weight / (win_rate_weight + diff / 10);
         win_rate_eval = win_rate_weight / std::exp(diff);
     }
 
@@ -560,7 +565,8 @@ void Trader::calculate_fitness()
         {
             for (const auto &daily_return : daily_returns)
             {
-                double diff = 10 * std::max(0.0, goals.expected_return_per_day.value() - daily_return.second);
+                double diff = std::max(0.0, goals.expected_return_per_day.value() - daily_return.second);
+                // expected_return_per_day_eval += expected_return_per_day_weight / (nb_days * (expected_return_per_day_weight + diff / 10));
                 expected_return_per_day_eval += expected_return_per_day_weight / (nb_days * std::exp(diff));
             }
         }
@@ -599,7 +605,8 @@ void Trader::calculate_fitness()
         {
             for (const auto &monthly_return : monthly_returns)
             {
-                double diff = 10 * std::max(0.0, goals.expected_return_per_month.value() - monthly_return.second);
+                double diff = std::max(0.0, goals.expected_return_per_month.value() - monthly_return.second);
+                // expected_return_per_month_eval += expected_return_per_month_weight / (nb_months * (expected_return_per_month_weight + diff / 10));
                 expected_return_per_month_eval += expected_return_per_month_weight / (nb_months * std::exp(diff));
             }
         }
@@ -607,7 +614,8 @@ void Trader::calculate_fitness()
 
     if (goals.expected_return.has_value())
     {
-        double diff = 10 * std::max(0.0, goals.expected_return.value() - stats.performance);
+        double diff = std::max(0.0, goals.expected_return.value() - stats.performance);
+        // expected_return_eval = expected_return_weight / (expected_return_weight + diff / 10);
         expected_return_eval = expected_return_eval / std::exp(diff);
     }
 
