@@ -247,11 +247,12 @@ void Trader::update(CandlesData &candles)
     // Increment the lifespan of the trader
     this->lifespan++;
 
-    // Kill the traders that loose all the balance
+    // Kill the traders that loose too much money
     bool bad_trader = this->config.training.bad_trader_threshold.has_value() && balance <= this->stats.initial_balance * config.training.bad_trader_threshold.value();
 
-    // Kill the traders that doesn't trades
-    bool inactive_trader = this->config.training.inactive_trader_threshold.has_value() && this->lifespan >= this->config.training.inactive_trader_threshold.value() && this->stats.total_trades == 0;
+    // Kill the traders that doesn't trades enough (don't open trade for a long time)
+    int number_of_trades_for_active_trader = this->config.training.inactive_trader_threshold.has_value() ? static_cast<int>(this->lifespan / this->config.training.inactive_trader_threshold.value()) : 0;
+    bool inactive_trader = this->stats.total_trades < number_of_trades_for_active_trader;
 
     if (bad_trader || inactive_trader)
     {
@@ -495,8 +496,8 @@ void Trader::calculate_fitness()
 
     if (goals.minimum_nb_trades.has_value())
     {
-        double diff = 10 * std::max(0, goals.minimum_nb_trades.value() - (int)closed_trades.size());
-        minimum_nb_trades_eval = minimum_nb_trades_weight / std::exp(diff);
+        double diff = std::max(0, goals.minimum_nb_trades.value() - (int)closed_trades.size());
+        minimum_nb_trades_eval = minimum_nb_trades_weight / (minimum_nb_trades_weight + (diff / 10));
     }
 
     if (goals.maximum_trade_duration.has_value())
@@ -626,34 +627,88 @@ void Trader::calculate_fitness()
     if (goals.minimum_nb_trades.has_value())
     {
         this->fitness *= minimum_nb_trades_eval;
+
+        if (minimum_nb_trades_eval <= 0 || minimum_nb_trades_eval > 1)
+        {
+            std::cerr << "Error: Minimum number of trades evaluation is not valid: " << minimum_nb_trades_eval << std::endl;
+            std::exit(1);
+        }
     }
     if (goals.maximum_trade_duration.has_value())
     {
         this->fitness *= max_trade_duration_eval;
+
+        if (max_trade_duration_eval <= 0 || max_trade_duration_eval > 1)
+        {
+            std ::cerr << "Error: Maximum trade duration evaluation is not valid: " << max_trade_duration_eval << std::endl;
+            std::exit(1);
+        }
     }
     if (goals.maximum_drawdown.has_value())
     {
         this->fitness *= max_drawdown_eval;
+
+        if (max_drawdown_eval <= 0 || max_drawdown_eval > 1)
+        {
+            std::cerr << "Error: Maximum drawdown evaluation is not valid: " << max_drawdown_eval << std::endl;
+            std::exit(1);
+        }
     }
     if (goals.minimum_profit_factor.has_value())
     {
         this->fitness *= profit_factor_eval;
+
+        if (profit_factor_eval <= 0 || profit_factor_eval > 1)
+        {
+            std::cerr << "Error: Profit factor evaluation is not valid: " << profit_factor_eval << std::endl;
+            std::exit(1);
+        }
     }
     if (goals.minimum_winrate.has_value())
     {
         this->fitness *= win_rate_eval;
+
+        if (win_rate_eval <= 0 || win_rate_eval > 1)
+        {
+            std::cerr << "Error: Win rate evaluation is not valid: " << win_rate_eval << std::endl;
+            std::exit(1);
+        }
     }
     if (goals.expected_return_per_day.has_value())
     {
         this->fitness *= expected_return_per_day_eval;
+
+        if (expected_return_per_day_eval <= 0 || expected_return_per_day_eval > 1)
+        {
+            std::cerr << "Error: Expected return per day evaluation is not valid: " << expected_return_per_day_eval << std::endl;
+            std::exit(1);
+        }
     }
     if (goals.expected_return_per_month.has_value())
     {
         this->fitness *= expected_return_per_month_eval;
+
+        if (expected_return_per_month_eval <= 0 || expected_return_per_month_eval > 1)
+        {
+            std::cerr << "Error: Expected return per month evaluation is not valid: " << expected_return_per_month_eval << std::endl;
+            std::exit(1);
+        }
     }
     if (goals.expected_return.has_value())
     {
         this->fitness *= expected_return_eval;
+
+        if (expected_return_eval <= 0 || expected_return_eval > 1)
+        {
+            std::cerr << "Error: Expected return evaluation is not valid: " << expected_return_eval << std::endl;
+            std::exit(1);
+        }
+    }
+
+    if (this->fitness < 0)
+    {
+        std::cerr << "Error: Fitness is negative: " << this->fitness << std::endl;
+        std::exit(1);
     }
 }
 
