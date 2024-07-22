@@ -10,3 +10,6 @@
 
 **Compile for generate_json_configs** : `g++ -std=c++17 -o generate_json_configs -I/opt/homebrew/Cellar/boost/1.85.0/include src/generate_json_configs.cpp src/symbols.cpp src/configs/*.cpp src/indicators/*.cpp src/neat/*.cpp src/trading/*.cpp src/utils/*.cpp -L/opt/homebrew/lib -lboost_iostreams`
 **Run executable for run_training** : `./generate_json_configs`
+
+**Compile for generate_csv_indicators_data** : `g++ -std=c++17 -o generate_csv_indicators_data -I/opt/homebrew/Cellar/boost/1.85.0/include src/generate_csv_indicators_data.cpp src/symbols.cpp src/configs/*.cpp src/indicators/*.cpp src/neat/*.cpp src/trading/*.cpp src/utils/*.cpp -L/opt/homebrew/lib`
+**Run executable for run_training** : `./generate_csv_indicators_data`
