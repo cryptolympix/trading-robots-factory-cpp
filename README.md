@@ -99,7 +99,7 @@ The Config struct type is defined in the file `./src/type.hpp`.
 
 At each generation, a detailed HTML report is created for the best-performing strategy. This report includes comprehensive statistics, helping you analyze and refine your strategy.
 
-See an example of report [here](./report_example.html)
+See an example of report [here](./preview/report_example.html)
 
 ## MetaTrader 5 Integration (Work in Progress)
 
