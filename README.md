@@ -110,13 +110,6 @@ At each generation, a detailed HTML report is created for the best-performing st
 ## MetaTrader 5 Integration (Work in Progress)
 
 This feature is under development and not functional yet.
-
-### Key Improvements
-
-1. **Clarity and Professional Tone**: Improved phrasing for better readability and a more professional tone.
-2. **Formatting**: Enhanced use of sections and subsections for a clean layout.
-3. **Consistency**: Standardized terminology and file path usage throughout the document.
-4. **MetaTrader Integration**: Reworded the status of the feature to reflect its development stage while maintaining an optimistic tone.
   
 ## License
 
