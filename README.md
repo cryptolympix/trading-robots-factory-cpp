@@ -111,7 +111,7 @@ There is also a backup of training at each generation. You can stop it and resum
 
 Then, you can visualize the evolution of the fitness.
 
-![report_example_fitness](./preview/report_example_fitness.png)
+![report_example_fitness_evolution](./preview/report_example_fitness_evolution.png)
 
 ## MetaTrader 5 Integration (Work in Progress)
 
