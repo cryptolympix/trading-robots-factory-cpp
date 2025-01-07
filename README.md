@@ -95,23 +95,32 @@
 Refer to the example configuration provided in `./src/configs/custom/Example.hpp`.
 The Config struct type is defined in the file `./src/type.hpp`.
 
-## Training report
+## Training Report
 
-At each generation, a detailed HTML report is created for the best-performing strategy. This report includes comprehensive statistics, helping you analyze and refine your strategy.
+During each generation, the system generates a detailed HTML report for the best-performing strategy. This report provides comprehensive statistics, enabling you to analyze and fine-tune your approach effectively.
 
-![report_example_common](./preview/report_example_common.png)
+### Key Features of the Report
 
-![report_example_balance_history](./preview/report_example_balance_history.png)
+- **Performance Overview:** Visualize key metrics to evaluate strategy success.  
+  ![General Report Overview](./preview/report_example_common.png)
+  
+- **Balance History:** Track the evolution of account balance over time.  
+  ![Balance History Example](./preview/report_example_balance_history.png)
+  
+- **Monthly Returns:** Assess profitability on a month-by-month basis.  
+  ![Monthly Returns Example](./preview/report_example_monthly_returns.png)
+  
+- **Trades Analysis:** Dive into detailed trade statistics for insights into strategy behavior.  
+  ![Trade Statistics Example](./preview/report_example_trades.png)
 
-![report_example_monthly_returns](./preview/report_example_monthly_returns.png)
+### Training Backup and Resumption
 
-![report_example_trades](./preview/report_example_trades.png)
+At each generation, the system saves a backup of the training state, allowing you to pause and resume the process seamlessly whenever needed.
 
-There is also a backup of training at each generation. You can stop it and resume it later.
+### Fitness Evolution Visualization
 
-Then, you can visualize the evolution of the fitness.
-
-![report_example_fitness_evolution](./preview/report_example_fitness_evolution.png)
+Monitor the fitness progression across generations to understand how your strategies improve over time.  
+![Fitness Evolution Example](./preview/report_example_fitness_evolution.png)
 
 ## MetaTrader 5 Integration (Work in Progress)
 
