@@ -95,7 +95,7 @@
 Refer to the example configuration provided in `./src/configs/custom/Example.hpp`.
 The Config struct type is defined in the file `./src/type.hpp`.
 
-## Strategy report
+## Training report
 
 At each generation, a detailed HTML report is created for the best-performing strategy. This report includes comprehensive statistics, helping you analyze and refine your strategy.
 
@@ -106,6 +106,12 @@ At each generation, a detailed HTML report is created for the best-performing st
 ![report_example_monthly_returns](./preview/report_example_monthly_returns.png)
 
 ![report_example_trades](./preview/report_example_trades.png)
+
+There is also a backup of training at each generation. You can stop it and resume it later.
+
+Then, you can visualize the evolution of the fitness.
+
+![report_example_fitness](./preview/report_example_fitness.png)
 
 ## MetaTrader 5 Integration (Work in Progress)
 

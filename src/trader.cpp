@@ -1621,7 +1621,7 @@ void Trader::generate_report(const std::string &filename, time_t start_date, tim
     for (const auto &[monthly_returns_data_key, monthly_returns_data_value] : this->stats.monthly_returns)
     {
         monthly_returns_labels += "\"" + monthly_returns_data_key + "\",";
-        monthly_returns_data += std::to_string(monthly_returns_data_value) + ",";
+        monthly_returns_data += std::to_string(monthly_returns_data_value * 100) + ",";
     }
 
     file << R"(
@@ -1649,7 +1649,7 @@ void Trader::generate_report(const std::string &filename, time_t start_date, tim
          << monthly_returns_labels <<
         R"(],
                 datasets: [{
-                    label: 'Monthly returns',
+                    label: 'Monthly returns in %',
                     data : [)"
          << monthly_returns_data <<
         R"(],
