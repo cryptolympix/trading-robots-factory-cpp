@@ -102,15 +102,19 @@ During each generation, the system generates a detailed HTML report for the best
 ### Key Features of the Report
 
 - **Performance Overview:** Visualize key metrics to evaluate strategy success.  
+  
   ![General Report Overview](./preview/report_example_common.png)
   
 - **Balance History:** Track the evolution of account balance over time.  
+  
   ![Balance History Example](./preview/report_example_balance_history.png)
   
 - **Monthly Returns:** Assess profitability on a month-by-month basis.  
+  
   ![Monthly Returns Example](./preview/report_example_monthly_returns.png)
   
-- **Trades Analysis:** Dive into detailed trade statistics for insights into strategy behavior.  
+- **Trades Analysis:** Dive into detailed trade statistics for insights into strategy behavior. 
+
   ![Trade Statistics Example](./preview/report_example_trades.png)
 
 ### Training Backup and Resumption
