@@ -1,8 +1,13 @@
-# Folders
+# Project
 build
 reports
 cache
-configs
+
+# Strategy config
+configs/*.json
+
+# Indicators data
+data/**/*_indicators.csv
 
 # Debug
 run_training.dSYM/

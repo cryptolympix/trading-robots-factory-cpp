@@ -2,7 +2,7 @@
 #include <fstream>
 #include <string>
 #include <filesystem>
-#include "configs/configs_list.hpp"
+#include "configs/config_list.hpp"
 #include "configs/serialization.hpp"
 #include "libs/json.hpp"
 #include "types.hpp"
