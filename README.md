@@ -97,11 +97,11 @@ The Config struct type is defined in the file `./src/type.hpp`.
 
 ## Reports
 
+During each generation, the system generates in the folder `./reports/<configuration_name>/<id>/` a detailed HTML report for the best-performing strategy during the training and test period. It saves also the best strategy found in a json file.
+
+The reports provide comprehensive statistics, enabling you to analyze and refine your approach effectively.
+
 ### Training Reports
-
-During each generation, the system generates a detailed HTML report for the best-performing strategy during the training period. These reports provide comprehensive statistics, enabling you to analyze and refine your approach effectively.
-
-#### Key Features of the Training Report
 
 - **Performance Overview:** Visualize key metrics to evaluate strategy success.
 
@@ -125,22 +125,7 @@ During each generation, the system generates a detailed HTML report for the best
 
 ### Test Reports
 
-After completing the training phase, you can test the best-performing strategy and generate a similar HTML report for the test period. These reports help evaluate how the strategy performs on unseen data.
-
-#### Key Features of the Test Report
-
-- **Out-of-Sample Performance:** Validate the strategy's ability to generalize to new data.
-- **Balance History:** Analyze how the account balance evolves during the test period.
-
-  ![Balance History Test Example](./preview/report_test_balance_history.png)
-  
-- **Monthly Returns:** Review profitability during the test phase.  
-
-  ![Monthly Returns Test Example](./preview/report_test_monthly_returns.png)
-
-- **Trade Statistics:** Examine detailed insights into trades made during the test period.
-
-  ![Trade Statistics Test Example](./preview/report_test_trades.png)
+At each generation, the strategy is also tested during the test period to evaluate it on other data in order to try to generalize the strategy. You will also find the same report as before.
 
 ## MetaTrader 5 Integration (Work in Progress)
 
