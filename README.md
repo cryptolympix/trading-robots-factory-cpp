@@ -113,7 +113,7 @@ During each generation, the system generates a detailed HTML report for the best
   
   ![Monthly Returns Example](./preview/report_example_monthly_returns.png)
   
-- **Trades Analysis:** Dive into detailed trade statistics for insights into strategy behavior. 
+- **Trades Analysis:** Dive into detailed trade statistics for insights into strategy behavior.
 
   ![Trade Statistics Example](./preview/report_example_trades.png)
 
@@ -123,7 +123,8 @@ At each generation, the system saves a backup of the training state, allowing yo
 
 ### Fitness Evolution Visualization
 
-Monitor the fitness progression across generations to understand how your strategies improve over time.  
+Monitor the fitness progression across generations to understand how your strategies improve over time. 
+
 ![Fitness Evolution Example](./preview/report_example_fitness_evolution.png)
 
 ## MetaTrader 5 Integration (Work in Progress)
