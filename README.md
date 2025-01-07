@@ -95,37 +95,52 @@
 Refer to the example configuration provided in `./src/configs/custom/Example.hpp`.
 The Config struct type is defined in the file `./src/type.hpp`.
 
-## Training Report
+## Reports
 
-During each generation, the system generates a detailed HTML report for the best-performing strategy. This report provides comprehensive statistics, enabling you to analyze and fine-tune your approach effectively.
+### Training Reports
 
-### Key Features of the Report
+During each generation, the system generates a detailed HTML report for the best-performing strategy during the training period. These reports provide comprehensive statistics, enabling you to analyze and refine your approach effectively.
 
-- **Performance Overview:** Visualize key metrics to evaluate strategy success.  
-  
+#### Key Features of the Training Report
+
+- **Performance Overview:** Visualize key metrics to evaluate strategy success.
+
   ![General Report Overview](./preview/report_example_common.png)
   
 - **Balance History:** Track the evolution of account balance over time.  
-  
+
   ![Balance History Example](./preview/report_example_balance_history.png)
   
 - **Monthly Returns:** Assess profitability on a month-by-month basis.  
-  
+
   ![Monthly Returns Example](./preview/report_example_monthly_returns.png)
   
 - **Trades Analysis:** Dive into detailed trade statistics for insights into strategy behavior.
 
   ![Trade Statistics Example](./preview/report_example_trades.png)
 
-### Training Backup and Resumption
+- **Fitness Evolution Visualization:** Monitor the fitness progression across generations to understand how strategies improve over time.
 
-At each generation, the system saves a backup of the training state, allowing you to pause and resume the process seamlessly whenever needed.
+  ![Fitness Evolution Example](./preview/report_example_fitness_evolution.png)
 
-### Fitness Evolution Visualization
+### Test Reports
 
-Monitor the fitness progression across generations to understand how your strategies improve over time. 
+After completing the training phase, you can test the best-performing strategy and generate a similar HTML report for the test period. These reports help evaluate how the strategy performs on unseen data.
 
-![Fitness Evolution Example](./preview/report_example_fitness_evolution.png)
+#### Key Features of the Test Report
+
+- **Out-of-Sample Performance:** Validate the strategy's ability to generalize to new data.
+- **Balance History:** Analyze how the account balance evolves during the test period.
+
+  ![Balance History Test Example](./preview/report_test_balance_history.png)
+  
+- **Monthly Returns:** Review profitability during the test phase.  
+
+  ![Monthly Returns Test Example](./preview/report_test_monthly_returns.png)
+
+- **Trade Statistics:** Examine detailed insights into trades made during the test period.
+
+  ![Trade Statistics Test Example](./preview/report_test_trades.png)
 
 ## MetaTrader 5 Integration (Work in Progress)
 
