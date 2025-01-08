@@ -35,22 +35,26 @@
 
 ### 2. Write Your Strategy
 
-1. **Create the Configuration File**  
+1. **Create the Configuration File**
+
    - Write your strategy configuration file and save it in the `./src/configs/` folder.
 
-2. **Update the Configuration List**  
+2. **Update the Configuration List**
+
    - Modify `./src/configs/config_list.hpp` to include your new configuration file and add its `Config` variable to the `configs` list.
 
-3. **Rebuild the Executable**  
+3. **Rebuild the Executable**
+
    - Compile the configuration generator using the following command:
-  
+
      ```bash
      g++ -std=c++17 -o generate_json_configs -I/opt/homebrew/Cellar/boost/1.85.0/include src/generate_json_configs.cpp src/symbols.cpp src/configs/*.cpp src/indicators/*.cpp src/neat/*.cpp src/trading/*.cpp src/utils/*.cpp -L/opt/homebrew/lib -lboost_iostreams
      ```
 
-4. **Generate the JSON Configuration Files**  
+4. **Generate the JSON Configuration Files**
+
    - Run the command:
-  
+
      ```bash
      ./generate_json_config
      ```
@@ -61,34 +65,21 @@
 
 ### 3. Generate Indicators Data for Your Strategy
 
-1. **Update Required Indicators**  
-   - Edit the file `./src/generate_csv_indicators_data.cpp` to list the indicators needed for your strategy.
+- Execute the following command:
 
-2. **Rebuild the Executable**  
-   - Compile the indicators generator using the following command:
-  
-     ```bash
-     g++ -std=c++17 -o generate_csv_indicators_data -I/opt/homebrew/Cellar/boost/1.85.0/include src/generate_csv_indicators_data.cpp src/symbols.cpp src/configs/*.cpp src/indicators/*.cpp src/neat/*.cpp src/trading/*.cpp src/utils/*.cpp -L/opt/homebrew/lib
-     ```
-
-3. **Generate Indicators Data**  
-   - Execute the following command:
-  
-     ```bash
-     ./generate_csv_indicators_data <symbol> <timeframe>
-     ```
-
-   - Repeat this step for all timeframes used in your strategy configuration.
+  ```bash
+  ./generate_csv_indicators_data ./configs/<strategy_configuration_file>
+  ```
 
 ---
 
 ### 4. Run the Training
 
 - Start the training process by running:
-  
+
   ```bash
   ./run_training <id> ./configs/<strategy_configuration_file>
-  ````
+  ```
 
 ## Configuring Your Strategy
 
@@ -106,15 +97,15 @@ The reports provide comprehensive statistics, enabling you to analyze and refine
 - **Performance Overview:** Visualize key metrics to evaluate strategy success.
 
   ![General Report Overview](./preview/report_example_common.png)
-  
-- **Balance History:** Track the evolution of account balance over time.  
+
+- **Balance History:** Track the evolution of account balance over time.
 
   ![Balance History Example](./preview/report_example_balance_history.png)
-  
-- **Monthly Returns:** Assess profitability on a month-by-month basis.  
+
+- **Monthly Returns:** Assess profitability on a month-by-month basis.
 
   ![Monthly Returns Example](./preview/report_example_monthly_returns.png)
-  
+
 - **Trades Analysis:** Dive into detailed trade statistics for insights into strategy behavior.
 
   ![Trade Statistics Example](./preview/report_example_trades.png)
@@ -130,7 +121,7 @@ At each generation, the strategy is also tested during the test period to evalua
 ## MetaTrader 5 Integration (Work in Progress)
 
 This feature is under development and not functional yet.
-  
+
 ## License
 
 [MIT.](./LICENSE)

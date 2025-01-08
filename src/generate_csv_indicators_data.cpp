@@ -9,6 +9,8 @@
 #include "utils/time_frame.hpp"
 #include "utils/date_conversion.hpp"
 #include "indicators/indicator.hpp"
+#include "configs/serialization.hpp"
+#include "libs/json.hpp"
 
 // Include the indicators
 #include "indicators/candle_patterns.hpp"
@@ -27,148 +29,137 @@
 int main(int argc, char *argv[])
 {
     // Check if the number of arguments is correct
-    if (argc != 3)
+    if (argc < 2)
     {
-        std::cerr << "Usage: ./generate_csv_candles_data <symbol> <timeframe>" << std::endl;
+        std::cerr << "Usage: " << argv[0] << " <config_file_path>" << std::endl;
         return 1;
     }
 
-    // Get the symbol and the timeframe from the arguments
-    std::string symbol = argv[1];
-    TimeFrame timeframe = time_frame_from_string(argv[2]);
+    // Get the configuration file path from the arguments
+    std::string config_file_path = argv[1];
 
-    // Data to be written to the csv file
-    std::vector<std::vector<std::string>> csv_data;
+    // Open the file
+    std::ifstream config_file(config_file_path);
 
-    // List of column names for the csv file
-    std::vector<std::string> columns = {"date"};
-
-    // List of indicators
-    std::vector<Indicator *> indicators = {
-        new Hour(),
-        new Minute(),
-        new NFPWeek(),
-        new MarketSession("new-york"),
-        new MarketSession("london"),
-        new MarketSession("tokyo"),
-        new WeekDay("monday"),
-        new WeekDay("tuesday"),
-        new WeekDay("wednesday"),
-        new WeekDay("thursday"),
-        new WeekDay("friday"),
-        new CandleClose(0),
-        new CandleVolume(0),
-        new CandlePriceChange(5),
-        new CandleBody(5),
-        new CandleShadowUpper(10),
-        new CandleShadowLower(10),
-        new AveragePriceChange(10),
-        new StandardDeviation(14),
-        new ATR(14),
-        new RSI(14),
-        new MFI(14),
-        new CCI(20),
-        new ADX(14),
-        new CMF(20),
-        new TSI(13, 25),
-        new UO(7, 14, 28),
-        new WPR(14),
-        new InstitutionalBias(9, 18),
-        new HighBreakSignal(10),
-        new LowBreakSignal(10),
-        new NewHighSignal(10),
-        new NewLowSignal(10),
-    };
-
-    // Add the indicators id to the columns
-    for (Indicator *&indicator : indicators)
+    // Check if the file was successfully opened
+    if (!config_file.is_open())
     {
-        columns.push_back(indicator->id);
+        std::cerr << "Could not open the configuration file: " + config_file_path;
+        return 1;
     }
 
-    // Read the candles data
-    std::vector<Candle> candles = read_data(symbol, timeframe);
+    // Parse the JSON file into a nlohmann::json object
+    nlohmann::json config_json_data;
+    config_file >> config_json_data;
 
-    // Print message
-    std::cout << "Loaded " << candles.size() << " candles for " << symbol << " " << time_frame_to_string(timeframe) << std::endl;
+    // Close the file
+    config_file.close();
 
-    // Indicators values
-    std::unordered_map<std::string, std::vector<double>> indicator_values;
+    // Create the config object
+    Config config = config_from_json(config_json_data);
 
-    // Calculate the indicators
-    for (Indicator *&indicator : indicators)
+    for (const auto &indicator : config.training.inputs.indicators)
     {
-        indicator_values[indicator->id] = indicator->calculate(candles);
-    }
+        TimeFrame timeframe = indicator.first;
+        std::vector<Indicator *> indicators = indicator.second;
+        std::string symbol = config.general.symbol;
 
-    // Prepare the data to be written to the csv file
-    for (size_t i = 0; i < candles.size(); i++)
-    {
-        std::vector<std::string> row;
-        row.reserve(columns.size());
+        // Data to be written to the csv file
+        std::vector<std::vector<std::string>> csv_data;
 
-        for (const auto &column : columns)
+        // List of column names for the csv file
+        std::vector<std::string> columns = {"date"};
+
+        // Add the indicators id to the columns
+        for (Indicator *&indicator : indicators)
         {
-            if (column == "date")
-            {
-                row.push_back(time_t_to_string(candles[i].date));
-            }
-            else
-            {
-                row.push_back(std::to_string(indicator_values[column][i]));
-            }
+            columns.push_back(indicator->id);
         }
 
-        csv_data.push_back(row);
-    }
+        // Read the candles data
+        std::vector<Candle> candles = read_data(symbol, timeframe);
 
-    // Directory to save the csv file
-    std::filesystem::path directory = "data/" + symbol;
+        // Print message
+        std::cout << "Loaded " << candles.size() << " candles for " << symbol << " " << time_frame_to_string(timeframe) << std::endl;
 
-    // Check if the directory exists
-    if (!std::filesystem::exists(directory))
-    {
-        std::filesystem::create_directories(directory);
-    }
+        // Indicators values
+        std::unordered_map<std::string, std::vector<double>> indicator_values;
 
-    // Csv file
-    std::ofstream csv_file(directory / (symbol + "_" + time_frame_to_string(timeframe) + "_indicators.csv"));
-
-    // Write the header
-    for (size_t i = 0; i < columns.size(); i++)
-    {
-        csv_file << columns[i];
-        if (i < columns.size() - 1)
+        // Calculate the indicators
+        for (Indicator *&indicator : indicators)
         {
-            csv_file << ",";
+            indicator_values[indicator->id] = indicator->calculate(candles);
         }
-    }
-    csv_file << std::endl;
 
-    // Write the data by respecting the columns order
-    for (const auto &row : csv_data)
-    {
-        for (size_t j = 0; j < row.size(); j++)
+        // Prepare the data to be written to the csv file
+        for (size_t i = 0; i < candles.size(); i++)
         {
-            csv_file << row[j];
-            if (j < row.size() - 1)
+            std::vector<std::string> row;
+            row.reserve(columns.size());
+
+            for (const auto &column : columns)
+            {
+                if (column == "date")
+                {
+                    row.push_back(time_t_to_string(candles[i].date));
+                }
+                else
+                {
+                    row.push_back(std::to_string(indicator_values[column][i]));
+                }
+            }
+
+            csv_data.push_back(row);
+        }
+
+        // Directory to save the csv file
+        std::filesystem::path directory = "data/" + symbol;
+
+        // Check if the directory exists
+        if (!std::filesystem::exists(directory))
+        {
+            std::filesystem::create_directories(directory);
+        }
+
+        // Csv file
+        std::ofstream csv_file(directory / (symbol + "_" + time_frame_to_string(timeframe) + "_indicators.csv"));
+
+        // Write the header
+        for (size_t i = 0; i < columns.size(); i++)
+        {
+            csv_file << columns[i];
+            if (i < columns.size() - 1)
             {
                 csv_file << ",";
             }
         }
         csv_file << std::endl;
+
+        // Write the data by respecting the columns order
+        for (const auto &row : csv_data)
+        {
+            for (size_t j = 0; j < row.size(); j++)
+            {
+                csv_file << row[j];
+                if (j < row.size() - 1)
+                {
+                    csv_file << ",";
+                }
+            }
+            csv_file << std::endl;
+        }
+
+        // Close the csv file
+        csv_file.close();
+
+        // Free the memory
+        for (Indicator *&indicator : indicators)
+        {
+            delete indicator;
+        }
+
+        std::cout << "📁 CSV file saved to " << directory << std::endl;
     }
-
-    // Close the csv file
-    csv_file.close();
-
-    // Free the memory
-    for (Indicator *&indicator : indicators)
-    {
-        delete indicator;
-    }
-
-    std::cout << "📁 CSV file saved to " << directory << std::endl;
 
     return 0;
 }
