@@ -71,7 +71,7 @@ Config Example = {
     },
     .strategy{
         .timeframe = TimeFrame::H1,
-        .risk_per_trade = 0.02,
+        .risk_per_trade = 0.05,
         .maximum_trades_per_day = 2,
         .maximum_spread = 8,
         .can_close_trade = false,
