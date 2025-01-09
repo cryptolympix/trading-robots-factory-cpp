@@ -23,13 +23,14 @@
 
 ### 1. Download the Data
 
-- Obtain historical data for a symbol as a CSV file from [MetaTrader 5](https://www.metatrader5.com/fr).
+- Obtain historical data for a symbol as a CSV file. For example, you could use <https://forexsb.com/historical-forex-data>
 - Save the file to:  
   `./data/<symbol_name>/<symbol_name>_<timeframe>.csv`
   - `<symbol_name>`: Name of the symbol in uppercase.
   - `<timeframe>`: Timeframe of the data (e.g., M1, M5, M15, M30, H1, H4, D1).
 - Ensure the CSV file contains the following columns:  
-  `<DATE>,<OPEN>,<HIGH>,<LOW>,<CLOSE>,<TICKVOL>`.
+  `Time, Open, High, Low, Close, Volume Spread`.
+- Notive the the default separator used for reading the csv is the comma.
 
 ---
 

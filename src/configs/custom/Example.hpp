@@ -37,8 +37,8 @@ std::tm end_training_date = {
     .tm_sec = 0,
     .tm_min = 0,
     .tm_hour = 0,
-    .tm_mday = 1,
-    .tm_mon = 0,
+    .tm_mday = 31,
+    .tm_mon = 8,
     .tm_year = 2024 - 1900,
 };
 
@@ -47,7 +47,7 @@ std::tm start_test_date = {
     .tm_min = 0,
     .tm_hour = 0,
     .tm_mday = 1,
-    .tm_mon = 0,
+    .tm_mon = 9,
     .tm_year = 2024 - 1900,
 };
 
@@ -56,8 +56,8 @@ std::tm end_test_date = {
     .tm_min = 0,
     .tm_hour = 0,
     .tm_mday = 1,
-    .tm_mon = 4,
-    .tm_year = 2024 - 1900,
+    .tm_mon = 1,
+    .tm_year = 2025 - 1900,
 };
 
 Config Example = {

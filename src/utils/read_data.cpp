@@ -14,7 +14,7 @@
 #include "read_data.hpp"
 
 // Supported columns in the CSV file
-std::vector<std::string> columns_names = {"<DATE>", "<OPEN>", "<HIGH>", "<LOW>", "<CLOSE>", "<TICKVOL>", "<VOL>", "<SPREAD>"};
+std::vector<std::string> columns_names = {"Time", "Open", "High", "Low", "Close", "Volume", "Spread"};
 
 /**
  * @brief Read the header of a CSV file.
@@ -110,7 +110,7 @@ std::vector<Candle> read_data(const std::string &symbol, TimeFrame time_frame, t
             // Remove carriage return
             token.erase(std::remove(token.begin(), token.end(), '\r'), token.end());
 
-            if (columns[i] == "<DATE>")
+            if (columns[i] == "Time")
             {
                 std::string date_str = token;                             // Copy the date string
                 std::replace(date_str.begin(), date_str.end(), '.', '-'); // Replace dots with dashes
@@ -152,39 +152,27 @@ std::vector<Candle> read_data(const std::string &symbol, TimeFrame time_frame, t
                 // Set the date of the candle
                 candle.date = date; // Date corresponds to the closing time of the candle
             }
-            else if (columns[i] == "<OPEN>")
+            else if (columns[i] == "Open")
             {
                 candle.open = std::stod(token);
             }
-            else if (columns[i] == "<HIGH>")
+            else if (columns[i] == "Hight")
             {
                 candle.high = std::stod(token);
             }
-            else if (columns[i] == "<LOW>")
+            else if (columns[i] == "Low")
             {
                 candle.low = std::stod(token);
             }
-            else if (columns[i] == "<CLOSE>")
+            else if (columns[i] == "Close")
             {
                 candle.close = std::stod(token);
             }
-            else if (columns[i] == "<TICKVOL>")
+            else if (columns[i] == "Volume")
             {
-                candle.tick_volume = std::stod(token);
+                candle.volume = std::stod(token);
             }
-            else if (columns[i] == "<VOL>")
-            {
-                // If the value is equals to zero, use the tick volume instead
-                if (std::stod(token) == 0)
-                {
-                    candle.volume = candle.tick_volume;
-                }
-                else
-                {
-                    candle.volume = std::stod(token);
-                }
-            }
-            else if (columns[i] == "<SPREAD>")
+            else if (columns[i] == "Spread")
             {
                 candle.spread = std::stod(token);
             }
