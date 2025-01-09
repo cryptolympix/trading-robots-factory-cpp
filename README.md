@@ -64,16 +64,6 @@
 
 ---
 
-### 3. Generate Indicators Data for Your Strategy
-
-- Execute the following command:
-
-  ```bash
-  ./generate_csv_indicators_data ./configs/<strategy_configuration_file>
-  ```
-
----
-
 ### 4. Run the Training
 
 - Start the training process by running:
