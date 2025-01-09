@@ -122,7 +122,8 @@ int main(int argc, char *argv[])
         }
 
         // Csv file
-        std::ofstream csv_file(directory / (symbol + "_" + time_frame_to_string(timeframe) + "_indicators.csv"));
+        std::string csv_file_path = directory / (symbol + "_" + time_frame_to_string(timeframe) + "_indicators.csv");
+        std::ofstream csv_file(csv_file_path);
 
         // Write the header
         for (size_t i = 0; i < columns.size(); i++)
@@ -158,7 +159,7 @@ int main(int argc, char *argv[])
             delete indicator;
         }
 
-        std::cout << "📁 CSV file saved to " << directory << std::endl;
+        std::cout << "📁 Indicator data saved at " << csv_file_path << std::endl;
     }
 
     return 0;
