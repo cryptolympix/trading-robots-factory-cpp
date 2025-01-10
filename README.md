@@ -52,7 +52,7 @@
      g++ -std=c++17 -o generate_json_configs -I/opt/homebrew/Cellar/boost/1.85.0/include src/generate_json_configs.cpp src/symbols.cpp src/configs/*.cpp src/indicators/*.cpp src/neat/*.cpp src/trading/*.cpp src/utils/*.cpp -L/opt/homebrew/lib -lboost_iostreams
      ```
 
-4. **Generate the JSON Configuration Files**
+3. **Generate the JSON Configuration Files**
 
    - Run the command:
 
@@ -64,7 +64,7 @@
 
 ---
 
-### 4. Run the Training
+### 3. Run the Training
 
 - Start the training process by running:
 
