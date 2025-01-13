@@ -337,6 +337,7 @@ TEST_F(TrainingTest, Run)
         ASSERT_EQ(training->average_fitnesses.size(), training->config.training.generations);
         ASSERT_NE(training->best_trader, nullptr);
         ASSERT_EQ(training->best_trader->fitness, training->population->best_fitness);
+        ASSERT_LE(training->best_trader->fitness, 1);
         ASSERT_EQ(training->current_generation, training->config.training.generations);
 
         for (int i = 0; i < training->config.training.generations; ++i)

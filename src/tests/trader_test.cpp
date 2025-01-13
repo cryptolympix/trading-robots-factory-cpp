@@ -1008,7 +1008,8 @@ TEST_F(TraderTest, CalculateFitness)
         {.pnl_percent = -0.05, .closed = true},
         {.pnl_percent = -0.05, .closed = true},
         {.pnl_percent = 0.05, .closed = true},
-        {.pnl_percent = 0.05, .closed = true}};
+        {.pnl_percent = 0.05, .closed = true},
+    };
 
     // Call the calculate_fitness method
     trader->calculate_fitness();

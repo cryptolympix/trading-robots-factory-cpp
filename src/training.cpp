@@ -731,6 +731,12 @@ int Training::run()
             // Save the training process
             this->save();
 
+            if (this->best_trader->fitness >= 1)
+            {
+                std::cout << "🏁 The training is complete!" << std::endl;
+                std::exit(0);
+            }
+
             std::cout << std::endl;
         };
 
