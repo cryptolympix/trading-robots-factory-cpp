@@ -9,6 +9,7 @@
 #include <cmath>
 #include <random>
 #include <algorithm>
+#include <limits>
 #include "utils/logger.hpp"
 #include "utils/time_frame.hpp"
 #include "utils/math.hpp"
@@ -72,7 +73,7 @@ Trader::Trader(neat::Genome *genome, Config config, Logger *logger)
     this->generation = 0;
     this->fitness = genome->fitness;
     this->score = 0;
-    this->lifespan = 0;
+    this->inactive_duration = 0;
     this->dead = false;
     this->genome = genome;
     this->vision = {};
@@ -172,7 +173,7 @@ void Trader::think()
 }
 
 /**
- * @brief Update the candles, the current position of trader and his lifespan.
+ * @brief Update the candles, the current position of trader and his inactive duration.
  *
  * @param candles Candle data for all time frames.
  */
@@ -244,15 +245,11 @@ void Trader::update(CandlesData &candles)
         this->close_position_by_market();
     }
 
-    // Increment the lifespan of the trader
-    this->lifespan++;
-
     // Kill the traders that loose too much money
     bool bad_trader = this->config.training.bad_trader_threshold.has_value() && balance <= this->stats.initial_balance * config.training.bad_trader_threshold.value();
 
     // Kill the traders that doesn't trades enough (don't open trade for a long time)
-    int number_of_trades_for_active_trader = this->config.training.inactive_trader_threshold.has_value() ? static_cast<int>(this->lifespan / this->config.training.inactive_trader_threshold.value()) : 0;
-    bool inactive_trader = this->stats.total_trades < number_of_trades_for_active_trader;
+    bool inactive_trader = this->duration_without_trade >= config.training.inactive_trader_threshold.value_or(std::numeric_limits<int>::max());
 
     if (bad_trader || inactive_trader)
     {
@@ -621,7 +618,7 @@ void Trader::calculate_fitness()
 
     // ***************** FORMULA TO CALCULATE FITNESS ***************** //
 
-    this->fitness = this->score > 0 ? this->score : 1;
+    this->fitness = 1;
 
     if (this->trades_history.empty())
     {

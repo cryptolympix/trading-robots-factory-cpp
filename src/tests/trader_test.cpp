@@ -236,8 +236,8 @@ TEST_F(TraderTest, UpdateWithPositionLiquidation)
 
 TEST_F(TraderTest, UpdateWithInactiveTrader)
 {
-    // Mock data for testing
-    trader->lifespan = config.training.inactive_trader_threshold.value();
+    // Set the duration without trade to the threshold
+    trader->duration_without_trade = config.training.inactive_trader_threshold.value();
 
     // Call the update method
     trader->update(trader->candles);
@@ -246,7 +246,7 @@ TEST_F(TraderTest, UpdateWithInactiveTrader)
     ASSERT_EQ(trader->current_position, nullptr);
     ASSERT_EQ(trader->open_orders.size(), 0);
     ASSERT_EQ(trader->trades_history.size(), 0);
-    ASSERT_EQ(trader->lifespan, config.training.inactive_trader_threshold.value() + 1);
+    ASSERT_EQ(trader->duration_without_trade, config.training.inactive_trader_threshold.value() + 1);
     ASSERT_TRUE(trader->dead);
 }
 

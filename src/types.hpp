@@ -280,7 +280,7 @@ struct TrainingConfig
 {
     int generations;                                 // Number of generations for training
     std::optional<double> bad_trader_threshold;      // If the trader balance is below this threshold, the trader dies
-    std::optional<double> inactive_trader_threshold; // If during this number of generations the trader does not make any trade, the trader dies
+    std::optional<double> inactive_trader_threshold; // If during this number of candles the trader does not make any trade, the trader dies
     time_t training_start_date;                      // Start date for training
     time_t training_end_date;                        // End date for training
     time_t test_start_date;                          // Start date for testing
