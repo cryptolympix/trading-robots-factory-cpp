@@ -616,7 +616,7 @@ void Trader::calculate_fitness()
     {
         double diff = std::max(0.0, goals.expected_return.value() - stats.performance);
         // expected_return_eval = expected_return_weight / (expected_return_weight + diff / 10);
-        expected_return_eval = expected_return_eval / std::exp(diff);
+        expected_return_eval = expected_return_weight / std::exp(diff);
     }
 
     // ***************** FORMULA TO CALCULATE FITNESS ***************** //

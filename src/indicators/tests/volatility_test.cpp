@@ -27,7 +27,7 @@ TEST_F(VolatilityIndicatorsTest, ATR)
     ASSERT_EQ(result_atr.size(), mock_candles.size());
     for (size_t i = 0; i < result_atr.size(); i++)
     {
-        ASSERT_TRUE(result_atr[i] >= 0);
+        ASSERT_GE(result_atr[i], 0);
     }
 
     ATR *created_atr_indicator = static_cast<ATR *>(create_indicator_from_id(atr_indicator.id, atr_indicator.params));
@@ -44,7 +44,7 @@ TEST_F(VolatilityIndicatorsTest, BollingerChannelHighBand)
     ASSERT_EQ(result_bollinger_channel_high_band.size(), mock_candles.size());
     for (size_t i = 0; i < result_bollinger_channel_high_band.size(); i++)
     {
-        ASSERT_TRUE(result_bollinger_channel_high_band[i] >= 0);
+        ASSERT_GE(result_bollinger_channel_high_band[i], 0);
     }
 
     BollingerChannelHighBand *created_bollinger_channel_high_band_indicator = static_cast<BollingerChannelHighBand *>(create_indicator_from_id(bollinger_channel_high_band_indicator.id, bollinger_channel_high_band_indicator.params));
@@ -61,7 +61,7 @@ TEST_F(VolatilityIndicatorsTest, BollingerChannelLowBand)
     ASSERT_EQ(result_bollinger_channel_low_band.size(), mock_candles.size());
     for (size_t i = 0; i < result_bollinger_channel_low_band.size(); i++)
     {
-        ASSERT_TRUE(result_bollinger_channel_low_band[i] >= 0);
+        ASSERT_GE(result_bollinger_channel_low_band[i], 0);
     }
 
     BollingerChannelLowBand *created_bollinger_channel_low_band_indicator = static_cast<BollingerChannelLowBand *>(create_indicator_from_id(bollinger_channel_low_band_indicator.id, bollinger_channel_low_band_indicator.params));
@@ -78,7 +78,7 @@ TEST_F(VolatilityIndicatorsTest, BollingerChannelMiddleBand)
     ASSERT_EQ(result_bollinger_channel_middle_band.size(), mock_candles.size());
     for (size_t i = 0; i < result_bollinger_channel_middle_band.size(); i++)
     {
-        ASSERT_TRUE(result_bollinger_channel_middle_band[i] >= 0);
+        ASSERT_GE(result_bollinger_channel_middle_band[i], 0);
     }
 
     BollingerChannelMiddleBand *created_bollinger_channel_middle_band_indicator = static_cast<BollingerChannelMiddleBand *>(create_indicator_from_id(bollinger_channel_middle_band_indicator.id, bollinger_channel_middle_band_indicator.params));
@@ -108,7 +108,7 @@ TEST_F(VolatilityIndicatorsTest, BollingerChannelWidthBand)
     ASSERT_EQ(result_bollinger_channel_width.size(), mock_candles.size());
     for (size_t i = 0; i < result_bollinger_channel_width.size(); i++)
     {
-        ASSERT_TRUE(result_bollinger_channel_width[i] >= 0);
+        ASSERT_GE(result_bollinger_channel_width[i], 0);
     }
 
     BollingerChannelWidthBand *created_bollinger_channel_width_indicator = static_cast<BollingerChannelWidthBand *>(create_indicator_from_id(bollinger_channel_width_indicator.id, bollinger_channel_width_indicator.params));
@@ -125,7 +125,7 @@ TEST_F(VolatilityIndicatorsTest, DonchianChannelHighBand)
     ASSERT_EQ(result_donchian_channel_high_band.size(), mock_candles.size());
     for (size_t i = 0; i < result_donchian_channel_high_band.size(); i++)
     {
-        ASSERT_TRUE(result_donchian_channel_high_band[i] >= 0);
+        ASSERT_GE(result_donchian_channel_high_band[i], 0);
     }
 
     DonchianChannelHighBand *created_donchian_channel_high_band_indicator = static_cast<DonchianChannelHighBand *>(create_indicator_from_id(donchian_channel_high_band_indicator.id, donchian_channel_high_band_indicator.params));
@@ -142,7 +142,7 @@ TEST_F(VolatilityIndicatorsTest, DonchianChannelLowBand)
     ASSERT_EQ(result_donchian_channel_low_band.size(), mock_candles.size());
     for (size_t i = 0; i < result_donchian_channel_low_band.size(); i++)
     {
-        ASSERT_TRUE(result_donchian_channel_low_band[i] >= 0);
+        ASSERT_GE(result_donchian_channel_low_band[i], 0);
     }
 
     DonchianChannelLowBand *created_donchian_channel_low_band_indicator = static_cast<DonchianChannelLowBand *>(create_indicator_from_id(donchian_channel_low_band_indicator.id, donchian_channel_low_band_indicator.params));
@@ -159,7 +159,7 @@ TEST_F(VolatilityIndicatorsTest, DonchianChannelMiddleBand)
     ASSERT_EQ(result_donchian_channel_middle_band.size(), mock_candles.size());
     for (size_t i = 0; i < result_donchian_channel_middle_band.size(); i++)
     {
-        ASSERT_TRUE(result_donchian_channel_middle_band[i] >= 0);
+        ASSERT_GE(result_donchian_channel_middle_band[i], 0);
     }
 
     DonchianChannelMiddleBand *created_donchian_channel_middle_band_indicator = static_cast<DonchianChannelMiddleBand *>(create_indicator_from_id(donchian_channel_middle_band_indicator.id, donchian_channel_middle_band_indicator.params));
@@ -193,7 +193,7 @@ TEST_F(VolatilityIndicatorsTest, KeltnerChannelLowBand)
     ASSERT_EQ(result_keltner_channel_low_band.size(), mock_candles.size());
     for (size_t i = 0; i < result_keltner_channel_low_band.size(); i++)
     {
-        ASSERT_TRUE(result_keltner_channel_low_band[i] >= 0);
+        ASSERT_GE(result_keltner_channel_low_band[i], 0);
     }
 
     KeltnerChannelLowBand *created_keltner_channel_low_band_indicator = static_cast<KeltnerChannelLowBand *>(create_indicator_from_id(keltner_channel_low_band_indicator.id, keltner_channel_low_band_indicator.params));
@@ -210,7 +210,7 @@ TEST_F(VolatilityIndicatorsTest, KeltnerChannelMiddleBand)
     ASSERT_EQ(result_keltner_channel_middle_band.size(), mock_candles.size());
     for (size_t i = 0; i < result_keltner_channel_middle_band.size(); i++)
     {
-        ASSERT_TRUE(result_keltner_channel_middle_band[i] >= 0);
+        ASSERT_GE(result_keltner_channel_middle_band[i], 0);
     }
 
     KeltnerChannelMiddleBand *created_keltner_channel_middle_band_indicator = static_cast<KeltnerChannelMiddleBand *>(create_indicator_from_id(keltner_channel_middle_band_indicator.id, keltner_channel_middle_band_indicator.params));
@@ -227,7 +227,7 @@ TEST_F(VolatilityIndicatorsTest, UI)
     ASSERT_EQ(result_ui.size(), mock_candles.size());
     for (size_t i = 0; i < result_ui.size(); i++)
     {
-        ASSERT_TRUE(result_ui[i] >= 0);
+        ASSERT_GE(result_ui[i], 0);
     }
 
     UI *created_ui_indicator = static_cast<UI *>(create_indicator_from_id(ui_indicator.id, ui_indicator.params));

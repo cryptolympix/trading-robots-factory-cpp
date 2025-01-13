@@ -40,7 +40,8 @@ TEST_F(VolumeIndicatorsTest, CMF)
     ASSERT_EQ(cmf_values.size(), mock_candles.size());
     for (size_t i = 0; i < cmf_values.size(); ++i)
     {
-        ASSERT_TRUE(cmf_values[i] >= -1 && cmf_values[i] <= 1);
+        ASSERT_GE(cmf_values[i], -1);
+        ASSERT_LE(cmf_values[i], 1);
     }
 
     CMF *created_cmf_indicator = static_cast<CMF *>(create_indicator_from_id(cmf.id, cmf.params));
@@ -70,7 +71,7 @@ TEST_F(VolumeIndicatorsTest, NVI)
     ASSERT_EQ(nvi_values.size(), mock_candles.size());
     for (size_t i = 0; i < nvi_values.size(); ++i)
     {
-        ASSERT_TRUE(nvi_values[i] >= 0);
+        ASSERT_GE(nvi_values[i], 0);
     }
 
     NVI *created_nvi_indicator = static_cast<NVI *>(create_indicator_from_id(nvi.id, nvi.params));
@@ -100,7 +101,7 @@ TEST_F(VolumeIndicatorsTest, POC)
     ASSERT_EQ(poc_values.size(), mock_candles.size());
     for (size_t i = 0; i < poc_values.size(); ++i)
     {
-        ASSERT_TRUE(poc_values[i] >= 0);
+        ASSERT_GE(poc_values[i], 0);
     }
 
     POC *created_poc_indicator = static_cast<POC *>(create_indicator_from_id(poc.id, poc.params));
@@ -117,7 +118,7 @@ TEST_F(VolumeIndicatorsTest, PVI)
     ASSERT_EQ(pvi_values.size(), mock_candles.size());
     for (size_t i = 0; i < pvi_values.size(); ++i)
     {
-        ASSERT_TRUE(pvi_values[i] >= 0);
+        ASSERT_GE(pvi_values[i], 0);
     }
 
     PVI *created_pvi_indicator = static_cast<PVI *>(create_indicator_from_id(pvi.id, pvi.params));
@@ -134,7 +135,7 @@ TEST_F(VolumeIndicatorsTest, VWAP)
     ASSERT_EQ(vwap_values.size(), mock_candles.size());
     for (size_t i = 0; i < vwap_values.size(); ++i)
     {
-        ASSERT_TRUE(vwap_values[i] >= 0);
+        ASSERT_GE(vwap_values[i], 0);
     }
 
     VWAP *created_vwap_indicator = static_cast<VWAP *>(create_indicator_from_id(vwap.id, vwap.params));

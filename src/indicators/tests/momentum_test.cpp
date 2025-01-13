@@ -188,7 +188,8 @@ TEST_F(MomentumIndicatorsTest, UO)
     ASSERT_EQ(result_uo.size(), mock_candles.size());
     for (size_t i = 0; i < result_uo.size(); ++i)
     {
-        ASSERT_TRUE(result_uo[i] >= 0 && result_uo[i] <= 100);
+        ASSERT_GE(result_uo[i], 0);
+        ASSERT_LE(result_uo[i], 100);
     }
 
     UO *created_uo = static_cast<UO *>(create_indicator_from_id(uo.id, uo.params));
@@ -206,7 +207,8 @@ TEST_F(MomentumIndicatorsTest, WPR)
     ASSERT_EQ(result_williams_r.size(), mock_candles.size());
     for (size_t i = 0; i < result_williams_r.size(); ++i)
     {
-        ASSERT_TRUE(result_williams_r[i] >= -100 && result_williams_r[i] <= 0);
+        ASSERT_GE(result_williams_r[i], -100);
+        ASSERT_LE(result_williams_r[i], 0);
     }
 
     WPR *created_williams_r = static_cast<WPR *>(create_indicator_from_id(williams_r.id, williams_r.params));

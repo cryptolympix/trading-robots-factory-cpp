@@ -27,7 +27,8 @@ TEST_F(TrendIndicatorsTest, ADX)
     ASSERT_EQ(result_adx.size(), mock_candles.size());
     for (int i = 0; i < result_adx.size(); i++)
     {
-        ASSERT_TRUE(result_adx[i] >= 0 && result_adx[i] <= 100);
+        ASSERT_GE(result_adx[i], 0);
+        ASSERT_LE(result_adx[i], 100);
     }
 
     ADX *created_adx_indicator = static_cast<ADX *>(create_indicator_from_id(adx.id, adx.params));
@@ -48,7 +49,8 @@ TEST_F(TrendIndicatorsTest, AroonUp)
     ASSERT_EQ(result_aroon_up.size(), mock_candles.size());
     for (int i = 0; i < result_aroon_up.size(); i++)
     {
-        ASSERT_TRUE(result_aroon_up[i] >= 0 && result_aroon_up[i] <= 100);
+        ASSERT_GE(result_aroon_up[i], 0);
+        ASSERT_LE(result_aroon_up[i], 100);
     }
 
     AroonUp *created_aroon_up_indicator = static_cast<AroonUp *>(create_indicator_from_id(aroon_up.id, aroon_up.params));
@@ -66,7 +68,8 @@ TEST_F(TrendIndicatorsTest, AroonDown)
     ASSERT_EQ(result_aroon_down.size(), mock_candles.size());
     for (int i = 0; i < result_aroon_down.size(); i++)
     {
-        ASSERT_TRUE(result_aroon_down[i] >= 0 && result_aroon_down[i] <= 100);
+        ASSERT_GE(result_aroon_down[i], 0);
+        ASSERT_LE(result_aroon_down[i], 100);
     }
 
     AroonDown *created_aroon_down_indicator = static_cast<AroonDown *>(create_indicator_from_id(aroon_down.id, aroon_down.params));
