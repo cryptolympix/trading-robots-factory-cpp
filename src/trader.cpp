@@ -493,17 +493,20 @@ void Trader::calculate_fitness()
         }
     }
 
-    if (goals.maximize_nb_trades.has_value())
+    if (goals.maximize_nb_trades.value_or(false))
     {
-        double diff = std::max(0, (int)closed_trades.size() - goals.maximize_nb_trades.value());
-        maximum_nb_trades_eval = maximum_nb_trades_weight / (maximum_nb_trades_weight + diff / 10);
-        // maximum_nb_trades_eval = maximum_nb_trades_weight / std::exp(diff);
+        int nb_candles_per_day = 24 * 60 / get_time_frame_in_minutes(this->config.strategy.timeframe);
+        int maximum_nb_trades = all_dates.size() * nb_candles_per_day / 2;
+        double diff = std::max(0, (int)closed_trades.size() - maximum_nb_trades);
+        double normalized_diff = diff / maximum_nb_trades;
+        maximum_nb_trades_eval = maximum_nb_trades_weight / std::exp(10 * normalized_diff);
     }
+
     if (goals.minimum_nb_trades.has_value())
     {
         double diff = std::max(0, goals.minimum_nb_trades.value() - (int)closed_trades.size());
-        minimum_nb_trades_eval = minimum_nb_trades_weight / (minimum_nb_trades_weight + diff / 10);
-        // minimum_nb_trades_eval = minimum_nb_trades_weight / std::exp(diff);
+        double normalized_diff = diff / goals.minimum_nb_trades.value();
+        minimum_nb_trades_eval = minimum_nb_trades_weight / std::exp(10 * normalized_diff);
     }
 
     if (goals.maximum_trade_duration.has_value())
@@ -511,30 +514,30 @@ void Trader::calculate_fitness()
         for (const auto &trade : closed_trades)
         {
             double diff = std::max(0, trade.duration - goals.maximum_trade_duration.value());
-            // max_trade_duration_eval += max_trade_duration_weight / (closed_trades.size() * (max_trade_duration_weight + diff / 10));
-            max_trade_duration_eval += max_trade_duration_weight / (closed_trades.size() * std::exp(diff));
+            double normalized_diff = diff / goals.maximum_trade_duration.value();
+            max_trade_duration_eval += max_trade_duration_weight / (closed_trades.size() * std::exp(10 * normalized_diff));
         }
     }
 
     if (goals.maximum_drawdown.has_value())
     {
         double diff = std::max(0.0, stats.max_drawdown - goals.maximum_drawdown.value());
-        // max_drawdown_eval = max_drawdown_weight / (max_drawdown_weight + diff / 10);
-        max_drawdown_eval = max_drawdown_weight / std::exp(diff);
+        double normalized_diff = diff / goals.maximum_drawdown.value();
+        max_drawdown_eval = max_drawdown_weight / std::exp(10 * normalized_diff);
     }
 
     if (goals.minimum_profit_factor.has_value())
     {
         double diff = std::max(0.0, goals.minimum_profit_factor.value() - stats.profit_factor);
-        // profit_factor_eval = profit_factor_weight / (profit_factor_weight + diff / 10);
-        profit_factor_eval = profit_factor_weight / std::exp(diff);
+        double normalized_diff = diff / goals.minimum_profit_factor.value();
+        profit_factor_eval = profit_factor_weight / std::exp(10 * normalized_diff);
     }
 
     if (goals.minimum_winrate.has_value())
     {
         double diff = std::max(0.0, goals.minimum_winrate.value() - stats.win_rate);
-        // win_rate_eval = win_rate_weight / (win_rate_weight + diff / 10);
-        win_rate_eval = win_rate_weight / std::exp(diff);
+        double normalized_diff = diff / goals.minimum_winrate.value();
+        win_rate_eval = win_rate_weight / std::exp(10 * normalized_diff);
     }
 
     if (goals.expected_return_per_day.has_value())
@@ -571,8 +574,8 @@ void Trader::calculate_fitness()
             for (const auto &daily_return : daily_returns)
             {
                 double diff = std::max(0.0, goals.expected_return_per_day.value() - daily_return.second);
-                // expected_return_per_day_eval += expected_return_per_day_weight / (nb_days * (expected_return_per_day_weight + diff / 10));
-                expected_return_per_day_eval += expected_return_per_day_weight / (nb_days * std::exp(diff));
+                double normalized_diff = diff / goals.expected_return_per_day.value();
+                expected_return_per_day_eval += expected_return_per_day_weight / (nb_days * std::exp(10 * normalized_diff));
             }
         }
     }
@@ -611,8 +614,8 @@ void Trader::calculate_fitness()
             for (const auto &monthly_return : monthly_returns)
             {
                 double diff = std::max(0.0, goals.expected_return_per_month.value() - monthly_return.second);
-                // expected_return_per_month_eval += expected_return_per_month_weight / (nb_months * (expected_return_per_month_weight + diff / 10));
-                expected_return_per_month_eval += expected_return_per_month_weight / (nb_months * std::exp(diff));
+                double normalized_diff = diff / goals.expected_return_per_month.value();
+                expected_return_per_month_eval += expected_return_per_month_weight / (nb_months * std::exp(10 * normalized_diff));
             }
         }
     }
@@ -620,8 +623,8 @@ void Trader::calculate_fitness()
     if (goals.expected_return.has_value())
     {
         double diff = std::max(0.0, goals.expected_return.value() - stats.performance);
-        // expected_return_eval = expected_return_weight / (expected_return_weight + diff / 10);
-        expected_return_eval = expected_return_weight / std::exp(diff);
+        double normalized_diff = diff / goals.expected_return.value();
+        expected_return_eval = expected_return_weight / std::exp(10 * normalized_diff);
     }
 
     // ***************** FORMULA TO CALCULATE FITNESS ***************** //
@@ -634,7 +637,7 @@ void Trader::calculate_fitness()
         this->fitness = 0;
         return;
     }
-    if (goals.maximize_nb_trades.has_value())
+    if (goals.maximize_nb_trades.value_or(false))
     {
         this->fitness += maximum_nb_trades_eval;
         eval_coefficient += maximum_nb_trades_weight;
@@ -746,6 +749,21 @@ void Trader::calculate_fitness()
         std::exit(1);
     }
 
+    Trade first_trade = trades_history.front();
+    Trade last_trade = trades_history.back();
+    int nb_days_covered = 0; // number of days the strategy covered by the trades
+    for (const auto &trade : trades_history)
+    {
+        if (trade.entry_date >= first_trade.entry_date && trade.entry_date <= last_trade.entry_date)
+        {
+            nb_days_covered++;
+        }
+    }
+
+    // Calculate the ratio of days the strategy covered by the trades
+    double ratio_days_strategy = static_cast<double>(nb_days_covered) / static_cast<double>(all_dates.size());
+
+    this->fitness *= ratio_days_strategy;
     this->fitness /= eval_coefficient;
 }
 
