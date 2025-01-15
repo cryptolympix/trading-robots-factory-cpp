@@ -642,7 +642,7 @@ void Trader::calculate_fitness()
         this->fitness += maximum_nb_trades_eval;
         eval_coefficient += maximum_nb_trades_weight;
 
-        if (maximum_nb_trades_eval <= 0 || maximum_nb_trades_eval > maximum_nb_trades_weight)
+        if (maximum_nb_trades_eval < 0 || maximum_nb_trades_eval > maximum_nb_trades_weight)
         {
             std::cerr << "Error: Maximum number of trades evaluation is not valid: " << maximum_nb_trades_eval << std::endl;
             std::exit(1);
@@ -653,7 +653,7 @@ void Trader::calculate_fitness()
         this->fitness += minimum_nb_trades_eval;
         eval_coefficient += minimum_nb_trades_weight;
 
-        if (minimum_nb_trades_eval <= 0 || minimum_nb_trades_eval > minimum_nb_trades_weight)
+        if (minimum_nb_trades_eval < 0 || minimum_nb_trades_eval > minimum_nb_trades_weight)
         {
             std::cerr << "Error: Minimum number of trades evaluation is not valid: " << minimum_nb_trades_eval << std::endl;
             std::exit(1);
@@ -664,7 +664,7 @@ void Trader::calculate_fitness()
         this->fitness += max_trade_duration_eval;
         eval_coefficient += max_trade_duration_weight;
 
-        if (max_trade_duration_eval <= 0 || max_trade_duration_eval > max_trade_duration_weight)
+        if (max_trade_duration_eval < 0 || max_trade_duration_eval > max_trade_duration_weight)
         {
             std ::cerr << "Error: Maximum trade duration evaluation is not valid: " << max_trade_duration_eval << std::endl;
             std::exit(1);
@@ -675,7 +675,7 @@ void Trader::calculate_fitness()
         this->fitness += max_drawdown_eval;
         eval_coefficient += max_drawdown_weight;
 
-        if (max_drawdown_eval <= 0 || max_drawdown_eval > max_drawdown_weight)
+        if (max_drawdown_eval < 0 || max_drawdown_eval > max_drawdown_weight)
         {
             std::cerr << "Error: Maximum drawdown evaluation is not valid: " << max_drawdown_eval << std::endl;
             std::exit(1);
@@ -686,7 +686,7 @@ void Trader::calculate_fitness()
         this->fitness += profit_factor_eval;
         eval_coefficient += profit_factor_weight;
 
-        if (profit_factor_eval <= 0 || profit_factor_eval > profit_factor_weight)
+        if (profit_factor_eval < 0 || profit_factor_eval > profit_factor_weight)
         {
             std::cerr << "Error: Profit factor evaluation is not valid: " << profit_factor_eval << std::endl;
             std::exit(1);
@@ -697,7 +697,7 @@ void Trader::calculate_fitness()
         this->fitness += win_rate_eval;
         eval_coefficient += win_rate_weight;
 
-        if (win_rate_eval <= 0 || win_rate_eval > win_rate_weight)
+        if (win_rate_eval < 0 || win_rate_eval > win_rate_weight)
         {
             std::cerr << "Error: Win rate evaluation is not valid: " << win_rate_eval << std::endl;
             std::exit(1);
@@ -708,7 +708,7 @@ void Trader::calculate_fitness()
         this->fitness += expected_return_per_day_eval;
         eval_coefficient += expected_return_per_day_weight;
 
-        if (expected_return_per_day_eval <= 0 || expected_return_per_day_eval > expected_return_per_day_weight)
+        if (expected_return_per_day_eval < 0 || expected_return_per_day_eval > expected_return_per_day_weight)
         {
             std::cerr << "Error: Expected return per day evaluation is not valid: " << expected_return_per_day_eval << std::endl;
             std::exit(1);
@@ -719,7 +719,7 @@ void Trader::calculate_fitness()
         this->fitness += expected_return_per_month_eval;
         eval_coefficient += expected_return_per_month_weight;
 
-        if (expected_return_per_month_eval <= 0 || expected_return_per_month_eval > expected_return_per_month_weight)
+        if (expected_return_per_month_eval < 0 || expected_return_per_month_eval > expected_return_per_month_weight)
         {
             std::cerr << "Error: Expected return per month evaluation is not valid: " << expected_return_per_month_eval << std::endl;
             std::exit(1);
@@ -730,7 +730,7 @@ void Trader::calculate_fitness()
         this->fitness += expected_return_eval;
         eval_coefficient += expected_return_weight;
 
-        if (expected_return_eval <= 0 || expected_return_eval > expected_return_eval)
+        if (expected_return_eval < 0 || expected_return_eval > expected_return_eval)
         {
             std::cerr << "Error: Expected return evaluation is not valid: " << expected_return_eval << std::endl;
             std::exit(1);
