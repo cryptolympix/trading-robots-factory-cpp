@@ -38,7 +38,7 @@ public:
     double score;
     std::vector<double> vision;
     std::vector<double> decisions;
-    int inactive_duration;
+    int lifespan;
     bool dead;
 
     // Statistics of the trader

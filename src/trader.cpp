@@ -73,7 +73,7 @@ Trader::Trader(neat::Genome *genome, Config config, Logger *logger)
     this->generation = 0;
     this->fitness = genome->fitness;
     this->score = 0;
-    this->inactive_duration = 0;
+    this->lifespan = 0;
     this->dead = false;
     this->genome = genome;
     this->vision = {};
@@ -173,7 +173,7 @@ void Trader::think()
 }
 
 /**
- * @brief Update the candles, the current position of trader and his inactive duration.
+ * @brief Update the candles, the current position of trader and his lifespan.
  *
  * @param candles Candle data for all time frames.
  */
@@ -244,6 +244,9 @@ void Trader::update(CandlesData &candles)
     {
         this->close_position_by_market();
     }
+
+    // Update the lifespan
+    this->lifespan++;
 
     // Kill the traders that loose too much money
     bool bad_trader = this->config.training.bad_trader_threshold.has_value() && balance <= this->stats.initial_balance * config.training.bad_trader_threshold.value();
@@ -907,14 +910,13 @@ void Trader::close_position_by_market(double price)
  */
 void Trader::close_position_by_limit(double price)
 {
-    if (price)
+    if (price != 0.0)
     {
         this->update_position_pnl(price);
     }
     else
     {
-        Candle last_candle = this->candles[this->config.strategy.timeframe].back();
-        price = last_candle.close;
+        std::cerr << "Error: Price is not valid for closing position by limit." << std::endl;
     }
 
     if (this->current_position != nullptr)

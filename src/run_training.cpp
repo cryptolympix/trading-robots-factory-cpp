@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
         config_file_path = config_file_path.substr(1, config_file_path.size() - 2);
     }
 
-    Training training(id, config_file_path, false);
+    Training training(id, config_file_path, true);
     training.prepare();
     training.run();
     return 0;

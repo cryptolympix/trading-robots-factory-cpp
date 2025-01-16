@@ -30,7 +30,7 @@ std::tm start_training_date = {
     .tm_hour = 0,
     .tm_mday = 1,
     .tm_mon = 0,
-    .tm_year = 2013 - 1900,
+    .tm_year = 2020 - 1900,
 };
 
 std::tm end_training_date = {
@@ -73,7 +73,6 @@ Config Example = {
         .timeframe = TimeFrame::H1,
         .risk_per_trade = 0.02,
         .maximum_trades_per_day = 2,
-        .maximum_spread = 8,
         .can_close_trade = false,
         .can_open_long_trade = true,
         .can_open_short_trade = true,
