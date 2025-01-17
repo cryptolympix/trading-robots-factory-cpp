@@ -639,7 +639,7 @@ TEST_F(TraderTest, WaitForNextTrade)
     ASSERT_EQ(trader->nb_trades_today, 0);
 }
 
-TEST_F(TraderTest, CloseTraderBeforeWeekend)
+TEST_F(TraderTest, CloseTradeBeforeRestDay)
 {
     // Set trader's date to friday
     struct tm date_tm = {

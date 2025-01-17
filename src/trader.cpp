@@ -9,7 +9,6 @@
 #include <cmath>
 #include <random>
 #include <algorithm>
-#include <limits>
 #include "utils/logger.hpp"
 #include "utils/time_frame.hpp"
 #include "utils/math.hpp"
@@ -68,6 +67,9 @@ Trader::Trader(neat::Genome *genome, Config config, Logger *logger)
 
     // Statistics of the trader
     this->stats = Stats(config.general.initial_balance);
+
+    // Fiteness evaluation details
+    this->fitness_details = {};
 
     // Neat stuffs
     this->generation = 0;
@@ -181,7 +183,18 @@ void Trader::think()
 }
 
 /**
- * @brief Update the candles, the current position of trader and his lifespan.
+ * @brief Update the trader.
+ * - Detect a new day and reset the number of trades made today.
+ * - Update the current date and candles.
+ * - Increment the position duration.
+ * - Update the position PNL.
+ * - Update the trailing stop loss.
+ * - Check open orders.
+ * - Check position liquidation.
+ * - Close the trade before a rest day.
+ * - Update the lifespan.
+ * - Check if the trader is bad or inactive.
+ * - Update the balance history.
  *
  * @param candles Candle data for all time frames.
  */
@@ -249,20 +262,24 @@ void Trader::update(CandlesData &candles)
             this->close_position_by_market();
             if (this->logger != nullptr)
             {
-                this->logger->info(this->log_header() + "Closed the position because it reached the maximum trade duration.");
+                this->logger->info(this->log_header() + "Closed the position because it reached the maximum trade duration allowed.");
             }
         }
     }
 
-    // Close the trade before the weekend
+    // Close the trade before a rest day (day without trading session)
     int next_date = this->current_date + get_time_frame_in_minutes(this->config.strategy.timeframe) * 60;
-    struct tm next_date_tm = time_t_to_tm(next_date);
-    if (next_date_tm.tm_wday == 6 && this->current_position != nullptr)
+    if (this->config.strategy.trading_schedule.has_value())
     {
-        this->close_position_by_market();
-        if (this->logger != nullptr)
+        TradingSchedule trading_schedule = this->config.strategy.trading_schedule.value();
+        int next_day = time_t_to_tm(next_date).tm_wday;
+        if (!has_session_for_day(next_day, trading_schedule))
         {
-            this->logger->info(this->log_header() + "Closed the position before the weekend.");
+            this->close_position_by_market();
+            if (this->logger != nullptr)
+            {
+                this->logger->info(this->log_header() + "Closed the position before a rest day.");
+            }
         }
     }
 
@@ -495,17 +512,23 @@ void Trader::calculate_fitness()
         }
     }
 
-    // Get all the dates between the first and the last day of training
+    // ***************** DATES AND MONTHS *****************
+
+    // Get all the dates between the first and the last day of training, where the trader can trade
     std::vector<std::string> all_dates = {};
     time_t current_date = this->config.training.training_start_date;
     while (current_date <= this->config.training.training_end_date)
     {
-        // If the current date is a weekend, skip it
-        struct tm current_date_tm = time_t_to_tm(current_date);
-        if (current_date_tm.tm_wday == 6 || current_date_tm.tm_wday == 0)
+        // Check if the date is on the trading schedule
+        if (this->config.strategy.trading_schedule.has_value())
         {
-            current_date += 24 * 60 * 60;
-            continue;
+            TradingSchedule trading_schedule = this->config.strategy.trading_schedule.value();
+            int wday = time_t_to_tm(current_date).tm_wday;
+            if (!has_session_for_day(wday, trading_schedule))
+            {
+                current_date += 24 * 60 * 60;
+                continue;
+            }
         }
 
         // If the date is not yet contained in the vector, add it
@@ -528,6 +551,8 @@ void Trader::calculate_fitness()
             all_months.push_back(month);
         }
     }
+
+    // ***************** EVALUATION *****************
 
     if (goals.maximize_nb_trades.value_or(false))
     {
@@ -677,6 +702,7 @@ void Trader::calculate_fitness()
     {
         this->fitness += maximum_nb_trades_eval;
         eval_coefficient += maximum_nb_trades_weight;
+        this->fitness_details["maximum_nb_trades_eval"] = std::to_string(maximum_nb_trades_eval) + "/" + std::to_string(maximum_nb_trades_weight);
 
         if (maximum_nb_trades_eval < 0 || maximum_nb_trades_eval > maximum_nb_trades_weight)
         {
@@ -688,6 +714,7 @@ void Trader::calculate_fitness()
     {
         this->fitness += minimum_nb_trades_eval;
         eval_coefficient += minimum_nb_trades_weight;
+        this->fitness_details["minimum_nb_trades_eval"] = std::to_string(minimum_nb_trades_eval) + "/" + std::to_string(minimum_nb_trades_weight);
 
         if (minimum_nb_trades_eval < 0 || minimum_nb_trades_eval > minimum_nb_trades_weight)
         {
@@ -699,6 +726,7 @@ void Trader::calculate_fitness()
     {
         this->fitness += max_trade_duration_eval;
         eval_coefficient += max_trade_duration_weight;
+        this->fitness_details["max_trade_duration_eval"] = std::to_string(max_trade_duration_eval) + "/" + std::to_string(max_trade_duration_weight);
 
         if (max_trade_duration_eval < 0 || max_trade_duration_eval > max_trade_duration_weight)
         {
@@ -710,6 +738,7 @@ void Trader::calculate_fitness()
     {
         this->fitness += max_drawdown_eval;
         eval_coefficient += max_drawdown_weight;
+        this->fitness_details["max_drawdown_eval"] = std::to_string(max_drawdown_eval) + "/" + std::to_string(max_drawdown_weight);
 
         if (max_drawdown_eval < 0 || max_drawdown_eval > max_drawdown_weight)
         {
@@ -721,6 +750,7 @@ void Trader::calculate_fitness()
     {
         this->fitness += profit_factor_eval;
         eval_coefficient += profit_factor_weight;
+        this->fitness_details["profit_factor_eval"] = std::to_string(profit_factor_eval) + "/" + std::to_string(profit_factor_weight);
 
         if (profit_factor_eval < 0 || profit_factor_eval > profit_factor_weight)
         {
@@ -732,6 +762,7 @@ void Trader::calculate_fitness()
     {
         this->fitness += win_rate_eval;
         eval_coefficient += win_rate_weight;
+        this->fitness_details["win_rate_eval"] = std::to_string(win_rate_eval) + "/" + std::to_string(win_rate_weight);
 
         if (win_rate_eval < 0 || win_rate_eval > win_rate_weight)
         {
@@ -743,6 +774,7 @@ void Trader::calculate_fitness()
     {
         this->fitness += expected_return_per_day_eval;
         eval_coefficient += expected_return_per_day_weight;
+        this->fitness_details["expected_return_per_day_eval"] = std::to_string(expected_return_per_day_eval) + "/" + std::to_string(expected_return_per_day_weight);
 
         if (expected_return_per_day_eval < 0 || expected_return_per_day_eval > expected_return_per_day_weight)
         {
@@ -754,6 +786,7 @@ void Trader::calculate_fitness()
     {
         this->fitness += expected_return_per_month_eval;
         eval_coefficient += expected_return_per_month_weight;
+        this->fitness_details["expected_return_per_month_eval"] = std::to_string(expected_return_per_month_eval) + "/" + std::to_string(expected_return_per_month_weight);
 
         if (expected_return_per_month_eval < 0 || expected_return_per_month_eval > expected_return_per_month_weight)
         {
@@ -765,6 +798,7 @@ void Trader::calculate_fitness()
     {
         this->fitness += expected_return_eval;
         eval_coefficient += expected_return_weight;
+        this->fitness_details["expected_return_eval"] = std::to_string(expected_return_eval) + "/" + std::to_string(expected_return_weight);
 
         if (expected_return_eval < 0 || expected_return_eval > expected_return_eval)
         {
@@ -785,21 +819,47 @@ void Trader::calculate_fitness()
         std::exit(1);
     }
 
-    Trade first_trade = trades_history.front();
-    Trade last_trade = trades_history.back();
+    // ***************** RATIO OF DAYS THE STRATEGY COVERED BY THE TRADES ***************** //
+
+    // The purpose of this is to penalize the fitness of the trader if the strategy didn't cover all the days of the training period
+
+    time_t first_day = string_to_time_t(all_dates.front());
+    time_t last_day = trades_history.back().entry_date;
     int nb_days_covered = 0; // number of days the strategy covered by the trades
-    for (const auto &trade : trades_history)
+
+    // Count the number days between the first and the last day
+    current_date = first_day;
+    while (current_date <= last_day)
     {
-        if (trade.entry_date >= first_trade.entry_date && trade.entry_date <= last_trade.entry_date)
+        // Check if the date is on the trading schedule
+        if (this->config.strategy.trading_schedule.has_value())
         {
-            nb_days_covered++;
+            TradingSchedule trading_schedule = this->config.strategy.trading_schedule.value();
+            int wday = time_t_to_tm(current_date).tm_wday;
+            if (!has_session_for_day(wday, trading_schedule))
+            {
+                current_date += 24 * 60 * 60;
+                continue;
+            }
         }
+
+        nb_days_covered++;
+        current_date += 24 * 60 * 60; // Increment the date by one day
+    }
+
+    if (nb_days_covered > all_dates.size())
+    {
+        std::cerr << "Error: Number of days covered by the trades is greater than the total number of days: " << nb_days_covered << " > " << all_dates.size() << std::endl;
+        std::exit(1);
     }
 
     // Calculate the ratio of days the strategy covered by the trades
-    double ratio_days_strategy = static_cast<double>(nb_days_covered) / static_cast<double>(all_dates.size());
+    double ratio_days_covered = static_cast<double>(nb_days_covered) / static_cast<double>(all_dates.size());
+    this->fitness_details["ratio_days_covered"] = std::to_string(decimal_floor(ratio_days_covered, 2));
 
-    this->fitness *= ratio_days_strategy;
+    // ***************** FINAL FITNESS ***************** //
+
+    this->fitness *= ratio_days_covered;
     this->fitness /= eval_coefficient;
 }
 
@@ -840,7 +900,6 @@ void Trader::open_position_by_market(double price, double size, OrderSide side)
         this->stats.total_long_trades++;
         this->balance -= fees;
         this->duration_in_position = 0;
-        this->duration_without_trade = 0;
         this->current_position = new Position{
             .side = PositionSide::LONG,
             .size = size,
@@ -868,7 +927,6 @@ void Trader::open_position_by_market(double price, double size, OrderSide side)
         this->stats.total_short_trades++;
         this->balance -= fees;
         this->duration_in_position = 0;
-        this->duration_without_trade = 0;
         this->current_position = new Position{
             .side = PositionSide::SHORT,
             .size = size,
@@ -934,7 +992,6 @@ void Trader::close_position_by_market(double price)
 
         this->current_position = nullptr;
         this->duration_without_trade = 0;
-        this->duration_in_position = 0;
         this->nb_trades_today++;
         this->close_open_orders();
     }
@@ -979,7 +1036,6 @@ void Trader::close_position_by_limit(double price)
 
         this->current_position = nullptr;
         this->duration_without_trade = 0;
-        this->duration_in_position = 0;
         this->nb_trades_today++;
         this->close_open_orders();
     }
@@ -1252,6 +1308,19 @@ void Trader::update_trailing_stop_loss()
 void Trader::print_stats_to_console()
 {
     this->stats.print();
+}
+
+/**
+ * @brief Print the fitness details of the trader in the console.
+ */
+void Trader::print_fitness_details_to_console()
+{
+    std::string details = std::string("🔎 Fitness details: ");
+    for (const auto &[key, value] : this->fitness_details)
+    {
+        details += key + "=" + value + ", ";
+    }
+    std::cout << details << std::endl;
 }
 
 /**

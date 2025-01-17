@@ -72,6 +72,17 @@ protected:
     }
 };
 
+TEST_F(TradingScheduleTest, TestGetDaySchedule)
+{
+    ASSERT_EQ(get_day_schedule(0, schedule), schedule.sunday);
+    ASSERT_EQ(get_day_schedule(1, schedule), schedule.monday);
+    ASSERT_EQ(get_day_schedule(2, schedule), schedule.tuesday);
+    ASSERT_EQ(get_day_schedule(3, schedule), schedule.wednesday);
+    ASSERT_EQ(get_day_schedule(4, schedule), schedule.thursday);
+    ASSERT_EQ(get_day_schedule(5, schedule), schedule.friday);
+    ASSERT_EQ(get_day_schedule(6, schedule), schedule.saturday);
+}
+
 // Test case for is_on_trading_schedule function
 TEST_F(TradingScheduleTest, TestIsOnTradingSchedule)
 {
@@ -138,4 +149,15 @@ TEST_F(TradingScheduleTest, TestIsOnTradingSchedule)
     date.tm_min = 0;
     date.tm_sec = 0;
     ASSERT_TRUE(is_on_trading_schedule(std::mktime(&date), schedule));
+}
+
+TEST_F(TradingScheduleTest, TestHasSessionForDay)
+{
+    ASSERT_FALSE(has_session_for_day(0, schedule));
+    ASSERT_TRUE(has_session_for_day(1, schedule));
+    ASSERT_TRUE(has_session_for_day(2, schedule));
+    ASSERT_TRUE(has_session_for_day(3, schedule));
+    ASSERT_TRUE(has_session_for_day(4, schedule));
+    ASSERT_TRUE(has_session_for_day(5, schedule));
+    ASSERT_FALSE(has_session_for_day(6, schedule));
 }

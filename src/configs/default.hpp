@@ -5,17 +5,18 @@
 #include "../trading/schedule.hpp"
 #include "../neat/config.hpp"
 
+std::vector<bool> default_schedule_days = {true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true};
 std::vector<bool> default_schedule_working_days = {false, false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false};
 std::vector<bool> default_schedule_rest_days = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
 
 TradingSchedule default_schedule = {
-    .monday = default_schedule_working_days,
-    .tuesday = default_schedule_working_days,
-    .wednesday = default_schedule_working_days,
-    .thursday = default_schedule_working_days,
-    .friday = default_schedule_working_days,
-    .saturday = default_schedule_rest_days,
-    .sunday = default_schedule_rest_days,
+    .monday = default_schedule_days,
+    .tuesday = default_schedule_days,
+    .wednesday = default_schedule_days,
+    .thursday = default_schedule_days,
+    .friday = default_schedule_days,
+    .saturday = default_schedule_days,
+    .sunday = default_schedule_days,
 };
 
 TakeProfitStopLossConfig default_tpsl_config = {

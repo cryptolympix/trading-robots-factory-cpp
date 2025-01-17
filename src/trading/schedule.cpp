@@ -8,17 +8,14 @@
 #include "schedule.hpp"
 
 /**
- * @brief Check if the given date and time are within the specified trading schedule.
+ * @brief Get the schedule for the given day.
  *
- * @param date The date and time to be checked against the trading schedule.
+ * @param day The day of the week (0 = Sunday, 1 = Monday, ..., 6 = Saturday).
  * @param trading_schedule The trading schedule for each day of the week.
- * @return True if the provided date and time are within the trading schedule; False otherwise.
+ * @return The schedule for the given day.
  */
-bool is_on_trading_schedule(const time_t date, const TradingSchedule &trading_schedule)
+std::vector<bool> get_day_schedule(const int day, const TradingSchedule &trading_schedule)
 {
-    std::tm date_tm = time_t_to_tm(date);
-    int day = date_tm.tm_wday;
-
     std::vector<bool> day_schedule;
     switch (day)
     {
@@ -48,5 +45,39 @@ bool is_on_trading_schedule(const time_t date, const TradingSchedule &trading_sc
         break;
     }
 
+    return day_schedule;
+}
+
+/**
+ * @brief Check if the given date and time are within the specified trading schedule.
+ *
+ * @param date The date and time to be checked against the trading schedule.
+ * @param trading_schedule The trading schedule for each day of the week.
+ * @return True if the provided date and time are within the trading schedule; False otherwise.
+ */
+bool is_on_trading_schedule(const time_t date, const TradingSchedule &trading_schedule)
+{
+    std::tm date_tm = time_t_to_tm(date);
+    int day = date_tm.tm_wday;
+    std::vector<bool> day_schedule = get_day_schedule(day, trading_schedule);
     return day_schedule[date_tm.tm_hour];
+}
+
+/**
+ * @brief Check if there is at least an hour of trading session for the given day.
+ * @param trading_schedule The trading schedule for each day of the week.
+ * @return True if there is at least an hour of trading session for the given day; False otherwise.
+ */
+bool has_session_for_day(const int day, const TradingSchedule &trading_schedule)
+{
+    std::vector<bool> day_schedule = get_day_schedule(day, trading_schedule);
+
+    for (int i = 0; i < 24; i++)
+    {
+        if (day_schedule[i])
+        {
+            return true;
+        }
+    }
+    return false;
 }

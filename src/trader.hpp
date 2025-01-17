@@ -2,6 +2,8 @@
 #define TRADER_HPP
 
 #include <ctime>
+#include <vector>
+#include <unordered_map>
 #include "libs/json.hpp"
 #include "neat/genome.hpp"
 #include "utils/logger.hpp"
@@ -44,6 +46,9 @@ public:
     // Statistics of the trader
     Stats stats;
 
+    // Fitness evaluation details
+    std::unordered_map<std::string, std::string> fitness_details;
+
     // Logger
     Logger *logger;
 
@@ -74,7 +79,19 @@ public:
     void think();
 
     /**
-     * @brief Update the trader according to the outputs from the neural network.
+     * @brief Update the trader.
+     * - Detect a new day and reset the number of trades made today.
+     * - Update the current date and candles.
+     * - Increment the position duration.
+     * - Update the position PNL.
+     * - Update the trailing stop loss.
+     * - Check open orders.
+     * - Check position liquidation.
+     * - Close the trade before a rest day.
+     * - Update the lifespan.
+     * - Check if the trader is bad or inactive.
+     * - Update the balance history.
+     *
      * @param candles Candle data for all time frames.
      */
     void update(CandlesData &candles);
@@ -165,6 +182,11 @@ public:
      * @brief Print the statistics of the trader in the console.
      */
     void print_stats_to_console();
+
+    /**
+     * @brief Print the fitness details of the trader in the console.
+     */
+    void print_fitness_details_to_console();
 
     /**
      * @brief Converts the trader to a JSON object.

@@ -13,7 +13,7 @@
 #include "time_frame.hpp"
 #include "read_data.hpp"
 
-// Supported columns in the CSV file
+// Headers columns in the CSV file
 std::vector<std::string> columns_names = {"Time", "Open", "High", "Low", "Close", "Volume", "Spread"};
 
 /**
@@ -175,6 +175,11 @@ std::vector<Candle> read_data(const std::string &symbol, TimeFrame time_frame, t
             else if (columns[i] == "Spread")
             {
                 candle.spread = std::stod(token);
+            }
+            else
+            {
+                std::cerr << "Invalid column when reading data: " << columns[i] << std::endl;
+                std::exit(1);
             }
         }
 
