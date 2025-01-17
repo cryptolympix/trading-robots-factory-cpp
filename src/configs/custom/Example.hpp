@@ -30,7 +30,7 @@ std::tm start_training_date = {
     .tm_hour = 0,
     .tm_mday = 1,
     .tm_mon = 0,
-    .tm_year = 2020 - 1900,
+    .tm_year = 2010 - 1900,
 };
 
 std::tm end_training_date = {

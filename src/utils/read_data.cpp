@@ -156,7 +156,7 @@ std::vector<Candle> read_data(const std::string &symbol, TimeFrame time_frame, t
             {
                 candle.open = std::stod(token);
             }
-            else if (columns[i] == "Hight")
+            else if (columns[i] == "High")
             {
                 candle.high = std::stod(token);
             }

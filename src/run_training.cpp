@@ -7,7 +7,7 @@ int main(int argc, char *argv[])
 {
     if (argc < 3)
     {
-        std::cerr << "Usage: " << argv[0] << " <id> <config_file_path>" << std::endl;
+        std::cerr << "Usage: " << argv[0] << " <id> <config_file_path> [--debug]" << std::endl;
         return 1;
     }
 
@@ -21,7 +21,10 @@ int main(int argc, char *argv[])
         config_file_path = config_file_path.substr(1, config_file_path.size() - 2);
     }
 
-    Training training(id, config_file_path, true);
+    // Check for the debug flag.
+    bool debug = (argc > 3 && std::string(argv[3]) == "--debug");
+
+    Training training(id, config_file_path, debug);
     training.prepare();
     training.run();
     return 0;

@@ -41,6 +41,13 @@ Training::Training(std::string id, std::filesystem::path config_file_path, bool 
     this->id = id;
     this->debug = debug;
 
+    std::cout << "🚀 Start the training process with the id '" << id << "'" << std::endl;
+
+    if (this->debug)
+    {
+        std::cout << "🐞 Debug mode is enabled." << std::endl;
+    }
+
     // Create the directory
     this->directory = "reports/" + id;
     if (!std::filesystem::exists(this->directory))
@@ -711,6 +718,11 @@ int Training::run()
             this->best_trader->generate_report(report_file, this->config.training.training_start_date, this->config.training.training_end_date);
             std::cout << "📊 Trader report generated at '" << report_file << "'" << std::endl;
             this->generate_fitness_report(this->fitness_report_file);
+
+            if (this->debug)
+            {
+                std::cout << "📃 Trader log generated at '" << this->directory.generic_string() + "/logs/training/trader_" + this->best_trader->genome->id + ".log" << "'" << std::endl;
+            }
 
             // The training of generation is finished
             std::cout << "✅ Training of generation " << this->current_generation << " finished!" << std::endl;

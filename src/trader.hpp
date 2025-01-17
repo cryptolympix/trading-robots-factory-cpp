@@ -192,6 +192,25 @@ public:
      * @param end_date End date of the report.
      */
     void generate_report(const std::string &filename, time_t start_date, time_t end_date);
+
+private:
+    /**
+     * @brief Display the common log header.
+     * @return String representation of the log header.
+     */
+    std::string log_header();
+
+    /**
+     * @brief Display the current position.
+     * @return String representation of the current position.
+     */
+    std::string current_position_to_string();
+
+    /**
+     * @brief Display the open orders.
+     * @return String representation of the open orders.
+     */
+    std::string open_orders_to_string();
 };
 
 #endif // TRADER_HPP

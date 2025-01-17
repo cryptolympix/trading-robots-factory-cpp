@@ -52,7 +52,7 @@
      g++ -std=c++17 -o generate_json_configs -I/opt/homebrew/Cellar/boost/1.85.0/include src/generate_json_configs.cpp src/symbols.cpp src/configs/*.cpp src/indicators/*.cpp src/neat/*.cpp src/trading/*.cpp src/utils/*.cpp -L/opt/homebrew/lib -lboost_iostreams
      ```
 
-3. **Generate the JSON Configuration Files**
+4. **Generate the JSON Configuration Files**
 
    - Run the command:
 
@@ -70,6 +70,12 @@
 
   ```bash
   ./run_training <id> ./configs/<strategy_configuration_file>
+  ```
+
+- You can use the debug mode to generate logs for the traders of each generation during the training process.
+
+  ```bash
+  ./run_training <id> ./configs/<strategy_configuration_file> --debug
   ```
 
 ## Configuring Your Strategy

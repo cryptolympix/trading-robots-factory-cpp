@@ -162,6 +162,10 @@ void Trader::look(IndicatorsData &indicators_data, double base_currency_conversi
     inputs.insert(inputs.end(), position_info.begin(), position_info.end());
 
     this->vision = inputs;
+    if (this->logger != nullptr)
+    {
+        this->logger->info(this->log_header() + "Looking at the market.");
+    }
 }
 
 /**
@@ -170,6 +174,10 @@ void Trader::look(IndicatorsData &indicators_data, double base_currency_conversi
 void Trader::think()
 {
     this->decisions = this->genome->feed_forward(this->vision);
+    if (this->logger != nullptr)
+    {
+        this->logger->info(this->log_header() + "Thinking about the market.");
+    }
 }
 
 /**
@@ -211,6 +219,11 @@ void Trader::update(CandlesData &candles)
     // Update the current date
     this->current_date = this->candles[this->config.strategy.timeframe].back().date;
 
+    if (this->logger != nullptr)
+    {
+        this->logger->info(this->log_header() + "Updating the trader.");
+    }
+
     // Increment the position duration
     if (this->current_position != nullptr)
     {
@@ -234,6 +247,10 @@ void Trader::update(CandlesData &candles)
         if (this->duration_in_position >= config.strategy.maximum_trade_duration.value())
         {
             this->close_position_by_market();
+            if (this->logger != nullptr)
+            {
+                this->logger->info(this->log_header() + "Closed the position because it reached the maximum trade duration.");
+            }
         }
     }
 
@@ -243,6 +260,10 @@ void Trader::update(CandlesData &candles)
     if (next_date_tm.tm_wday == 6 && this->current_position != nullptr)
     {
         this->close_position_by_market();
+        if (this->logger != nullptr)
+        {
+            this->logger->info(this->log_header() + "Closed the position before the weekend.");
+        }
     }
 
     // Update the lifespan
@@ -262,11 +283,11 @@ void Trader::update(CandlesData &candles)
         {
             if (bad_trader)
             {
-                this->logger->info("[" + time_t_to_string(this->current_date) + "] [" + std::to_string(this->balance) + "] Killed because of bad performance.");
+                this->logger->info(this->log_header() + "Killed because of bad performance.");
             }
             else if (inactive_trader)
             {
-                this->logger->info("[" + time_t_to_string(this->current_date) + "] [" + std::to_string(this->balance) + "] Killed because of inactivity.");
+                this->logger->info(this->log_header() + "Killed because of inactivity.");
             }
         }
 
@@ -275,6 +296,18 @@ void Trader::update(CandlesData &candles)
 
     // Record the balance to history
     this->balance_history.push_back(this->balance);
+
+    if (this->logger != nullptr)
+    {
+        if (this->current_position != nullptr)
+        {
+            this->logger->info(this->log_header() + "Position: " + this->current_position_to_string());
+        }
+        if (this->open_orders.size() > 0)
+        {
+            this->logger->info(this->log_header() + "Open orders: " + this->open_orders_to_string());
+        }
+    }
 }
 
 /**
@@ -807,6 +840,7 @@ void Trader::open_position_by_market(double price, double size, OrderSide side)
         this->stats.total_long_trades++;
         this->balance -= fees;
         this->duration_in_position = 0;
+        this->duration_without_trade = 0;
         this->current_position = new Position{
             .side = PositionSide::LONG,
             .size = size,
@@ -825,7 +859,7 @@ void Trader::open_position_by_market(double price, double size, OrderSide side)
 
         if (this->logger != nullptr)
         {
-            this->logger->info("[" + time_t_to_string(this->current_date) + "] [" + std::to_string(balance) + "] : Open long position by market at " + std::to_string(price) + " with " + std::to_string(size) + " lots and " + std::to_string(fees) + " of fees.");
+            this->logger->info(this->log_header() + "Open long position by market at " + std::to_string(price) + " with " + std::to_string(size) + " lots and " + std::to_string(fees) + " of fees.");
         }
     }
     else if (side == OrderSide::SHORT)
@@ -834,6 +868,7 @@ void Trader::open_position_by_market(double price, double size, OrderSide side)
         this->stats.total_short_trades++;
         this->balance -= fees;
         this->duration_in_position = 0;
+        this->duration_without_trade = 0;
         this->current_position = new Position{
             .side = PositionSide::SHORT,
             .size = size,
@@ -852,7 +887,7 @@ void Trader::open_position_by_market(double price, double size, OrderSide side)
 
         if (this->logger != nullptr)
         {
-            this->logger->info("[" + time_t_to_string(this->current_date) + "] [" + std::to_string(balance) + "] : Open short position by market at " + std::to_string(price) + " with " + std::to_string(size) + " lots and " + std::to_string(fees) + " of fees.");
+            this->logger->info(this->log_header() + "Open short position by market at " + std::to_string(price) + " with " + std::to_string(size) + " lots and " + std::to_string(fees) + " of fees.");
         }
     }
 }
@@ -894,11 +929,12 @@ void Trader::close_position_by_market(double price)
 
         if (this->logger != nullptr)
         {
-            this->logger->info("[" + time_t_to_string(this->current_date) + "] [" + std::to_string(this->balance) + "] : Close position by market at " + std::to_string(price) + " with " + std::to_string(this->current_position->pnl) + " of profit and " + std::to_string(fees) + " of fees.");
+            this->logger->info(this->log_header() + "Close position by market at " + std::to_string(price) + " with " + std::to_string(this->current_position->pnl) + " of profit and " + std::to_string(fees) + " of fees.");
         }
 
         this->current_position = nullptr;
         this->duration_without_trade = 0;
+        this->duration_in_position = 0;
         this->nb_trades_today++;
         this->close_open_orders();
     }
@@ -938,11 +974,12 @@ void Trader::close_position_by_limit(double price)
 
         if (this->logger != nullptr)
         {
-            this->logger->info("[" + time_t_to_string(this->current_date) + "] [" + std::to_string(this->balance) + "] : Close position by limit at " + std::to_string(price) + " with " + std::to_string(this->current_position->pnl) + " of profit and " + std::to_string(fees) + " of fees.");
+            this->logger->info(this->log_header() + "Close position by limit at " + std::to_string(price) + " with " + std::to_string(this->current_position->pnl) + " of profit and " + std::to_string(fees) + " of fees.");
         }
 
         this->current_position = nullptr;
         this->duration_without_trade = 0;
+        this->duration_in_position = 0;
         this->nb_trades_today++;
         this->close_open_orders();
     }
@@ -966,7 +1003,7 @@ void Trader::create_open_order(OrderType type, OrderSide side, double price)
     {
         std::string order_type = type == OrderType::TAKE_PROFIT ? "take profit" : "stop loss";
         std::string order_side = side == OrderSide::LONG ? "long" : "short";
-        this->logger->info("[" + time_t_to_string(this->current_date) + "] [" + std::to_string(this->balance) + "] : Create " + order_type + " order at " + std::to_string(price) + " for " + order_side + " position.");
+        this->logger->info(this->log_header() + "Create " + order_type + " order at " + std::to_string(price) + " for " + order_side + " position.");
     }
 }
 
@@ -1002,10 +1039,18 @@ void Trader::check_open_orders()
                 {
                     if (short_orders[i].type == OrderType::TAKE_PROFIT && last_candle.high >= short_orders[i].price)
                     {
+                        if (this->logger != nullptr)
+                        {
+                            this->logger->info(this->log_header() + "Take profit order at " + std::to_string(short_orders[i].price) + " activated.");
+                        }
                         this->close_position_by_limit(short_orders[i].price);
                     }
                     if (short_orders[i].type == OrderType::STOP_LOSS && last_candle.low <= short_orders[i].price)
                     {
+                        if (this->logger != nullptr)
+                        {
+                            this->logger->info(this->log_header() + "Stop loss order at " + std::to_string(short_orders[i].price) + " activated.");
+                        }
                         this->close_position_by_market(short_orders[i].price);
                     }
                 }
@@ -1016,10 +1061,18 @@ void Trader::check_open_orders()
                 {
                     if (long_orders[i].type == OrderType::TAKE_PROFIT && last_candle.low <= long_orders[i].price)
                     {
+                        if (this->logger != nullptr)
+                        {
+                            this->logger->info(this->log_header() + "Take profit order at " + std::to_string(long_orders[i].price) + " activated.");
+                        }
                         this->close_position_by_limit(long_orders[i].price);
                     }
                     if (long_orders[i].type == OrderType::STOP_LOSS && last_candle.high >= long_orders[i].price)
                     {
+                        if (this->logger != nullptr)
+                        {
+                            this->logger->info(this->log_header() + "Stop loss order at " + std::to_string(long_orders[i].price) + " activated.");
+                        }
                         this->close_position_by_market(long_orders[i].price);
                     }
                 }
@@ -1034,6 +1087,10 @@ void Trader::check_open_orders()
 void Trader::close_open_orders()
 {
     this->open_orders.clear();
+    if (this->logger != nullptr)
+    {
+        this->logger->info(this->log_header() + "Close all open orders.");
+    }
 }
 
 /**
@@ -1050,6 +1107,10 @@ void Trader::check_position_liquidation()
         {
             if (current_price <= liquidation_price)
             {
+                if (this->logger != nullptr)
+                {
+                    this->logger->info(this->log_header() + "Position liquidated at " + std::to_string(liquidation_price) + ".");
+                }
                 this->close_position_by_market(liquidation_price);
                 this->close_open_orders();
             }
@@ -1058,6 +1119,10 @@ void Trader::check_position_liquidation()
         {
             if (current_price >= liquidation_price)
             {
+                if (this->logger != nullptr)
+                {
+                    this->logger->info(this->log_header() + "Position liquidated at " + std::to_string(liquidation_price) + ".");
+                }
                 this->close_position_by_market(liquidation_price);
                 this->close_open_orders();
             }
@@ -1770,4 +1835,58 @@ void Trader::generate_report(const std::string &filename, time_t start_date, tim
 
     // Close the file
     file.close();
+}
+
+/**
+ * @brief Display the common log header.
+ * @return String representation of the log header.
+ */
+std::string Trader::log_header()
+{
+    std::string date_part = std::string("[") + time_t_to_string(this->current_date) + "]";
+    std::string balance_part = std::string("[") + std::to_string(this->balance) + "]";
+    std::string duration_part = std::string("[") + std::to_string(this->duration_without_trade) + "," + std::to_string(this->duration_in_position) + "]";
+
+    return date_part + " " + balance_part + " " + duration_part + " ";
+}
+
+/**
+ * @brief Display the current position.
+ * @return String representation of the current position.
+ */
+std::string Trader::current_position_to_string()
+{
+    if (this->current_position != nullptr)
+    {
+        return std::string("{ ") +
+               (this->current_position->side == PositionSide::LONG ? "LONG" : "SHORT") +
+               " - Size: " + std::to_string(this->current_position->size) +
+               " - Entry price: " + std::to_string(this->current_position->entry_price) +
+               " - PNL: " + std::to_string(this->current_position->pnl) +
+               " }";
+    }
+    return std::string("{}"); // Return an empty representation if current_position is null
+}
+
+/**
+ * @brief Display the open orders.
+ * @return String representation of the open orders.
+ */
+std::string Trader::open_orders_to_string()
+{
+    if (this->open_orders.size() > 0)
+    {
+        std::string open_orders_str = "";
+        for (const auto &order : this->open_orders)
+        {
+            open_orders_str += std::string("{ ") +
+                               (order.side == OrderSide::LONG ? "LONG" : "SHORT") +
+                               " - " +
+                               (order.type == OrderType::TAKE_PROFIT ? "TAKE PROFIT" : "STOP LOSS") +
+                               " - Price: " + std::to_string(order.price) +
+                               " } ";
+        }
+        return open_orders_str;
+    }
+    return std::string("{}"); // Return an empty representation if there are no open orders
 }
