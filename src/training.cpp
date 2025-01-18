@@ -729,7 +729,12 @@ int Training::run()
 
             // Display the fitness of the best trader
             std::cout << "🧬 Fitness of the best trader: " << this->best_trader->fitness << std::endl;
-            this->best_trader->print_fitness_details_to_console();
+
+            if (this->debug)
+            {
+                // Print the fitness details of the best trader
+                this->best_trader->print_fitness_details_to_console();
+            }
 
             // Test the trader on a the testing period
             this->test(this->best_trader->genome, this->current_generation);

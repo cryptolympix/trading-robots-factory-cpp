@@ -556,10 +556,9 @@ void Trader::calculate_fitness()
 
     if (goals.maximize_nb_trades.value_or(false))
     {
-        int nb_candles_per_day = 24 * 60 / get_time_frame_in_minutes(this->config.strategy.timeframe);
-        int maximum_nb_trades = all_dates.size() * nb_candles_per_day / 2;
-        double diff = std::max(0, (int)closed_trades.size() - maximum_nb_trades);
-        double normalized_diff = diff / maximum_nb_trades;
+        int max_nb_trades = this->config.strategy.maximum_trades_per_day.value() * all_dates.size();
+        double diff = std::max(0, (int)closed_trades.size() - max_nb_trades);
+        double normalized_diff = diff / max_nb_trades;
         maximum_nb_trades_eval = maximum_nb_trades_weight / std::exp(10 * normalized_diff);
     }
 
@@ -583,8 +582,7 @@ void Trader::calculate_fitness()
     if (goals.maximum_drawdown.has_value())
     {
         double diff = std::max(0.0, stats.max_drawdown - goals.maximum_drawdown.value());
-        double normalized_diff = diff / goals.maximum_drawdown.value();
-        max_drawdown_eval = max_drawdown_weight / std::exp(10 * normalized_diff);
+        max_drawdown_eval = max_drawdown_weight / std::exp(10 * diff);
     }
 
     if (goals.minimum_profit_factor.has_value())
