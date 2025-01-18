@@ -857,6 +857,7 @@ void Trader::calculate_fitness()
 
     // ***************** FINAL FITNESS ***************** //
 
+    this->fitness *= this->score;
     this->fitness *= ratio_days_covered;
     this->fitness /= eval_coefficient;
 }
