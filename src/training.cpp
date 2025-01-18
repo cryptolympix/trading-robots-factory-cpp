@@ -58,7 +58,7 @@ Training::Training(std::string id, std::filesystem::path config_file_path, bool 
 
     // Set the file paths
     this->config_file_path = config_file_path;
-    this->cache_file = "cache/data_" + id + ".json";
+    this->cache_file = "./cache/data_" + id + ".json";
     this->fitness_report_file = this->directory.generic_string() + "/fitness_report.png";
     this->population_save_file = this->directory.generic_string() + "/population_save.json";
     this->training_save_file = this->directory.generic_string() + "/training_save.json";
@@ -183,7 +183,7 @@ void Training::prepare()
 
     if (this->cache->exist())
     {
-        std::cout << "⏳ Import the data from the cache..." << std::endl;
+        std::cout << "⏳ Import the data from '" << this->cache_file.generic_string() << "'" << std::endl;
         this->cache = Cache::load(this->cache_file.generic_string());
 
         // Save the dates for the training and test periods
