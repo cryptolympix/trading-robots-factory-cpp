@@ -24,42 +24,6 @@
 #include "../../indicators/volume.hpp"
 #include "../../indicators/volume_signals.hpp"
 
-std::tm start_training_date = {
-    .tm_sec = 0,
-    .tm_min = 0,
-    .tm_hour = 0,
-    .tm_mday = 1,
-    .tm_mon = 0,
-    .tm_year = 2020 - 1900,
-};
-
-std::tm end_training_date = {
-    .tm_sec = 0,
-    .tm_min = 0,
-    .tm_hour = 0,
-    .tm_mday = 31,
-    .tm_mon = 11,
-    .tm_year = 2023 - 1900,
-};
-
-std::tm start_test_date = {
-    .tm_sec = 0,
-    .tm_min = 0,
-    .tm_hour = 0,
-    .tm_mday = 1,
-    .tm_mon = 0,
-    .tm_year = 2024 - 1900,
-};
-
-std::tm end_test_date = {
-    .tm_sec = 0,
-    .tm_min = 0,
-    .tm_hour = 0,
-    .tm_mday = 1,
-    .tm_mon = 0,
-    .tm_year = 2025 - 1900,
-};
-
 Config Example = {
     .general{
         .name = "Example",
@@ -84,10 +48,38 @@ Config Example = {
         .generations = 1000,
         .bad_trader_threshold = 0.3, // If the trader loose more than 50% of its initial balance, it's a bad trader
         .inactive_trader_threshold = 200,
-        .training_start_date = std::mktime(&start_training_date),
-        .training_end_date = std::mktime(&end_training_date),
-        .test_start_date = std::mktime(&start_test_date),
-        .test_end_date = std::mktime(&end_test_date),
+        .training_start_date = std::mktime(new std::tm({
+            .tm_sec = 0,
+            .tm_min = 0,
+            .tm_hour = 0,
+            .tm_mday = 1,
+            .tm_mon = 0,
+            .tm_year = 2020 - 1900,
+        })),
+        .training_end_date = std::mktime(new std::tm({
+            .tm_sec = 0,
+            .tm_min = 0,
+            .tm_hour = 0,
+            .tm_mday = 1,
+            .tm_mon = 0,
+            .tm_year = 2024 - 1900,
+        })),
+        .test_start_date = std::mktime(new std::tm({
+            .tm_sec = 0,
+            .tm_min = 0,
+            .tm_hour = 0,
+            .tm_mday = 1,
+            .tm_mon = 0,
+            .tm_year = 2024 - 1900,
+        })),
+        .test_end_date = std::mktime(new std::tm({
+            .tm_sec = 0,
+            .tm_min = 0,
+            .tm_hour = 0,
+            .tm_mday = 1,
+            .tm_mon = 0,
+            .tm_year = 2025 - 1900,
+        })),
         .inputs = {
             .indicators = {
                 {
@@ -97,16 +89,6 @@ Config Example = {
                         new MarketSession("new-york"),
                         new MarketSession("london"),
                         new MarketSession("tokyo"),
-                        new CandleVolume(0),
-                        new CandleVolume(1),
-                        new CandleVolume(2),
-                        new CandleVolume(3),
-                        new CandleVolume(4),
-                        new CandleVolume(5),
-                        new CandleVolume(6),
-                        new CandleVolume(7),
-                        new CandleVolume(8),
-                        new CandleVolume(9),
                         new CandlePriceChange(0),
                         new CandlePriceChange(1),
                         new CandlePriceChange(2),
@@ -162,21 +144,12 @@ Config Example = {
                         new LowBreakSignal(20),
                         new NewHighSignal(20),
                         new NewLowSignal(20),
+
                     },
                 },
                 {
                     TimeFrame::H4,
                     {
-                        new CandleVolume(0),
-                        new CandleVolume(1),
-                        new CandleVolume(2),
-                        new CandleVolume(3),
-                        new CandleVolume(4),
-                        new CandleVolume(5),
-                        new CandleVolume(6),
-                        new CandleVolume(7),
-                        new CandleVolume(8),
-                        new CandleVolume(9),
                         new CandlePriceChange(0),
                         new CandlePriceChange(1),
                         new CandlePriceChange(2),

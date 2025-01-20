@@ -7,11 +7,12 @@
 #include "../neat/config.hpp"
 
 // ========= Configs ========= //
-#include "./custom/Example.hpp"
+// #include "./custom/Example.hpp"
+#include "./custom/Forex.hpp"
 // ============================ //
 
 std::vector<Config> configs = {
-    Example,
+    Forex,
 };
 
 #endif // CONFIG_LIST_HPP
